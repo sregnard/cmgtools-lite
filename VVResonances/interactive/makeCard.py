@@ -23,7 +23,7 @@ for category in ['nob']:
 
             #WW signal-MVV
             if options.signalType=='XWW':
-                card.addMVVSignalParametricShape("XWW_MVV","MLNuJ","LNuJJ_XWW_MVV_"+lepton+".json",{'CMS_scale_j':1,'CMS_scale_MET':1.0},{'CMS_res_j':1.0,'CMS_res_MET':1.0})
+                card.addMVVSignalParametricShape("XWW_MVV","MLNuJ","LNuJJ_XWW_MVV_"+lepton+".json",{'CMS_scale_j':1,'CMS_scale_MET':1.0,'CMS_scale_'+lepton:1.0},{'CMS_res_j':1.0,'CMS_res_MET':1.0})
                 if purity=='LP':
                     card.addMJJSignalParametricShape("Wqq","MJ","LNuJJ_XWW_MJJ_"+purity+".json",{'CMS_scale_prunedj':1},{'CMS_res_prunedj':1.0})
                 else:
@@ -32,7 +32,7 @@ for category in ['nob']:
 
             #WZ signal-MVV
             elif options.signalType=='XWZ':
-                card.addMVVSignalParametricShape("XWZ_MVV","MLNuJ","LNuJJ_XWZ_MVV_"+lepton+".json",{'CMS_scale_j':1,'CMS_scale_MET':1.0},{'CMS_res_j':1.0,'CMS_res_MET':1.0})
+                card.addMVVSignalParametricShape("XWZ_MVV","MLNuJ","LNuJJ_XWZ_MVV_"+lepton+".json",{'CMS_scale_j':1,'CMS_scale_MET':1.0,'CMS_scale_'+lepton:1.0},{'CMS_res_j':1.0,'CMS_res_MET':1.0})
                 if purity=='LP':
                     card.addMJJSignalParametricShape("Zqq","MJ","LNuJJ_XWZ_MJJ_"+purity+".json",{'CMS_scale_prunedj':1},{'CMS_res_prunedj':1.0})
                 else:
@@ -41,7 +41,7 @@ for category in ['nob']:
 
             ##WH signal-MVV
             #elif options.signalType=='XWH':
-            #    card.addMVVSignalParametricShape("XWH_MVV","MLNuJ","LNuJJ_XWH_MVV_"+lepton+".json",{'CMS_scale_j':1,'CMS_scale_MET':1.0},{'CMS_res_j':1.0,'CMS_res_MET':1.0})
+            #    card.addMVVSignalParametricShape("XWH_MVV","MLNuJ","LNuJJ_XWH_MVV_"+lepton+".json",{'CMS_scale_j':1,'CMS_scale_MET':1.0,'CMS_scale_'+lepton:1.0},{'CMS_res_j':1.0,'CMS_res_MET':1.0})
             #    if purity=='LP':
             #        card.addMJJSignalParametricShape("Hqq","MJ","LNuJJ_XWH_MJJ_"+purity+".json",{'CMS_scale_prunedj':1},{'CMS_res_prunedj':1.0})
             #    else:
@@ -154,6 +154,11 @@ for category in ['nob']:
 
             card.addSystematic("CMS_VV_LNuJ_resW_PT_"+resWTag,"param",[0.0,0.333])
             card.addSystematic("CMS_VV_LNuJ_resW_OPT_"+resWTag,"param",[0.0,0.333])
+
+            if lepton=='e':
+                card.addSystematic("CMS_scale_e","param",[0.0,0.005])
+            elif lepton=='mu':
+                card.addSystematic("CMS_scale_mu","param",[0.0,0.003])
 
 
 
