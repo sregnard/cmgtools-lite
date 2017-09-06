@@ -1,14 +1,14 @@
 import ROOT as rt
 
 class CMSPlotLabel:
-    def __init__(self,text='CMS',extraText='Preliminary',lumiPeriods={'2015':{'lumi':'2.6 fb^{-1}','energy':'13 TeV'},'2016':{'lumi':'35.9 fb^{-1}','energy':'13 TeV'}}):
+    def __init__(self,text='CMS',extraText='Preliminary',lumiPeriods={'2015':{'lumi':'2.6 fb^{-1} ','energy':'13 TeV'},'2016':{'lumi':'35.9 fb^{-1} ','energy':'13 TeV'}}):
         self.cmsText=text
         self.cmsTextFont=61
         self.extraText=extraText
         self.extraTextFont=52
-        self.lumiTextSize=0.4
+        self.lumiTextSize=0.6
         self.lumiTextOffset=0.2
-        self.cmsTextSize=0.6
+        self.cmsTextSize=0.8
         self.cmsTextOffset=0.1
         
         self.relPosX    = 0.045
@@ -19,8 +19,7 @@ class CMSPlotLabel:
         self.periods=lumiPeriods
         self.drawLogo=False
 
-        if extraText!='':
-            self.writeExtraText=1
+        self.writeExtraText=(extraText!='')
 
     def __call__(self,pad,iPeriod,iPosX):    
         outOfFrame    = False
@@ -122,7 +121,8 @@ class CMSPlotLabel:
 cmslabel_prelim=CMSPlotLabel("CMS","Preliminary")
 cmslabel_int=CMSPlotLabel("CMS","Internal")
 cmslabel_sim=CMSPlotLabel("CMS","Simulation")
-cmslabel_final=CMSPlotLabel("CMS")
+cmslabel_final=CMSPlotLabel("CMS","")
+cmslabel_not=CMSPlotLabel("")
 
 
 
