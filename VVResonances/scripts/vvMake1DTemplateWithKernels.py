@@ -91,7 +91,8 @@ def smoothTail(hist):
     if hist.Integral()==0:
         print "Well we have  0 integrl for the hist ",hist.GetName()
         return
-    expo=ROOT.TF1("func","expo",0,5000)
+
+#    expo=ROOT.TF1("func","expo",0,5000)
 #    expo=ROOT.TF1("expo","[0]*((1-x/13000.0)^[1])/(x/13000.0)^([2]+[3]*log(x))",1000,8000)
 #    expo.SetParameters(1,1,1,0)
 #    expo.SetParLimits(0,0,1)
@@ -99,16 +100,16 @@ def smoothTail(hist):
 #    expo.SetParLimits(2,0.1,100)
 #    expo.SetParLimits(3,0.0,20)
 
+    expo=ROOT.TF1("func","{Y}*exp([0]*(x-{X}))".format(X=hist.GetBinCenter(bin_1200),Y=hist.GetBinContent(bin_1200)),0,8000)
 
     for j in range(1,hist.GetNbinsX()+1):
         if hist.GetBinContent(j)/hist.Integral()<0.0005:
             hist.SetBinError(j,1.8)
 
-    hist.Fit(expo,"","",2000,8000)
-    hist.Fit(expo,"","",2000,8000)
+    hist.Fit(expo,"","",1200,8000)
     for j in range(1,hist.GetNbinsX()+1):
         x=hist.GetXaxis().GetBinCenter(j)
-        if x>2000:
+        if x>1200:
             hist.SetBinContent(j,expo.Eval(x))
 
 
