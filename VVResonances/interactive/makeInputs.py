@@ -314,17 +314,17 @@ def makeNormalizations(name,filename,template,data=0,addCut='',factor=1):
 
 
 makeSignalShapesMVV("LNuJJ_XWW",WWTemplate)
-#makeSignalShapesMVV("LNuJJ_XWZ",WZTemplate)
+makeSignalShapesMVV("LNuJJ_XWZ",WZTemplate)
 #makeSignalShapesMVV("LNuJJ_XWH",WHTemplate)
 
 
-#makeSignalShapesMJJ("LNuJJ_XWW",WWTemplate)
-#makeSignalShapesMJJ("LNuJJ_XWZ",WZTemplate)
+makeSignalShapesMJJ("LNuJJ_XWW",WWTemplate)
+makeSignalShapesMJJ("LNuJJ_XWZ",WZTemplate)
 #makeHiggsShapesMJJ("LNuJJ_XWH",WHTemplate)
 
 
 makeSignalYields("LNuJJ_XWW",WWTemplate,BRWW,{'HP':1.03,'LP':0.95})
-#makeSignalYields("LNuJJ_XWZ",WZTemplate,BRWZ,{'HP':1.03,'LP':0.95})
+makeSignalYields("LNuJJ_XWZ",WZTemplate,BRWZ,{'HP':1.03,'LP':0.95})
 #makeSignalYields("LNuJJ_XWH",WHTemplate,BRWH,{'HP':1.03,'LP':0.95})
 
 ###makeSignalYields("LNuJJ_VBFXWW",VBFWWTemplate,BRVBFWW)
@@ -333,20 +333,20 @@ makeSignalYields("LNuJJ_XWW",WWTemplate,BRWW,{'HP':1.03,'LP':0.95})
 
 
 
-#makeResTopMJJShapes("resW","LNuJJ",resWMJJTemplate,cuts['resW'])
-#makeBackgroundShapesMVV("resW","LNuJJ",resWTemplate,cuts['resW'])
+makeResTopMJJShapes("resW","LNuJJ",resWMJJTemplate,cuts['resW'])
+makeBackgroundShapesMVV("resW","LNuJJ",resWTemplate,cuts['resW'])
 
 #print 'OK GOING FOR THE 2D ONES'
 
-#makeBackgroundShapesMJJ("nonRes","LNuJJ",nonResTemplate,cuts['nonres'])
-#makeBackgroundShapesMVVConditional("nonRes","LNuJJ",nonResTemplate,cuts['nonres'])
-#mergeBackgroundShapes("nonRes","LNuJJ")
+makeBackgroundShapesMJJ("nonRes","LNuJJ",nonResTemplate,cuts['nonres'])
+makeBackgroundShapesMVVConditional("nonRes","LNuJJ",nonResTemplate,cuts['nonres'])
+mergeBackgroundShapes("nonRes","LNuJJ")
 
 
 
 
 
 
-#makeNormalizations("nonRes","LNuJJ",nonResTemplate,0,cuts['nonres'],1.0)
-#makeNormalizations("resW","LNuJJ",resWTemplate,0,cuts['resW'])
-#makeNormalizations("data","LNuJJ",dataTemplate,1)
+makeNormalizations("nonRes","LNuJJ",nonResTemplate,0,cuts['nonres'],1.0)
+makeNormalizations("resW","LNuJJ",resWTemplate,0,cuts['resW'])
+makeNormalizations("data","LNuJJ",dataTemplate,1)
