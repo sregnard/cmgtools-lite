@@ -167,10 +167,8 @@ def makeBackgroundShapesMVVConditional(name,filename,template,addCut=""):
 
 
 
-def makeBackgroundShapesMJJ(name,filename,template,addCut=""):
+def makeBackgroundShapesMJJKernel(name,filename,template,addCut=""):
     #first parameterize detector response
-
-
     cut='*'.join([cuts['common'],'lnujj_l2_gen_softDrop_mass>10&&lnujj_gen_partialMass>0',addCut])
     resFile=filename+"_"+name+"_detectorResponse.root"            
     cmd='vvMake2DDetectorParam.py  -o "{rootFile}" -s "{samples}" -c "{cut}"  -v "lnujj_LV_mass,lnujj_l2_softDrop_mass"  -g "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass,lnujj_l2_gen_pt"  -b "150,200,250,300,350,400,450,500,600,700,800,900,1000,1500,2000,5000"   samples'.format(rootFile=resFile,samples=template,cut=cut,binsMVV=binsMVV,minMVV=minMVV,maxMVV=maxMVV,tag=name)
@@ -189,8 +187,27 @@ def makeBackgroundShapesMJJ(name,filename,template,addCut=""):
                 else:
                     cut='*'.join([cuts['common'],cuts[p],cuts[c],addCut,cuts[l],cuts['acceptanceGENMJJ']])
                 rootFile=filename+"_"+name+"_MJJ_"+l+"_"+p+"_"+c+".root"            
-                cmd='vvMake1DTemplateWithKernels.py -H "y" -o "{rootFile}" -s "{samples}" -c "{cut}"  -v "lnujj_l2_gen_softDrop_mass"  -b {binsMJJ}  -x {minMJJ} -X {maxMJJ} -r {res} samples'.format(rootFile=rootFile,samples=template,cut=cut,res=resFile,binsMJJ=binsMJJ,minMJJ=minMJJ,maxMJJ=maxMJJ)
+                cmd='vvMake1DTemplateWithKernels.py -H "y" -o "{rootFile}" -s "{samples}" -c "{cut}"  -v "lnujj_l2_gen_softDrop_mass"  -b {binsMJJ}  -x {minMJJ} -X {maxMJJ} -r {res} samples'.format(rootFile=rootFile,samples=template,cut=cut,binsMJJ=binsMJJ,minMJJ=minMJJ,maxMJJ=maxMJJ)
                 os.system(cmd)
+
+
+def makeBackgroundShapesMJJSpline(name,filename,template,addCut=""):
+    for c in categories:
+        if c=='vbf':
+            pur=['NP']
+#            c='dijet'
+        else:
+            pur=['HP','LP']
+        for p in pur:
+            for l in leptons:
+                if addCut=='':
+                    cut='*'.join([cuts['common'],cuts[p],cuts[c],cuts[l],cuts['acceptance']])
+                else:
+                    cut='*'.join([cuts['common'],cuts[p],cuts[c],addCut,cuts[l],cuts['acceptance']])
+                rootFile=filename+"_"+name+"_MJJ_"+l+"_"+p+"_"+c+".root"            
+                cmd='vvMake1DTemplateSpline.py  -o "{rootFile}" -s "{samples}" -c "{cut}"  -v "lnujj_l2_softDrop_mass"  -b {binsMJJ}  -x {minMJJ} -X {maxMJJ} -f 6 samples'.format(rootFile=rootFile,samples=template,cut=cut,binsMJJ=binsMJJ,minMJJ=minMJJ,maxMJJ=maxMJJ)
+                os.system(cmd)
+
 
 
 def mergeBackgroundShapes(name,filename):
@@ -205,7 +222,7 @@ def mergeBackgroundShapes(name,filename):
                 inputy=filename+"_"+name+"_MJJ_"+l+"_"+p+"_"+c+".root"            
                 inputx=filename+"_"+name+"_COND2D_"+l+"_"+p+"_"+c+".root"            
                 rootFile=filename+"_"+name+"_2D_"+l+"_"+p+"_"+c+".root"            
-                cmd='vvMergeHistosToPDF2D.py -i "{inputx}" -I "{inputy}" -o "{rootFile}" -s "Scale:ScaleX,PT:PTX,OPT:OPTX,PT2:PTX2,Res:ResX,TOP:TOPX" -S "Scale:ScaleY,PT:PTY,TOP:TOPY,OPT:OPTY,Res:ResY" -C "PT:PTBoth" '.format(rootFile=rootFile,inputx=inputx,inputy=inputy)
+                cmd='vvMergeHistosToPDF2D.py -i "{inputx}" -I "{inputy}" -o "{rootFile}" -s "Scale:ScaleX,PT:PTX,OPT:OPTX,PT2:PTX2,Res:ResX,TOP:TOPX" -S "PT:PTY,OPT:OPTY" -C "PT:PTBoth" '.format(rootFile=rootFile,inputx=inputx,inputy=inputy)
                 os.system(cmd)
 
                 os.system(cmd)
@@ -313,17 +330,17 @@ def makeNormalizations(name,filename,template,data=0,addCut='',factor=1):
 
 
 
-makeSignalShapesMVV("LNuJJ_XWW",WWTemplate)
+#makeSignalShapesMVV("LNuJJ_XWW",WWTemplate)
 makeSignalShapesMVV("LNuJJ_XWZ",WZTemplate)
 #makeSignalShapesMVV("LNuJJ_XWH",WHTemplate)
 
 
-makeSignalShapesMJJ("LNuJJ_XWW",WWTemplate)
+#makeSignalShapesMJJ("LNuJJ_XWW",WWTemplate)
 makeSignalShapesMJJ("LNuJJ_XWZ",WZTemplate)
 #makeHiggsShapesMJJ("LNuJJ_XWH",WHTemplate)
 
 
-makeSignalYields("LNuJJ_XWW",WWTemplate,BRWW,{'HP':1.03,'LP':0.95})
+#makeSignalYields("LNuJJ_XWW",WWTemplate,BRWW,{'HP':1.03,'LP':0.95})
 makeSignalYields("LNuJJ_XWZ",WZTemplate,BRWZ,{'HP':1.03,'LP':0.95})
 #makeSignalYields("LNuJJ_XWH",WHTemplate,BRWH,{'HP':1.03,'LP':0.95})
 
@@ -333,20 +350,20 @@ makeSignalYields("LNuJJ_XWZ",WZTemplate,BRWZ,{'HP':1.03,'LP':0.95})
 
 
 
-makeResTopMJJShapes("resW","LNuJJ",resWMJJTemplate,cuts['resW'])
-makeBackgroundShapesMVV("resW","LNuJJ",resWTemplate,cuts['resW'])
+#makeResTopMJJShapes("resW","LNuJJ",resWMJJTemplate,cuts['resW'])
+#makeBackgroundShapesMVV("resW","LNuJJ",resWTemplate,cuts['resW'])
 
 #print 'OK GOING FOR THE 2D ONES'
 
-makeBackgroundShapesMJJ("nonRes","LNuJJ",nonResTemplate,cuts['nonres'])
-makeBackgroundShapesMVVConditional("nonRes","LNuJJ",nonResTemplate,cuts['nonres'])
-mergeBackgroundShapes("nonRes","LNuJJ")
+#makeBackgroundShapesMJJSpline("nonRes","LNuJJ",nonResTemplate,cuts['nonres'])
+#makeBackgroundShapesMVVConditional("nonRes","LNuJJ",nonResTemplate,cuts['nonres'])
+#mergeBackgroundShapes("nonRes","LNuJJ")
 
 
 
 
 
 
-makeNormalizations("nonRes","LNuJJ",nonResTemplate,0,cuts['nonres'],1.0)
-makeNormalizations("resW","LNuJJ",resWTemplate,0,cuts['resW'])
-makeNormalizations("data","LNuJJ",dataTemplate,1)
+#makeNormalizations("nonRes","LNuJJ",nonResTemplate,0,cuts['nonres'],1.0)
+#makeNormalizations("resW","LNuJJ",resWTemplate,0,cuts['resW'])
+#makeNormalizations("data","LNuJJ",dataTemplate,1)
