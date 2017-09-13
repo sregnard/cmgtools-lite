@@ -165,6 +165,10 @@ top = MergedPlotter(TOPPlotters)
 QCDPlotters = getPlotters('QCD_HT',False)
 QCD = MergedPlotter(QCDPlotters)
 
+
+mc = MergedPlotter(QCDPlotters+WPlotters+BKGPlotters)
+
+
 DATAPlotters = getPlotters('SingleMuon_,SingleElectron_,MET_',True)
 data=MergedPlotter(DATAPlotters)
 

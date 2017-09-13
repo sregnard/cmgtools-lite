@@ -23,8 +23,8 @@ cuts['resW']='(lnujj_l2_mergedVTruth==1)'
 cuts['nonres']='(lnujj_l2_mergedVTruth==0)'
 
 
-leptons=['mu','e']
-purities=['HP','LP']
+leptons=['e','mu']
+purities=['HP']
 categories=['nob']
 
 
@@ -209,7 +209,6 @@ def makeBackgroundShapesMJJSpline(name,filename,template,addCut=""):
                 os.system(cmd)
 
 
-
 def mergeBackgroundShapes(name,filename):
     #first parameterize detector response
     for c in categories:
@@ -331,17 +330,17 @@ def makeNormalizations(name,filename,template,data=0,addCut='',factor=1):
 
 
 #makeSignalShapesMVV("LNuJJ_XWW",WWTemplate)
-makeSignalShapesMVV("LNuJJ_XWZ",WZTemplate)
+#makeSignalShapesMVV("LNuJJ_XWZ",WZTemplate)
 #makeSignalShapesMVV("LNuJJ_XWH",WHTemplate)
 
 
 #makeSignalShapesMJJ("LNuJJ_XWW",WWTemplate)
-makeSignalShapesMJJ("LNuJJ_XWZ",WZTemplate)
+#makeSignalShapesMJJ("LNuJJ_XWZ",WZTemplate)
 #makeHiggsShapesMJJ("LNuJJ_XWH",WHTemplate)
 
 
 #makeSignalYields("LNuJJ_XWW",WWTemplate,BRWW,{'HP':1.03,'LP':0.95})
-makeSignalYields("LNuJJ_XWZ",WZTemplate,BRWZ,{'HP':1.03,'LP':0.95})
+#makeSignalYields("LNuJJ_XWZ",WZTemplate,BRWZ,{'HP':1.03,'LP':0.95})
 #makeSignalYields("LNuJJ_XWH",WHTemplate,BRWH,{'HP':1.03,'LP':0.95})
 
 ###makeSignalYields("LNuJJ_VBFXWW",VBFWWTemplate,BRVBFWW)
@@ -355,7 +354,7 @@ makeSignalYields("LNuJJ_XWZ",WZTemplate,BRWZ,{'HP':1.03,'LP':0.95})
 
 #print 'OK GOING FOR THE 2D ONES'
 
-#makeBackgroundShapesMJJSpline("nonRes","LNuJJ",nonResTemplate,cuts['nonres'])
+makeBackgroundShapesMJJSpline("nonRes","LNuJJ",nonResTemplate,cuts['nonres'])
 #makeBackgroundShapesMVVConditional("nonRes","LNuJJ",nonResTemplate,cuts['nonres'])
 #mergeBackgroundShapes("nonRes","LNuJJ")
 

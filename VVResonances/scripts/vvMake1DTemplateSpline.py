@@ -45,7 +45,7 @@ def unequalScale(histo,name,alpha,power=1):
     for i in range(1,histo.GetNbinsX()+1):
         x= histo.GetXaxis().GetBinCenter(i)
         nominal=histo.GetBinContent(i)
-        factor = alpha*pow(x,power) 
+        factor = 1+alpha*pow(x,power) 
         newHistoU.SetBinContent(i,nominal*factor)
         newHistoD.SetBinContent(i,nominal/factor)
     return newHistoU,newHistoD        
@@ -100,11 +100,11 @@ f.cd()
 histoCoarse.Write("histo_coarse")
 
 histogram.Write()
-alpha=2.0/150
+alpha=1.5/210
 histogram_pt_down,histogram_pt_up=unequalScale(histogram,"histo_PT",alpha)
 histogram_pt_down.Write()
 histogram_pt_up.Write()
-alpha=1.5*20
+alpha=1.5*30
 histogram_opt_down,histogram_opt_up=unequalScale(histogram,"histo_OPT",alpha,-1)
 histogram_opt_down.Write()
 histogram_opt_up.Write()
