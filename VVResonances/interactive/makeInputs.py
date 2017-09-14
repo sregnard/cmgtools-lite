@@ -24,7 +24,7 @@ cuts['nonres']='(lnujj_l2_mergedVTruth==0)'
 
 
 leptons=['e','mu']
-purities=['HP']
+purities=['HP','LP']
 categories=['nob']
 
 
@@ -187,7 +187,7 @@ def makeBackgroundShapesMJJKernel(name,filename,template,addCut=""):
                 else:
                     cut='*'.join([cuts['common'],cuts[p],cuts[c],addCut,cuts[l],cuts['acceptanceGENMJJ']])
                 rootFile=filename+"_"+name+"_MJJ_"+l+"_"+p+"_"+c+".root"            
-                cmd='vvMake1DTemplateWithKernels.py -H "y" -o "{rootFile}" -s "{samples}" -c "{cut}"  -v "lnujj_l2_gen_softDrop_mass"  -b {binsMJJ}  -x {minMJJ} -X {maxMJJ} -r {res} samples'.format(rootFile=rootFile,samples=template,cut=cut,binsMJJ=binsMJJ,minMJJ=minMJJ,maxMJJ=maxMJJ)
+                cmd='vvMake1DTemplateWithKernels.py -H "y" -o "{rootFile}" -s "{samples}" -c "{cut}"  -v "lnujj_l2_gen_softDrop_mass"  -b {binsMJJ}  -x {minMJJ} -X {maxMJJ} -r {res} samples'.format(rootFile=rootFile,samples=template,cut=cut,res=resFile,binsMJJ=binsMJJ,minMJJ=minMJJ,maxMJJ=maxMJJ)
                 os.system(cmd)
 
 

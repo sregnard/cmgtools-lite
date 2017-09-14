@@ -406,7 +406,7 @@ histogram_pt_up.Write()
 
 
 
-h1,h2=unequalScale(finalHistograms['histo'],"histo_OPT",1.5*600,-1)
+h1,h2=unequalScale(finalHistograms['histo'],"histo_OPT",1.5*800,-1)
 conditional(h1)
 h1.Write()
 conditional(h2)
