@@ -234,7 +234,7 @@ class RooPlotter(object):
                         histoW[c].Add(proje)
 
                     if histoSB[c]==None:
-                        histoSB[c] = histo[c][data['name']].ProjectionY('weightDenom')
+                        histoSB[c] = histo[c][data['name']].ProjectionY('weightDenom_'+c)
                     else:   
                         histoSB[c].Add(proje)
 
@@ -245,7 +245,7 @@ class RooPlotter(object):
 
                 else:
                     if histoSB[c]==None:
-                        histoSB[c] = histo[c][data['name']].ProjectionY('weightDenom')
+                        histoSB[c] = histo[c][data['name']].ProjectionY('weightDenom_'+c)
                     else:   
                         histoSB[c].Add(proje)
                     if histoSBTest==None:
@@ -433,21 +433,34 @@ class RooPlotter(object):
 
 
 
-    def moneyPlotSimple(self,var1,var2,varDesc,categories,log=False,rebin=0,drawSignal=True):
+
+
+
+
+    def moneyPlotSimple(self,var1,var2,varDesc,categories,SOB=False,log=False,rebin=0,drawSignal=True):
+
+        nBinsVar1 = self.w.var(var1).getBins()
+        nBinsVar2 = self.w.var(var2).getBins()
+        ncat = len(categories)
+        nWeights = nBinsVar2 * ncat
+
+        var1Max=self.w.var(var1).getMax()
+        var1Min=self.w.var(var1).getMin()
+        var2Max=self.w.var(var2).getMax()
+        var2Min=self.w.var(var2).getMin()
+
         histo={}
         histoW={}
         histoSB={}
         histoWeighted={}
-        varMax=self.w.var(var1).getMax()
-        varMin=self.w.var(var1).getMin()
-        varBins=self.w.var(var1).getBins()
+
 
         for c in categories:
             histo[c]={}
             histoW[c]=None
             histoSB[c]=None
             histoSBTest=None
-            #first create 2D histograms and fill the S and S+B histograms in each category
+            ## first create 2D histograms and fill the S and S+B histograms in each category
 
             for i in range(0,len(self.contributions)):
                 data = self.contributions[i]
@@ -459,19 +472,20 @@ class RooPlotter(object):
                     else:    
                         histoW[c].Add(proje)
 
-                    if histoSB[c]==None:
-                        histoSB[c] = histo[c][data['name']].ProjectionY('weightDenom')
-                    else:   
-                        histoSB[c].Add(proje)
+                    if not SOB: ## means if SOSPB
+                        if histoSB[c]==None:
+                            histoSB[c] = histo[c][data['name']].ProjectionY('weightDenom_'+c)
+                        else:   
+                            histoSB[c].Add(proje)
 
-                    if histoSBTest==None:
-                        histoSBTest = histo[c][data['name']].ProjectionY('weightDenomT')
-                    else:   
-                        histoSBTest.Add(proje)
+                        if histoSBTest==None:
+                            histoSBTest = histo[c][data['name']].ProjectionY('weightDenomT')
+                        else:   
+                            histoSBTest.Add(proje)
 
                 else:
                     if histoSB[c]==None:
-                        histoSB[c] = histo[c][data['name']].ProjectionY('weightDenom')
+                        histoSB[c] = histo[c][data['name']].ProjectionY('weightDenom_'+c)
                     else:   
                         histoSB[c].Add(proje)
                     if histoSBTest==None:
@@ -479,19 +493,32 @@ class RooPlotter(object):
                     else:   
                         histoSBTest.Add(proje)
 
+        #print 'number of bins*categories for weights:', nWeights
+        sumS=0
+        sumSB=0
+        sumW=0
+        sumWnew=0
 
         for c in categories:
+            #print 'expected in cat', c, ': sig', histoW[c].Integral(), 'bkg', histoSB[c].Integral()
+            sumS+=histoW[c].Integral()
+            sumSB+=histoSB[c].Integral()
             histoW[c].Divide(histoSB[c])
-#            histoW[c].Divide(histoSBTest)
-#            histoW[c].Scale(1.0/histoW[c].Integral())
-#        sumW=0    
-#        for c in categories:
-#            sumW+=histoW[c].Integral()
-#        for c in categories:
-#            histoW[c].Scale(1.0/sumW)
+            sumW+=histoW[c].Integral()
 
+        for c in categories:
+            histoW[c].Scale(nWeights/sumW) ## Divide by the mean weight to get proper normalization
+            sumWnew+=histoW[c].Integral()
 
-        #Now reloop and reweigh the histograms creating 1D histograms 
+        #print 'initial expected sig integral', sumS
+        #if SOB:
+        #    print 'initial expected bkg integral', sumSB
+        #else:
+        #    print 'initial expected sig+bkg integral', sumSB
+        #print 'sum of weights (before normalizing them)', sumW
+        #print 'sum of weights (after normalizing them) ', sumWnew
+
+        ## Now reloop and reweigh the histograms creating 1D histograms 
         finalSignalHisto = None    
         finalBkgHisto = None    
 
@@ -532,13 +559,10 @@ class RooPlotter(object):
                     if finalBkgHisto==None:
                         finalBkgHisto=histogram.ProjectionX("finalBkgHisto") 
                         if rebin:
-                            histogram.ProjectionX("finalBkgHisto").Rebin(rebin) 
-
+                            finalBkgHisto.Rebin(rebin)
                     else:
                         finalBkgHisto.Add(proje)
 
-    
-#            histoWeighted[comp['name']].Scale(1.0/sumW)
             #apply colors
             histoWeighted[comp['name']].SetLineColor(comp['linecolor'])
             histoWeighted[comp['name']].SetLineWidth(comp['linewidth'])
@@ -550,59 +574,132 @@ class RooPlotter(object):
             else:
                 self.stack.Add(histoWeighted[comp['name']])
 
+        #print 'finalSignalHisto.Integral()', finalSignalHisto.Integral()
+        #print 'finalBkgHisto.Integral()', finalBkgHisto.Integral()
 
     
-        #Now reweigh the data
-        dataH = ROOT.TH1D("data","data",self.w.var(var1).getBins(),self.w.var(var1).getMin(),self.w.var(var1).getMax())
+        ## Now reweigh the data
+        dataH = ROOT.TH1D("data","data",nBinsVar1,var1Min,var1Max)
         dataH.SetLineColor(ROOT.kBlack)
         dataH.Sumw2()
-        for i in range(0,self.w.data("data_obs").numEntries()):
+
+        sumdatawoldtot=0
+        sumdatawnewtot=0
+        sumdatawold={}
+        sumdatawnew={}
+        for cat in categories:
+            sumdatawold[cat]=0
+            sumdatawnew[cat]=0
+        for i in range(0,self.w.data("data_obs").numEntries()): ## Loop over data bins (in 2D * 4 cat)
             line=self.w.data("data_obs").get(i)
-            weight = self.w.data("data_obs").weight()
             x = line.find(var1).getVal()
             y = line.find(var2).getVal()
             cat = line.find("CMS_channel").getLabel()
             if not (cat in categories):
+                print 'ERROR, cat', cat, 'not found'
                 continue
-            weight=weight*histoW[cat].GetBinContent(histoW[cat].GetXaxis().FindBin(y))
-            dataH.Fill(x,weight)
+
+            N=int(self.w.data("data_obs").weight())
+            sumdatawoldtot+=N
+            sumdatawold[cat]+=N
+            for e in range(N): ## Fill one event at a time, to get Sumw2 error bars
+                weight=histoW[cat].GetBinContent(histoW[cat].GetXaxis().FindBin(y))
+                dataH.Fill(x,weight)
+                sumdatawnewtot+=weight
+                sumdatawnew[cat]+=weight
 
         if rebin:
             dataH.Rebin(rebin)
-        #Draw!
-        self.canvas=ROOT.TCanvas("c","",700,750)
+        
+        self.gData = ROOT.TGraphAsymmErrors(dataH)
+
+        #print 'number of data events', sumdatawoldtot
+        #print 'sum of data weights (before, after)'
+        #for cat in categories:
+        #    print '  ', cat, sumdatawold[cat], sumdatawnew[cat]
+        #print '  total', sumdatawoldtot, sumdatawnewtot
+        #print 'dataH.Integral() after reweighting', dataH.Integral()
+
+
+        ## Draw
+
+        setTDRStyle()
+        style=gROOT.GetStyle("tdrStyle").Clone()
+        style.SetPadLeftMargin(0.14)
+        style.SetPadRightMargin(0.04)
+        style.SetErrorX(0)
+        style.cd()
+        ROOT.TGaxis.SetMaxDigits(4)
+
+        ZOOMX = True
+
+        self.canvas=ROOT.TCanvas("c","c",500,500)
         self.canvas.cd()
-        self.pad1 = ROOT.TPad("pad1","",0.0,0.2,1.0,1.0,0)
-        self.pad2 = ROOT.TPad("pad2","",0.0,0.0,1.0,0.2,0)
+
+        self.pad1 = ROOT.TPad("pad1","",0.0,0.24,1.0,1.0,0)
+        self.pad2 = ROOT.TPad("pad2","",0.0,0.0,1.0,0.24,0)
+
+        self.pad1.SetTopMargin(0.066)
+        self.pad1.SetBottomMargin(0.026)
+        self.pad1.SetLeftMargin(0.14)
+        self.pad1.SetRightMargin(0.04)
+        self.pad2.SetTopMargin(0.)
+        self.pad2.SetBottomMargin(0.5)
+        self.pad2.SetLeftMargin(0.14)
+        self.pad2.SetRightMargin(0.04)
+
+        if log: self.pad1.SetLogy(1)
         self.pad1.Draw()
         self.pad2.Draw()
         self.pad1.cd()
-        self.frame=self.w.var(var1).frame()
-        self.frame.SetXTitle(varDesc)
-        self.frame.SetYTitle("S/(S+B) weighted events")
-        dataH.SetMarkerStyle(20)
-        dataH.SetLineWidth(2)
 
+        self.frame=self.w.var(var1).frame()
+        self.frame.SetTitle("")    
+        self.frame.SetXTitle(varDesc)
+        if SOB:        
+            self.frame.SetYTitle("S/B weighted events / "+str(int(dataH.GetBinWidth(1)))+" GeV")
+        else:
+            self.frame.SetYTitle("S/(S+B) weighted events / "+str(int(dataH.GetBinWidth(1)))+" GeV")
+        self.frame.SetLabelSize(0.04,"X")    
+        self.frame.SetLabelSize(0.055,"Y")
+        self.frame.SetTitleSize(0.05,"X")    
+        self.frame.SetTitleSize(0.058,"Y")    
+        self.frame.SetTitleOffset(3,"X")    
+        self.frame.SetLabelOffset(3,"X")    
+        self.frame.SetTitleOffset(1.05,"Y")
         self.frame.Draw("AH")
+        if ZOOMX:
+            self.frame.GetXaxis().SetRangeUser(800,4500)
+
         self.bkgHisto = finalBkgHisto.Clone()
         self.bkgHisto.SetName("BKGHISTOTOTAL")
+        self.bkgHisto.SetLineWidth(1)
+        self.bkgHisto.SetLineColor(ROOT.TColor.GetColor("#084B55"))
+        self.bkgHisto.SetFillColor(ROOT.TColor.GetColor("#82C19B"))
         self.bkgHisto.Draw("A,HIST,SAME")
+
+        dataH.SetMarkerStyle(20)
+        dataH.SetMarkerSize(0.5)
+        dataH.SetLineWidth(2)
         self.data=dataH
-        self.data.Draw("Psame")
-        self.pad1.SetBottomMargin(0.012)
-        self.pad1.SetLeftMargin(0.13)
+        for i in range(self.gData.GetN()):
+            self.gData.SetPointEXlow(i,0.)
+            self.gData.SetPointEXhigh(i,0.)
+        self.gData.SetMarkerStyle(20)
+        self.gData.SetMarkerSize(0.5)
+        self.gData.Draw("E0,P,same")
 
         if log:
             self.frame.GetYaxis().SetRangeUser(0.00001,1e+6)
             self.pad1.SetLogy(1)
         else:
-            self.frame.GetYaxis().SetRangeUser(0.0,self.data.GetMaximum()*1.3)
+            #self.frame.GetYaxis().SetRangeUser(0.0,self.data.GetMaximum()*1.3)
+            self.frame.GetYaxis().SetRangeUser(0.0,52000.)
         self.pad1.RedrawAxis()
         self.pad1.Update()
 
 
-
-        self.legend = ROOT.TLegend(0.58,0.6,0.92,0.90,"","brNDC")
+        self.legend = ROOT.TLegend(0.58,0.58,0.92,0.85,"","brNDC")
 	self.legend.SetBorderSize(0)
 	self.legend.SetLineColor(1)
 	self.legend.SetLineStyle(1)
@@ -610,52 +707,84 @@ class RooPlotter(object):
 	self.legend.SetFillColor(0)
 	self.legend.SetFillStyle(0)
 	self.legend.SetTextFont(42)
-
-        self.bkgHisto.SetLineWidth(2)
-        self.bkgHisto.SetLineColor(ROOT.kRed)
-        self.bkgHisto.SetFillColor(ROOT.kRed)
-
+	self.legend.SetTextSize(0.06)
+	self.legend.SetHeader("2D fit")
 	self.legend.AddEntry(self.data,"Data","P")
 	self.legend.AddEntry(self.bkgHisto,"Background","F")
         self.legend.Draw()    
-            
+
+
+        
+        ## pad for data/MC ratio
+        whichratio = "DMB" ## data minus bkg
+        #whichratio = "DMBOE" ## data minus bkg over error
+        #whichratio = "DOB" ## data over bkg
+
         self.pad2.cd()
-        #mke the ratio data/MC
+        self.pad2.SetGridy()
+
         self.frame2=self.w.var(var1).frame()
         self.frame2.SetTitle("")    
-        self.frame2.GetYaxis().SetTitle("Data-Bkg.")    
-        self.frame2.SetLabelSize(0.15,"X")    
-        self.frame2.SetLabelSize(0.15,"Y")    
-        self.frame2.SetTitleSize(0.18,"X")    
-        self.frame2.SetTitleSize(0.18,"Y")   
-        self.frame2.SetTitleOffset(0.90,"X")    
-        self.frame2.SetTitleOffset(0.3,"Y")    
-
+        self.frame2.SetLabelSize(0.16,"X")    
+        self.frame2.SetLabelSize(0.12,"Y")    
+        self.frame2.SetTitleSize(0.21,"X")    
+        self.frame2.SetTitleSize(0.15,"Y")   
+        self.frame2.SetTitleOffset(0.95,"X")    
+        self.frame2.SetTitleOffset(0.41,"Y")    
         self.frame2.Draw()
         self.frame2.SetXTitle(varDesc)
+        if whichratio=="DMB":
+            self.frame2.GetYaxis().SetTitle("Data#minusBkg.")    
+        elif whichratio=="DMBOE":
+            self.frame2.GetYaxis().SetTitle("#frac{Data#minusBkg.}{#sigma_{Data}}")    
+        elif whichratio=="DOB":
+            self.frame2.GetYaxis().SetTitle("Data/Bkg.")
+        self.frame2.GetYaxis().SetNdivisions(206)
         
-        self.dataMinusB = dataH.Clone()
-        self.dataMinusB.SetName("dataMinusB")
-        self.signalHisto = finalSignalHisto
-        for  i in range(1,self.dataMinusB.GetNbinsX()+1):
-            d = self.dataMinusB.GetBinContent(i)
-            de = self.dataMinusB.GetBinError(i)
-            b = finalBkgHisto.GetBinContent(i)
-            self.dataMinusB.SetBinContent(i,d-b)
+        self.gDataMinusB = ROOT.TGraphAsymmErrors()
+        for i in range(dataH.GetNbinsX()):
+            x = self.gData.GetX()[i]
+            d = self.gData.GetY()[i]
+            b = finalBkgHisto.GetBinContent(i+1)
+            el = self.gData.GetEYlow()[i]
+            eh = self.gData.GetEYhigh()[i]
+            if whichratio=="DMB": 
+                self.gDataMinusB.SetPoint(i, x, d-b)
+                self.gDataMinusB.SetPointEYlow (i, el)
+                self.gDataMinusB.SetPointEYhigh(i, eh)      
+            elif whichratio=="DMBOE":
+                if eh!=0:
+                    self.gDataMinusB.SetPoint(i, x, (d-b)/eh)
+                    self.gDataMinusB.SetPointEYlow (i, el/eh)
+                    self.gDataMinusB.SetPointEYhigh(i, eh/eh)
+            elif whichratio=="DOB":
+                self.gDataMinusB.SetPoint(i, x, d/b)
+                self.gDataMinusB.SetPointEYlow (i, el/b)
+                self.gDataMinusB.SetPointEYhigh(i, eh/b)
+        self.gDataMinusB.SetMarkerStyle(20)
+        self.gDataMinusB.SetMarkerSize(0.5)
 
+        self.line=ROOT.TLine(var1Min,0.0,var1Max,0.0)
+        self.line.SetLineWidth(1)
+        self.line.SetLineColor(14)
 
-        self.dataMinusB.Draw("SAME")
-        self.frame2.GetYaxis().SetRangeUser(-15,15)
+        if whichratio=="DMB":
+            self.frame2.GetYaxis().SetRangeUser(-1300,1300)
+        elif whichratio=="DMBOE":
+            self.frame2.GetYaxis().SetRangeUser(-2.9,2.9)
+        elif whichratio=="DOB":
+            self.frame2.GetYaxis().SetRangeUser(0.,1.95)
+            self.line.SetY1(1.)
+            self.line.SetY2(1.)
 
-        self.line=ROOT.TLine(varMin,0.0,varMax,0.0)
-        self.line.SetLineWidth(2)
         self.line.Draw()
+        self.gDataMinusB.Draw("E0,P,same")
 
-        ROOT.gStyle.SetOptTitle(0)
-        ROOT.gStyle.SetOptStat(0)
-        self.pad2.SetTopMargin(0.04)
-        self.pad2.SetBottomMargin(0.5)
-        self.pad2.SetLeftMargin(0.13)
+        if ZOOMX:
+            self.frame2.GetXaxis().SetRangeUser(800,4500)
+            self.line.SetX1(800)
+            self.line.SetX2(4500)
+
         self.pad2.RedrawAxis()
         self.pad2.Update()
 
@@ -670,10 +799,8 @@ class RooPlotter(object):
 
 
 
-
-
     
-    def drawBinned(self,var,varDesc,label,cat,blinded=[],doUncBand = False,log=False,rangeStr=""):
+    def drawBinned(self,var,varDesc,label,cat,blinded=[],doUncBand = False,log=False,rangeStr="",maxY=-1.):
 
         setTDRStyle()
         style=gROOT.GetStyle("tdrStyle").Clone()
@@ -802,7 +929,7 @@ class RooPlotter(object):
 
         
         ## legend
-        self.legend = ROOT.TLegend(0.62,(0.60,0.525)[visError],0.92,0.90,"","brNDC")
+        self.legend = ROOT.TLegend(0.58,(0.61,0.54)[visError],0.92,0.91,"","brNDC")
 	self.legend.SetBorderSize(0)
 	self.legend.SetLineColor(1)
 	self.legend.SetLineStyle(1)
@@ -826,7 +953,7 @@ class RooPlotter(object):
             self.legend.AddEntry(hist,desc,"F")
 
         if visError:
-            self.legend.AddEntry(self.histoSum,"Bkg. unc.","F")            
+            self.legend.AddEntry(self.histoSum,"Bkg. shape unc.","F")            
 
         self.frame.SetTitle("")    
         self.frame.SetXTitle(varDesc)
@@ -843,13 +970,16 @@ class RooPlotter(object):
 
         self.stack.Draw("A,HIST,SAME")
 
-        ## axis ranges (hardcoded for now)
+        ## hardcoded axis customization
         if var=="MLNuJ":
             self.frame.GetXaxis().SetRangeUser(800,4500)
-        if var=="MLNuJ" and log:
-            self.frame.GetYaxis().SetRangeUser(0.3,2e+4)
-        if var=="MJ" and not log:
-            self.frame.GetYaxis().SetRangeUser(0.,650)
+            self.frame.SetYTitle("Events / 25 GeV")
+            if log:
+                self.frame.GetYaxis().SetRangeUser(0.3,5e+3) #2e+4)
+        if var=="MJ":
+            self.frame.SetYTitle("Events / 2 GeV")
+            if not log:
+                self.frame.GetYaxis().SetRangeUser(0.,maxY if maxY>0 else 650.)
 
         if visError:
             self.histoSum.Draw("E2,same")
@@ -895,8 +1025,8 @@ class RooPlotter(object):
 
         self.frame2=self.w.var(var).frame()
         self.frame2.SetTitle("")    
-        self.frame2.SetLabelSize(0.15,"X")    
-        self.frame2.SetLabelSize(0.10,"Y")    
+        self.frame2.SetLabelSize(0.16,"X")    
+        self.frame2.SetLabelSize(0.125,"Y")    
         #self.frame2.SetLabelOffset(0.01,"X")    
         self.frame2.SetTitleSize(0.21,"X")    
         self.frame2.SetTitleSize(0.17,"Y")   
@@ -911,13 +1041,16 @@ class RooPlotter(object):
         self.ratioGraph = ROOT.TGraphAsymmErrors(hist)
         x=ROOT.Double(0.)
         y=ROOT.Double(0.)
+        chisq=0
         for i in range(0,hist.GetN()):
             hist.GetPoint(i,x,y)
             bkgBin=self.histoSum.GetXaxis().FindBin(x)
             bkg=self.histoSum.GetBinContent(bkgBin)
             #if y==0.0: continue
+            chisq = chisq + (y-bkg)*(y-bkg)/bkg
             self.ratioGraph.SetPoint(i,x,y/bkg)
             self.ratioGraph.SetPointError(i,0,0,hist.GetErrorYlow(i)/bkg,hist.GetErrorYhigh(i)/bkg)
+        #print 'chisquare=', chisq
 
         self.line=ROOT.TLine(varMin,1.0,varMax,1)
         self.line.SetLineWidth(1)
