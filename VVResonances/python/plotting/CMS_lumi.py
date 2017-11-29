@@ -122,7 +122,7 @@ cmslabel_prelim=CMSPlotLabel("CMS","Preliminary")
 cmslabel_int=CMSPlotLabel("CMS","Internal")
 cmslabel_sim=CMSPlotLabel("CMS","Simulation")
 cmslabel_final=CMSPlotLabel("CMS","")
-cmslabel_not=CMSPlotLabel("")
+cmslabel_not=CMSPlotLabel("","")
 
 
 
