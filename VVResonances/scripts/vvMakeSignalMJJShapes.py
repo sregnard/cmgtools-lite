@@ -20,6 +20,7 @@ parser = optparse.OptionParser()
 parser.add_option("-s","--sample",dest="sample",default='',help="Type of sample")
 parser.add_option("-c","--cut",dest="cut",help="Cut to apply for shape",default='')
 parser.add_option("-o","--output",dest="output",help="Output JSON",default='')
+parser.add_option("-d","--debugFile",dest="debugFile",help="Output debug plots",default='')
 parser.add_option("-V","--MVV",dest="mvv",help="mVV variable",default='')
 parser.add_option("-m","--min",dest="mini",type=float,help="min MJJ",default=40)
 parser.add_option("-M","--max",dest="maxi",type=float,help="max MJJ",default=160)
@@ -90,7 +91,13 @@ for mass in sorted(samples.keys()):
     fitter.importBinnedData(histo,['x'],'data')
     fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0)])
     fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0),ROOT.RooFit.Minos(1)])
-    fitter.projection("model","data","x","debugJJ_"+options.output+"_"+str(mass)+".png")
+
+    optModel = []
+    if 'XWW' in options.output: optModel = [ROOT.RooFit.LineColor(ROOT.kOrange+2)]
+    if 'XWZ' in options.output: optModel = [ROOT.RooFit.LineColor(ROOT.kViolet-8)]
+    if 'XWH' in options.output: optModel = [ROOT.RooFit.LineColor(ROOT.kTeal-6)]
+    fitter.projection("model","data","x",options.debugFile+"_"+str(int(mass)).zfill(4)+".png",options.mvv,[],optModel)
+    fitter.projection("model","data","x",options.debugFile+"_"+str(int(mass)).zfill(4)+".root",options.mvv,[],optModel)
 
     for var,graph in graphs.iteritems():
         value,error=fitter.fetch(var)

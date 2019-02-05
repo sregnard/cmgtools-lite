@@ -23,6 +23,10 @@ parser.add_option("-x","--minx",dest="minx",type=float,help="bins",default=0)
 parser.add_option("-X","--maxx",dest="maxx",type=float,help="conditional bins split by comma",default=1)
 parser.add_option("-y","--miny",dest="miny",type=float,help="bins",default=0)
 parser.add_option("-Y","--maxy",dest="maxy",type=float,help="conditional bins split by comma",default=1)
+parser.add_option("-l","--limit",dest="limit",type=float,help="lower limit of the high-mass smoothing range",default=2500)
+
+
+DEBUG=0
 
 
 def mirror(histo,histoNominal,name):
@@ -84,58 +88,24 @@ def conditional(hist):
 
 def smoothTail(hist):
     hist.Scale(1.0/hist.Integral())
-    expo=ROOT.TF1("expo","expo",1000,8000)
-#    expo=ROOT.TF1("expo","[0]*(1-pow(x/13000.,[1]))/pow(x/13000.0,[2]+0.0*TMath::Log(x/13000.0))",1000,8000)
-#    expo.SetParameters(1,-)
-#    expo.SetParLimits(0,0,1)
-#    expo.SetParLimits(1,0.1,100)
-#    expo.SetParLimits(2,0.1,100)
 
-    for i in range(1,hist.GetNbinsY()+1):
-        proj=hist.ProjectionX("q",i,i)
-#        for j in range(1,proj.GetNbinsX()+1):
-#            if proj.GetBinContent(j)/proj.Integral()<0.0005:
-#                proj.SetBinError(j,1.8)
-        proj.Fit(expo,"","",2000,8000)
-        proj.Fit(expo,"","",2000,8000)
-        for j in range(1,hist.GetNbinsX()+1):
-            x=hist.GetXaxis().GetBinCenter(j)
-            if x>2500:
-                hist.SetBinContent(j,i,expo.Eval(x))
+    bin_limit = hist.GetXaxis().FindBin(options.limit)
 
+    histfit=hist.ProjectionX("q",1,hist.GetNbinsY())
+    X=histfit.GetBinCenter(bin_limit)
+    Y=histfit.GetBinContent(bin_limit)
+    print 'X', X, 'Y', Y
+    fun=ROOT.TF1("func","{Y}*(((x-[1])/({X}-[1]))^[0])".format(X=X,Y=Y),options.limit,options.maxx)
+    fun.SetParameter(0,-10.)
 
+    histfit.Fit(fun,"R")
 
-def smoothTailOLD(hist,bini=30):
-    expo=ROOT.TF1("expo","expo",1000,8000)
-#    expo=ROOT.TF1("expo","[0]*((1-x/13000.0)^[1])/(x/13000.0)^([2]+[3]*log(x))",1000,8000)
-#    expo.SetParameters(1,1,1,0)
-#    expo.SetParLimits(0,0,1)
-#    expo.SetParLimits(1,0.1,100)
-#    expo.SetParLimits(2,0.1,100)
-#    expo.SetParLimits(3,0.0,20)
-
-    proje = hist.ProjectionX("proje")
-    NBINSX=hist.GetNbinsX()
-    if proje.Integral()==0.0:
-        return
-    for j in range(1,proje.GetNbinsX()+1):
-        if proje.GetBinContent(j)/proje.Integral()<0.0002:
-            proje.SetBinError(j,1.8)
-
-#    proje.Fit(expo,"","",1400,8000)
-    proje.Fit(expo,"","",2500,8000)
+    for i in range(1,hist.GetNbinsX()+1):
+        x=hist.GetXaxis().GetBinCenter(i)
+        if x>options.limit:
+            for j in range(1,hist.GetNbinsY()+1):
+                hist.SetBinContent(i,j,fun.Eval(x)*hist.GetBinContent(bin_limit,j)/fun.Eval(histfit.GetBinCenter(bin_limit)))
     
-    for i in range(1,proje.GetNbinsX()+1):
-        x=proje.GetXaxis().GetBinCenter(i)
-        if x>2500:
-            proje.SetBinContent(i,expo.Eval(x))
-
-    for i in range(1,hist.GetNbinsY()+1):
-        proj=hist.ProjectionX("q",i,i)
-        proje.Scale(proj.Integral(bini,NBINSX)/proje.Integral(bini,NBINSX))
-
-        for j in range(bini,hist.GetNbinsX()+1):
-            hist.SetBinContent(j,i,proje.GetBinContent(j))
 
 
 
@@ -172,7 +142,7 @@ for filename in os.listdir(args[0]):
             dataPlottersNW[-1].addCorrectionFactor('puWeight','tree')
             dataPlottersNW[-1].addCorrectionFactor('genWeight','tree')
             dataPlottersNW[-1].addCorrectionFactor('lnujj_sf','branch')
-            dataPlotters[-1].addCorrectionFactor('truth_genTop_weight','branch')
+            dataPlottersNW[-1].addCorrectionFactor('truth_genTop_weight','branch')
             dataPlottersNW[-1].addCorrectionFactor('lnujj_btagWeight','branch')
             dataPlottersNW[-1].filename = fname
 
@@ -331,10 +301,10 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
 
     #nominal
     histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-    dataset=plotterNW.makeDataSet('lnujj_l1_pt,lnujj_l2_partonFlavour,lnujj_l2_gen_pt,'+variables[1]+','+variables[0],options.cut,-1)
+    dataset=plotter.makeDataSet('lnujj_l1_pt,lnujj_l2_gen_pt,'+variables[1]+','+variables[0],options.cut,-1)
     datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,scale_y,res_x,res_y,histTMP);
     if histTMP.Integral()>0:
-        histTMP.Scale(histI.Integral()/histTMP.Integral())
+        #histTMP.Scale(histI.Integral()/histTMP.Integral())
         histogram.Add(histTMP)
 
         #TOP UP/DOWN
@@ -357,7 +327,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
     histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
     datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,scale_y,resUp,res_y,histTMP);
     if histTMP.Integral()>0:
-        histTMP.Scale(histI.Integral()/histTMP.Integral())
+        #histTMP.Scale(histI.Integral()/histTMP.Integral())
         histogram_res_up.Add(histTMP)
     histTMP.Delete()
 
@@ -367,7 +337,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
     histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
     datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scaleUp,scale_y,res_x,res_y,histTMP);
     if histTMP.Integral()>0:
-        histTMP.Scale(histI.Integral()/histTMP.Integral())
+        #histTMP.Scale(histI.Integral()/histTMP.Integral())
         histogram_scale_up.Add(histTMP)
     histTMP.Delete()
 
@@ -375,7 +345,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
     histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
     datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scaleDown,scale_y,res_x,res_y,histTMP);
     if histTMP.Integral()>0:
-        histTMP.Scale(histI.Integral()/histTMP.Integral())
+        #histTMP.Scale(histI.Integral()/histTMP.Integral())
         histogram_scale_down.Add(histTMP)
     histTMP.Delete()
     histI.Delete()
@@ -390,10 +360,12 @@ f.cd()
 finalHistograms={}
 for hist in histograms:
     hist.Write(hist.GetName()+"_coarse")
-    #smooth
     smoothTail(hist)
+    hist.Write(hist.GetName()+"_coarsesmoothed")
     conditional(hist)
+    hist.Write(hist.GetName()+"_coarsesmoothedcond")
     expanded=expandHisto(hist,options)
+    expanded.Write(hist.GetName()+"_expanded")
     conditional(expanded)
     expanded.Write()
     finalHistograms[hist.GetName()]=expanded
@@ -420,10 +392,11 @@ h2.Write()
 
 
 ##special treatment for mirroring
+''' ###FIXME: bug with empty bins
 histogram_res_down=mirror(finalHistograms['histo_ResUp'],finalHistograms['histo'],"histo_ResDown")
 conditional(histogram_res_down)
 histogram_res_down.Write()
-
+'''
 
 
 #ptUp.Write("ptUp")

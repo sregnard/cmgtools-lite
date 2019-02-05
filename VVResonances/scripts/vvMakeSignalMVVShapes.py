@@ -9,82 +9,97 @@ from CMGTools.VVResonances.statistics.Fitter import Fitter
 from math import log
 import os, sys, re, optparse,pickle,shutil,json
 
-def returnString(func):
-    st='0'
-    for i in range(0,func.GetNpar()):
-        st=st+"+("+str(func.GetParameter(i))+")"+("*MH"*i)
-    return st    
-
-
 parser = optparse.OptionParser()
 parser.add_option("-s","--sample",dest="sample",default='',help="Type of sample")
+parser.add_option("-m","--minMX",dest="minMX",type=float,help="minimum MX",default=600)
+parser.add_option("-M","--maxMX",dest="maxMX",type=float,help="maximum MX",default=5000)
 parser.add_option("-c","--cut",dest="cut",help="Cut to apply for shape",default='')
-parser.add_option("-o","--output",dest="output",help="Output JSON",default='')
-parser.add_option("-V","--MVV",dest="mvv",help="mVV variable",default='')
+parser.add_option("-o","--output",dest="output",help="Output file",default='')
+parser.add_option("-d","--debugFile",dest="debugFile",help="Output debug plots",default='')
+parser.add_option("-v","--varx",dest="varx",help="variablex",default='lnujj_LV_mass')
+parser.add_option("-b","--binsxfit",dest="binsxfit",type=int,help="bins in x (for the fit)",default=168)
+parser.add_option("-x","--minx",dest="minx",type=float,help="minimum x",default=800.)
+parser.add_option("-X","--maxx",dest="maxx",type=float, help="maximum x",default=5000.)
 parser.add_option("-f","--scaleFactors",dest="scaleFactors",help="Additional scale factors separated by comma",default='')
 
 (options,args) = parser.parse_args()
-#define output dictionary
 
+
+## color of control plots
+color = 0
+if 'XWW' in options.output: color = ROOT.kOrange+2
+elif 'XWZ' in options.output: color = ROOT.kViolet-8
+elif 'XWH' in options.output: color = ROOT.kTeal-6
+
+## Define output dictionary
+graphs={
+    'MEAN':ROOT.TGraphErrors(),
+    'SIGMA':ROOT.TGraphErrors(),
+    'ALPHA1':ROOT.TGraphErrors(),
+    'N1':ROOT.TGraphErrors(),
+    'ALPHA2':ROOT.TGraphErrors(),
+    'N2':ROOT.TGraphErrors()
+    }
+
+
+## Find the samples for all signal mass values
 samples={}
-graphs={'MEAN':ROOT.TGraphErrors(),'SIGMA':ROOT.TGraphErrors(),'ALPHA1':ROOT.TGraphErrors(),'N1':ROOT.TGraphErrors(),'ALPHA2':ROOT.TGraphErrors(),'N2':ROOT.TGraphErrors()}
-
 for filename in os.listdir(args[0]):
     if not (filename.find(options.sample)!=-1):
         continue
-
-#found sample. get the mass
     fnameParts=filename.split('.')
     fname=fnameParts[0]
     ext=fnameParts[1]
     if ext.find("root") ==-1:
         continue
-        
-
     mass = float(fname.split('_')[-1])
-
-        
-
+    if mass<options.minMX or mass>options.maxMX:
+        continue
     samples[mass] = fname
-
     print 'found',filename,'mass',str(mass) 
-
 
 
 scaleFactors=options.scaleFactors.split(',')
 
 
-#Now we have the samples: Sort the masses and run the fits
+## Sort the masses and run the fits
 N=0
 for mass in sorted(samples.keys()):
+    print 'fitting',str(mass)
 
-    print 'fitting',str(mass) 
+    ## Get the histo from MC
     plotter=TreePlotter(args[0]+'/'+samples[mass]+'.root','tree')
     plotter.addCorrectionFactor('genWeight','tree')
     plotter.addCorrectionFactor('puWeight','tree')
     if options.scaleFactors!='':
         for s in scaleFactors:
             plotter.addCorrectionFactor(s,'tree')
-       
+    histo = plotter.drawTH1(options.varx,options.cut,"1",options.binsxfit,options.minx,options.maxx)
+
+    ## Set up the fitter
     fitter=Fitter(['MVV'])
     fitter.signalResonance('model','MVV')
     fitter.w.var("MH").setVal(mass)
-    histo = plotter.drawTH1(options.mvv,options.cut,"1",1000,0,8000)
-
     fitter.importBinnedData(histo,['MVV'],'data')
+
+    ## fit 
     fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0)])
     fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0)])
 
-    fitter.projection("model","data","MVV","debugVV_"+options.output+"_"+str(mass)+".root")
-    fitter.projection("model","data","MVV","debugVV_"+options.output+"_"+str(mass)+".png")
+    ## control plot
+    fitter.projection("model","data","MVV",options.debugFile+"_"+str(int(mass)).zfill(4)+".root",options.varx,[],[ROOT.RooFit.LineColor(color)])
+    fitter.projection("model","data","MVV",options.debugFile+"_"+str(int(mass)).zfill(4)+".png",options.varx,[],[ROOT.RooFit.LineColor(color)])
 
+    ## Save parameters vs MX
     for var,graph in graphs.iteritems():
         value,error=fitter.fetch(var)
         graph.SetPoint(N,mass,value)
         graph.SetPointError(N,0.0,error)
                 
     N=N+1
-        
+
+
+## Store all graphs
 F=ROOT.TFile(options.output,"RECREATE")
 F.cd()
 for name,graph in graphs.iteritems():

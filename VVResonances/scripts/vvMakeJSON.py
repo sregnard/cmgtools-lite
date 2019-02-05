@@ -24,6 +24,7 @@ def returnString(func):
 parser = optparse.OptionParser()
 parser.add_option("-g","--graphs",dest="graphs",default='',help="Comma   separated graphs and functions to fit  like MEAN:pol3,SIGMA:pol2")
 parser.add_option("-o","--output",dest="output",help="Output JSON",default='')
+parser.add_option("-d","--debugFile",dest="debugFile",help="Output debug file",default='')
 parser.add_option("-m","--min",dest="min",type=float, help="minimum x",default=0)
 parser.add_option("-M","--max",dest="max",type=float, help="maximum x",default=0)
 
@@ -40,7 +41,7 @@ parameterization={}
 
 
 
-ff=ROOT.TFile("debug_"+options.output+".root","RECREATE")
+ff=ROOT.TFile(options.debugFile,"RECREATE")
 ff.cd()
 for string in graphStr:
     comps =string.split(':')      

@@ -248,9 +248,9 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
     #nominal
     histTMP=ROOT.TH1F("histoTMP","histo",options.binsx,options.minx,options.maxx)
     if options.var != 'lnujj_gen_partialMass':
-        dataset=plotterNW.makeDataSet('lnujj_l1_pt,lnujj_gen_partialMass,lnujj_l2_partonFlavour,lnujj_l2_gen_pt,'+options.var,options.cut,-1)
+        dataset=plotterNW.makeDataSet('lnujj_l1_pt,lnujj_gen_partialMass,lnujj_l2_gen_pt,'+options.var,options.cut,-1)
     else:
-        dataset=plotterNW.makeDataSet('lnujj_l1_pt,lnujj_l2_partonFlavour,lnujj_l2_gen_pt,'+options.var,options.cut,-1)
+        dataset=plotterNW.makeDataSet('lnujj_l1_pt,lnujj_l2_gen_pt,'+options.var,options.cut,-1)
     datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,options.var,'lnujj_l2_gen_pt',scale,res,histTMP);
     if histTMP.Integral()>0:
         histTMP.Scale(histI.Integral()/histTMP.Integral())

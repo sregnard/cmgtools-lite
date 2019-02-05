@@ -90,7 +90,9 @@ data=MergedPlotter(dataPlotters)
 histogram=ROOT.TH1F("histo","histo",options.binsx,options.minx,options.maxx)
 histogram.Sumw2()
 
-histoCoarse=data.drawTH1(options.var,options.cut,"1",options.binsx/options.factor,options.minx,options.maxx)
+newNbins=options.binsx/options.factor 
+newBinWidth=(options.maxx-options.minx)/newNbins
+histoCoarse=data.drawTH1(options.var,options.cut,"1",newNbins+2,options.minx-newBinWidth,options.maxx+newBinWidth)
 expandHisto(histoCoarse,histogram)
 
 

@@ -1,9 +1,11 @@
 import ROOT
 import json
+import time
 
 class Fitter(object):
     def __init__(self,poi = ['x']):
         self.cache=ROOT.TFile("cache.root","RECREATE")
+        #self.cache=ROOT.TFile("cache_"+str(time.time())+".root","RECREATE")
         self.cache.cd()
 
         self.w=ROOT.RooWorkspace("w","w")
@@ -328,20 +330,6 @@ class Fitter(object):
         getattr(self.w,'import')(softDrop,ROOT.RooFit.Rename(name))
 
 
-    def jetResonance(self,name = 'model',poi='x'):
-        ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
-        self.w.factory("mean[80,50,200]")
-        self.w.factory("sigma[10,2,40]")
-        self.w.factory("alpha[3,0.5,10]")
-        self.w.factory("n[2]")
-        self.w.factory("alpha2[3,0.5,10]")
-        self.w.factory("n2[2]")
-
-        peak = ROOT.RooDoubleCB(name+'S','modelS',self.w.var(poi),self.w.var('mean'),self.w.var('sigma'),self.w.var('alpha'),self.w.var('n'),self.w.var("alpha2"),self.w.var("n2"))
-        getattr(self.w,'import')(peak,ROOT.RooFit.Rename(name+'S'))
-        self.w.factory("RooExponential::"+name+"B("+poi+",slope[-1,-10,0])")       
-        self.w.factory("SUM::"+name+"(f[0.8,0,1]*"+name+"S,"+name+"B)")
-
 
     def jetResonanceNOEXP2D(self,name = 'model',poi='x'):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
@@ -360,7 +348,19 @@ class Fitter(object):
         peak = ROOT.RooDoubleCB(name,'modelS',self.w.var(poi),self.w.function('mean'),self.w.function('sigma'),self.w.var('alpha'),self.w.var('n'),self.w.var("alpha2"),self.w.var("n2"))
         getattr(self.w,'import')(peak,ROOT.RooFit.Rename(name))
 
+    def jetResonance(self,name = 'model',poi='x'):
+        ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
+        self.w.factory("mean[80,50,200]")
+        self.w.factory("sigma[10,2,40]")
+        self.w.factory("alpha[3,0.5,10]")
+        self.w.factory("n[2]")
+        self.w.factory("alpha2[3,0.5,10]")
+        self.w.factory("n2[2]")
 
+        peak = ROOT.RooDoubleCB(name+'S','modelS',self.w.var(poi),self.w.var('mean'),self.w.var('sigma'),self.w.var('alpha'),self.w.var('n'),self.w.var("alpha2"),self.w.var("n2"))
+        getattr(self.w,'import')(peak,ROOT.RooFit.Rename(name+'S'))
+        self.w.factory("RooExponential::"+name+"B("+poi+",slope[-1,-10,0])")       
+        self.w.factory("SUM::"+name+"(f[0.8,0,1]*"+name+"S,"+name+"B)")
 
     def jetResonanceNOEXP(self,name = 'model',poi='x'):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
@@ -375,9 +375,6 @@ class Fitter(object):
 
         peak = ROOT.RooDoubleCB(name,'modelS',self.w.var(poi),self.w.var('mean'),self.w.var('sigma'),self.w.var('alpha'),self.w.var('n'),self.w.var("alpha2"),self.w.var("n2"))
         getattr(self.w,'import')(peak,ROOT.RooFit.Rename(name))
-
-
-
 
     def jetResonance2(self,name = 'model',poi='x'):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
@@ -407,18 +404,81 @@ class Fitter(object):
         self.w.factory("alphaTop[1,0.1,10]")
         self.w.factory("alphaTop2[1,0.1,10]")
 
-
         peak = ROOT.RooDoubleCB('WPeak','modelS',self.w.var(poi),self.w.var('meanW'),self.w.var('sigmaW'),self.w.var('alphaW'),self.w.var('n'),self.w.var("alphaW2"),self.w.var("n"))
         getattr(self.w,'import')(peak,ROOT.RooFit.Rename('WPeak'))
         peak2 = ROOT.RooDoubleCB('TopPeak','modelS',self.w.var(poi),self.w.var('meanTop'),self.w.var('sigmaTop'),self.w.var('alphaTop'),self.w.var('n'),self.w.var("alphaTop2"),self.w.var("n"))
         getattr(self.w,'import')(peak2,ROOT.RooFit.Rename('TopPeak'))
         self.w.factory("SUM::"+name+"(f[0.5,0,1]*WPeak,TopPeak)")
 
+
     def jetDoublePeakExp(self,name = 'model',poi='x'):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
         self.jetDoublePeak('modelS',poi)
         self.w.factory("RooExponential::modelB("+poi+",slope[0,-5,5])")
         self.w.factory("SUM::"+name+"(f2[0.5,0,1]*modelS,modelB)")
+
+
+    def jetDoublePeakExpCond(self,name,poi,scale={},resolution={},fraction={}):
+        ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
+               
+        scaleStr='0'
+        resolutionStr='0'
+        fractionStr='0'
+        scaleSysts=[]
+        resolutionSysts=[]
+        fractionSysts=[]
+        for syst,factor in scale.iteritems():
+            self.w.factory(syst+"[0,-0.1,0.1]")
+            scaleStr=scaleStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
+            scaleSysts.append(syst)
+            self.w.var(syst).setVal(0.0)
+            self.w.var(syst).setConstant(1)
+        for syst,factor in resolution.iteritems():
+            self.w.factory(syst+"[0,-0.5,0.5]")
+            resolutionStr=resolutionStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
+            resolutionSysts.append(syst)
+            self.w.var(syst).setVal(0.0)
+            self.w.var(syst).setConstant(1)
+        for syst,factor in fraction.iteritems():
+            self.w.factory(syst+"[0,-50,50]")
+            fractionStr=fractionStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
+            fractionSysts.append(syst)
+            self.w.var(syst).setVal(0.0)
+            self.w.var(syst).setConstant(1)
+
+        self.w.factory("meanW0[80,75,85]")
+        self.w.factory("expr::meanW('(meanW0+0*{x})*(1+{vv_syst})',meanW0,{x},{vv_systs})".format(x=poi[0],vv_syst=scaleStr,vv_systs=','.join(scaleSysts)))
+        self.w.factory("sigmaW0[12,7.5,20]")
+        self.w.factory("expr::sigmaW('(sigmaW0+0*{x})*(1+{vv_syst})',sigmaW0,{x},{vv_systs})".format(x=poi[0],vv_syst=resolutionStr,vv_systs=','.join(resolutionSysts)))
+        self.w.factory("alphaW0[1,0.1,10]")
+        self.w.factory("expr::alphaW('(alphaW0+0*{x})',alphaW0,{x})".format(x=poi[0]))
+        self.w.factory("alpha2W0[1,0.1,10]")
+        self.w.factory("expr::alpha2W('(alpha2W0+0*{x})',alpha2W0,{x})".format(x=poi[0]))
+        self.w.factory("n[5]")
+
+        self.w.factory("meanTop0[160,100,250]")
+        self.w.factory("meanTop1[0,-500000,500000]")
+        self.w.factory("meanTop2[0,-300000000,300000000]")
+        self.w.factory("expr::meanTop('(meanTop0+meanTop1/{x}+meanTop2/({x}*{x}))*(1+{vv_syst})',meanTop0,meanTop1,meanTop2,{x},{vv_systs})".format(x=poi[0],vv_syst=scaleStr,vv_systs=','.join(scaleSysts)))
+        self.w.factory("sigmaTop0[25,2,100]")
+        self.w.factory("expr::sigmaTop('(sigmaTop0+0*{x})*(1+{vv_syst})',sigmaTop0,{x},{vv_systs})".format(x=poi[0],vv_syst=resolutionStr,vv_systs=','.join(resolutionSysts)))
+        self.w.factory("alphaTop0[1,0.1,10]")
+        self.w.factory("expr::alphaTop('(alphaTop0+0*{x})',alphaTop0,{x})".format(x=poi[0]))
+        self.w.factory("alpha2Top0[1,0.1,10]")
+        self.w.factory("expr::alpha2Top('(alpha2Top0+0*{x})',alpha2Top0,{x})".format(x=poi[0]))
+
+        peak = ROOT.RooDoubleCB('WPeak','modelS',self.w.var(poi[1]),self.w.function('meanW'),self.w.function('sigmaW'),self.w.function('alphaW'),self.w.var('n'),self.w.function("alpha2W"),self.w.var("n"))
+        getattr(self.w,'import')(peak,ROOT.RooFit.Rename('WPeak'))
+        peak2 = ROOT.RooDoubleCB('TopPeak','modelS',self.w.var(poi[1]),self.w.function('meanTop'),self.w.function('sigmaTop'),self.w.function('alphaTop'),self.w.var('n'),self.w.function("alpha2Top"),self.w.var("n"))
+        getattr(self.w,'import')(peak2,ROOT.RooFit.Rename('TopPeak'))
+
+        self.w.factory("f0[0.2,0,1]")
+        self.w.factory("f2[200000,0,300000000]")
+        self.w.factory("expr::f('(f0+f2/({x}*{x}))+({vv_syst})*min((f0+f2/({x}*{x})),(1-(f0+f2/({x}*{x}))))',f0,f2,{x},{vv_systs})".format(x=poi[0],vv_syst=fractionStr,vv_systs=','.join(fractionSysts)))
+
+        self.w.factory("SUM::modelS(f*WPeak,TopPeak)")
+        self.w.factory("RooExponential::modelB("+poi[1]+",slope[0,-5,5])")
+        self.w.factory("SUM::"+name+"(g[0.99,0,1]*modelS,modelB)")
 
 
 
@@ -454,6 +514,7 @@ class Fitter(object):
             self.w.factory("N2[5]")
         peak_vv = ROOT.RooDoubleCB(name,'modelS',self.w.var(poi),self.w.var('MEAN'),self.w.function('SIGMA'),self.w.var('ALPHA1'),self.w.var('N1'),self.w.var('ALPHA2'),self.w.var('N2'))
         getattr(self.w,'import')(peak_vv,ROOT.RooFit.Rename(name))
+
 
     def signal2D(self,name,poi):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
@@ -917,10 +978,23 @@ class Fitter(object):
     def fetch(self,var):
         return (self.w.var(var).getVal(), self.w.var(var).getError())
 
-    def projection(self,model = "model",data="data",poi="x",filename="fit.root",xtitle='x'):
+    def projection(self,model = "model",data="data",poi="x",filename="fit.root",xtitle='x',plotOptionData=[],plotOptionModel=[]):
         self.frame=self.w.var(poi).frame()
-        self.w.data(data).plotOn(self.frame)
-        self.w.pdf(model).plotOn(self.frame)
+        if data!="":
+            if len(plotOptionData)==0:
+                self.w.data(data).plotOn(self.frame)
+            if len(plotOptionData)==1:
+                self.w.data(data).plotOn(self.frame,plotOptionData[0])
+            if len(plotOptionData)==2:
+                self.w.data(data).plotOn(self.frame,plotOptionData[0],plotOptionData[1])
+        if len(plotOptionModel)==0:
+            self.w.pdf(model).plotOn(self.frame)
+        if len(plotOptionModel)==1:
+            self.w.pdf(model).plotOn(self.frame,plotOptionModel[0])
+        if len(plotOptionModel)==2:
+            self.w.pdf(model).plotOn(self.frame,plotOptionModel[0],plotOptionModel[1])
+        if len(plotOptionModel)==3:
+            self.w.pdf(model).plotOn(self.frame,plotOptionModel[0],plotOptionModel[1],plotOptionModel[2])
         self.c=ROOT.TCanvas("c","c")
         self.c.cd()
         self.frame.Draw()
@@ -945,5 +1019,22 @@ class Fitter(object):
         return self.frame.chiSquare()
         
         
-                                
+
+    def plotCoef(self,funcname,poi,filename="coef.root",xtitle='x',plotOption=[]):
+        self.frame=self.w.var(poi).frame()
+        if len(plotOption)==0:
+            self.w.function(funcname).plotOn(self.frame)
+        if len(plotOption)==1:
+            self.w.function(funcname).plotOn(self.frame,plotOption[0])
+        if len(plotOption)==2:
+            self.w.function(funcname).plotOn(self.frame,plotOption[0],plotOption[1])
+        self.c=ROOT.TCanvas("c","c")
+        self.c.cd()
+        self.frame.Draw()
+        self.frame.GetYaxis().SetTitle(funcname)
+        self.frame.GetXaxis().SetTitle(xtitle)
+        self.frame.SetMinimum(0.)
+        self.frame.SetTitle('')
+        self.c.Draw()
+        self.c.SaveAs(filename)
 
