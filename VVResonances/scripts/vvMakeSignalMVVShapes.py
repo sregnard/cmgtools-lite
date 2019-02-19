@@ -11,15 +11,15 @@ import os, sys, re, optparse,pickle,shutil,json
 
 parser = optparse.OptionParser()
 parser.add_option("-s","--sample",dest="sample",default='',help="Type of sample")
-parser.add_option("-m","--minMX",dest="minMX",type=float,help="minimum MX",default=600)
-parser.add_option("-M","--maxMX",dest="maxMX",type=float,help="maximum MX",default=5000)
+parser.add_option("-m","--minMX",dest="minMX",type=float,help="minimum MX",default=900)
+parser.add_option("-M","--maxMX",dest="maxMX",type=float,help="maximum MX",default=4600)
 parser.add_option("-c","--cut",dest="cut",help="Cut to apply for shape",default='')
 parser.add_option("-o","--output",dest="output",help="Output file",default='')
 parser.add_option("-d","--debugFile",dest="debugFile",help="Output debug plots",default='')
 parser.add_option("-v","--varx",dest="varx",help="variablex",default='lnujj_LV_mass')
-parser.add_option("-b","--binsxfit",dest="binsxfit",type=int,help="bins in x (for the fit)",default=168)
 parser.add_option("-x","--minx",dest="minx",type=float,help="minimum x",default=800.)
-parser.add_option("-X","--maxx",dest="maxx",type=float, help="maximum x",default=5000.)
+parser.add_option("-X","--maxx",dest="maxx",type=float,help="maximum x",default=5000.)
+parser.add_option("-b","--binsxfit",dest="binsxfit",type=int,help="bins in x (for the fit)",default=168)
 parser.add_option("-f","--scaleFactors",dest="scaleFactors",help="Additional scale factors separated by comma",default='')
 
 (options,args) = parser.parse_args()
@@ -41,6 +41,8 @@ graphs={
     'N2':ROOT.TGraphErrors()
     }
 
+scaleFactors=options.scaleFactors.split(',')
+
 
 ## Find the samples for all signal mass values
 samples={}
@@ -57,9 +59,6 @@ for filename in os.listdir(args[0]):
         continue
     samples[mass] = fname
     print 'found',filename,'mass',str(mass) 
-
-
-scaleFactors=options.scaleFactors.split(',')
 
 
 ## Sort the masses and run the fits
@@ -79,7 +78,7 @@ for mass in sorted(samples.keys()):
     ## Set up the fitter
     fitter=Fitter(['MVV'])
     fitter.signalResonance('model','MVV')
-    fitter.w.var("MH").setVal(mass)
+    #fitter.w.var("MH").setVal(mass)
     fitter.importBinnedData(histo,['MVV'],'data')
 
     ## fit 

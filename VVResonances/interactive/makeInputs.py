@@ -8,10 +8,12 @@ parser.add_option("-y","--year",dest="year",type=int,default=2016,help="2016 or 
 
 
 
-DONORM        = 1
-DOSIGNAL      = 1
-DORESONANT    = 1
-DONONRESONANT = 1
+DONORM         = 1
+DOSIGNALSHAPES = 1
+DOSIGNALYIELDS = 1
+DOSIGNALCTPL   = 1
+DORESONANT     = 1
+DONONRESONANT  = 1
 
 
 
@@ -49,9 +51,9 @@ cuts={}
 
 cuts['common'] = ''
 if YEAR==2016:
-    cuts['common'] = '((HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET120)*(run>500) + (run<500)*lnujj_sf)*(Flag_goodVertices&&Flag_globalTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&lnujj_nOtherLeptons==0&&lnujj_l2_softDrop_mass>0&&lnujj_LV_mass>0&&Flag_badChargedHadronFilter&&Flag_badMuonFilter)'
-elif YEAR==2017 or YEAR==2018:
-    cuts['common'] = '(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET120)*lnujj_sfWV*(lnujj_nOtherLeptons==0&&lnujj_l2_softDrop_mass>0&&lnujj_LV_mass>0)'
+    cuts['common'] = '(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET120)*((run>500) + (run<500)*lnujj_sf)*(Flag_goodVertices&&Flag_globalTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&lnujj_nOtherLeptons==0&&lnujj_l2_softDrop_mass>0&&lnujj_LV_mass>0&&Flag_badChargedHadronFilter&&Flag_badMuonFilter)'
+elif (YEAR==2017 or YEAR==2018):
+    cuts['common'] = '(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET120)*((run>500) + (run<500)*lnujj_sfWV)*(lnujj_nOtherLeptons==0&&lnujj_l2_softDrop_mass>0&&lnujj_LV_mass>0)'
 
 ## new cut on pT/M:
 cuts['common'] = cuts['common'] + '*(lnujj_l1_pt/lnujj_LV_mass>0.4&&lnujj_l2_pt/lnujj_LV_mass>0.4)'
@@ -96,7 +98,7 @@ BRWW=2.*0.327*0.6760
 WZTemplate="WprimeToWZToWlepZhad_narrow"
 BRWZ=0.327*0.6991
 
-WHTemplate="WprimeToWhToWlephbb_narrow"
+WHTemplate="WprimeToWHToWlepHinc_narrow"
 BRWH=0.327*0.59
 
 dataTemplate=""
@@ -106,6 +108,7 @@ if YEAR==2016:
     dataTemplate="SingleMuon,SingleElectron,MET"
     resWTemplate="TT_pow,WWTo1L1Nu2Q"
     nonResTemplate="WJetsToLNu_HT,TT_pow,DYJetsToLL_M50_HT"
+    ##WHTemplate="WprimeToWhToWlephbb_narrow" ## Now replaced by WlepHinc
 elif YEAR==2017:
     dataTemplate="SingleMuon,SingleElectron,MET"
     resWTemplate="TTHad_pow,TTLep_pow,TTSemi_pow,WWToLNuQQ"
@@ -138,8 +141,10 @@ fspline['bb']=2
 fspline['nobb']=5
 fspline['allC']=10
 
-minMXSigParam = 999 #601
-maxMXSigParam = 5000
+minMXSigShapeParam = 799
+maxMXSigShapeParam = 8001
+minMXSigYieldParam = 999
+maxMXSigYieldParam = 4501
 
 limitTailFit2D = 1600
 
@@ -171,16 +176,16 @@ def makeSignalShapesMJJ(filename,template,forceHP="",forceLP=""):
                 debugFile=outDir+"debugJJ_"+filename+"_MJJ_"+p+"_"+c
                 doExp = not(p=='HP' or p=='NP')
                 force = forceHP if p=='HP' else forceLP
-                cmd='vvMakeSignalMJJShapes.py -s "{template}" -c "{cut}" -o "{rootFile}" -d "{debugFile}" -V "lnujj_l2_softDrop_mass" -m {minMJJ} -M {maxMJJ} -e {doExp} {force} {ntuples}'.format(template=template,cut=cut,rootFile=rootFile,debugFile=debugFile,minMJJ=minMJJ,maxMJJ=maxMJJ,doExp=int(doExp),force=("-f "+force) if force!="" else "",ntuples=ntuples)
+                cmd='vvMakeSignalMJJShapes.py -s "{template}" -m {minMX} -M {maxMX} -c "{cut}" -o "{rootFile}" -d "{debugFile}" -V "lnujj_l2_softDrop_mass" -x {minMJJ} -X {maxMJJ} -e {doExp} {force} {ntuples}'.format(template=template,minMX=minMXSigShapeParam,maxMX=maxMXSigShapeParam,cut=cut,rootFile=rootFile,debugFile=debugFile,minMJJ=minMJJ,maxMJJ=maxMJJ,doExp=int(doExp),force=("-f "+force) if force!="" else "",ntuples=ntuples)
                 os.system(cmd)
                 
                 jsonFile=outDir+filename+"_MJJ_"+p+"_"+c+".json"
                 debugFile=outDir+"debugSignalShape_"+filename+"_MJJ_"+p+"_"+c+".root"
                 print 'Making JSON ', jsonFile
                 if p=='HP' or p=='NP':
-                    cmd='vvMakeJSON.py -o "{jsonFile}" -d "{debugFile}" -g "mean:pol4,sigma:pol4,alpha:pol0,n:pol0,alpha2:pol3,n2:pol0,slope:pol0,f:pol0" -m {minMX} -M {maxMX} {rootFile}'.format(jsonFile=jsonFile,debugFile=debugFile,minMX=minMXSigParam,maxMX=maxMXSigParam,rootFile=rootFile)
+                    cmd='vvMakeJSON.py -o "{jsonFile}" -d "{debugFile}" -g "mean:pol5,sigma:pol4,alpha:pol0,n:pol0,alpha2:pol0,n2:pol0,slope:pol0,f:pol0" -m {minMX} -M {maxMX} {rootFile}'.format(jsonFile=jsonFile,debugFile=debugFile,minMX=minMXSigShapeParam,maxMX=maxMXSigShapeParam,rootFile=rootFile)
                 else:
-                    cmd='vvMakeJSON.py -o "{jsonFile}" -d "{debugFile}" -g "mean:pol4,sigma:pol1,alpha:pol0,n:pol0,alpha2:pol0,n2:pol0,slope:pol4,f:laur4" -m {minMX} -M {maxMX} {rootFile}'.format(jsonFile=jsonFile,debugFile=debugFile,minMX=minMXSigParam,maxMX=maxMXSigParam,rootFile=rootFile)
+                    cmd='vvMakeJSON.py -o "{jsonFile}" -d "{debugFile}" -g "mean:pol5,sigma:pol4,alpha:pol0,n:pol0,alpha2:pol0,n2:pol0,slope:pol4,f:pol4" -m {minMX} -M {maxMX} {rootFile}'.format(jsonFile=jsonFile,debugFile=debugFile,minMX=minMXSigShapeParam,maxMX=maxMXSigShapeParam,rootFile=rootFile)
                 os.system(cmd)
 
 
@@ -192,13 +197,13 @@ def makeSignalShapesMVV(filename,template):
 
                 rootFile=outDir+filename+"_MVV_"+p+"_"+c+".root"
                 debugFile=outDir+"debugVV_"+filename+"_MVV_"+p+"_"+c
-                cmd='vvMakeSignalMVVShapes.py -s "{template}" -m {minMX} -M {maxMX} -c "{cut}" -o "{rootFile}" -d "{debugFile}" -v "lnujj_LV_mass" -b {binsMVV} -x {minMVV} -X {maxMVV} {ntuples}'.format(template=template,minMX=minMXSigParam,maxMX=maxMXSigParam,cut=cut,rootFile=rootFile,debugFile=debugFile,binsMVV=1000,minMVV=0,maxMVV=8000,ntuples=ntuples)
+                cmd='vvMakeSignalMVVShapes.py -s "{template}" -m {minMX} -M {maxMX} -c "{cut}" -o "{rootFile}" -d "{debugFile}" -v "lnujj_LV_mass" -b {binsMVV} -x {minMVV} -X {maxMVV} {ntuples}'.format(template=template,minMX=minMXSigShapeParam,maxMX=maxMXSigShapeParam,cut=cut,rootFile=rootFile,debugFile=debugFile,binsMVV=1000,minMVV=0,maxMVV=10000,ntuples=ntuples)
                 os.system(cmd)
                 
                 jsonFile=outDir+filename+"_MVV_"+p+"_"+c+".json"
                 debugFile=outDir+"debugSignalShape_"+filename+"_MVV_"+p+"_"+c+".root"
                 print 'Making JSON ', jsonFile
-                cmd='vvMakeJSON.py -o "{jsonFile}" -d "{debugFile}" -g "MEAN:pol1,SIGMA:pol1,ALPHA1:pol2,N1:pol0,ALPHA2:pol2,N2:pol0" -m {minMX} -M {maxMX} {rootFile}'.format(jsonFile=jsonFile,debugFile=debugFile,minMX=minMXSigParam,maxMX=maxMXSigParam,rootFile=rootFile)
+                cmd='vvMakeJSON.py -o "{jsonFile}" -d "{debugFile}" -g "MEAN:pol1,SIGMA:pol1,ALPHA1:pol4,N1:pol0,ALPHA2:pol3,N2:pol0" -m {minMX} -M {maxMX} {rootFile}'.format(jsonFile=jsonFile,debugFile=debugFile,minMX=minMXSigShapeParam,maxMX=maxMXSigShapeParam,rootFile=rootFile)
                 os.system(cmd)
 
 
@@ -210,7 +215,7 @@ def makeSignalYields(filename,template,branchingFraction,sfP = {'HP':1.0,'LP':1.
 
                 yieldFile=outDir+filename+"_"+l+"_"+p+"_"+c+"_yield"
                 debugFile=outDir+"debugSignalYield_"+filename+"_"+l+"_"+p+"_"+c
-                cmd='vvMakeSignalYields.py -s {template} -c "{cut}" -o {output} -d "{debugFile}" -V "lnujj_LV_mass" -m {minMVV} -M {maxMVV} -f "pol5" -b {BR} -x {minMX} {ntuples}'.format(template=template,cut=cut,output=yieldFile,debugFile=debugFile,minMVV=minMVV,maxMVV=maxMVV,BR=branchingFraction,minMX=minMXSigParam,ntuples=ntuples)
+                cmd='vvMakeSignalYields.py -s {template} -m {minMX} -M {maxMX} -c "{cut}" -o {output} -d "{debugFile}" -V "lnujj_LV_mass" -x {minMVV} -X {maxMVV} -f "pol4" -b {BR} {ntuples}'.format(template=template,minMX=minMXSigYieldParam,maxMX=maxMXSigYieldParam,cut=cut,output=yieldFile,debugFile=debugFile,minMVV=0.,maxMVV=10000.,BR=branchingFraction,ntuples=ntuples)
                 os.system(cmd)
 
 
@@ -373,7 +378,7 @@ if DONORM:
 
 
 ## Signal templates
-if DOSIGNAL:
+if DOSIGNALSHAPES:
     makeSignalShapesMJJ("LNuJJ_XWW",WWTemplate)
     makeSignalShapesMJJ("LNuJJ_XWZ",WZTemplate)
     makeSignalShapesMJJ("LNuJJ_XWH",WHTemplate)
@@ -382,26 +387,29 @@ if DOSIGNAL:
     makeSignalShapesMVV("LNuJJ_XWZ",WZTemplate)
     makeSignalShapesMVV("LNuJJ_XWH",WHTemplate)
 
+if DOSIGNALYIELDS:
     makeSignalYields("LNuJJ_XWW",WWTemplate,BRWW,{'HP':1.03,'LP':0.95})
     makeSignalYields("LNuJJ_XWZ",WZTemplate,BRWZ,{'HP':1.03,'LP':0.95})
     makeSignalYields("LNuJJ_XWH",WHTemplate,BRWH,{'HP':1.03,'LP':0.95})
 
-    #''' ##for control plots
-    for mx in [600,800,1000,1200,1400,1600,1800,2000,2500,3000,3500,4000,4500]:
+if DOSIGNALCTPL:
+    #for mx in [600,800,1000,1200,1400,1600,1800,2000,2500,3000,3500,4000,4500]:
+    for mx in [1000,2000,3000,4000]:
         makeNormalizations("XWW"+str(mx).zfill(4),"LNuJJ",WWTemplate+"_"+str(mx),0,'1',BRWW)
-        if mx!=4000: makeNormalizations("XWZ"+str(mx).zfill(4),"LNuJJ",WZTemplate+"_"+str(mx),0,'1',BRWZ)
-        if mx!=1200: makeNormalizations("XWH"+str(mx).zfill(4),"LNuJJ",WHTemplate+"_"+str(mx),0,'1',BRWH)
+        #if mx!=4000: 
+        makeNormalizations("XWZ"+str(mx).zfill(4),"LNuJJ",WZTemplate+"_"+str(mx),0,'1',BRWZ)
+        #if mx!=1200: 
+        makeNormalizations("XWH"+str(mx).zfill(4),"LNuJJ",WHTemplate+"_"+str(mx),0,'1',BRWH)
 
     makeNormalizations("XWWall","LNuJJ",WWTemplate,0,'1',BRWW)
     makeNormalizations("XWZall","LNuJJ",WZTemplate,0,'1',BRWZ)
     makeNormalizations("XWHall","LNuJJ",WHTemplate,0,'1',BRWH)
-    #'''
 
 
 ## Resonant background templates (W+V/t)
 if DORESONANT:
     makeBackgroundShapesMVV("resW","LNuJJ",resWTemplate,cuts['resW'])
-    makeResTopMJJShapes2D("resW","LNuJJ",resWMJJTemplate,cuts['resW'])
+    makeResTopMJJShapes2D("resW","LNuJJ",resWTemplate,cuts['resW'])
 
 
 ## Non-resonant background templates (W+jets)
