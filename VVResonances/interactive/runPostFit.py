@@ -1,4 +1,4 @@
-import os
+import os, math
 import ROOT
 from ROOT import gStyle,gROOT,gPad
 from CMGTools.VVResonances.plotting.CMS_lumi import *
@@ -8,16 +8,29 @@ ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
 
 import optparse
 parser = optparse.OptionParser()
+parser.add_option("-y","--year",dest="year",type=int,default=2016,help="2016 or 2017 or 2018")
 parser.add_option("-i","--input",dest="inputFile",default='combined.root',help="input root datacard")
+parser.add_option("-f","--fit",dest="fit",type=int,default=1,help="perform the fit")
 parser.add_option("-r","--fixR",dest="fixR",type=float,help="fix r in the fit")
-parser.add_option("-s","--signalType",dest="signalType",default='',help="XWW or XWZ")
+parser.add_option("-s","--signalType",dest="signalType",default='',help="XWW or XWZ or XWH")
+parser.add_option("-m","--fixMX",dest="fixMX",type=float,help="fix signal mass")
+parser.add_option("-R","--dispR",dest="dispR",type=float,help="displayed signal cross section times BR")
 parser.add_option("-u","--doUncBand",dest="doUncBand",type=int,default=0,help="do uncertainty band")
-parser.add_option("-v","--var",dest="variable",default='',help="mjj or mvv")
-parser.add_option("-p","--pur",dest="purity",default='',help="HP or LP")
-parser.add_option("-l","--lep",dest="lepton",default='',help="e or mu")
+parser.add_option("-v","--var",dest="variable",default='',help="restrict mjj or mvv")
+parser.add_option("-p","--pur",dest="purity",default='',help="restrict to HP or LP")
+parser.add_option("-l","--lep",dest="lepton",default='',help="restrict to e or mu")
+parser.add_option("-c","--cats",dest="categories",default='bb',help="categorization scheme")
+parser.add_option("-C","--CMSlabel",dest="CMSlabel",type=int,default=0,help="0:None 1:CMS 2:CMS Preliminary 3:CMS Supplementary")
+parser.add_option("-b","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=True)
 (options,args) = parser.parse_args()
 
 
+MJJMAX = -1 #paper: 650
+MVVMAX = -1 #paper: 2e+4
+
+UNSTACKSIG = 1
+OPTINRESW = 1 #to be activated when resW uses FastVerticalInterpHistPdf2D
+VERBOSE = 0
 
 def saveCanvas(canvas,name):
   canvas.SaveAs(name+".root")
@@ -29,17 +42,46 @@ def saveCanvas(canvas,name):
   #os.system("rm "+name+".eps") ## don't uncomment this for jobs
 
 def cmsLabel(canvas):
-  #cmslabel_not(canvas,'2016',11)
-  #cmslabel_prelim(canvas,'2016',11)
-  cmslabel_final(canvas,'2016',11)
+  if options.CMSlabel==0:
+    cmslabel_not(canvas,YEAR,11)
+  elif options.CMSlabel==1:
+    cmslabel_final(canvas,YEAR,11)
+  elif options.CMSlabel==2:
+    cmslabel_prelim(canvas,YEAR,11)
+  elif options.CMSlabel==3:
+    cmslabel_suppl(canvas,YEAR,11)
 
 
-
-
-directory='PlotsPostFit_'+options.signalType
-os.system("mkdir -p "+directory)
 
 s = options.signalType
+YEAR=str(options.year)
+inputDir="Dc_"+(s if s!="" else "XWW")+"/"
+inputDC=inputDir+"combined_"+YEAR+".root"
+
+prefix = ('preFit','postFit')[options.fit]
+directory='Plots_' + prefix + '_' + (s if s!="" else "Bonly") + '_' + YEAR
+os.system("mkdir -p "+directory)
+
+sigSF = -1.
+sigStr = ""
+sigLgd = ""
+sigColor = 0
+sigLabel = ""
+if s!="":
+    sigSF = -1. if options.dispR is None else options.dispR/options.fixR
+    sigStr = s + ("" if options.fixMX is None else str(int((options.fixMX))))
+    mx = "" if options.fixMX is None else '{:,g}'.format(options.fixMX/1000)
+    sx = "" if options.dispR is None else '{:,g}'.format(options.dispR)
+    if s=="XWW":
+        sigLgd += "G_{Bulk}" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWW" 
+        sigColor = ROOT.kRed-3
+    elif s=="XWZ":
+        sigLgd += "W'" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWZ"
+        sigColor = ROOT.kViolet-5
+    elif s=="XWH":
+        sigLgd += "W'" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWH"
+        sigColor = ROOT.kViolet+6
+    sigLabel = "" if options.dispR is None else "#scale[0.9]{(#sigma #times BR = "+sx+" pb)}" 
 
 doMjj = options.variable=='' or options.variable=='mjj'
 doMvv = options.variable=='' or options.variable=='mvv'
@@ -47,45 +89,38 @@ doMvv = options.variable=='' or options.variable=='mvv'
 
 if doMjj:
   
-    plotter=RooPlotter(options.inputFile)    
+    plotter=RooPlotter(inputDC)    
   
-    if s=='XWW':
-        plotter.fix("MH",1350)
-    elif s=='XWZ':
-        plotter.fix("MH",1410)
+    if options.fixMX is not None:
+        plotter.fix("MH",options.fixMX)
     if options.fixR is not None:
         plotter.fix("r",options.fixR)
 
-    plotter.prefit()
+    if options.fit:
+        plotter.prefit(verbose=VERBOSE)
 
-    if s=='XWW':
-        plotter.addContribution("XWW",True,"X #rightarrow WW",3,1,ROOT.kOrange+10,0,ROOT.kWhite)
-    elif s=='XWZ':
-        plotter.addContribution("XWZ",True,"X #rightarrow WZ",3,1,ROOT.kMagenta,0,ROOT.kWhite)
-    plotter.addContribution("resW",False,"W+V/t",1,1,ROOT.TColor.GetColor("#0F5500"),1001,ROOT.TColor.GetColor("#60B037")) #4CB319"))
+    if s!="":
+        plotter.addContribution(s,True,sigLgd,2,1,sigColor,0,ROOT.kWhite)
+    plotter.addContribution("resW",False,"W+V/t",1,1,ROOT.TColor.GetColor("#0F5500"),1001,ROOT.TColor.GetColor("#60B037"),("","_opt")[OPTINRESW]) #4CB319"))
     plotter.addContribution("nonRes",False,"W+jets",1,1,ROOT.TColor.GetColor("#0041AA"),1001,ROOT.TColor.GetColor("#A5D2FF"),"_opt")
 
 
 if doMvv:
 
-    plotter2=RooPlotter(options.inputFile)    
+    plotter2=RooPlotter(inputDC)
 
-    if s=='XWW':
-        plotter2.fix("MH",1350)
-    elif s=='XWZ':
-        plotter2.fix("MH",1410)
+    if options.fixMX is not None:
+        plotter2.fix("MH",options.fixMX)
     if options.fixR is not None:
         plotter2.fix("r",options.fixR)
 
-    plotter2.prefit()
+    if options.fit:
+        plotter2.prefit(verbose=VERBOSE)
 
-    if s=='XWW':
-        plotter2.addContribution("XWW",True,"X #rightarrow WW",3,1,ROOT.kOrange+10,0,ROOT.kWhite)
-    elif s=='XWZ':
-        plotter2.addContribution("XWZ",True,"X #rightarrow WZ",3,1,ROOT.kMagenta,0,ROOT.kWhite)
+    if s!="":
+        plotter2.addContribution(s,True,sigLgd,2,1,sigColor,0,ROOT.kWhite)
     plotter2.addContribution("nonRes",False,"W+jets",1,1,ROOT.TColor.GetColor("#0041AA"),1001,ROOT.TColor.GetColor("#A5D2FF"),"_opt")
-    plotter2.addContribution("resW",False,"W+V/t",1,1,ROOT.TColor.GetColor("#0F5500"),1001,ROOT.TColor.GetColor("#60B037")) #4CB319"))
-
+    plotter2.addContribution("resW",False,"W+V/t",1,1,ROOT.TColor.GetColor("#0F5500"),1001,ROOT.TColor.GetColor("#60B037"),("","_opt")[OPTINRESW]) #4CB319"))
 
 
 
@@ -93,119 +128,126 @@ prt = options.purity
 lep = options.lepton
 
 
-for c in ['nob']:
-#for c in ['Wplus','Wminus']:
-    if c=='vbf':
-        pur=['NP']
-    else:
-        pur=['HP','LP']
-    for p in pur:
-        for l in ['e','mu']:
+leptons = ['mu','e']
+purities = ['LP','HP']
+categories = []
+if options.categories == 'old':
+    categories = ['nob']
+elif options.categories == 'bb':
+    categories = ['bb','nobb']
+#elif options.categories == 'charge':
+#    categories = ['Wplus','Wminus']
+
+
+for l in leptons:
+    for p in purities:
+        for c in categories:
             #continue
 
-            label="W #rightarrow "+(("e","#mu")[l=='mu'])+"#nu, "+p
-            
+            varMVV = "MLNuJ"
+            varMJJ = "MJ"
+            if options.differentBinning and c == 'bb':
+                varMVV = "MLNuJ_coarse"
+                varMJJ = "MJ_coarse"
+
+            ##label="W #rightarrow "+(("e","#mu")[l=='mu'])+"#nu, "+p
+            ##label="W#rightarrow"+(("e","#mu")[l=='mu'])+"#nu, "+(("low-purity","high-purity")[p=='HP'])
+            ##label=(("electron","muon")[l=='mu'])+", "+(("low-purity","high-purity")[p=='HP'])
+
+            #label="#bf{"+(("electron","muon")[l=='mu'])+", "+(("low-purity","high-purity")[p=='HP'])+"}"
+            label=(("e","#mu")[l=='mu'])+", "+p+", "+c
+
             if prt!='' and prt!=p: continue 
             if lep!='' and lep!=l: continue
 
             if doMvv:
                 pass
 
-                #''' ## for paper
-                plotter2.drawBinned("MLNuJ","m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_13TeV",[0,0],options.doUncBand,1,"")
+                ''' ## for paper
+                plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,"",MVVMAX,UNSTACKSIG,sigSF,sigLabel)
                 cmsLabel(plotter2.canvas)
-                saveCanvas(plotter2.canvas,directory+"/postFitMVV_"+s+"_"+c+"_"+l+"_"+p+"_13TeV")
+                saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVV_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 #'''
 
                 '''
-                plotter2.drawBinned("MLNuJ","m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_13TeV",[0,10000],options.doUncBand,c!='vbf',"")
+                plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,10000],options.doUncBand,c!='vbf',0,"",MVVMAX)
                 cmsLabel(plotter2.canvas)
-                saveCanvas(plotter2.canvas,directory+"/postFitMVVBlind_"+s+"_"+c+"_"+l+"_"+p+"_13TeV")
+                saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVVBlind_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 #'''
 
                 '''
-                plotter2.drawBinned("MLNuJ","m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_13TeV",[0,0],options.doUncBand,0,"MJ:sig:66:86")
-                cmsLabel(plotter2.canvas)
-                saveCanvas(plotter2.canvas,directory+"/postFitMVVW_"+s+"_"+c+"_"+l+"_"+p+"_13TeV")
+                #plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,0,0,varMJJ+":sig:66:86",MVVMAX)
+                #cmsLabel(plotter2.canvas)
+                #saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVVW_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 
                 plotter2.frame.GetXaxis().SetRangeUser(1000.,2000.)
                 plotter2.frame.GetYaxis().SetRangeUser(0.,1.1*(plotter2.frame.getHist("datapoints").GetY()[9]+plotter2.frame.getHist("datapoints").GetEYhigh()[9]))
                 plotter2.frame2.GetXaxis().SetRangeUser(1000.,2000.)
                 plotter2.line.SetX1(1000.)
                 plotter2.line.SetX2(2000.)
-                saveCanvas(plotter2.canvas,directory+"/postFitMVVWZoom_"+s+"_"+c+"_"+l+"_"+p+"_13TeV")
+                saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVVWZoom_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 #'''
 
                 '''
-                plotter2.drawBinned("MLNuJ","m_{WV} (GeV)",label+", 2D fit",c+"_"+l+"_"+p+"_13TeV",[0,0],options.doUncBand,1,"MJ:sig:64:106")
+                plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label+", 2D fit",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,varMJJ+":sig:70:110",MVVMAX) #64:106",MVVMAX)
                 cmsLabel(plotter2.canvas)
-                saveCanvas(plotter2.canvas,directory+"/postFitMVV_MJ64to106_"+s+"_"+c+"_"+l+"_"+p+"_13TeV")
+                saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVV_MJ70to110_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR) #64to106_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 #'''
 
-                '''
-                plotter2.drawBinned("MLNuJ","m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_13TeV",[0,0],options.doUncBand,1,"MJ:low:30:64")
+                #'''
+                plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,varMJJ+":low:30:70",MVVMAX) #30:64",MVVMAX)
                 cmsLabel(plotter2.canvas)
-                saveCanvas(plotter2.canvas,directory+"/postFitMVVLo_"+s+"_"+c+"_"+l+"_"+p+"_13TeV")
+                saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVVLo_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 #'''
 
-                '''
-                plotter2.drawBinned("MLNuJ","m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_13TeV",[0,0],options.doUncBand,1,"MJ:high:106:210")
-                cmsLabel(plotter2.canvas)
-                saveCanvas(plotter2.canvas,directory+"/postFitMVVHi_"+s+"_"+c+"_"+l+"_"+p+"_13TeV")
                 #'''
-
-                ''' ## Plots in MLNuJ intervals (AN Fig. 65)
-                plotter.drawBinned("MJ","m_{jet} (GeV)",label,c+"_"+l+"_"+p+"_13TeV",[0,0],options.doUncBand,0,"MLNuJ:bin1:800:1000",420.)
-                cmsLabel(plotter.canvas)
-                saveCanvas(plotter.canvas,directory+"/postFitMJJ_MVVa0800to1000_"+s+"_"+c+"_"+l+"_"+p+"_13TeV")
-                
-                plotter.drawBinned("MJ","m_{jet} (GeV)",label,c+"_"+l+"_"+p+"_13TeV",[0,0],options.doUncBand,0,"MLNuJ:bin1:1000:1200",162.)
-                cmsLabel(plotter.canvas)
-                saveCanvas(plotter.canvas,directory+"/postFitMJJ_MVVb1000to1200_"+s+"_"+c+"_"+l+"_"+p+"_13TeV")
-                
-                plotter.drawBinned("MJ","m_{jet} (GeV)",label,c+"_"+l+"_"+p+"_13TeV",[0,0],options.doUncBand,0,"MLNuJ:bin1:1200:1800",110.)
-                cmsLabel(plotter.canvas)
-                saveCanvas(plotter.canvas,directory+"/postFitMJJ_MVVc1200to1800_"+s+"_"+c+"_"+l+"_"+p+"_13TeV")
-                
-                plotter.drawBinned("MJ","m_{jet} (GeV)",label,c+"_"+l+"_"+p+"_13TeV",[0,0],options.doUncBand,0,"MLNuJ:bin1:1800:5000",31.)
-                cmsLabel(plotter.canvas)
-                saveCanvas(plotter.canvas,directory+"/postFitMJJ_MVVd1800to5000_"+s+"_"+c+"_"+l+"_"+p+"_13TeV")
-                #'''  
+                plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,varMJJ+":high:150:210",MVVMAX) #106:210",MVVMAX)
+                cmsLabel(plotter2.canvas)
+                saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVVHi_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
+                #'''
 
             if doMjj:
                 pass
 
-                #''' ## for paper
-                plotter.drawBinned("MJ","m_{jet} (GeV)",label,c+"_"+l+"_"+p+"_13TeV",[0,0],options.doUncBand,0,"")
+                ''' ## for paper
+                plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,0,0,"",MJJMAX,UNSTACKSIG,sigSF,sigLabel)
                 cmsLabel(plotter.canvas)
-                saveCanvas(plotter.canvas,directory+"/postFitMJJ_"+s+"_"+c+"_"+l+"_"+p+"_13TeV")
+                saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 #'''
 
-                '''
-                plotter.drawBinned("MJ","m_{jet} (GeV)",label,c+"_"+l+"_"+p+"_13TeV",[64,106],options.doUncBand,0,"")
+                #'''
+                plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[70,150],options.doUncBand,0,0,"",MJJMAX) #[64,106],options.doUncBand,0,0,"",MJJMAX)
                 cmsLabel(plotter.canvas)
-                saveCanvas(plotter.canvas,directory+"/postFitMJJBlind_"+s+"_"+c+"_"+l+"_"+p+"_13TeV")
+                saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJBlind_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
+                #'''
+
+                ''' ## Plots in MLNuJ intervals (AN Fig. 65, supplementary material)
+                plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label+", 0.8 #leq m_{WV} < 1 TeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,0,0,varMVV+":bin1:800:1000",490.)
+                cmsLabel(plotter.canvas)
+                saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_MVV0800to1000_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
+                
+                plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label+", 1 #leq m_{WV} < 1.2 TeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,0,0,varMVV+":bin1:1000:1200",190.)
+                cmsLabel(plotter.canvas)
+                saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_MVV1000to1200_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
+
+                #plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label+", 1.2 #leq m_{WV} < 1.8 TeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,0,0,varMVV+":bin1:1200:1800",130.)
+                #cmsLabel(plotter.canvas)
+                #saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_MVV1200to1800_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
+
+                #plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label+", 1.8 #leq m_{WV} < 5 TeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,0,0,varMVV+":bin1:1800:5000",43.)
+                #cmsLabel(plotter.canvas)
+                #saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_MVV1800to5000_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
+
+                plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label+", 1.2 #leq m_{WV} < 1.6 TeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,0,0,varMVV+":bin1:1200:1600",115.)
+                cmsLabel(plotter.canvas)
+                saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_MVV1200to1600_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
+
+                plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label+", 1.6 #leq m_{WV} < 5 TeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,0,2,varMVV+":bin1:1600:5000",84.)
+                cmsLabel(plotter.canvas)
+                saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_MVV1600to5000_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 #'''
 
 
-
-
-
-#for l in ['mu','e']:
-#    for p in ['both']:
-#        for c in ['vbf']:
-#            plotter.drawProjection("MJ","m_{jet} [GeV]",c+"_"+l+"_"+p+"_13TeV",1,0)
-#            saveCanvas(plotter.canvas,directory+"/postfitMJJ"+c+"_"+l+"_"+p)
-#            plotter.drawProjection("MLNuJ","m_{WV} [GeV]",c+"_"+l+"_"+p+"_13TeV",1,0)
-#            saveCanvas(plotter.canvas,directory+"/postfitMVV"+c+"_"+l+"_"+p)
-
-
-
-#plotter=RooPlotter("LNuJJ_topPreFit_HP.root")    
-#plotter.prefit()
-#plotter.addContribution("topRes",True,"t#bar{t}",1,1,ROOT.kRed,0,ROOT.kWhite)
-#plotter.addContribution("topNonRes",False,"non-resonant t#bar{t}",1,1,ROOT.kBlack,1001,ROOT.kGreen-5)
-#plotter.drawStack("MJ","m_{jet} [GeV]","top_mu_HP_13TeV","top_mu_HP_13TeV")
 
 
 
