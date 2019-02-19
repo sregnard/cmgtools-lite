@@ -1,61 +1,158 @@
-from CMGTools.VVResonances.plotting.RooPlotter import *
+import os
+import ROOT
+import numpy as np
+from ROOT import gStyle,gROOT,gPad
+from array import array
+from CMGTools.VVResonances.plotting.CMS_lumi import *
 from CMGTools.VVResonances.plotting.tdrstyle import *
-#setTDRStyle()
-from  CMGTools.VVResonances.plotting.CMS_lumi import *
+from CMGTools.VVResonances.plotting.RooPlotter import *
 
-#from start16 import *
-directory='plots16'
-lumi='35900'
-period='2016'
+import optparse
+parser = optparse.OptionParser()
+parser.add_option("-y","--year",dest="year",type=int,default=2016,help="2016 or 2017 or 2018")
+parser.add_option("-o","--outDir",dest="outDirPrefix",default='PlotsTemplates_',help="where to save the plots")
+parser.add_option("-p","--plots",dest="plots",default='all',help="possible plots: all, signal, nonRes, resW, scaleres")
+parser.add_option("-c","--cat",dest="categories",default='bb',help="categorization scheme")
+#parser.add_option("-b","--binmvv",dest="mvvbinning",type=int,default=168,help="168 or 84 or 42")
+#parser.add_option("-B","--binmjet",dest="mjetbinning",type=int,default=90,help="90 or 18")
+parser.add_option("-d","--withDC",dest="withDC",type=int,default=1,help="include plots that require datacards")
+parser.add_option("-D","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=True)
+(options,args) = parser.parse_args()
+
+YEAR=str(options.year)
+inDir='Inputs_'+YEAR+'/'
+outDir=options.outDirPrefix+YEAR+'/'
+
+
+plots = options.plots
+if 'all' in plots:
+    plots = plots + ',signal,nonRes,resW,scaleres'
+
+
+signals = ['XWW','XWZ','XWH']
+leptons = ['mu','e']
+purities = ['LP','HP']
+categories = []
+DcFolder = 'Dc_XWW'
+
+if options.categories == 'old':
+    categories = ['nob']
+elif options.categories == 'bb':
+    categories = ['bb','nobb']
+#elif options.categories == 'charge':
+#    categories = ['Wplus','Wminus']
+
+binsMJJ={}
+binsMJJ['bb']=18
+binsMJJ['nobb']=45
+binsMJJ['nob']=90
+binsMVV={}
+binsMVV['bb']=42
+binsMVV['nobb']=168
+binsMVV['nob']=168
+
+varMVV = {}
+varMJJ = {}
+for c in categories:
+    varMVV[c] = "MLNuJ"
+    varMJJ[c] = "MJ"
+    if options.differentBinning and c=='bb':
+        varMVV[c] = "MLNuJ_coarse"
+        varMJJ[c] = "MJ_coarse"
+
+minmx=700 #500
+maxmx=8100
+colorSignal = { 
+    'XWW':ROOT.kOrange+2,
+    'XWZ':ROOT.kViolet-8,
+    'XWH':ROOT.kTeal-6,
+}
+
+
+
+def saveCanvas(canvas,name):
+  canvas.SaveAs(name+".root")
+  #canvas.SaveAs(name+".C")
+  canvas.SaveAs(name+".pdf")
+  #canvas.SaveAs(name+".png")
+  canvas.SaveAs(name+".eps")
+  os.system("convert -density 150 -quality 100 "+name+".eps "+name+".png")
+  os.system("rm "+name+".eps")
+
+def setColZGradient_Rainbow1():
+    NRGBs = 5
+    NCont = 255
+    stops = [ 0.00, 0.34, 0.61, 0.84, 1.00 ]
+    red   = [ 0.00, 0.00, 0.87, 1.00, 0.51 ]
+    green = [ 0.00, 0.81, 1.00, 0.20, 0.00 ]
+    blue  = [ 0.51, 1.00, 0.12, 0.00, 0.00 ]
+    stopsArray = array('d', stops)
+    redArray   = array('d', red)
+    greenArray = array('d', green)
+    blueArray  = array('d', blue)
+    ROOT.TColor.CreateGradientColorTable(NRGBs, stopsArray, redArray, greenArray, blueArray, NCont)
+    gStyle.SetNumberContours(NCont)
+
+def setColZGradient_PosNeg():
+    NRGBs = 4
+    NCont = 255
+    stops = [ 0.00, 0.20, 0.50, 1.00 ]
+    red   = [ 243./256., 256./256., 1.00,   0./256. ]
+    green = [ 113./256., 150./256., 1.00,   0./256. ]
+    blue  = [   0./256.,   0./256., 1.00, 220./256. ]
+    stopsArray = array('d', stops)
+    redArray   = array('d', red)
+    greenArray = array('d', green)
+    blueArray  = array('d', blue)
+    ROOT.TColor.CreateGradientColorTable(NRGBs, stopsArray, redArray, greenArray, blueArray, NCont)
+    gStyle.SetNumberContours(NCont)
+
+def normalizePerSlice(h, sliceInX=True):
+    nbinsx = h.GetNbinsX()
+    nbinsy = h.GetNbinsY()
+    if sliceInX:
+        for bx in range(nbinsx+2):
+            sliceNorm = h.Integral(bx,bx,0,nbinsy+1)
+            if sliceNorm!=0:
+                for by in range(nbinsy+2):
+                    h.SetBinContent(bx,by,h.GetBinContent(bx,by)/sliceNorm)
+    else:
+        for by in range(nbinsy+2):
+            sliceNorm = h.Integral(0,nbinsx+1,by,by)
+            if sliceNorm!=0:
+                for bx in range(nbinsx+2):
+                    h.SetBinContent(bx,by,h.GetBinContent(bx,by)/sliceNorm)
+    axisToChange = h.GetXaxis() if sliceInX else h.GetYaxis() 
+    axisToChange.SetTitle(axisToChange.GetTitle()+" (normalized per slice)")
+
+
+
+
+
 
 
 def makePileup():
     canvas,h1,h2,legend,pt=compare(WJets_quark,data,"nVert","lnujj_LV_mass>0","lnujj_LV_mass>0",60,0,60,'number of vertices','','Simulation','Data')
-    cmslabel_prelim(canvas,period,12)
-    canvas.SaveAs(directory+"/nVert.pdf")
-    canvas.SaveAs(directory+"/nVert.png")
-    canvas.SaveAs(directory+"/nVert.root")
+    cmslabel_prelim(canvas,YEAR,12)
+    canvas.SaveAs(outDir+"/nVert.pdf")
+    canvas.SaveAs(outDir+"/nVert.png")
+    canvas.SaveAs(outDir+"/nVert.root")
     
-
-
-
-def makeSignalMVVParamPlot(datacard,pdf,var='MLNuJ'):
-    ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
-    F=ROOT.TFile(datacard)
-    w=F.Get('w')
-    frame=w.var(var).frame()
-    for mass in [800,1200,1600,2000,2400,2800,3200,3600,4000]:
-        w.var("MH").setVal(mass)
-        w.pdf(pdf).plotOn(frame)
-       
-
-    frame.GetXaxis().SetTitle("M_{VV} (GeV)")
-    frame.GetYaxis().SetTitle("a.u")
-    frame.GetYaxis().SetTitleOffset(1.35)
-    frame.SetTitle('')
-    canvas=ROOT.TCanvas("c")
-    canvas.cd()
-    frame.Draw()
-    cmslabel_sim(canvas,period,12)
-    canvas.Update()
-    canvas.SaveAs(directory+"/MVVParam.png")
-    canvas.SaveAs(directory+"/MVVParam.pdf")
-    canvas.SaveAs(directory+"/MVVParam.root")
 
 
 def getMJJParams(filename,newname):
     F=ROOT.TFile(filename)
     canvas=F.Get('c')
     canvas.SetRightMargin(0.04)
-    cmslabel_sim(canvas,period,12)
+    cmslabel_sim(canvas,YEAR,12)
     canvas.Update()
-    canvas.SaveAs(directory+"/"+newname+".png")
-    canvas.SaveAs(directory+"/"+newname+".pdf")
-    canvas.SaveAs(directory+"/"+newname+".root")
+    canvas.SaveAs(outDir+"/"+newname+".png")
+    canvas.SaveAs(outDir+"/"+newname+".pdf")
+    canvas.SaveAs(outDir+"/"+newname+".root")
+
 
 
 def makeShapeUncertaintiesMJJ(filename,sample,tag,syst):
-    #MJJ
     f=ROOT.TFile(filename)
     hN = f.Get("histo").ProjectionY("nominal")
     hU = f.Get("histo_"+syst+"_"+sample+"_"+tag+"Up").ProjectionY("up")
@@ -74,22 +171,19 @@ def makeShapeUncertaintiesMJJ(filename,sample,tag,syst):
     c=ROOT.TCanvas("c")
     c.cd()
     frame=c.DrawFrame(40,0,160,0.07)
-    frame.GetXaxis().SetTitle("M_{J} (GeV)")
-    frame.GetYaxis().SetTitle("a.u")
+    frame.GetXaxis().SetTitle("m_{jet} (GeV)")
+    frame.GetYaxis().SetTitle("a.u.")
     hN.Draw("HIST,SAME")
     hU.Draw("HIST,SAME")
     hD.Draw("HIST,SAME")
-    cmslabel_sim(c,period,12)
+    cmslabel_sim(c,YEAR,12)
 
-#    cmslabel_sim(canvas,period,12)
     c.Update()
-    c.SaveAs(directory+"/"+sample+"_"+syst+tag+".png")
-    c.SaveAs(directory+"/"+sample+"_"+syst+tag+".root")
-    c.SaveAs(directory+"/"+sample+"_"+syst+tag+".pdf")
+    saveCanvas(c,outDir+"/"+sample+"_"+syst+tag)
+
 
 
 def makeShapeUncertaintiesMVV(filename,sample,tag,syst):
-    #MJJ
     f=ROOT.TFile(filename)
     hN = f.Get("histo").ProjectionX("nominal")
     hU = f.Get("histo_"+syst+"_"+sample+"_"+tag+"Up").ProjectionX("up")
@@ -108,22 +202,22 @@ def makeShapeUncertaintiesMVV(filename,sample,tag,syst):
     c=ROOT.TCanvas("c")
     c.cd()
     frame=c.DrawFrame(600,0,4800,0.07)
-    frame.GetXaxis().SetTitle("M_{VV} (GeV)")
-    frame.GetYaxis().SetTitle("a.u")
+    frame.GetXaxis().SetTitle("m_{WV} (GeV)")
+    frame.GetYaxis().SetTitle("a.u.")
     hN.Draw("HIST,SAME")
     hU.Draw("HIST,SAME")
     hD.Draw("HIST,SAME")
-    cmslabel_sim(c,period,12)
+    cmslabel_sim(c,YEAR,12)
 
-#    cmslabel_sim(canvas,period,12)
     c.Update()
-    c.SaveAs(directory+"/"+sample+"_"+syst+tag+".png")
-    c.SaveAs(directory+"/"+sample+"_"+syst+tag+".root")
-    c.SaveAs(directory+"/"+sample+"_"+syst+tag+".pdf")
+    saveCanvas(c,outDir+"/"+sample+"_"+syst+tag)
+
 
 
 def makeShapeUncertainties2D(filename,sample,syst):
-    #MJJ
+    ROOT.gStyle.SetOptTitle(0)
+    ROOT.gStyle.SetOptStat(0)
+
     f=ROOT.TFile(filename)
     hN = f.Get("histo")
     hU = f.Get("histo_"+syst+"Up")
@@ -131,93 +225,416 @@ def makeShapeUncertainties2D(filename,sample,syst):
     hU.Divide(hN)
     hD.Divide(hN)
 
-
     c=ROOT.TCanvas("c")
     c.cd()
+    hU.GetXaxis().SetTitle("m_{WV} (GeV)")
+    hU.GetYaxis().SetTitle("m_{jet} (GeV)")
     hU.Draw("COL")
-    c.SaveAs(directory+"/"+sample+"_"+syst+"Up.root")
-    c.SaveAs(directory+"/"+sample+"_"+syst+"Up.pdf")
-    c.SaveAs(directory+"/"+sample+"_"+syst+"Up.jpg")
+    saveCanvas(c,outDir+"/"+sample+"_"+syst+"Up")
 
     c=ROOT.TCanvas("c")
     c.cd()
+    hD.GetXaxis().SetTitle("m_{WV} (GeV)")
+    hD.GetYaxis().SetTitle("m_{jet} (GeV)")
     hD.Draw("COL")
-    c.SaveAs(directory+"/"+sample+"_"+syst+"Down.root")
-    c.SaveAs(directory+"/"+sample+"_"+syst+"Down.pdf")
-    c.SaveAs(directory+"/"+sample+"_"+syst+"Down.jpg")
+    saveCanvas(c,outDir+"/"+sample+"_"+syst+"Down")
+
 
 
 def makeShapeUncertaintiesProj2D(filename,sample,syst):
-    #MJJ
+    ROOT.gStyle.SetOptTitle(0)
+    ROOT.gStyle.SetOptStat(0)
+
     f=ROOT.TFile(filename)
     hN = f.Get("histo")
     hU = f.Get("histo_"+syst+"Up")
     hD = f.Get("histo_"+syst+"Down")
-
     
     c=ROOT.TCanvas("c")
     c.cd()
-    proje1=hN.ProjectionX("qqq")
+    proje1=hN.Clone().ProjectionX("qqq")
+    proje1.GetXaxis().SetTitle("m_{WV} (GeV)")
     proje1.DrawNormalized("HIST")
     proje1.SetLineColor(ROOT.kBlack)
     proje1.GetYaxis().SetRangeUser(0,8)
-
-    proje2=hU.ProjectionX("qqqq")
+    proje2=hU.Clone().ProjectionX("qqqq")
     proje2.SetLineColor(ROOT.kRed)
     proje2.DrawNormalized("HIST,SAME")
-
-    proje3=hD.ProjectionX("qqqqq")
+    proje3=hD.Clone().ProjectionX("qqqqq")
     proje3.SetLineColor(ROOT.kBlue)
     proje3.DrawNormalized("HIST,SAME")
-    c.SaveAs(directory+"/"+sample+"_"+syst+"ProjX.root")
-    c.SaveAs(directory+"/"+sample+"_"+syst+"ProjX.pdf")
-    c.SaveAs(directory+"/"+sample+"_"+syst+"ProjX.jpg")
-
+    l=ROOT.TLegend(0.6,0.6,0.85,0.85)
+    l.AddEntry(proje1,"nominal","l")
+    l.AddEntry(proje2,"up","l")
+    l.AddEntry(proje3,"down","l")
+    l.SetBorderSize(0)
+    l.SetFillStyle(0)
+    l.Draw()
+    saveCanvas(c,outDir+"/"+sample+"_"+syst+"ProjX")
 
     c2=ROOT.TCanvas("c2")
     c2.cd()
-    proje4=hN.ProjectionY("qqqa")
+    proje4=hN.Clone().ProjectionY("qqqa")
+    proje4.GetXaxis().SetTitle("m_{jet} (GeV)")
     proje4.DrawNormalized("HIST")
     proje4.SetLineColor(ROOT.kBlack)
     proje4.GetYaxis().SetRangeUser(0,0.8)
-    proje5=hU.ProjectionY("qqqqa")
+    proje5=hU.Clone().ProjectionY("qqqqa")
     proje5.SetLineColor(ROOT.kRed)
     proje5.DrawNormalized("HIST,SAME")
-    proje6=hD.ProjectionY("qqqqqa")
+    proje6=hD.Clone().ProjectionY("qqqqqa")
     proje6.SetLineColor(ROOT.kBlue)
     proje6.DrawNormalized("HIST,SAME")
-    c2.SaveAs(directory+"/"+sample+"_"+syst+"ProjY.root")
-    c2.SaveAs(directory+"/"+sample+"_"+syst+"ProjY.pdf")
-    c2.SaveAs(directory+"/"+sample+"_"+syst+"ProjY.jpg")
+    l.Draw()
+    saveCanvas(c2,outDir+"/"+sample+"_"+syst+"ProjY")
 
     
+def extractResWTemplateFromDC(DCfilename,cat,outputname,c):
+    f = ROOT.TFile(DCfilename)
+    w = f.Get("w")
+    pdf = w.pdf("shapeBkg_resW_"+cat)
+    h2 = pdf.createHistogram(varMVV[c]+","+varMJJ[c])
+    h2.GetXaxis().SetTitle("m_{WV} (GeV)")
+    h2.GetYaxis().SetTitle("m_{jet} (GeV)")
+    h2.GetZaxis().SetTitle("")
+    fOut = ROOT.TFile(outputname+".root","recreate")
+    h2.Write("histo")
+    fOut.Close()
+
+def extractSignalTemplateFromDC(DCfilename,pdfname,signal,mx,outputname,c):
+    f = ROOT.TFile(DCfilename)
+    w = f.Get("w")
+    w.var("MH").setVal(mx)
+    w.var("MH").setConstant(1)
+    pdf = w.pdf(pdfname)
+    h2 = pdf.createHistogram(varMVV[c]+","+varMJJ[c])
+    h2.GetXaxis().SetTitle("m_{WV} (GeV)")
+    h2.GetYaxis().SetTitle("m_{jet} (GeV)")
+    h2.GetZaxis().SetTitle("")
+    fOut = ROOT.TFile(outputname+".root","update")
+    h2.Write(signal+str(mx).zfill(4))
+    fOut.Close()
 
 
-def makeTemplates2D(filename,sample,tag):
-    #MJJ
-    f=ROOT.TFile(filename)
-    hN = f.Get("histo")
+def makeTemplate2D(filename,histoname,outputname,logz=True,normXSlice=False,xtitle="m_{WV} (GeV)"):
+    if not os.path.isfile(filename):
+        print "Error in makeTemplate2D: file "+filename+" does not exist."
+        return
+    f = ROOT.TFile(filename)
+    h2 = f.Get(histoname)
+    if not(h2):
+        print "Error in makeTemplate2D, file "+filename+": histogram "+histoname+" does not exist."
+        return
+    if normXSlice: normalizePerSlice(h2)
+    c = ROOT.TCanvas("c")
+    c.cd()
+    setColZGradient_Rainbow1()
+    h2.Draw("COLZ")
+    h2.GetXaxis().SetTitle(xtitle)
+    h2.GetYaxis().SetTitle("m_{jet} (GeV)")
+    if logz: h2.SetMinimum(max(1e-12,h2.GetMinimum())) #h2.GetMaximum()/(1e3 if histoname=='resW' else 2e7))
+    #else: h2.SetMinimum(-0.005)
+    c.Update()
+    c.UseCurrentStyle()
+    if logz: c.SetLogz()
+    c.SetRightMargin(0.14)
+    h2.GetXaxis().SetLabelSize(0.035)
+    pal=h2.GetListOfFunctions().FindObject("palette")
+    pal.SetX1NDC(0.875)
+    pal.SetX2NDC(0.90)
+    saveCanvas(c,outDir+"/"+outputname)
+    c.Close()
+
+
+def makeTemplateVsReco2D(filenameTpt,histonameTpt,filenameReco,histonameReco,outputname,rebinx=0,rebiny=0):
+    if not os.path.isfile(filenameTpt):
+        print "Error in makeTemplateVsReco2D: file "+filenameTpt+" does not exist."
+        return
+    if not os.path.isfile(filenameReco):
+        print "Error in makeTemplateVsReco2D: file "+filenameReco+" does not exist."
+        return
+    fTpt = ROOT.TFile(filenameTpt)
+    hTpt = fTpt.Get(histonameTpt)
+    fReco = ROOT.TFile(filenameReco)
+    hReco = fReco.Get(histonameReco)
+    if rebinx!=0:
+        print "Info in makeTemplateVsReco2D: rebinning x axis ("+str(rebinx)+")"
+        hTpt.RebinX(rebinx)
+        hReco.RebinX(rebinx)    
+    if rebiny!=0:
+        print "Info in makeTemplateVsReco2D: rebinning y axis ("+str(rebiny)+")"
+        hTpt.RebinY(rebiny)
+        hReco.RebinY(rebiny)
+    hTpt.Scale(1./hTpt.Integral())
+    hReco.Scale(1./hReco.Integral())
+    c = ROOT.TCanvas("c")
+    c.cd()
+    setColZGradient_PosNeg()
+    h=hReco.Clone()
+    h.Reset()
+    for i in range(1,h.GetNbinsX()+1):
+        for j in range(1,h.GetNbinsY()+1):
+            if hReco.GetBinContent(i,j)!=0:
+                value = (hReco.GetBinContent(i,j)-hTpt.GetBinContent(i,j))/hReco.GetBinError(i,j)
+                #print hReco.GetBinContent(i,j), hTpt.GetBinContent(i,j), hReco.GetBinError(i,j), value
+                h.SetBinContent(i,j,value)
+    h.Draw("COLZ")
+    h.GetXaxis().SetTitle("m_{WV} (GeV)")
+    h.GetYaxis().SetTitle("m_{jet} (GeV)")
+    h.GetZaxis().SetTitle("(reco #minus template) / #sigma(reco)")
+    h.SetMinimum(-10.)
+    h.SetMaximum(10.)
+    c.Update()
+    c.UseCurrentStyle()
+    c.SetRightMargin(0.14)
+    h.GetXaxis().SetLabelSize(0.035)
+    h.GetZaxis().SetTitleOffset(0.9)
+    pal=h.GetListOfFunctions().FindObject("palette")
+    pal.SetX1NDC(0.875)
+    pal.SetX2NDC(0.90)
+    saveCanvas(c,outDir+"/"+outputname)
+
+
+def makeTemplate1D(filename,histoname,outputname,xaxistitle):
+    f = ROOT.TFile(filename)
+    h = f.Get(histoname)
     c=ROOT.TCanvas("c")
     c.cd()
-    hN.Draw("COL")
-    hN.GetXaxis().SetTitle("M_{VV} (GeV)")
-    hN.GetYaxis().SetTitle("m_{j} (GeV)")
-    c.SetLogz()
-    ROOT.gStyle.SetOptTitle(0)
-    ROOT.gStyle.SetOptStat(0)
+    h.Draw("HIST")
+    h.GetXaxis().SetTitle(xaxistitle)
     c.Update()
-    
-    c.SaveAs(directory+"/"+sample+"_"+tag+".root")
-    c.SaveAs(directory+"/"+sample+"_"+tag+".pdf")
-    c.SaveAs(directory+"/"+sample+"_"+tag+".jpg")
+    c.UseCurrentStyle()
+    h.SetStats(0)
+    c.SetLogy()
+    saveCanvas(c,outDir+"/"+outputname)
 
+def makeTemplateVsReco1D(filenameTpt,histonameTpt,filenameReco,histonameReco,outputname,var,xaxistitle):
+    fTpt = ROOT.TFile(filenameTpt)
+    hTpt = fTpt.Get(histonameTpt)
+    hTpt.Scale(1./hTpt.Integral())
+    fReco = ROOT.TFile(filenameReco)
+    hReco2D = fReco.Get(histonameReco)
+    if var=="MVV":
+        hReco = hReco2D.Clone().ProjectionX('_px')
+    elif var=="MJJ":
+        hReco = hReco2D.Clone().ProjectionY('_py')
+    hReco.Scale(1./hReco.Integral())
+    c=ROOT.TCanvas("c")
+    c.cd()
+    hTpt.Draw("HIST")
+    hReco.Draw("p,same")
+    c.Update()
+    c.UseCurrentStyle()
+    colorTpt=ROOT.kGray+1
+    colorReco=ROOT.kGray+3
+    hTpt.SetLineColor(colorTpt)
+    hTpt.GetXaxis().SetTitle(xaxistitle)
+    hReco.SetLineColor(colorReco)
+    hReco.SetMarkerColor(colorReco)
+    hReco.SetMarkerSize(0.3)
+    hTpt.SetStats(0)
+    c.SetLogy()
+    lgd=ROOT.TLegend(0.45,0.91-2*0.042,0.9,0.91)
+    lgd.SetBorderSize(0)
+    lgd.SetFillStyle(0)
+    lgd.SetTextFont(42)
+    lgd.SetTextSize(0.036)
+    lgd.AddEntry(hReco,"Reconstructed simulation","pe")
+    lgd.AddEntry(hTpt,"Template","l")
+    lgd.Draw()
+    saveCanvas(c,outDir+"/"+outputname)
+
+    
+def compCategories(fileprefix,histoname,projection,lep,pur,cat,outputprefix,var,xaxistitle,logy=False,rebin=0):
+    c1=ROOT.TCanvas("c")
+    c1.cd()
+    if logy:
+        c1.SetLogy()
+
+    nP=len(pur)
+    nC=len(cat)
+    f = np.zeros((2,nP,nC),dtype=object)
+    h2 = np.zeros((2,nP,nC),dtype=object)
+    h = np.zeros((2,nP,nC),dtype=object)
+    hmaxmax = 0.
+
+    for l in range(2):
+        for p in range(nP):
+            for c in range(nC):
+                filename = fileprefix+"_"+lep[l]+"_"+pur[p]+"_"+cat[c]+".root" 
+                if not os.path.isfile(filename):
+                    print "Error in compCategories: file "+filename+" does not exist."
+                    return
+                f[l][p][c] = ROOT.TFile(filename)
+                if projection:
+                    h2[l][p][c] = f[l][p][c].Get(histoname)
+                    if var=="MVV":
+                        h[l][p][c] = h2[l][p][c].Clone().ProjectionX('_px_'+lep[l]+'_'+pur[p]+'_'+cat[c])
+                    elif var=="MJJ":
+                        h[l][p][c] = h2[l][p][c].Clone().ProjectionY('_py_'+lep[l]+'_'+pur[p]+'_'+cat[c])
+                else:
+                    h[l][p][c] = f[l][p][c].Get(histoname)
+                if rebin!=0:
+                    print "Info in compCategories: rebinning ("+str(rebin)+")"
+                    h[l][p][c].Rebin(rebin)
+                h[l][p][c].Scale(1./h[l][p][c].Integral())
+                hmax = h[l][p][c].GetMaximum()
+                if hmax>hmaxmax:
+                    hmaxmax = hmax
+    if not logy:
+        h[0][0][0].SetMinimum(0)
+    h[0][0][0].SetMaximum(hmaxmax*(2. if logy else 1.1))
+
+    lepColor=[ROOT.kBlue,ROOT.kRed]
+    purHue=[-9,+2]
+    catStyle=[1,3]
+    lgd=ROOT.TLegend(0.6,0.91-2*2*nC*0.042,0.9,0.91)
+    lgd.SetBorderSize(0)
+    lgd.SetFillStyle(0)
+    lgd.SetTextFont(42)
+    lgd.SetTextSize(0.036)
+
+    for l in range(2):
+        for p in range(nP):
+            for c in range(nC):
+                h[l][p][c].GetXaxis().SetTitle(xaxistitle)
+                h[l][p][c].GetYaxis().SetTitle("integral normalized to 1")
+                h[l][p][c].UseCurrentStyle()
+                h[l][p][c].SetStats(0)
+                h[l][p][c].SetLineColor(lepColor[l]+purHue[p])
+                h[l][p][c].SetLineStyle(catStyle[c])
+                lgd.AddEntry(h[l][p][c],lep[l]+", "+pur[p]+", "+cat[c],"l")
+                h[l][p][c].Draw("hist,same")
+
+    lgd.Draw()
+    saveCanvas(c1,outDir+"/"+outputprefix+"_"+var+("_log" if logy else ""))
+
+
+def makeSignalParamFromHisto(filename,outputname,var,signal,mxpoints):
+    if not os.path.isfile(filename):
+        print "Error in compMXpoints: file "+filename+" does not exist."
+        return
+    f = ROOT.TFile(filename)
+
+    color=[]
+    if signal=='XWW': color=["#8B4D00","#A15900","#B16200","#C36B01","#D97700","#ED8200","#FF8D00","#FF9410","#FF9B1F","#FFA22F","#FFAA40"]
+    if signal=='XWZ': color=["#57008E","#62009F","#6E00B2","#7900C4","#8500D8","#9200ED","#9E00FF","#A410FF","#AB24FF","#B235FF","#B844FF"]
+    if signal=='XWH': color=["#005036","#015F41","#016C4A","#007C55","#008B5F","#009E6C","#00AE77","#00BF83","#00D08E","#00E19A","#00F7A9"]
+
+    c1=ROOT.TCanvas("c")
+    c1.cd()
+    
+    masses = mxpoints.split(",")
+    nM = len(masses)
+    h2 = np.zeros(nM,dtype=object)
+    h = np.zeros(nM,dtype=object)
+    hmaxmax = 0.
+    for m in range(nM):
+        if not f.GetListOfKeys().Contains(signal+masses[m]):
+            continue
+        h2[m] = f.Get(signal+masses[m])
+        if var=="MVV":
+            h[m] = h2[m].Clone().ProjectionX('_px_'+masses[m])
+        elif var=="MJJ":
+            h[m] = h2[m].Clone().ProjectionY('_py_'+masses[m])
+        h[m].Scale(1./h[m].Integral())
+        hmax = h[m].GetMaximum()
+        if hmax>hmaxmax:
+            hmaxmax = hmax
+    h[0].SetMinimum(0)
+    h[0].SetMaximum(1.1*hmaxmax)
+
+    for m in range(nM):
+        if not f.GetListOfKeys().Contains(signal+masses[m]):
+            continue
+        #h[m].GetXaxis().SetTitle(xaxistitle)
+        h[m].GetYaxis().SetTitle("a.u.")
+        h[m].UseCurrentStyle()
+        h[m].SetStats(0)
+        h[m].SetLineColor(ROOT.TColor.GetColor(color[m]))
+        h[m].Draw("hist,same")
+
+    saveCanvas(c1,outDir+"/"+outputname)
+
+
+
+def makeSignalParamFromDC(DCfilename,pdfname,outputname,signal,mxpoints,var,xaxistitle):
+    color=[]
+    if signal=='XWW': color=["#8B4D00","#A15900","#B16200","#C36B01","#D97700","#ED8200","#FF8D00","#FF9410","#FF9B1F","#FFA22F","#FFAA40"]
+    if signal=='XWZ': color=["#57008E","#62009F","#6E00B2","#7900C4","#8500D8","#9200ED","#9E00FF","#A410FF","#AB24FF","#B235FF","#B844FF"]
+    if signal=='XWH': color=["#005036","#015F41","#016C4A","#007C55","#008B5F","#009E6C","#00AE77","#00BF83","#00D08E","#00E19A","#00F7A9"]
+    ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
+    F=ROOT.TFile(DCfilename)
+    w=F.Get('w')
+    frame=w.var(var).frame()
+    masses = mxpoints.split(",")
+    for m in range(len(masses)):
+        w.var("MH").setVal(int(masses[m]))
+        w.pdf(pdfname).plotOn(frame,ROOT.RooFit.LineColor(ROOT.TColor.GetColor(color[m])))
+    frame.GetXaxis().SetTitle(xaxistitle)
+    frame.GetYaxis().SetTitle("a.u.")
+    frame.GetYaxis().SetTitleOffset(1.35)
+    frame.SetTitle('')
+    c1=ROOT.TCanvas("c")
+    c1.cd()
+    frame.Draw()
+    c1.Update()
+    saveCanvas(c1,outDir+"/"+outputname)
+
+
+ 
+def slopeVsMjet(fileprefix,graphname,lep,pur,cat,outputprefix):
+    c1=ROOT.TCanvas("c")
+    c1.cd()
+
+    nP=len(pur)
+    nC=len(cat)
+    f = np.zeros((2,nP,nC),dtype=object)
+    g = np.zeros((2,nP,nC),dtype=object)
+
+    for l in range(2):
+        for p in range(nP):
+            for c in range(nC):
+                filename = fileprefix+"_"+lep[l]+"_"+pur[p]+"_"+cat[c]+".root" 
+                if not os.path.isfile(filename):
+                    print "Error in slopeVsMjet: file "+filename+" does not exist."
+                    return
+                f[l][p][c] = ROOT.TFile(filename)
+                g[l][p][c] = f[l][p][c].Get(graphname)
+
+    lepColor=[ROOT.kBlue,ROOT.kRed]
+    purHue=[-9,+2]
+    catStyle=[1,3]
+    lgd=ROOT.TLegend(0.6,0.91-2*2*nC*0.042,0.9,0.91)
+    lgd.SetBorderSize(0)
+    lgd.SetFillStyle(0)
+    lgd.SetTextFont(42)
+    lgd.SetTextSize(0.036)
+
+    for l in range(2):
+        for p in range(nP):
+            for c in range(nC):
+                g[l][p][c].GetXaxis().SetTitle("m_{jet} (GeV)")
+                g[l][p][c].UseCurrentStyle()
+                g[l][p][c].SetLineColor(lepColor[l]+purHue[p])
+                g[l][p][c].SetLineStyle(catStyle[c])
+                g[l][p][c].SetMarkerColor(lepColor[l]+purHue[p])
+                g[l][p][c].SetMarkerStyle(1)
+                g[l][p][c].Draw(("ALP","LPSAME")[l+p+c!=0])
+                g[l][p][c].GetXaxis().SetRangeUser(30.,210.)
+                g[l][p][c].GetYaxis().SetRangeUser(-0.008,-0.002)
+                lgd.AddEntry(g[l][p][c],lep[l]+", "+pur[p]+", "+cat[c],"l")
+
+    lgd.Draw()
+    saveCanvas(c1,outDir+"/"+outputprefix)
+
+
+ 
 def makeTemplatesProjMVV(filename1,filename2,tag):
-    #MJJ
     f=ROOT.TFile(filename1)
     hN = f.Get("histo")
     f2=ROOT.TFile(filename2)
     hN2 = f2.Get("histo")
-
 
     c=ROOT.TCanvas("c")
     c.cd()
@@ -231,8 +648,8 @@ def makeTemplatesProjMVV(filename1,filename2,tag):
     proje2.DrawNormalized("HIST,SAME")
     proje1.GetYaxis().SetRangeUser(1e-4,1e+5)
 
-    proje1.GetXaxis().SetTitle("M_{VV} (GeV)")
-    proje1.GetYaxis().SetTitle("a.u")
+    proje1.GetXaxis().SetTitle("m_{WV} (GeV)")
+    proje1.GetYaxis().SetTitle("a.u.")
     c.SetLogy()   
     ROOT.gStyle.SetOptTitle(0)
     ROOT.gStyle.SetOptStat(0)
@@ -245,23 +662,15 @@ def makeTemplatesProjMVV(filename1,filename2,tag):
     l.Draw()
 
     c.Update()
-
-
-
-    
-    c.SaveAs(directory+"/"+tag+"ProjMVV.root")
-    c.SaveAs(directory+"/"+tag+"ProjMVV.pdf")
-    c.SaveAs(directory+"/"+tag+"ProjMVV.jpg")
+    saveCanvas(c,outDir+"/"+tag+"ProjMVV")
 
 
 
 def makeTemplatesProjMJJ(filename1,filename2,tag):
-    #MJJ
     f=ROOT.TFile(filename1)
     hN = f.Get("histo")
     f2=ROOT.TFile(filename2)
     hN2 = f2.Get("histo")
-
 
     c=ROOT.TCanvas("c")
     c.cd()
@@ -274,8 +683,8 @@ def makeTemplatesProjMJJ(filename1,filename2,tag):
     proje1.DrawNormalized("HIST")    
     proje2.DrawNormalized("HIST,SAME")
 
-    proje1.GetXaxis().SetTitle("m_{j} (GeV)")
-    proje1.GetYaxis().SetTitle("a.u")
+    proje1.GetXaxis().SetTitle("m_{jet} (GeV)")
+    proje1.GetYaxis().SetTitle("a.u.")
 
     ROOT.gStyle.SetOptTitle(0)
     ROOT.gStyle.SetOptStat(0)
@@ -288,621 +697,220 @@ def makeTemplatesProjMJJ(filename1,filename2,tag):
     l.Draw()
 
     c.Update()
-
-    
-    c.SaveAs(directory+"/"+tag+"ProjMJJ.root")
-    c.SaveAs(directory+"/"+tag+"ProjMJJ.pdf")
-    c.SaveAs(directory+"/"+tag+"ProjMJJ.jpg")
+    saveCanvas(c,outDir+"/"+tag+"ProjMJJ")
 
 
 
-    
-def makeTemplates1D(filename,sample,tag):
-    #MJJ
-    f=ROOT.TFile(filename)
-    hN = f.Get("histo")
+def makeSignalShapeParam(fileW,fileZ,fileH,var,region,outputPrefix):
+
+    n=3
+    if not os.path.isfile(fileW):
+        print "Error in makeSignalShapeParam: file "+fileW+" does not exist."
+        return
+    if not os.path.isfile(fileZ):
+        print "Error in makeSignalShapeParam: file "+fileZ+" does not exist."
+        return
+    if not os.path.isfile(fileH):
+        print "Warning in makeSignalShapeParam: file "+fileH+" does not exist."
+        n=2
+
+    contribs = [
+        (fileW, colorSignal['XWW'], 20, "X #rightarrow WW",),
+        (fileZ, colorSignal['XWZ'], 21, "X #rightarrow WZ",),
+        (fileH, colorSignal['XWH'], 22, "X #rightarrow WH",),
+        ]
+
+    f=[None]*n
+    g=[None]*n
+    func=[None]*n    
+    for j in range(n):
+        f[j] = ROOT.TFile(contribs[j][0])
+
+    paramsMJJ = [
+        ("mean",  "#mu (GeV)",    70,  130, ),
+        ("sigma", "#sigma (GeV)", 0,   18,  ),
+        ("alpha", "#alpha",       0,   3,   ),
+        ("alpha2","#alpha2",      0,   12,   ),
+        ("slope", "slope",        -0.1,0.05,),
+        ("f",     "f",            0,   1.5, ),
+        ]
+    paramsMVV = [
+        ("MEAN",  "#mu (GeV)",    700, 4500,),
+        ("SIGMA", "#sigma (GeV)", 0,   400, ),
+        ("ALPHA1","#alpha",       0,   3,   ),
+        ("ALPHA2","#alpha2",      0,   3,   ),
+        ("MEAN_0",  "#mu_{0} (GeV)",    700, 4500,),#
+        ("MEAN_1",  "#mu_{1} (GeV)",    -1,  1,   ),#
+        ("SIGMA_0", "#sigma_{0} (GeV)", 0,   400, ),#
+        ("SIGMA_1", "#sigma_{1} (GeV)", -1,  1,   ),#
+        ]
+    params = []
+    if var=='MJJ':
+        params = paramsMJJ
+    elif var=='MVV':
+        params = paramsMVV
+
+    for i in range(len(params)):
+        name = params[i][0]
+        if not f[0].GetListOfKeys().Contains(name):
+            continue
+
+        c=ROOT.TCanvas("c_"+name)
+        c.cd()
+        frame=c.DrawFrame(minmx,params[i][2],maxmx,params[i][3])
+        frame.GetXaxis().SetTitle("m_{X} (GeV)")
+        frame.GetYaxis().SetTitle(params[i][1])
+        l=ROOT.TLegend(0.6,0.2,0.9,0.34)
+        l.SetBorderSize(0)
+        l.SetFillStyle(0)
+
+        notfound=False
+        for j in range(n):
+            g[j]=f[j].Get(name)
+            g[j].SetName(name+str(j))
+            g[j].SetMarkerColor(contribs[j][1])
+            g[j].SetMarkerStyle(contribs[j][2])
+            g[j].SetMarkerSize(0.8)
+            g[j].SetLineColor(contribs[j][1])
+            g[j].Draw("Psame")
+            func[j]=f[j].Get(name+"_func")
+            func[j].SetLineColor(contribs[j][1])
+            func[j].Draw("lsame")
+            l.AddEntry(g[j],contribs[j][3],"p")
+        
+        l.Draw()
+        cmslabel_sim(c,YEAR,11)
+        saveCanvas(c,outDir+"/"+outputPrefix+var+"_"+region+"_"+name)
+
+
+def makeSignalYieldParam(fileW,fileZ,fileH,outputname):
+
+    n=3
+    if not os.path.isfile(fileW):
+        print "Error in makeSignalYieldParam: file "+fileW+" does not exist."
+        return
+    if not os.path.isfile(fileZ):
+        print "Error in makeSignalYieldParam: file "+fileZ+" does not exist."
+        return
+    if not os.path.isfile(fileH):
+        print "Warning in makeSignalYieldParam: file "+fileH+" does not exist."
+        n=2
+
+    contribs = [
+        (fileW, colorSignal['XWW'], 20, "X #rightarrow WW",),
+        (fileZ, colorSignal['XWZ'], 21, "X #rightarrow WZ",),
+        (fileH, colorSignal['XWH'], 22, "X #rightarrow WH",),
+        ]
+    n=len(contribs)
+
+    f=[None]*n
+    g=[None]*n
+    func=[None]*n    
+    for j in range(n):
+        f[j] = ROOT.TFile(contribs[j][0])
+
     c=ROOT.TCanvas("c")
     c.cd()
-    hN.Draw("HIST")
-    hN.GetXaxis().SetTitle("M_{VV} (GeV)")
-    c.SetLogy()
-    ROOT.gStyle.SetOptTitle(0)
-    ROOT.gStyle.SetOptStat(0)
-    c.Update()
-    c.SaveAs(directory+"/"+sample+"_"+tag+".root")
-    c.SaveAs(directory+"/"+sample+"_"+tag+".pdf")
-    
-    
-    
-
-
-def makeSignalMJJParam(fileW,fileZ,purity='HP'):
-    FW=ROOT.TFile(fileW)
-    FZ=ROOT.TFile(fileZ)
-
-
-    c=ROOT.TCanvas("c")
-    frame=c.DrawFrame(800,70,4500,100)
-    frame.GetXaxis().SetTitle("M_{X} (GeV)")
-    frame.GetYaxis().SetTitle("#mu (GeV)")
-
-    g1=FW.Get("mean")
-    g1.SetName("mean1")
-    g1.SetMarkerColor(ROOT.kRed)
-    g1.SetMarkerStyle(20)
-    g1.SetMarkerSize(0.8)
-    g1.SetLineColor(ROOT.kRed)
-    g1.Draw("Psame")
-    func1=FW.Get("mean_func")
-    func1.SetLineColor(ROOT.kRed)
-    func1.Draw("lsame")
-
-
-    g2=FZ.Get("mean")
-    g2.SetName("mean2")
-    g2.SetMarkerColor(ROOT.kBlue)
-    g2.SetMarkerStyle(21)
-    g2.SetMarkerSize(0.8)
-    g2.SetLineColor(ROOT.kBlue)
-    g2.Draw("Psame")
-    func2=FZ.Get("mean_func")
-    func2.SetLineColor(ROOT.kBlue)
-    func2.Draw("lsame")
-
-    l=ROOT.TLegend(0.6,0.7,0.9,0.8)
-    l.AddEntry(g1,"X #rightarrow WW","p")
-    l.AddEntry(g2,"X #rightarrow WZ","p")
-
+    l=ROOT.TLegend(0.6,0.2,0.9,0.34)
     l.SetBorderSize(0)
-    l.SetFillColor(ROOT.kWhite)
+    l.SetFillStyle(0)
+
+    for j in range(n):
+        g[j]=f[j].Get('yield')
+        g[j].Draw(("A" if j==0 else "")+"Psame")
+        g[j].UseCurrentStyle()
+        g[j].SetMarkerColor(contribs[j][1])
+        g[j].SetMarkerStyle(contribs[j][2])
+        g[j].SetMarkerSize(0.8)
+        g[j].GetXaxis().SetTitle("m_{X} (GeV)")
+        g[j].GetYaxis().SetTitle("expected yield")
+        func[j]=g[j].GetFunction("func")
+        func[j].SetLineColor(contribs[j][1])
+        l.AddEntry(g[j],contribs[j][3],"p")
+
+    g[0].GetXaxis().SetRangeUser(minmx,maxmx)
+    g[0].GetYaxis().SetRangeUser(0.,1.3*g[0].GetHistogram().GetMaximum())
     l.Draw()
-
-    cmslabel_sim(c,period,11)
-    c.SaveAs(directory+"/"+purity+"MJJParam_mean.png")
-    c.SaveAs(directory+"/"+purity+"MJJParam_mean.pdf")
-    c.SaveAs(directory+"/"+purity+"MJJParam_mean.root")
-
-    
-
-
-    c=ROOT.TCanvas("c")
-    frame=c.DrawFrame(800,0,4500,18)
-    frame.GetXaxis().SetTitle("M_{X} (GeV)")
-    frame.GetYaxis().SetTitle("#sigma (GeV)")
-
-    g1=FW.Get("sigma")
-    g1.SetName("sigma1")
-    g1.SetMarkerColor(ROOT.kRed)
-    g1.SetMarkerStyle(20)
-    g1.SetMarkerSize(0.8)
-    g1.SetLineColor(ROOT.kRed)
-    g1.Draw("Psame")
-    func1=FW.Get("sigma_func")
-    func1.SetLineColor(ROOT.kRed)
-    func1.Draw("lsame")
-
-    g2=FZ.Get("sigma")
-    g2.SetName("sigma2")
-    g2.SetMarkerColor(ROOT.kBlue)
-    g2.SetMarkerStyle(21)
-    g2.SetMarkerSize(0.8)
-    g2.SetLineColor(ROOT.kBlue)
-    g2.Draw("Psame")
-    func2=FZ.Get("sigma_func")
-    func2.SetLineColor(ROOT.kBlue)
-    func2.Draw("lsame")
-
-
-    l=ROOT.TLegend(0.6,0.7,0.9,0.8)
-    l.AddEntry(g1,"X #rightarrow WW","p")
-    l.AddEntry(g2,"X #rightarrow WZ","p")
-
-    l.SetBorderSize(0)
-    l.SetFillColor(ROOT.kWhite)
-    l.Draw()
-
-    cmslabel_sim(c,period,11)
-    c.SaveAs(directory+"/"+purity+"MJJParam_sigma.png")
-    c.SaveAs(directory+"/"+purity+"MJJParam_sigma.pdf")
-    c.SaveAs(directory+"/"+purity+"MJJParam_sigma.root")
-
-
-
-
-    c=ROOT.TCanvas("c")
-    frame=c.DrawFrame(800,0,4500,3)
-    frame.GetXaxis().SetTitle("M_{X} (GeV)")
-    frame.GetYaxis().SetTitle("#alpha")
-
-    g1=FW.Get("alpha")
-    g1.SetName("alpha1")
-    g1.SetMarkerColor(ROOT.kRed)
-    g1.SetMarkerStyle(20)
-    g1.SetMarkerSize(0.8)
-    g1.SetLineColor(ROOT.kRed)
-    g1.Draw("Psame")
-    func1=FW.Get("alpha_func")
-    func1.SetLineColor(ROOT.kRed)
-    func1.Draw("lsame")
-
-    g2=FZ.Get("alpha")
-    g2.SetName("alpha2")
-    g2.SetMarkerColor(ROOT.kBlue)
-    g2.SetMarkerStyle(21)
-    g2.SetMarkerSize(0.8)
-    g2.SetLineColor(ROOT.kBlue)
-    g2.Draw("Psame")
-    func2=FZ.Get("alpha_func")
-    func2.SetLineColor(ROOT.kBlue)
-    func2.Draw("lsame")
-
-
-    l=ROOT.TLegend(0.6,0.7,0.9,0.8)
-    l.AddEntry(g1,"X #rightarrow WW","p")
-    l.AddEntry(g2,"X #rightarrow WZ","p")
-
-    l.SetBorderSize(0)
-    l.SetFillColor(ROOT.kWhite)
-    l.Draw()
-
-    cmslabel_sim(c,period,11)
-    c.SaveAs(directory+"/"+purity+"MJJParam_alpha.png")
-    c.SaveAs(directory+"/"+purity+"MJJParam_alpha.pdf")
-    c.SaveAs(directory+"/"+purity+"MJJParam_alpha.root")
-
-
-
-    c=ROOT.TCanvas("c")
-    frame=c.DrawFrame(800,0,4500,3)
-    frame.GetXaxis().SetTitle("M_{X} (GeV)")
-    frame.GetYaxis().SetTitle("#alpha2")
-
-    g1=FW.Get("alpha2")
-    g1.SetName("alpha1")
-    g1.SetMarkerColor(ROOT.kRed)
-    g1.SetMarkerStyle(20)
-    g1.SetMarkerSize(0.8)
-    g1.SetLineColor(ROOT.kRed)
-    g1.Draw("Psame")
-    func1=FW.Get("alpha2_func")
-    func1.SetLineColor(ROOT.kRed)
-    func1.Draw("lsame")
-
-    g2=FZ.Get("alpha2")
-    g2.SetName("alpha2")
-    g2.SetMarkerColor(ROOT.kBlue)
-    g2.SetMarkerStyle(21)
-    g2.SetMarkerSize(0.8)
-    g2.SetLineColor(ROOT.kBlue)
-    g2.Draw("Psame")
-    func2=FZ.Get("alpha2_func")
-    func2.SetLineColor(ROOT.kBlue)
-    func2.Draw("lsame")
-
-
-    l=ROOT.TLegend(0.4,0.8,0.7,0.9)
-    l.AddEntry(g1,"X #rightarrow WW","p")
-    l.AddEntry(g2,"X #rightarrow WZ","p")
-
-    l.SetBorderSize(0)
-    l.SetFillColor(ROOT.kWhite)
-    l.Draw()
-
-    cmslabel_sim(c,period,11)
-    c.SaveAs(directory+"/"+purity+"MJJParam_alpha2.png")
-    c.SaveAs(directory+"/"+purity+"MJJParam_alpha2.pdf")
-    c.SaveAs(directory+"/"+purity+"MJJParam_alpha2.root")
-
-    if purity=="HP":
-        return
-
-    c=ROOT.TCanvas("c")
-    frame=c.DrawFrame(800,-0.1,4500,0.05)
-    frame.GetXaxis().SetTitle("M_{X} (GeV)")
-    frame.GetYaxis().SetTitle("slope")
-
-    g1=FW.Get("slope")
-    g1.SetName("slope")
-    g1.SetMarkerColor(ROOT.kRed)
-    g1.SetMarkerStyle(20)
-    g1.SetMarkerSize(0.8)
-    g1.SetLineColor(ROOT.kRed)
-    g1.Draw("Psame")
-    func1=FW.Get("slope_func")
-    func1.SetLineColor(ROOT.kRed)
-    func1.Draw("lsame")
-
-    g2=FZ.Get("slope")
-    g2.SetName("slope2")
-    g2.SetMarkerColor(ROOT.kBlue)
-    g2.SetMarkerStyle(21)
-    g2.SetMarkerSize(0.8)
-    g2.SetLineColor(ROOT.kBlue)
-    g2.Draw("Psame")
-    func2=FZ.Get("slope_func")
-    func2.SetLineColor(ROOT.kBlue)
-    func2.Draw("lsame")
-
-
-    l=ROOT.TLegend(0.6,0.7,0.9,0.8)
-    l.AddEntry(g1,"X #rightarrow WW","p")
-    l.AddEntry(g2,"X #rightarrow WZ","p")
-
-    l.SetBorderSize(0)
-    l.SetFillColor(ROOT.kWhite)
-    l.Draw()
-
-    cmslabel_sim(c,period,11)
-    c.SaveAs(directory+"/"+purity+"MJJParam_slope.png")
-    c.SaveAs(directory+"/"+purity+"MJJParam_slope.pdf")
-    c.SaveAs(directory+"/"+purity+"MJJParam_slope.root")
-
-
-    c=ROOT.TCanvas("c")
-    frame=c.DrawFrame(800,0,4500,1.5)
-    frame.GetXaxis().SetTitle("M_{X} (GeV)")
-    frame.GetYaxis().SetTitle("f")
-
-    g1=FW.Get("f")
-    g1.SetName("f")
-    g1.SetMarkerColor(ROOT.kRed)
-    g1.SetMarkerStyle(20)
-    g1.SetMarkerSize(0.8)
-    g1.SetLineColor(ROOT.kRed)
-    g1.Draw("Psame")
-    func1=FW.Get("f_func")
-    func1.SetLineColor(ROOT.kRed)
-    func1.Draw("lsame")
-
-    g2=FZ.Get("f")
-    g2.SetName("f2")
-    g2.SetMarkerColor(ROOT.kBlue)
-    g2.SetMarkerStyle(21)
-    g2.SetMarkerSize(0.8)
-    g2.SetLineColor(ROOT.kBlue)
-    g2.Draw("Psame")
-    func2=FZ.Get("f_func")
-    func2.SetLineColor(ROOT.kBlue)
-    func2.Draw("lsame")
-
-
-    l=ROOT.TLegend(0.6,0.7,0.9,0.8)
-    l.AddEntry(g1,"X #rightarrow WW","p")
-    l.AddEntry(g2,"X #rightarrow WZ","p")
-
-    l.SetBorderSize(0)
-    l.SetFillColor(ROOT.kWhite)
-    l.Draw()
-
-    cmslabel_sim(c,period,11)
-    c.SaveAs(directory+"/"+purity+"MJJParam_f.png")
-    c.SaveAs(directory+"/"+purity+"MJJParam_f.pdf")
-    c.SaveAs(directory+"/"+purity+"MJJParam_f.root")
-
-
-
-
-
-def makeSignalMVVParam(fileW,fileZ,purity='mu'):
-    FW=ROOT.TFile(fileW)
-    FZ=ROOT.TFile(fileZ)
-
-
-    c=ROOT.TCanvas("c")
-    frame=c.DrawFrame(700,700,4500,4500)
-    frame.GetXaxis().SetTitle("M_{X} (GeV)")
-    frame.GetYaxis().SetTitle("#mu (GeV)")
-
-    g1=FW.Get("MEAN")
-    g1.SetName("mean1")
-    g1.SetMarkerColor(ROOT.kRed)
-    g1.SetMarkerStyle(20)
-    g1.SetMarkerSize(0.8)
-    g1.SetLineColor(ROOT.kRed)
-    g1.Draw("Psame")
-    func1=FW.Get("MEAN_func")
-    func1.SetLineColor(ROOT.kRed)
-    func1.Draw("lsame")
-
-
-    g2=FZ.Get("MEAN")
-    g2.SetName("mean2")
-    g2.SetMarkerColor(ROOT.kBlue)
-    g2.SetMarkerStyle(21)
-    g2.SetMarkerSize(0.8)
-    g2.SetLineColor(ROOT.kBlue)
-    g2.Draw("Psame")
-    func2=FZ.Get("MEAN_func")
-    func2.SetLineColor(ROOT.kBlue)
-    func2.Draw("lsame")
-
-    l=ROOT.TLegend(0.6,0.7,0.9,0.8)
-    l.AddEntry(g1,"X #rightarrow WW","p")
-    l.AddEntry(g2,"X #rightarrow WZ","p")
-
-    l.SetBorderSize(0)
-    l.SetFillColor(ROOT.kWhite)
-    l.Draw()
-
-    cmslabel_sim(c,period,11)
-    c.SaveAs(directory+"/"+purity+"MVVParam_mean.png")
-    c.SaveAs(directory+"/"+purity+"MVVParam_mean.pdf")
-    c.SaveAs(directory+"/"+purity+"MVVParam_mean.root")
-
-    
-
-    c=ROOT.TCanvas("c")
-    frame=c.DrawFrame(700,0,4500,400)
-    frame.GetXaxis().SetTitle("M_{X} (GeV)")
-    frame.GetYaxis().SetTitle("#sigma (GeV)")
-
-    g1=FW.Get("SIGMA")
-    g1.SetName("sigma1")
-    g1.SetMarkerColor(ROOT.kRed)
-    g1.SetMarkerStyle(20)
-    g1.SetMarkerSize(0.8)
-    g1.SetLineColor(ROOT.kRed)
-    g1.Draw("Psame")
-    func1=FW.Get("SIGMA_func")
-    func1.SetLineColor(ROOT.kRed)
-    func1.Draw("lsame")
-
-    g2=FZ.Get("SIGMA")
-    g2.SetName("sigma2")
-    g2.SetMarkerColor(ROOT.kBlue)
-    g2.SetMarkerStyle(21)
-    g2.SetMarkerSize(0.8)
-    g2.SetLineColor(ROOT.kBlue)
-    g2.Draw("Psame")
-    func2=FZ.Get("SIGMA_func")
-    func2.SetLineColor(ROOT.kBlue)
-    func2.Draw("lsame")
-
-
-    l=ROOT.TLegend(0.6,0.7,0.9,0.8)
-    l.AddEntry(g1,"X #rightarrow WW","p")
-    l.AddEntry(g2,"X #rightarrow WZ","p")
-
-    l.SetBorderSize(0)
-    l.SetFillColor(ROOT.kWhite)
-    l.Draw()
-
-    cmslabel_sim(c,period,11)
-    c.SaveAs(directory+"/"+purity+"MVVParam_SIGMA.png")
-    c.SaveAs(directory+"/"+purity+"MVVParam_SIGMA.pdf")
-    c.SaveAs(directory+"/"+purity+"MVVParam_sigma.root")
-
-
-
-
-    c=ROOT.TCanvas("c")
-    frame=c.DrawFrame(700,0,4500,3)
-    frame.GetXaxis().SetTitle("M_{X} (GeV)")
-    frame.GetYaxis().SetTitle("#alpha")
-
-    g1=FW.Get("ALPHA1")
-    g1.SetName("alpha1")
-    g1.SetMarkerColor(ROOT.kRed)
-    g1.SetMarkerStyle(20)
-    g1.SetMarkerSize(0.8)
-    g1.SetLineColor(ROOT.kRed)
-    g1.Draw("Psame")
-    func1=FW.Get("ALPHA1_func")
-    func1.SetLineColor(ROOT.kRed)
-    func1.Draw("lsame")
-
-    g2=FZ.Get("ALPHA1")
-    g2.SetName("alpha2")
-    g2.SetMarkerColor(ROOT.kBlue)
-    g2.SetMarkerStyle(21)
-    g2.SetMarkerSize(0.8)
-    g2.SetLineColor(ROOT.kBlue)
-    g2.Draw("Psame")
-    func2=FZ.Get("ALPHA1_func")
-    func2.SetLineColor(ROOT.kBlue)
-    func2.Draw("lsame")
-
-
-    l=ROOT.TLegend(0.6,0.7,0.9,0.8)
-    l.AddEntry(g1,"X #rightarrow WW","p")
-    l.AddEntry(g2,"X #rightarrow WZ","p")
-
-    l.SetBorderSize(0)
-    l.SetFillColor(ROOT.kWhite)
-    l.Draw()
-
-    cmslabel_sim(c,period,11)
-    c.SaveAs(directory+"/"+purity+"MVVParam_alpha.png")
-    c.SaveAs(directory+"/"+purity+"MVVParam_alpha.pdf")
-    c.SaveAs(directory+"/"+purity+"MVVParam_alpha.root")
-
-
-
-    c=ROOT.TCanvas("c")
-    frame=c.DrawFrame(800,0,4500,3)
-    frame.GetXaxis().SetTitle("M_{X} (GeV)")
-    frame.GetYaxis().SetTitle("#alpha2")
-
-    g1=FW.Get("ALPHA2")
-    g1.SetName("alpha1")
-    g1.SetMarkerColor(ROOT.kRed)
-    g1.SetMarkerStyle(20)
-    g1.SetMarkerSize(0.8)
-    g1.SetLineColor(ROOT.kRed)
-    g1.Draw("Psame")
-    func1=FW.Get("ALPHA2_func")
-    func1.SetLineColor(ROOT.kRed)
-    func1.Draw("lsame")
-
-    g2=FZ.Get("ALPHA2")
-    g2.SetName("alpha2")
-    g2.SetMarkerColor(ROOT.kBlue)
-    g2.SetMarkerStyle(21)
-    g2.SetMarkerSize(0.8)
-    g2.SetLineColor(ROOT.kBlue)
-    g2.Draw("Psame")
-    func2=FZ.Get("ALPHA2_func")
-    func2.SetLineColor(ROOT.kBlue)
-    func2.Draw("lsame")
-
-
-    l=ROOT.TLegend(0.4,0.8,0.7,0.9)
-    l.AddEntry(g1,"X #rightarrow WW","p")
-    l.AddEntry(g2,"X #rightarrow WZ","p")
-
-    l.SetBorderSize(0)
-    l.SetFillColor(ROOT.kWhite)
-    l.Draw()
-
-    cmslabel_sim(c,period,11)
-    c.SaveAs(directory+"/"+purity+"MVVParam_alpha2.png")
-    c.SaveAs(directory+"/"+purity+"MVVParam_alpha2.pdf")
-    c.SaveAs(directory+"/"+purity+"MVVParam_alpha2.root")
-
-    if purity=="HP":
-        return
-
-
-
-
-
-def makeTopMJJParam(fileW,purity='HP'):
-    FW=ROOT.TFile(fileW)
-    ROOT.gStyle.SetOptFit(0)
-
-    c=ROOT.TCanvas("c")
-    frame=c.DrawFrame(600,60,4000,200)
-    frame.GetXaxis().SetTitle("M_{VV} (GeV)")
-    frame.GetYaxis().SetTitle("#mu (GeV)")
-
-    g1=FW.Get("meanW")
-    g1.SetMarkerColor(ROOT.kRed)
-    g1.SetMarkerStyle(20)
-    g1.SetMarkerSize(0.8)
-    g1.SetLineColor(ROOT.kRed)
-    g1.Draw("Psame")
-
-    g2=FW.Get("meanTop")
-    g2.SetMarkerColor(ROOT.kBlue)
-    g2.SetMarkerStyle(20)
-    g2.SetMarkerSize(0.8)
-    g2.SetLineColor(ROOT.kBlue)
-    g2.Draw("Psame")
-
-    l=ROOT.TLegend(0.7,0.7,0.9,0.9)
-    l.AddEntry(g1,"merged W","lp")
-    l.AddEntry(g2,"merged top","lp")
-    l.Draw()
-    cmslabel_sim(c,period,11)
-    c.SaveAs(directory+"/"+purity+"topMJJParam_mean.pdf")
-    c.SaveAs(directory+"/"+purity+"topMJJParam_mean.root")
-
-
-
-    c=ROOT.TCanvas("c")
-    frame=c.DrawFrame(600,0,4000,50)
-    frame.GetXaxis().SetTitle("M_{VV} (GeV)")
-    frame.GetYaxis().SetTitle("#sigma (GeV)")
-
-    g1=FW.Get("sigmaW")
-    g1.SetMarkerColor(ROOT.kRed)
-    g1.SetMarkerStyle(20)
-    g1.SetMarkerSize(0.8)
-    g1.SetLineColor(ROOT.kRed)
-    g1.Draw("Psame")
-
-    g2=FW.Get("sigmaTop")
-    g2.SetMarkerColor(ROOT.kBlue)
-    g2.SetMarkerStyle(20)
-    g2.SetMarkerSize(0.8)
-    g2.SetLineColor(ROOT.kBlue)
-    g2.Draw("Psame")
-    l=ROOT.TLegend(0.7,0.7,0.9,0.9)
-    l.AddEntry(g1,"merged W","lp")
-    l.AddEntry(g2,"merged top","lp")
-    l.Draw()
-
-    cmslabel_sim(c,period,11)
-    c.SaveAs(directory+"/"+purity+"topMJJParam_sigma.pdf")
-    c.SaveAs(directory+"/"+purity+"topMJJParam_sigma.root")
-
-
-
-
-    c=ROOT.TCanvas("c")
-    frame=c.DrawFrame(600,0,4000,5)
-    frame.GetXaxis().SetTitle("M_{VV} (GeV)")
-    frame.GetYaxis().SetTitle("#alpha ")
-
-    g1=FW.Get("alphaW")
-    g1.SetMarkerColor(ROOT.kRed)
-    g1.SetMarkerStyle(20)
-    g1.SetMarkerSize(0.8)
-    g1.SetLineColor(ROOT.kRed)
-    g1.Draw("Psame")
-
-    g2=FW.Get("alphaTop")
-    g2.SetMarkerColor(ROOT.kBlue)
-    g2.SetMarkerStyle(20)
-    g2.SetMarkerSize(0.8)
-    g2.SetLineColor(ROOT.kBlue)
-    g2.Draw("Psame")
-    l=ROOT.TLegend(0.7,0.7,0.9,0.9)
-    l.AddEntry(g1,"merged W","lp")
-    l.AddEntry(g2,"merged top","lp")
-    l.Draw()
-
-    cmslabel_sim(c,period,11)
-    c.SaveAs(directory+"/"+purity+"topMJJParam_alpha.pdf")
-    c.SaveAs(directory+"/"+purity+"topMJJParam_alpha.root")
-
-
-    c=ROOT.TCanvas("c")
-    frame=c.DrawFrame(600,0,4000,5)
-    frame.GetXaxis().SetTitle("M_{VV} (GeV)")
-    frame.GetYaxis().SetTitle("#alpha2 ")
-
-    g1=FW.Get("alphaW2")
-    g1.SetMarkerColor(ROOT.kRed)
-    g1.SetMarkerStyle(20)
-    g1.SetMarkerSize(0.8)
-    g1.SetLineColor(ROOT.kRed)
-    g1.Draw("Psame")
-
-    g2=FW.Get("alphaTop2")
-    g2.SetMarkerColor(ROOT.kBlue)
-    g2.SetMarkerStyle(20)
-    g2.SetMarkerSize(0.8)
-    g2.SetLineColor(ROOT.kBlue)
-    g2.Draw("Psame")
-    l=ROOT.TLegend(0.7,0.7,0.9,0.9)
-    l.AddEntry(g1,"merged W","lp")
-    l.AddEntry(g2,"merged top","lp")
-    l.Draw()
-
-    cmslabel_sim(c,period,11)
-    c.SaveAs(directory+"/"+purity+"topMJJParam_alpha2.pdf")
-    c.SaveAs(directory+"/"+purity+"topMJJParam_alpha2.root")
-
-    c=ROOT.TCanvas("c")
-    frame=c.DrawFrame(600,0,4000,1)
-    frame.GetXaxis().SetTitle("M_{VV} (GeV)")
-    frame.GetYaxis().SetTitle("W fraction ")
-
-    g1=FW.Get("f")
-    g1.SetMarkerColor(ROOT.kRed)
-    g1.SetMarkerStyle(20)
-    g1.SetMarkerSize(0.8)
-    g1.SetLineColor(ROOT.kRed)
-    g1.Draw("Psame")
-    cmslabel_sim(c,period,11)
-    c.SaveAs(directory+"/"+purity+"topMJJParam_f.pdf")
-    c.SaveAs(directory+"/"+purity+"topMJJParam_f.root")
-
-
-
-
-def makeBackgroundMVVParamPlot(datacard,pdf,var='MLNuJ',nametag='Wjets'):
+    cmslabel_sim(c,YEAR,11)
+    saveCanvas(c,outDir+'/'+outputname)
+
+
+
+def makeResWMJJShapeParam(fileResW,region):
+
+    peaks = [
+        (ROOT.kOrange+2,  20, "merged W",),
+        (ROOT.kGreen+1,   21, "merged top",),
+        ]
+    f=[None]*2
+    g=[None]*2
+    func=[None]*2    
+
+    f = ROOT.TFile(fileResW)
+
+    paramsPerPeak = [
+        ("mean",  "meanW",  "meanTop",  "#mu (GeV)",    50,  250, ),
+        ("sigma", "sigmaW", "sigmaTop", "#sigma (GeV)", 0,   50,  ),
+        ("alpha", "alphaW", "alphaTop", "#alpha",       0,   5,   ),
+        ("alpha2","alphaW2","alphaTop2","#alpha2",      0,   5,   ),
+        ]
+    paramsCommon = [
+        ("n",     "n",            0,   10., ),
+        ("f",     "f",            0,   1.5, ),
+        ("f2",    "f2",           0,   1.5, ),
+        ("slope", "slope",       -0.05,0.05,),
+        ]
+
+    for i in range(4):
+        name = paramsPerPeak[i][0]
+        c=ROOT.TCanvas("c_"+name)
+        c.cd()
+        frame=c.DrawFrame(800,paramsPerPeak[i][4],5000,paramsPerPeak[i][5])
+        frame.GetXaxis().SetTitle("m_{WV} (GeV)")
+        frame.GetYaxis().SetTitle(paramsPerPeak[i][3])
+        l=ROOT.TLegend(0.6,0.75,0.9,0.85)
+        l.SetBorderSize(0)
+        l.SetFillStyle(0)
+        for j in range(2):
+            g[j]=f.Get(paramsPerPeak[i][1+j])
+            g[j].SetName(name+str(j))
+            g[j].SetMarkerColor(peaks[j][0])
+            g[j].SetMarkerStyle(peaks[j][1])
+            g[j].SetMarkerSize(0.8)
+            g[j].SetLineColor(peaks[j][0])
+            g[j].Draw("Psame")
+            func[j]=f.Get(paramsPerPeak[i][1+j]+"_func")
+            func[j].SetLineColor(peaks[j][0])
+            func[j].Draw("lsame")
+            l.AddEntry(g[j],peaks[j][2],"p")
+        l.Draw()
+        cmslabel_sim(c,YEAR,11)
+        saveCanvas(c,outDir+"/paramresWMJJShape_"+region+"_"+name)
+
+    for i in range(4):
+        name = paramsCommon[i][0]
+        c=ROOT.TCanvas("c_"+name)
+        c.cd()
+        frame=c.DrawFrame(800,paramsCommon[i][2],5000,paramsCommon[i][3])
+        frame.GetXaxis().SetTitle("m_{WV} (GeV)")
+        frame.GetYaxis().SetTitle(paramsCommon[i][1])
+        color=ROOT.kBlue+1
+        gc=f.Get(paramsCommon[i][0])
+        gc.SetName(name)
+        gc.SetMarkerColor(color)
+        gc.SetMarkerStyle(20)
+        gc.SetMarkerSize(0.8)
+        gc.SetLineColor(color)
+        gc.Draw("Psame")
+        funcc=f.Get(name+"_func")
+        funcc.SetLineColor(color)
+        funcc.Draw("lsame")
+        cmslabel_sim(c,YEAR,11)
+        saveCanvas(c,outDir+"/paramresWMJJShape_"+region+"_"+name)
+
+
+
+def makeBackgroundMVVParamPlot(datacard,pdf,var=varMVV,nametag='Wjets'):
     ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
     F=ROOT.TFile(datacard)
     w=F.Get('w')
@@ -911,27 +919,25 @@ def makeBackgroundMVVParamPlot(datacard,pdf,var='MLNuJ',nametag='Wjets'):
 
     l=ROOT.TLegend(0.6,0.4,0.8,0.9)
     for mass,color in sorted(masses.iteritems()):
-        w.var("MJ").setVal(mass)
+        w.var(varMJJ).setVal(mass)
         w.pdf(pdf).plotOn(frame,ROOT.RooFit.LineColor(color),ROOT.RooFit.Name("curve_"+str(mass)))
         curve=frame.getCurve("curve_"+str(mass))
-        l.AddEntry(curve,"M_{J} = "+str(mass)+" GeV","l")
-      
-
+        l.AddEntry(curve,"m_{jet} = "+str(mass)+" GeV","l")
     l.SetBorderSize(0)
-    l.SetFillColor(ROOT.kWhite)
+    l.SetFillStyle(0)
 
-    frame.GetXaxis().SetTitle("M_{VV} (GeV)")
-    frame.GetYaxis().SetTitle("a.u")
+    frame.GetXaxis().SetTitle("m_{WV} (GeV)")
+    frame.GetYaxis().SetTitle("a.u.")
     frame.GetYaxis().SetTitleOffset(1.35)
     canvas=ROOT.TCanvas("c")
     canvas.cd()    
     frame.Draw()
-    cmslabel_sim(canvas,period,11)
+    cmslabel_sim(canvas,YEAR,11)
     canvas.Update()
     l.Draw()
-    canvas.SaveAs(directory+"/"+nametag+"MVVParam.png")
-    canvas.SaveAs(directory+"/"+nametag+"MVVParam.pdf")
-    canvas.SaveAs(directory+"/"+nametag+"MVVParam.root")
+    canvas.SaveAs(outDir+"/"+nametag+"MVVParam.png")
+    canvas.SaveAs(outDir+"/"+nametag+"MVVParam.pdf")
+    canvas.SaveAs(outDir+"/"+nametag+"MVVParam.root")
     
 
 
@@ -941,7 +947,7 @@ def makeGOF(filename,val):
     c=ROOT.TCanvas("c","c")
     c.cd()
     t.Draw("limit>>h")
-    h=ROOT.gDirectory.Get("h")
+    h=ROOT.gOutDir.Get("h")
     h.SetLineWidth(2)
     h.SetLineColor(ROOT.kBlack)
     h.SetFillColor(ROOT.kOrange+1)
@@ -953,9 +959,7 @@ def makeGOF(filename,val):
     ROOT.gStyle.SetOptTitle(0)
     ROOT.gStyle.SetOptStat(0)
     c.Update()
-    c.SaveAs("GOF.root")
-    
-
+    c.SaveAs("GOF.root")   
 
 
 
@@ -983,8 +987,8 @@ def makeTopVsVJetsMJJ(filename):
     scaleDown.SetLineColor(ROOT.kMagenta)
 
     scaleDown.DrawNormalized("HIST")
-    scaleDown.GetXaxis().SetTitle("m_{J} (GeV)")
-    scaleDown.GetYaxis().SetTitle("a.u")
+    scaleDown.GetXaxis().SetTitle("m_{jet} (GeV)")
+    scaleDown.GetYaxis().SetTitle("a.u.")
     c.Update()
     nominal.DrawNormalized("HIST,SAME")
     topUp.DrawNormalized("HIST,SAME")
@@ -996,10 +1000,10 @@ def makeTopVsVJetsMJJ(filename):
     l.AddEntry(topUp,"top non res */ 2","l")
     l.AddEntry(scaleUp,"scale #pm 3 #sigma","l")
     l.SetBorderSize(0)
-    l.SetFillColor(ROOT.kWhite)
+    l.SetFillStyle(0)
     l.Draw()
 
-    c.SaveAs("plots16/topVSVJets_MJJ.root")
+    saveCanvas(c,"plots16/topVSVJets_MJJ")
 
 
 
@@ -1027,8 +1031,8 @@ def makeTopVsVJetsMVV(filename):
     scaleDown.SetLineColor(ROOT.kMagenta)
 
     scaleDown.DrawNormalized("HIST")
-    scaleDown.GetXaxis().SetTitle("m_{J} (GeV)")
-    scaleDown.GetYaxis().SetTitle("a.u")
+    scaleDown.GetXaxis().SetTitle("m_{jet} (GeV)")
+    scaleDown.GetYaxis().SetTitle("a.u.")
     c.Update()
     nominal.DrawNormalized("HIST,SAME")
     topUp.DrawNormalized("HIST,SAME")
@@ -1040,45 +1044,11 @@ def makeTopVsVJetsMVV(filename):
     l.AddEntry(topUp,"top non res */ 2","l")
     l.AddEntry(scaleUp,"scale #pm 3 #sigma","l")
     l.SetBorderSize(0)
-    l.SetFillColor(ROOT.kWhite)
+    l.SetFillStyle(0)
     l.Draw()
 
-    c.SaveAs("plots16/topVSVJets_MVV.root")
-    
+    saveCanvas(c,"plots16/topVSVJets_MVV")
 
-
-def makePostFit(card,MH,slices,bkgOnly=True,cut=''):
-    ROOT.gSystem.Load('libHiggsAnalysisCombinedLimit')
-    plotter=RooPlotter(card)    
-    plotter.fix("MH",MH)
-    if bkgOnly:
-        plotter.fix("r",0.0)
-    else:
-        plotter.addContribution("XWW",True,"X #rightarrow WW",3,1,ROOT.kOrange+10,0,ROOT.kWhite)
-    plotter.prefit()
-
-
-    plotter.addContribution("topRes",False," t#bar{t} (W)",2,1,ROOT.kBlack,1001,ROOT.kTeal-1)
-    plotter.addContribution("WW",False,"SM WW",2,1,ROOT.kBlack,1001,ROOT.kOrange)
-    plotter.addContribution("WZ",False,"SM WZ",2,1,ROOT.kBlack,1001,ROOT.kOrange+10)
-    plotter.addContribution("Wjets",False,"V+jets",2,1,ROOT.kBlack-3,1001,ROOT.kAzure-9,"_opt")
-    plotter.addContribution("topNonRes",False,"t#bar{t} (other)",2,1,ROOT.kBlack,1001,ROOT.kSpring-5,"_opt")
-
-    for s in slices:
-        if s.find('nob')!=-1:
-            blind=1
-        else:
-            blind=0
-        plotter.drawStack("MJ","M_{j} (GeV)",s,cut,blind)
-        cmslabel_prelim(plotter.canvas,period,11)
-        plotter.canvas.SaveAs(directory+"/MJ_"+s+".png")
-        plotter.canvas.SaveAs(directory+"/MJ_"+s+".pdf")
-        plotter.canvas.SaveAs(directory+"/MJ_"+s+".root")
-        plotter.drawStack("MLNuJ","M_{VV} (GeV)",s,cut,blind,1)
-        cmslabel_prelim(plotter.canvas,period,11)
-        plotter.canvas.SaveAs(directory+"/MVV_"+s+".png")
-        plotter.canvas.SaveAs(directory+"/MVV_"+s+".pdf")
-        plotter.canvas.SaveAs(directory+"/MVV_"+s+".root")
 
 
 def compare2D_shapex(contrib,tag, bini,binj):
@@ -1107,7 +1077,7 @@ def compare1D(contrib,tag, var="MVV"):
     if var=="MVV":
         mc.ProjectionX("qq").DrawNormalized("SAME")
         c.SetLogy()    
-    if var=="MJ":
+    if var=="MJJ":
         mc.ProjectionY("qq").DrawNormalized("SAME")
 
     c.Update()
@@ -1218,121 +1188,248 @@ def makeBias():
 
 
 def makeKernelScaleResolution(filename,histoname):
-    ROOT.gStyle.SetOptTitle(0)
-    ROOT.gStyle.SetOptStat(0)
+    #ROOT.gStyle.SetOptTitle(0)
+    #ROOT.gStyle.SetOptStat(0)
+
+    setTDRStyle()
+    style=gROOT.GetStyle("tdrStyle").Clone()
+    style.SetPadLeftMargin(0.14)
+    style.SetPadRightMargin(0.04)
+    style.cd() 
+
     f=ROOT.TFile(filename)
     histo=f.Get(histoname)
     name=""
     if "scalex" in histoname:
-        histo.GetYaxis().SetTitle("M_{VV} scale")
+        histo.GetYaxis().SetTitle("m_{WV} scale")
         name="background_scale_MVV.root"
     if "scaley" in histoname:
-        histo.GetYaxis().SetTitle("m_{j} scale")
+        histo.GetYaxis().SetTitle("m_{jet} scale")
         name="background_scale_MJJ.root"
 
     if "resx" in histoname:
-        histo.GetYaxis().SetTitle("M_{VV} resolution")
+        histo.GetYaxis().SetTitle("m_{WV} resolution")
         name="background_resolution_MVV.root"
 
     if "resy" in histoname:
-        histo.GetYaxis().SetTitle("m_{j} resolution")
+        histo.GetYaxis().SetTitle("m_{jet} resolution")
         name="background_resolution_MJJ.root"
 
-    histo.GetXaxis().SetTitle("gen jet p_{T} (GeV)")
+    if histo.GetXaxis().GetTitle()=="":
+        histo.GetXaxis().SetTitle("gen jet p_{T} (GeV)")
     histo.SetLineWidth(2)
-    c=ROOT.TCanvas("c")
+    c=ROOT.TCanvas("c","c",500,500)
     histo.Draw()
-    cmslabel_sim(c,period,12)
-    c.SaveAs(directory+"/"+name)
-    c.SaveAs(directory+"/"+name.replace(".root",".pdf"))
-    
+    histo.GetXaxis().SetTitleOffset(1.15)
+    histo.GetYaxis().SetTitleOffset(1.35)
+    histo.GetXaxis().SetTitleSize(0.05)
+    histo.GetYaxis().SetTitleSize(0.05)
+    histo.GetXaxis().SetLabelSize(0.035)
+    histo.GetYaxis().SetLabelSize(0.035)
+    cmslabel_sim(c,YEAR,0)
+    saveCanvas(c,outDir+"/"+name.replace(".root",""))    
 
 
 
 
-#makeTrigger()
-#makePileup()
-#makeLeptonPlots()
-#makeJetMass('pruned',1)
-#makeTau21()
-#makeWLPlots()
-#makeVVPlots(1)
 
-#makeSignalMVVParamPlot("LNUJJ_2016/combined.root","XWW_MVV_b_mu_HP_13TeV")
+os.system("mkdir -p "+outDir)
 
-#getMJJParams('LNUJJ_2016/debugLNuJJ_MJJ_Wjets_HP.root','Wjets_MJJ_HP')
-#getMJJParams('LNUJJ_2016/debugLNuJJ_MJJ_Wjets_LP.root','Wjets_MJJ_LP')
-
-#makeSignalMJJParam('debug_LNuJJ_XWW_MJJ_HP.json.root','debug_LNuJJ_XWZ_MJJ_HP.json.root','HP')
-#makeSignalMJJParam('debug_LNuJJ_XWW_MJJ_LP.json.root','debug_LNuJJ_XWZ_MJJ_LP.json.root','LP')
-
-#makeSignalMVVParam('debug_LNuJJ_XWW_MVV_mu.json.root','debug_LNuJJ_XWZ_MVV_mu.json.root','HP')
-#makeSignalMVVParam('debug_LNuJJ_XWW_MVV_e.json.root','debug_LNuJJ_XWZ_MVV_e.json.root','LP')
+setTDRStyle()
+style=gROOT.GetStyle("tdrStyle").Clone()
+style.SetOptStat(0)
+style.SetPadLeftMargin(0.14)
+style.SetPadRightMargin(0.04)
+style.SetCanvasDefH(500)
+style.SetCanvasDefW(500)
+style.SetTitleXOffset(1.15)
+style.SetTitleYOffset(1.35)
+style.SetTitleSize(0.05,"XYZ")
+style.SetLabelSize(0.03,"Z")
+style.cd()
 
 
-#makeTopMJJParam("LNUJJ_2016/LNuJJ_MJJ_topRes_HP.root",'HP')
-#makeTopMJJParam("LNUJJ_2016/LNuJJ_MJJ_topRes_LP.root",'LP')
+## deprecated ?
+''' 
+makeTrigger()
+makePileup()
+makeLeptonPlots()
+makeJetMass('pruned',1)
+makeTau21()
+makeWLPlots()
+makeVVPlots(1)
+
+getMJJParams('LNUJJ_2016/debugLNuJJ_MJJ_Wjets_HP.root','Wjets_MJJ_HP')
+getMJJParams('LNUJJ_2016/debugLNuJJ_MJJ_Wjets_LP.root','Wjets_MJJ_LP')
 
 
-#makeBackgroundMVVParamPlot("LNUJJ_2016/combinedSlow.root","Wjets_MVV_nob_mu_HP_13TeV",'MLNuJ','Wjets_mu_')
-#makeBackgroundMVVParamPlot("LNUJJ_2016/combinedSlow.root","Wjets_MVV_nob_e_HP_13TeV",'MLNuJ','Wjets_e_')
-#makePostFit("LNUJJ_2016/combined.root",2000,['nob_mu_HP_13TeV','nob_mu_LP_13TeV','nob_e_HP_13TeV','nob_e_LP_13TeV','b_mu_HP_13TeV','b_mu_LP_13TeV','b_e_HP_13TeV','b_e_LP_13TeV'],1)
+makeTopMJJParam("LNUJJ_2016/LNuJJ_MJJ_topRes_HP.root",'HP')
+makeTopMJJParam("LNUJJ_2016/LNuJJ_MJJ_topRes_LP.root",'LP')
 
 
-
-#makeShapeUncertaintiesMJJ("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_HP.root","Wjets","HP","slopeSystMJJ")
-#makeShapeUncertaintiesMJJ("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_HP.root","Wjets","HP","meanSystMJJ")
-#makeShapeUncertaintiesMJJ("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_HP.root","Wjets","HP","widthSystMJJ")
-
-#makeShapeUncertaintiesMJJ("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_LP.root","Wjets","LP","slopeSystMJJ")
-#makeShapeUncertaintiesMJJ("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_LP.root","Wjets","LP","meanSystMJJ")
-#makeShapeUncertaintiesMJJ("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_LP.root","Wjets","LP","widthSystMJJ")
+makeBackgroundMVVParamPlot("LNUJJ_2016/combinedSlow.root","Wjets_MVV_nob_mu_HP_13TeV",varMVV,'Wjets_mu_')
+makeBackgroundMVVParamPlot("LNUJJ_2016/combinedSlow.root","Wjets_MVV_nob_e_HP_13TeV",varMVV,'Wjets_e_')
 
 
-#makeShapeUncertaintiesMVV("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_HP.root","Wjets","mu","slopeSyst")
-#makeShapeUncertaintiesMVV("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_HP.root","Wjets","mu","meanSyst0")
-#makeShapeUncertaintiesMVV("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_HP.root","Wjets","mu","widthSyst")
+makeShapeUncertaintiesMJJ("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_HP.root","Wjets","HP","slopeSystMJJ")
+makeShapeUncertaintiesMJJ("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_HP.root","Wjets","HP","meanSystMJJ")
+makeShapeUncertaintiesMJJ("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_HP.root","Wjets","HP","widthSystMJJ")
+
+makeShapeUncertaintiesMJJ("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_LP.root","Wjets","LP","slopeSystMJJ")
+makeShapeUncertaintiesMJJ("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_LP.root","Wjets","LP","meanSystMJJ")
+makeShapeUncertaintiesMJJ("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_LP.root","Wjets","LP","widthSystMJJ")
 
 
-for c in ['nob']:
-    if c=='vbf':
-        pur=['NP']
-    else:
-        pur=['HP','LP']
-    for p in pur:
-        for l in ['mu','e']:
-            continue
-#            makeTemplates2D("LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","template_nonRes",l+"_"+p+"_"+c)
-#            makeTemplates1D("LNuJJ_resW_MVV_"+l+"_"+p+"_"+c+".root","template_resW",l+"_"+p+"_"+c)
-#            makeShapeUncertaintiesProj2D("LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTX")
-#@            makeShapeUncertaintiesProj2D("LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTX")
-#            makeShapeUncertaintiesProj2D("LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTY")
-#            makeShapeUncertaintiesProj2D("LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTY")
-#            makeShapeUncertainties2D("LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTX")
-#            makeShapeUncertainties2D("LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTX")
-#            makeShapeUncertainties2D("LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTY")
-#            makeShapeUncertainties2D("LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTY")
+makeShapeUncertaintiesMVV("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_HP.root","Wjets","mu","slopeSyst")
+makeShapeUncertaintiesMVV("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_HP.root","Wjets","mu","meanSyst0")
+makeShapeUncertaintiesMVV("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_HP.root","Wjets","mu","widthSyst")
 
 
-#makeTemplatesProjMVV("LNuJJ_nonRes_2D_e_HP_nob.root","LNuJJ_nonRes_2D_mu_HP_nob.root","template_nonRes")
-#makeTemplatesProjMJJ("LNuJJ_nonRes_2D_mu_LP_nob.root","LNuJJ_nonRes_2D_mu_HP_nob.root","template_nonRes")
-
-
-#makeTopMJJParam('LNuJJ_MJJ_resW_HP.root','HP')
-#makeTopMJJParam('LNuJJ_MJJ_resW_LP.root','LP')
-#makeTopMJJParam('LNuJJ_MJJ_resW_NP.root','NP')
-            
-#makeGOF("gof.root",23447.0)
+makeGOF("gof.root",23447.0)
 makeBias()
 
+makeTopVsVJetsMJJ(inDir+"LNuJJ_nonRes_MJJ_mu_HP_nob.root")
+makeTopVsVJetsMVV(inDir+"LNuJJ_nonRes_COND2D_mu_HP_nob.root")
+'''
 
 
-#makeTopVsVJetsMJJ("LNuJJ_nonRes_MJJ_mu_HP_nob.root")
-#makeTopVsVJetsMVV("LNuJJ_nonRes_COND2D_mu_HP_nob.root")
+if 'nonRes' in plots:
+    compCategories(inDir+"LNuJJ_nonRes_2D","histo",True,leptons,purities,categories,"compTemplate_nonRes","MVV","m_{WV} (GeV)",False)
+    compCategories(inDir+"LNuJJ_nonRes_2D","histo",True,leptons,purities,categories,"compTemplate_nonRes","MVV","m_{WV} (GeV)",True)
+    compCategories(inDir+"LNuJJ_nonRes_2D","histo",True,leptons,purities,categories,"compTemplate_nonRes","MJJ","m_{jet} (GeV)")
+    compCategories(inDir+"LNuJJ","nonRes",True,leptons,purities,categories,"compReco_nonRes","MVV","m_{WV} (GeV)",False)
+    compCategories(inDir+"LNuJJ","nonRes",True,leptons,purities,categories,"compReco_nonRes","MVV","m_{WV} (GeV)",True)
+    compCategories(inDir+"LNuJJ","nonRes",True,leptons,purities,categories,"compReco_nonRes","MJJ","m_{jet} (GeV)")
+
+    #slopeVsMjet(inDir+"LNuJJ_nonRes_COND2D","gr_tailSlopeVsMjet_histo",leptons,purities,categories,"nonRes_tailSlopeVsMjet")
+
+    for c in categories:
+        os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -c {c} -b {b} -B {B}".format(i=inDir, o=outDir, C='nonRes', c=c, b=binsMVV[c], B=binsMJJ[c]))
+        os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -c {c} -b {b} -B {B} -d 1".format(i=inDir, o=outDir, C='nonRes', c=c, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
+
+        for p in purities:
+            for l in leptons:
+                #continue
+
+                makeTemplate2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","histo","template_nonRes_"+l+"_"+p+"_"+c)
+                #makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+".root","histo","templCond_nonRes_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarse","template_nonResCoarse_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","nonRes","reco_nonRes_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_GEN.root","nonRes","gen_nonRes_"+l+"_"+p+"_"+c)
+                makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","nonRes","templateVsReco_nonRes_"+l+"_"+p+"_"+c,4,(5,0)[binsMJJ[c]==18])
+
+                ##makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarse",inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","nonRes","templateVsReco_nonResCoarse_"+l+"_"+p+"_"+c)
+                #makeTemplateVsReco1D(inDir+"LNuJJ_nonRes_MVV_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","nonRes","templateVsReco1D_nonRes_MVV_"+l+"_"+p+"_"+c,"MVV","m_{WV} (GeV)")
+
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTX")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTX")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTY")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTX")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTX")
+            
+                ##makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTY")
+                ##makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTY")
 
 
-#makeKernelScaleResolution("LNuJJ_nonRes_detectorResponse.root","scalexHisto")
-#makeKernelScaleResolution("LNuJJ_nonRes_detectorResponse.root","scaleyHisto")
+if 'resW' in plots:
+    #compCategories(inDir+"LNuJJ_resW_MVV","histo",False,leptons,purities,categories,"compTemplate_resW","MVV","m_{WV} (GeV)")
+    #compCategories(inDir+"LNuJJ_resW_MVV","histo",False,leptons,purities,categories,"compTemplate_resW","MVV","m_{WV} (GeV)",True)
+    if options.withDC:
+        compCategories(inDir+"LNuJJ_resW_2DFromDC","histo",True,leptons,purities,categories,"compTemplate_resW","MVV","m_{WV} (GeV)",False)
+        compCategories(inDir+"LNuJJ_resW_2DFromDC","histo",True,leptons,purities,categories,"compTemplate_resW","MVV","m_{WV} (GeV)",True)
+        compCategories(inDir+"LNuJJ_resW_2DFromDC","histo",True,leptons,purities,categories,"compTemplate_resW","MJJ","m_{jet} (GeV)")
+        compCategories(inDir+"LNuJJ","resW",True,leptons,purities,categories,"compReco_resW","MVV","m_{WV} (GeV)",False)
+        compCategories(inDir+"LNuJJ","resW",True,leptons,purities,categories,"compReco_resW","MVV","m_{WV} (GeV)",True)
+        compCategories(inDir+"LNuJJ","resW",True,leptons,purities,categories,"compReco_resW","MJJ","m_{jet} (GeV)")
 
-#makeKernelScaleResolution("LNuJJ_nonRes_detectorResponse.root","resxHisto")
-#makeKernelScaleResolution("LNuJJ_nonRes_detectorResponse.root","resyHisto")
+    if options.withDC:
+        for c in categories:
+            os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -c {c} -b {b} -B {B}".format(i=inDir, o=outDir, C='resW', c=c, b=binsMVV[c], B=binsMJJ[c]))
+
+    for c in categories:
+        for p in purities:
+            for l in leptons:
+                #continue
+
+                if options.withDC:
+                    extractResWTemplateFromDC(DcFolder+"/combined_"+YEAR+".root",c+"_"+l+"_"+p+"_"+YEAR+"_opt",inDir+"LNuJJ_resW_2DFromDC_"+l+"_"+p+"_"+c,c)
+                    ##extractResWTemplateFromDC(DcFolder+"/combined_"+YEAR+".root",c+"_"+l+"_"+p+"_"+YEAR,inDir+"LNuJJ_resW_2DFromDC_"+l+"_"+p+"_"+c,c) ##old syntax, before new resW 2D fit
+                    makeTemplate2D(inDir+"LNuJJ_resW_2DFromDC_"+l+"_"+p+"_"+c+".root","histo","template_resW_"+l+"_"+p+"_"+c)
+                    makeTemplateVsReco2D(inDir+"LNuJJ_resW_2DFromDC_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","resW","templateVsReco_resW_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","resW","reco_resW_"+l+"_"+p+"_"+c)
+
+                #makeTemplate1D(inDir+"LNuJJ_resW_MVV_"+l+"_"+p+"_"+c+".root","histo","template1D_resW_MVV_"+l+"_"+p+"_"+c,"m_{WV} (GeV)")
+                #makeTemplateVsReco1D(inDir+"LNuJJ_resW_MVV_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","resW","templateVsReco1D_resW_MVV_"+l+"_"+p+"_"+c,"MVV","m_{WV} (GeV)")
+
+            ##makeResWMJJShapeParam(inDir+"debug_LNuJJ_resW_MJJ_"+p+"_"+c+".json.root",p+"_"+c) ##old, before new resW 2D fit
+
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo","template_resW_MJJGivenMVV_"+p+"_"+c+"_Nominal",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_ScaleUp",  "template_resW_MJJGivenMVV_"+p+"_"+c+"_ScaleUp",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_ScaleDown","template_resW_MJJGivenMVV_"+p+"_"+c+"_ScaleDn",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_ResUp",  "template_resW_MJJGivenMVV_"+p+"_"+c+"_ResUp",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_ResDown","template_resW_MJJGivenMVV_"+p+"_"+c+"_ResDn",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_TopPt0Up",  "template_resW_MJJGivenMVV_"+p+"_"+c+"_TopPt0Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_TopPt0Down","template_resW_MJJGivenMVV_"+p+"_"+c+"_TopPt0Dn",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_TopPt1Up",  "template_resW_MJJGivenMVV_"+p+"_"+c+"_TopPt1Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_TopPt1Down","template_resW_MJJGivenMVV_"+p+"_"+c+"_TopPt1Dn",False)
+
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo","templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_Nominal",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_ScaleUp",  "templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_ScaleUp",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_ScaleDown","templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_ScaleDn",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_ResUp",  "templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_ResUp",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_ResDown","templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_ResDn",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_TopPt0Up",  "templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_TopPt0Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_TopPt0Down","templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_TopPt0Dn",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_TopPt1Up",  "templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_TopPt1Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_TopPt1Down","templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_TopPt1Dn",False)
+
+
+if 'signal' in plots:
+
+    for signal in signals:
+        #continue
+        if options.withDC:
+            compCategories(inDir+"LNuJJ_"+signal+"_2DFromDC",signal+"2000",True,leptons,purities,categories,"compTemplate_"+signal+"2000","MVV","m_{WV} (GeV)",False)
+            compCategories(inDir+"LNuJJ_"+signal+"_2DFromDC",signal+"2000",True,leptons,purities,categories,"compTemplate_"+signal+"2000","MJJ","m_{jet} (GeV)")
+        compCategories(inDir+"LNuJJ",signal+"2000",True,leptons,purities,categories,"compReco_"+signal+"2000","MVV","m_{WV} (GeV)",False)
+        compCategories(inDir+"LNuJJ",signal+"2000",True,leptons,purities,categories,"compReco_"+signal+"2000","MJJ","m_{jet} (GeV)")
+        
+        if options.withDC:
+            for mx in [2000]: #[1000,2000,3000,4000]: #[1000,1400,2000,3000,4500]:
+                for c in categories:
+                    os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -c {c} -b {b} -B {B} -r 0 -s".format(i=inDir, o=outDir, C=signal+str(mx).zfill(4), c=c, b=binsMVV[c], B=binsMJJ[c]))
+
+    for c in categories:
+        for p in purities:
+            for l in leptons:
+                #continue
+
+                makeSignalYieldParam(inDir+"LNuJJ_XWW_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_XWZ_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_XWH_"+l+"_"+p+"_"+c+"_yield.root","paramSignalYield_XWWXWZXWH_"+l+"_"+p+"_"+c)
+                for signal in signals:
+                    if options.withDC:
+
+                        os.system("rm LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+".root")
+                        for mx in [1000,1500,2000,2500,3000,3500,4000,4500]:
+                            extractSignalTemplateFromDC("Dc_"+signal+"/combined_"+YEAR+".root","shapeSig_"+signal+"_"+c+"_"+l+"_"+p+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c,c)
+
+                        makeSignalParamFromHisto(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+".root","templateSignalVsMX_fromHisto_"+signal+"_MVV_"+l+"_"+p+"_"+c,"MVV",signal,"1000,1500,2000,2500,3000,3500,4000,4500")
+                        makeSignalParamFromHisto(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+".root","templateSignalVsMX_fromHisto_"+signal+"_MJJ_"+l+"_"+p+"_"+c,"MJJ",signal,"1000,1500,2000,2500,3000,3500,4000,4500")
+                        makeSignalParamFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MVV_"+c+"_"+l+"_"+p+"_"+YEAR,"templateSignalVsMX_fromDC_"+signal+"_MVV_"+l+"_"+p+"_"+c,signal,"1000,1500,2000,2500,3000,3500,4000,4500",varMVV[c],"m_{WV} (GeV)")
+                        makeSignalParamFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MJJ_"+c+"_"+l+"_"+p+"_"+YEAR,"templateSignalVsMX_fromDC_"+signal+"_MJJ_"+l+"_"+p+"_"+c,signal,"1000,1500,2000,2500,3000,3500,4000,4500",varMJJ[c],"m_{jet} (GeV)")
+
+                        for mx in [2000]:
+                            makeTemplate2D(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+".root",signal+str(mx),"template_"+signal+str(mx)+"_"+l+"_"+p+"_"+c,False)
+                            makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root",signal+str(mx),"reco_"+signal+str(mx)+"_"+l+"_"+p+"_"+c,False)
+                            makeTemplateVsReco2D(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+".root",signal+str(mx),inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root",signal+str(mx),"templateVsReco_"+signal+str(mx)+"_"+l+"_"+p+"_"+c)
+
+            makeSignalShapeParam(inDir+"debugSignalShape_LNuJJ_XWW_MJJ_"+p+"_"+c+".root",inDir+"debugSignalShape_LNuJJ_XWZ_MJJ_"+p+"_"+c+".root",inDir+"debugSignalShape_LNuJJ_XWH_MJJ_"+p+"_"+c+".root",'MJJ',p+"_"+c,"paramSignalShape_XWWXWZXWH_")
+            makeSignalShapeParam(inDir+"debugSignalShape_LNuJJ_XWW_MVV_"+p+"_"+c+".root",inDir+"debugSignalShape_LNuJJ_XWZ_MVV_"+p+"_"+c+".root",inDir+"debugSignalShape_LNuJJ_XWH_MVV_"+p+"_"+c+".root",'MVV',p+"_"+c,"paramSignalShape_XWWXWZXWH_")
+
+
+if 'scaleres' in plots:
+    makeKernelScaleResolution(inDir+"LNuJJ_nonRes_detectorResponse.root","scalexHisto")
+    makeKernelScaleResolution(inDir+"LNuJJ_nonRes_detectorResponse.root","scaleyHisto")
+    makeKernelScaleResolution(inDir+"LNuJJ_nonRes_detectorResponse.root","resxHisto")
+    makeKernelScaleResolution(inDir+"LNuJJ_nonRes_detectorResponse.root","resyHisto")
+
