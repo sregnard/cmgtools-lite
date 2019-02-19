@@ -6,167 +6,146 @@ cmd='combineCards.py '
 
 import optparse
 parser = optparse.OptionParser()
-parser.add_option("-s","--signalType",dest="signalType",default='XWW',help="XWW or XWZ")
+parser.add_option("-y","--year",dest="year",type=int,default=2016,help="2016 or 2017 or 2018")
+parser.add_option("-s","--signalType",dest="signalType",default='XWW',help="XWW or XWZ or XWH")
+parser.add_option("-c","--cat",dest="categories",default='bb',help="categorization scheme")
+parser.add_option("-b","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=False)
 (options,args) = parser.parse_args()
 
 
-for category in ['nob']:
-    if category=='vbf':
-        pur=['NP']
-    else:
-        pur=['HP','LP']
-    for purity in pur:
+YEAR=str(options.year)
+inputDir='Inputs_'+YEAR+'/'
+intlumi=0.
+if YEAR=="2016":
+  intlumi = 35920
+elif YEAR=="2017":
+  intlumi = 41530
+elif YEAR=="2018":
+  intlumi = 59970
+
+
+sig=options.signalType
+if sig not in ['XWW','XWZ','XWH']:
+    sys.exit('Error: unrecognized signal')
+
+
+categories = []
+if options.categories == 'old':
+    categories = ['nob']
+elif options.categories == 'bb':
+    categories = ['bb','nobb']
+#elif options.categories == 'charge':
+#    categories = ['Wplus','Wminus']
+
+
+
+for category in categories:
+    for purity in ['HP','LP']:
         for lepton in ['e','mu']:
-            card=DataCardMaker(lepton,purity,'13TeV',35900,category)
-            cat='_'.join([category,lepton,purity,'13TeV'])
+
+            card=DataCardMaker(lepton,purity,YEAR,intlumi,category)
+            cat='_'.join([category,lepton,purity,YEAR])
             cmd=cmd+" "+cat+'=datacard_'+cat+'.txt '
 
-            #WW signal-MVV
-            if options.signalType=='XWW':
-                card.addMVVSignalParametricShape("XWW_MVV","MLNuJ","LNuJJ_XWW_MVV_"+lepton+".json",{'CMS_scale_j':1,'CMS_scale_MET':1.0,'CMS_scale_'+lepton:1.0},{'CMS_res_j':1.0,'CMS_res_MET':1.0})
-                if purity=='LP':
-                    card.addMJJSignalParametricShape("Wqq","MJ","LNuJJ_XWW_MJJ_"+purity+".json",{'CMS_scale_prunedj':1},{'CMS_res_prunedj':1.0})
-                else:
-                    card.addMJJSignalParametricShapeNOEXP("Wqq","MJ","LNuJJ_XWW_MJJ_"+purity+".json",{'CMS_scale_prunedj':1},{'CMS_res_prunedj':1.0})
-                card.product("XWW","Wqq","XWW_MVV")
 
-            #WZ signal-MVV
-            elif options.signalType=='XWZ':
-                card.addMVVSignalParametricShape("XWZ_MVV","MLNuJ","LNuJJ_XWZ_MVV_"+lepton+".json",{'CMS_scale_j':1,'CMS_scale_MET':1.0,'CMS_scale_'+lepton:1.0},{'CMS_res_j':1.0,'CMS_res_MET':1.0})
-                if purity=='LP':
-                    card.addMJJSignalParametricShape("Zqq","MJ","LNuJJ_XWZ_MJJ_"+purity+".json",{'CMS_scale_prunedj':1},{'CMS_res_prunedj':1.0})
-                else:
-                    card.addMJJSignalParametricShapeNOEXP("Zqq","MJ","LNuJJ_XWZ_MJJ_"+purity+".json",{'CMS_scale_prunedj':1},{'CMS_res_prunedj':1.0})
-                card.product("XWZ","Zqq","XWZ_MVV")
+            varMVV = "MLNuJ"
+            varMJJ = "MJ"
+            if options.differentBinning and category=='bb':
+                varMVV = "MLNuJ_coarse"
+                varMJJ = "MJ_coarse"
 
-            ##WH signal-MVV
-            #elif options.signalType=='XWH':
-            #    card.addMVVSignalParametricShape("XWH_MVV","MLNuJ","LNuJJ_XWH_MVV_"+lepton+".json",{'CMS_scale_j':1,'CMS_scale_MET':1.0,'CMS_scale_'+lepton:1.0},{'CMS_res_j':1.0,'CMS_res_MET':1.0})
-            #    if purity=='LP':
-            #        card.addMJJSignalParametricShape("Hqq","MJ","LNuJJ_XWH_MJJ_"+purity+".json",{'CMS_scale_prunedj':1},{'CMS_res_prunedj':1.0})
-            #    else:
-            #        card.addMJJSignalParametricShapeNOEXP("Hqq","MJ","LNuJJ_XWH_MJJ_"+purity+".json",{'CMS_scale_prunedj':1},{'CMS_res_prunedj':1.0})
-            #    card.product("XWH","Hqq","XWH_MVV")
 
+            ## Signal
+            card.addMVVSignalParametricShape(sig+"_MVV",varMVV,inputDir+"LNuJJ_"+sig+"_MVV_"+purity+"_"+category+".json",{'CMS_scale_j_'+YEAR:1,'CMS_scale_MET_'+YEAR:1.0,'CMS_scale_'+lepton+'_'+YEAR:1.0},{'CMS_res_j_'+YEAR:1.0,'CMS_res_MET_'+YEAR:1.0})
+            if purity=='LP':
+                card.addMJJSignalParametricShape(sig+"_MJJ",varMJJ,inputDir+"LNuJJ_"+sig+"_MJJ_"+purity+"_"+category+".json",{'CMS_scale_prunedj_'+YEAR:1},{'CMS_res_prunedj_'+YEAR:1.0})
             else:
-                sys.exit('Error: unrecognized signal')
-
+                card.addMJJSignalParametricShapeNOEXP(sig+"_MJJ",varMJJ,inputDir+"LNuJJ_"+sig+"_MJJ_"+purity+"_"+category+".json",{'CMS_scale_prunedj_'+YEAR:1},{'CMS_res_prunedj_'+YEAR:1.0})
+            card.product(sig,sig+"_MJJ",sig+"_MVV")
 
             if purity=='HP':
-
-                if options.signalType=='XWW':
-                    card.addParametricYieldWithUncertainty("XWW",0,"LNuJJ_XWW_"+lepton+"_"+purity+"_"+category+"_yield.json",1,'CMS_tau21_PtDependence','log(MH/600)',0.041)
-                elif options.signalType=='XWZ':
-                    card.addParametricYieldWithUncertainty("XWZ",0,"LNuJJ_XWZ_"+lepton+"_"+purity+"_"+category+"_yield.json",1,'CMS_tau21_PtDependence','log(MH/600)',0.041)
-                #elif options.signalType=='XWH':
-                #    card.addParametricYieldWithUncertainty("XWH",0,"LNuJJ_XWH_"+lepton+"_"+purity+"_"+category+"_yield.json",1,'CMS_tau21_PtDependence','log(MH/600)',0.041)
-
-                ##HVT
-                #card.addParametricYieldHVTBR("XWW",0,"LNuJJ_XWW_"+lepton+"_"+purity+"_"+category+"_yield.json","HVT.json","BRWW",1.0,"CMS_tau21_PtDependence",'log(MH/600)',0.041)
-                #card.addParametricYieldHVTBR("XWZ",1,"LNuJJ_XWZ_"+lepton+"_"+purity+"_"+category+"_yield.json","HVT.json","BRWZ",1.0,"CMS_tau21_PtDependence",'log(MH/600)',0.041)
-
+                card.addParametricYieldWithUncertainty(sig,0,inputDir+"LNuJJ_"+sig+"_"+lepton+"_"+purity+"_"+category+"_yield.json",1,'CMS_tau21_PtDependence'+YEAR,'log(MH/600)',0.041)
             else:
-
-                if options.signalType=='XWW':
-                    card.addParametricYieldWithUncertainty("XWW",0,"LNuJJ_XWW_"+lepton+"_"+purity+"_"+category+"_yield.json",1,'CMS_tau21_PtDependence','((0.054/0.041)*(-log(MH/600)))',0.041)
-                elif options.signalType=='XWZ':
-                    card.addParametricYieldWithUncertainty("XWZ",0,"LNuJJ_XWZ_"+lepton+"_"+purity+"_"+category+"_yield.json",1,'CMS_tau21_PtDependence','((0.054/0.041)*(-log(MH/600)))',0.041)
-                #elif options.signalType=='XWH':
-                #    card.addParametricYieldWithUncertainty("XWH",0,"LNuJJ_XWH_"+lepton+"_"+purity+"_"+category+"_yield.json",1,'CMS_tau21_PtDependence','(-log(MH/600))',0.054)
-
-                ##HVT
-                #card.addParametricYieldHVTBR("XWW",0,"LNuJJ_XWW_"+lepton+"_"+purity+"_"+category+"_yield.json","HVT.json","BRWW",1.0,"CMS_tau21_PtDependence",'((0.054/0.041)*(-log(MH/600))',0.041)
-                #card.addParametricYieldHVTBR("XWZ",1,"LNuJJ_XWZ_"+lepton+"_"+purity+"_"+category+"_yield.json","HVT.json","BRWZ",1.0,"CMS_tau21_PtDependence",'((0.054/0.041)*(-log(MH/600))',0.041)
+                card.addParametricYieldWithUncertainty(sig,0,inputDir+"LNuJJ_"+sig+"_"+lepton+"_"+purity+"_"+category+"_yield.json",1,'CMS_tau21_PtDependence'+YEAR,'((0.054/0.041)*(-log(MH/600)))',0.041)
 
 
-            #QCD
-            rootFile="LNuJJ_nonRes_2D_"+lepton+"_"+purity+"_"+category+".root"
-            qcdTag ="_".join([lepton,purity,category])
-#            card.addHistoShapeFromFile("nonRes",["MLNuJ","MJ"],rootFile,"histo",['OPTX:CMS_VV_LNuJ_nonRes_OPTX_'+qcdTag,'PTX:CMS_VV_LNuJ_nonRes_PTX_'+qcdTag,'PTX2:CMS_VV_LNuJ_nonRes_PTX2_'+qcdTag,'PTY:CMS_VV_LNuJ_nonRes_PTY_'+qcdTag,'OPTY:CMS_VV_LNuJ_nonRes_OPTY_'+qcdTag],False,0)
-            card.addHistoShapeFromFile("nonRes",["MLNuJ","MJ"],rootFile,"histo",['PTX:CMS_VV_LNuJ_nonRes_PTX_'+qcdTag,'OPTX:CMS_VV_LNuJ_nonRes_OPTX_'+qcdTag,'OPTY:CMS_VV_LNuJ_nonRes_OPTY_'+qcdTag,'PTY:CMS_VV_LNuJ_nonRes_PTY_'+qcdTag],False,0)
+            ## Non-resonant bkgd
+            nonResTag ="_".join([lepton,purity,category,YEAR])
+            rootFile=inputDir+"LNuJJ_nonRes_2D_"+lepton+"_"+purity+"_"+category+".root"
+#            card.addHistoShapeFromFile("nonRes",[varMVV,varMJJ],rootFile,"histo",['OPTX:CMS_VV_LNuJ_nonRes_OPTX_'+nonResTag,'PTX:CMS_VV_LNuJ_nonRes_PTX_'+nonResTag,'PTX2:CMS_VV_LNuJ_nonRes_PTX2_'+nonResTag,'PTY:CMS_VV_LNuJ_nonRes_PTY_'+nonResTag,'OPTY:CMS_VV_LNuJ_nonRes_OPTY_'+nonResTag],False,0)
+            card.addHistoShapeFromFile("nonRes",[varMVV,varMJJ],rootFile,"histo",['PTX:CMS_VV_LNuJ_nonRes_PTX_'+nonResTag,'OPTX:CMS_VV_LNuJ_nonRes_OPTX_'+nonResTag,'OPTY:CMS_VV_LNuJ_nonRes_OPTY_'+nonResTag,'PTY:CMS_VV_LNuJ_nonRes_PTY_'+nonResTag],False,0)
             
-            card.addFixedYieldFromFile("nonRes",1,"LNuJJ_"+lepton+"_"+purity+"_"+category+".root","nonRes")
+            card.addFixedYieldFromFile("nonRes",1,inputDir+"LNuJJ_"+lepton+"_"+purity+"_"+category+".root","nonRes")
 
 
-            #Wjet
-            card.addMJJTopMergedParametricShape("mjjRes","MJ","LNuJJ_MJJ_resW_"+purity+".json",{'CMS_scale_prunedj':1},{'CMS_res_prunedj':1.0},{'CMS_VV_topPt_0_'+lepton+"_"+purity+"_"+category:1,'CMS_VV_topPt_1_'+lepton+"_"+purity+"_"+category:"1.0/MH^2"},"MLNuJ")   
-            rootFile="LNuJJ_resW_MVV_"+lepton+"_"+purity+"_"+category+".root"
-            resWTag ="_".join([lepton,purity,category])
-#            card.addHistoShapeFromFile("resW_MVV",["MLNuJ"],rootFile,"histo",['Scale:CMS_VV_LNuJ_resW_Scale_'+resWTag,'Res:CMS_VV_LNuJ_resW_Res_'+resWTag],False,0)       
-            card.addHistoShapeFromFile("resW_MVV",["MLNuJ"],rootFile,"histo",['PT:CMS_VV_LNuJ_resW_PT_'+resWTag,'OPT:CMS_VV_LNuJ_resW_OPT_'+resWTag],False,0)       
+            ## Resonant bkgd
+            resWTag ="_".join([lepton,purity,category,YEAR])
 
-            card.conditionalProduct("resW","mjjRes","MLNuJ","resW_MVV")
-            card.addFixedYieldFromFile("resW",2,"LNuJJ_"+lepton+"_"+purity+"_"+category+".root","resW")
+            rootFile=inputDir+"LNuJJ_resW_MJJGivenMVV_"+purity+"_"+category+".root"
+            card.addHistoShapeFromFile("mjjRes",[varMVV,varMJJ],rootFile,"histo",['Scale:CMS_scale_prunedj_'+YEAR,'Res:CMS_res_prunedj_'+YEAR,'TopPt0:CMS_VV_topPt_0_'+resWTag,'TopPt1:CMS_VV_topPt_1_'+resWTag],True,0)
 
+            rootFile=inputDir+"LNuJJ_resW_MVV_"+lepton+"_"+purity+"_"+category+".root"
+            card.addHistoShapeFromFile("resW_MVV",[varMVV],rootFile,"histo",['PT:CMS_VV_LNuJ_resW_PT_'+resWTag,'OPT:CMS_VV_LNuJ_resW_OPT_'+resWTag],False,0)
 
-            #DATA
-            card.importBinnedData("LNuJJ_"+lepton+"_"+purity+"_"+category+".root","data",["MLNuJ","MJ"])
+            card.conditionalProduct("resW","mjjRes",varMVV,"resW_MVV")
+            card.addFixedYieldFromFile("resW",2,inputDir+"LNuJJ_"+lepton+"_"+purity+"_"+category+".root","resW")
 
 
-            #####SYSTEMATICS
+            ## DATA
+            card.importBinnedData(inputDir+"LNuJJ_"+lepton+"_"+purity+"_"+category+".root","data",[varMVV,varMJJ])
+
+
+
+            ## SYSTEMATICS
 
             #luminosity
-            card.addSystematic("CMS_lumi","lnN",{'XWW':1.026,'XWZ':1.026})
+            card.addSystematic("CMS_lumi_"+YEAR,"lnN",{'XWW':1.026,'XWZ':1.026,'XWH':1.026})
 
             #kPDF uncertainty for the signal
-            card.addSystematic("CMS_pdf","lnN",{'XWW':1.01,'XWZ':1.01})
+            card.addSystematic("CMS_pdf","lnN",{'XWW':1.01,'XWZ':1.01,'XWH':1.01})
 
             #lepton efficiency
-            card.addSystematic("CMS_eff_"+lepton,"lnN",{'XWW':1.1,'XWZ':1.1})
+            card.addSystematic("CMS_eff_"+lepton+"_"+YEAR,"lnN",{'XWW':1.1,'XWZ':1.1,'XWH':1.1})
 
-            #W+jets cross section in acceptance-dominated by pruned mass
-            card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+lepton+"_"+purity+"_"+category,"lnN",{'nonRes':1.5})
-            card.addSystematic("CMS_VV_LNuJ_resW_norm_"+lepton+"_"+purity+"_"+category,"lnN",{'resW':1.20})
+            #bkgd normalization
+            card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+nonResTag,"lnN",{'nonRes':1.5})
+            card.addSystematic("CMS_VV_LNuJ_resW_norm_"+resWTag,"lnN",{'resW':1.20})
 
             #tau21 
             if purity=='HP':
-                card.addSystematic("CMS_VV_LNuJ_tau21_eff","lnN",{'XWW':1+0.14,'XWZ':1+0.14})
-
+                card.addSystematic("CMS_VV_LNuJ_tau21_eff_"+YEAR,"lnN",{'XWW':1+0.14,'XWZ':1+0.14,'XWH':1+0.14})
             if purity=='LP':
-                card.addSystematic("CMS_VV_LNuJ_tau21_eff","lnN",{'XWW':1-0.33,'XWZ':1-0.33})
+                card.addSystematic("CMS_VV_LNuJ_tau21_eff_"+YEAR,"lnN",{'XWW':1-0.33,'XWZ':1-0.33,'XWH':1-0.33})
+
+            card.addSystematic("CMS_btag_fake_"+YEAR,"lnN",{'XWW':1+0.02,'XWZ':1+0.02,'XWH':1+0.02})
 
 
-            #inter-category
-#            if category=='vbf':
-#                card.addSystematic("CMS_VV_LNuJ_vbf_intercategory","lnN",{'XWW':1.3,'XWZ':1.3})
-#            else:    
-#                card.addSystematic("CMS_VV_LNuJ_vbf_intercategory","lnN",{'XWW':0.95,'XWZ':0.95})
+            card.addSystematic("CMS_scale_j_"+YEAR,"param",[0.0,0.02])
+            card.addSystematic("CMS_res_j_"+YEAR,"param",[0.0,0.05])
+            card.addSystematic("CMS_scale_prunedj_"+YEAR,"param",[0.0,0.333])
+            card.addSystematic("CMS_res_prunedj_"+YEAR,"param",[0.0,0.333])
+            card.addSystematic("CMS_scale_MET_"+YEAR,"param",[0.0,0.02])
+            card.addSystematic("CMS_res_MET_"+YEAR,"param",[0.0,0.01])
+            if lepton=='e':
+                card.addSystematic("CMS_scale_e_"+YEAR,"param",[0.0,0.005])
+            elif lepton=='mu':
+                card.addSystematic("CMS_scale_mu_"+YEAR,"param",[0.0,0.003])
 
-            card.addSystematic("CMS_btag_fake","lnN",{'XWW':1+0.02,'XWZ':1+0.02})
-
-               
-            #pruned mass scale    
-            card.addSystematic("CMS_scale_j","param",[0.0,0.02])
-            card.addSystematic("CMS_res_j","param",[0.0,0.05])
-            card.addSystematic("CMS_scale_prunedj","param",[0.0,0.0094])
-            card.addSystematic("CMS_res_prunedj","param",[0.0,0.2])
-            card.addSystematic('CMS_VV_topPt_0_'+lepton+"_"+purity+"_"+category,"param",[0.0,0.2])
-            card.addSystematic('CMS_VV_topPt_1_'+lepton+"_"+purity+"_"+category,"param",[0.0,25000.0])
-
-            card.addSystematic("CMS_scale_MET","param",[0.0,0.02])
-            card.addSystematic("CMS_res_MET","param",[0.0,0.01])
-            card.addSystematic("CMS_VV_LNuJ_nonRes_PTX_"+qcdTag,"param",[0.0,0.333])
-            card.addSystematic("CMS_VV_LNuJ_nonRes_OPTX_"+qcdTag,"param",[0.0,0.333])
-#            card.addSystematic("CMS_VV_LNuJ_nonRes_ScaleY_"+qcdTag,"param",[0.0,333])
-            card.addSystematic("CMS_VV_LNuJ_nonRes_PTY_"+qcdTag,"param",[0.0,0.333])
-            card.addSystematic("CMS_VV_LNuJ_nonRes_OPTY_"+qcdTag,"param",[0.0,0.6])
-
+            card.addSystematic("CMS_VV_LNuJ_nonRes_PTX_"+nonResTag,"param",[0.0,0.333])
+            card.addSystematic("CMS_VV_LNuJ_nonRes_OPTX_"+nonResTag,"param",[0.0,0.333])
+#            card.addSystematic("CMS_VV_LNuJ_nonRes_ScaleY_"+nonResTag,"param",[0.0,333])
+            card.addSystematic("CMS_VV_LNuJ_nonRes_PTY_"+nonResTag,"param",[0.0,0.333])
+            card.addSystematic("CMS_VV_LNuJ_nonRes_OPTY_"+nonResTag,"param",[0.0,0.6])
 
             card.addSystematic("CMS_VV_LNuJ_resW_PT_"+resWTag,"param",[0.0,0.333])
             card.addSystematic("CMS_VV_LNuJ_resW_OPT_"+resWTag,"param",[0.0,0.333])
-
-            if lepton=='e':
-                card.addSystematic("CMS_scale_e","param",[0.0,0.005])
-            elif lepton=='mu':
-                card.addSystematic("CMS_scale_mu","param",[0.0,0.003])
-
+            card.addSystematic('CMS_VV_topPt_0_'+resWTag,"param",[0.0,0.333])
+            card.addSystematic('CMS_VV_topPt_1_'+resWTag,"param",[0.0,0.333])
 
 
             card.makeCard()
 
-#make combined cards
 
-
-
+##make combined cards
 print cmd
             
