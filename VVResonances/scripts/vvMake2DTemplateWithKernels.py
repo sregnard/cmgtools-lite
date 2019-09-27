@@ -298,7 +298,6 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
     histI=plotter.drawTH1(variables[0],options.cut,"1",1,0,1000000000)
     norm=histI.Integral()
 
-
     #nominal
     histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
     dataset=plotter.makeDataSet('lnujj_l1_pt,lnujj_l2_gen_pt,'+variables[1]+','+variables[0],options.cut,-1)

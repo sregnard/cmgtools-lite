@@ -1,6 +1,8 @@
 #include "CMGTools/VVResonances/interface/GaussianSumTemplateMaker.h"
 #include "CMGTools/VVResonances/interface/PTWeightTemplateMaker.h"
 #include "CMGTools/VVResonances/interface/GaussianSumTemplateMaker1D.h"
+#include "CMGTools/VVResonances/interface/KDEProducer.h"
+#include "CMGTools/VVResonances/interface/KDEProducer2D.h"
 
 namespace cmg{
 
@@ -8,5 +10,7 @@ namespace cmg{
     cmg::GaussianSumTemplateMaker templateMaker;
     cmg::GaussianSumTemplateMaker1D templateMaker1D;
     cmg::PTWeightTemplateMaker ptTemplateMaker;
+    KDEProducer kdeprod;
+    KDEProducer2D kdeprod2d;
   };
 }

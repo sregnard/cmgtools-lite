@@ -2,4 +2,6 @@
   <class name="cmg::GaussianSumTemplateMaker"  transient="true"/>
   <class name="cmg::GaussianSumTemplateMaker1D"  transient="true"/>
   <class name="cmg::PTWeightTemplateMaker"  transient="true"/>
+  <class name="KDEProducer"  transient="true"/>
+  <class name="KDEProducer2D"  transient="true"/>
 </lcgdict>
