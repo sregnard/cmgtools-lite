@@ -26,7 +26,13 @@ parser.add_option("-g","--genVars",dest="genVars",help="variable for gen",defaul
 sampleTypes=options.samples.split(',')
 dataPlotters=[]
 
-for filename in os.listdir(args[0]):
+filelist = []
+if args[0]=='ntuples':
+    filelist = [g for flist in [[(path+'/'+f) for f in os.listdir(args[0]+'/'+path)] for path in os.listdir(args[0])] for g in flist]
+else:
+    filelist = os.listdir(args[0])
+
+for filename in filelist:
     for sampleType in sampleTypes:
         if filename.find(sampleType)!=-1:
             fnameParts=filename.split('.')
@@ -39,6 +45,9 @@ for filename in os.listdir(args[0]):
             dataPlotters[-1].addCorrectionFactor('xsec','tree')
             dataPlotters[-1].addCorrectionFactor('genWeight','tree')
             dataPlotters[-1].addCorrectionFactor('puWeight','tree')
+            dataPlotters[-1].addCorrectionFactor('truth_genTop_weight','branch')
+            ##dataPlotters[-1].addCorrectionFactor('lnujj_sf','branch')
+            ##dataPlotters[-1].addCorrectionFactor('lnujj_btagWeight','branch') 
 data=MergedPlotter(dataPlotters)
 
 

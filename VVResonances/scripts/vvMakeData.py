@@ -48,6 +48,9 @@ for filename in os.listdir(args[0]):
                 dataPlotters[-1].addCorrectionFactor('xsec','tree')
                 dataPlotters[-1].addCorrectionFactor('genWeight','tree')
                 dataPlotters[-1].addCorrectionFactor('puWeight','tree')
+                #dataPlotters[-1].addCorrectionFactor('truth_genTop_weight','branch')
+                ##dataPlotters[-1].addCorrectionFactor('lnujj_sf','branch')
+                ##dataPlotters[-1].addCorrectionFactor('lnujj_btagWeight','branch')  
 if options.data==2:
     sigmas=[]
     for d in dataPlotters:

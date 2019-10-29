@@ -10,7 +10,7 @@ from math import log
 import os, sys, re, optparse,pickle,shutil,json
 
 parser = optparse.OptionParser()
-parser.add_option("-s","--sample",dest="sample",default='',help="Type of sample")
+parser.add_option("-s","--samples",dest="samples",default='',help="Type of sample")
 parser.add_option("-m","--minMX",dest="minMX",type=float,help="minimum MX",default=900)
 parser.add_option("-M","--maxMX",dest="maxMX",type=float,help="maximum MX",default=4600)
 parser.add_option("-c","--cut",dest="cut",help="Cut to apply for shape",default='')
@@ -45,34 +45,51 @@ scaleFactors=options.scaleFactors.split(',')
 
 
 ## Find the samples for all signal mass values
-samples={}
-for filename in os.listdir(args[0]):
-    if not (filename.find(options.sample)!=-1):
-        continue
-    fnameParts=filename.split('.')
-    fname=fnameParts[0]
-    ext=fnameParts[1]
-    if ext.find("root") ==-1:
-        continue
-    mass = float(fname.split('_')[-1])
-    if mass<options.minMX or mass>options.maxMX:
-        continue
-    samples[mass] = fname
-    print 'found',filename,'mass',str(mass) 
+plotters={}
+sampleTypes=options.samples.split(',')
+
+filelist = []
+if args[0]=='ntuples':
+    filelist = [g for flist in [[(path+'/'+f) for f in os.listdir(args[0]+'/'+path)] for path in os.listdir(args[0])] for g in flist]
+else:
+    filelist = os.listdir(args[0])
+
+for filename in filelist:
+    for sampleType in sampleTypes:
+        if not (filename.find(sampleType)!=-1):
+            continue
+        fnameParts=filename.split('.')
+        fname=fnameParts[0]
+        ext=fnameParts[1]
+        if ext.find("root") ==-1:
+            continue
+        mass = float(fname.split('_')[-1])
+        if mass<options.minMX or mass>options.maxMX:
+            continue
+        if not mass in plotters.keys():
+            plotters[mass] = []
+        plotters[mass].append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
+        plotters[mass][-1].setupFromFile(args[0]+'/'+fname+'.pck')
+        plotters[mass][-1].addCorrectionFactor('xsec','tree')
+        plotters[mass][-1].addCorrectionFactor('genWeight','tree')
+        plotters[mass][-1].addCorrectionFactor('puWeight','tree')
+        plotters[mass][-1].filename=fname
+        if options.scaleFactors!='':
+            for s in scaleFactors:
+                plotter[mass][-1].addCorrectionFactor(s,'tree')
+        print 'found',filename,'mass',str(mass) 
 
 
 ## Sort the masses and run the fits
 N=0
-for mass in sorted(samples.keys()):
+for mass in sorted(plotters.keys()):
     print 'fitting',str(mass)
 
+    if len(plotters[mass]) != (1,3)[args[0]=='ntuples']:
+        continue
+
     ## Get the histo from MC
-    plotter=TreePlotter(args[0]+'/'+samples[mass]+'.root','tree')
-    plotter.addCorrectionFactor('genWeight','tree')
-    plotter.addCorrectionFactor('puWeight','tree')
-    if options.scaleFactors!='':
-        for s in scaleFactors:
-            plotter.addCorrectionFactor(s,'tree')
+    plotter=MergedPlotter(plotters[mass])
     histo = plotter.drawTH1(options.varx,options.cut,"1",options.binsxfit,options.minx,options.maxx)
 
     ## Set up the fitter
@@ -83,6 +100,7 @@ for mass in sorted(samples.keys()):
 
     ## fit 
     fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0)])
+    #fitter.fit('model','data',[ROOT.RooFit.SumW2Error(1)])
     fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0)])
 
     ## control plot
