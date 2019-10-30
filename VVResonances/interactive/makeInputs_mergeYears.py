@@ -3,14 +3,14 @@ import os, sys
 from DoubleBscalefactors import *
 from DoubleBefficiencies import *
 
-import optparse
-parser = optparse.OptionParser()
-parser.add_option("-y","--year",dest="year",type=int,default=2016,help="2016 or 2017 or 2018")
-(options,args) = parser.parse_args()
-
-if options.year not in [2016,2017,2018]:
-    parser.error("year must be 2016, 2017, or 2018")
-YEAR=options.year
+#import optparse
+#parser = optparse.OptionParser()
+#parser.add_option("-y","--year",dest="year",type=int,default=2016,help="2016 or 2017 or 2018")
+#(options,args) = parser.parse_args()
+#
+#if options.year not in [2016,2017,2018]:
+#    parser.error("year must be 2016, 2017, or 2018")
+#YEAR=options.year
 
 
 
@@ -27,7 +27,7 @@ DOXWZ = 1
 DOXWH = 1
 
 RENORMNONRES   = 1
-REMOVE2018ELEHEM1516 = (options.year==2018 and 1)
+REMOVE2018ELEHEM1516 = 1
 
 MERGELEPNONRES = 0
 MERGEPURNONRES = 0
@@ -42,76 +42,78 @@ MERGECATNONRES = 0
 ###############################################
 
 
-outDir='Inputs_'+str(YEAR)+'/'
+outDir='Inputs_3y/'
 os.system('mkdir -p '+outDir)
 
-ntuples='ntuples'+str(YEAR)
+ntuples='ntuples'
 
-ttbar=''
-electronPD=''
-tau21SF={'HP':1.,'LP':1.}
-if YEAR==2016: 
-    ttbar='TT_pow'
-    electronPD='SingleElectron'
-    renormNonRes=0.942220835364
-    tau21SF['HP'] = 1.03 ##TBU with new WP
-    tau21SF['LP'] = 0.95
-    bbSFWW=DoubleBsf_M2_B_80X
-    bbSFWZ=DoubleBsf_M2_B_80X
-    bbSFWH=DoubleBsf_M2_S_80X
-    bbEffWW=EffMC_M2_XWW_2016
-    bbEffWZ=EffMC_M2_XWZ_2016
-    bbEffWH=EffMC_M2_XWH_2016
-elif YEAR==2017:
-    ttbar='TTHad_pow,TTLep_pow,TTSemi_pow'
-    electronPD='SingleElectron'
-    renormNonRes=0.799382735674
-    tau21SF['HP'] = 0.97
-    tau21SF['LP'] = 1.14
-    bbSFWW=DoubleBsf_M2_B_94X
-    bbSFWZ=DoubleBsf_M2_B_94X
-    bbSFWH=DoubleBsf_M2_S_94X
-    bbEffWW=EffMC_M2_XWW_2017
-    bbEffWZ=EffMC_M2_XWZ_2017
-    bbEffWH=EffMC_M2_XWH_2017
-elif YEAR==2018:
-    ttbar='TTHad_pow,TTLep_pow,TTSemi_pow'
-    electronPD='EGamma'
-    renormNonRes=0.904081371649
-    tau21SF['HP'] = 0.97 ##TBU (copied from 2017 for now)
-    tau21SF['LP'] = 1.14
-    bbSFWW=DoubleBsf_M2_B_102X
-    bbSFWZ=DoubleBsf_M2_B_102X
-    bbSFWH=DoubleBsf_M2_S_102X
-    bbEffWW=EffMC_M2_XWW_2018
-    bbEffWZ=EffMC_M2_XWZ_2018
-    bbEffWH=EffMC_M2_XWH_2018
 
-bbWgtWW={'bb':('('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWW))+')'), 'nobb':('('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW[ptcut])+')/(1-'+str(bbEffWW[ptcut])+'))') for ptcut,sf in bbSFWW))+')')}
-bbWgtWZ={'bb':('('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWZ))+')'), 'nobb':('('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ[ptcut])+')/(1-'+str(bbEffWZ[ptcut])+'))') for ptcut,sf in bbSFWZ))+')')}
-bbWgtWH={'bb':('('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWH))+')'), 'nobb':('('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH[ptcut])+')/(1-'+str(bbEffWH[ptcut])+'))') for ptcut,sf in bbSFWH))+')')}
-#print bbWgtWW['bb']
-#print bbWgtWW['nobb']
+tau21SF={ ## TBU new WP 0.35 for all 3 years (atm those of WP 0.45 for 2016-17, 2018 copied from 17) 
+    'HP' : '( (year==2016)*1.03 + (year==2017)*0.97 + (year==2018)*0.97 )',
+    'LP' : '( (year==2016)*0.95 + (year==2017)*1.14 + (year==2018)*1.14 )',
+    }
+
+bbSFWW_2016 = DoubleBsf_M2_B_80X
+bbSFWZ_2016 = DoubleBsf_M2_B_80X
+bbSFWH_2016 = DoubleBsf_M2_S_80X
+bbEffWW_2016 = EffMC_M2_XWW_2016
+bbEffWZ_2016 = EffMC_M2_XWZ_2016
+bbEffWH_2016 = EffMC_M2_XWH_2016
+bbSFWW_2017 = DoubleBsf_M2_B_94X
+bbSFWZ_2017 = DoubleBsf_M2_B_94X
+bbSFWH_2017 = DoubleBsf_M2_S_94X
+bbEffWW_2017 = EffMC_M2_XWW_2017
+bbEffWZ_2017 = EffMC_M2_XWZ_2017
+bbEffWH_2017 = EffMC_M2_XWH_2017
+bbSFWW_2018 = DoubleBsf_M2_B_102X
+bbSFWZ_2018 = DoubleBsf_M2_B_102X
+bbSFWH_2018 = DoubleBsf_M2_S_102X
+bbEffWW_2018 = EffMC_M2_XWW_2018
+bbEffWZ_2018 = EffMC_M2_XWZ_2018
+bbEffWH_2018 = EffMC_M2_XWH_2018
+bbWgtWW={
+    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWW_2018))+'))',
+    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2016[ptcut])+')/(1-'+str(bbEffWW_2016[ptcut])+'))') for ptcut,sf in bbSFWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2017[ptcut])+')/(1-'+str(bbEffWW_2017[ptcut])+'))') for ptcut,sf in bbSFWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2018[ptcut])+')/(1-'+str(bbEffWW_2018[ptcut])+'))') for ptcut,sf in bbSFWW_2018))+'))',
+    }
+bbWgtWZ={
+    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWZ_2018))+'))',
+    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2016[ptcut])+')/(1-'+str(bbEffWZ_2016[ptcut])+'))') for ptcut,sf in bbSFWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2017[ptcut])+')/(1-'+str(bbEffWZ_2017[ptcut])+'))') for ptcut,sf in bbSFWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2018[ptcut])+')/(1-'+str(bbEffWZ_2018[ptcut])+'))') for ptcut,sf in bbSFWZ_2018))+'))',
+    }
+bbWgtWH={
+    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWH_2018))+'))',
+    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2016[ptcut])+')/(1-'+str(bbEffWH_2016[ptcut])+'))') for ptcut,sf in bbSFWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2017[ptcut])+')/(1-'+str(bbEffWH_2017[ptcut])+'))') for ptcut,sf in bbSFWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2018[ptcut])+')/(1-'+str(bbEffWH_2018[ptcut])+'))') for ptcut,sf in bbSFWH_2018))+'))',
+    }
+print bbWgtWW['bb']
+print bbWgtWW['nobb']
+
+
+lumi16=35920
+lumi17=41530
+lumi18=59740
+lumiTotal=lumi16+lumi17+lumi18
+lumiWeight2016="("+str(lumi16)+"/"+str(lumiTotal)+")"
+lumiWeight2017="("+str(lumi17)+"/"+str(lumiTotal)+")"
+lumiWeight2018="("+str(lumi18)+"/"+str(lumiTotal)+")"
 
 
 cuts={}
 
+
 cuts['common'] = '1'
 cuts['common'] = cuts['common'] + '*(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET120)*((run>500) + (run<500)*lnujj_sfWV)' ## changed from lnujj_sf to lnujj_sfWV for 2016 
 cuts['common'] = cuts['common'] + '*(lnujj_nOtherLeptons==0&&lnujj_l2_softDrop_mass>0&&lnujj_LV_mass>0)'
-## Not just for 2016 now:
-cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&Flag_badChargedHadronFilter&&Flag_badMuonFilter)'
+cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&Flag_badChargedHadronFilter&&Flag_badMuonFilter)' ## now same for all 3 years
 if REMOVE2018ELEHEM1516:
     cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&abs(lnujj_l1_l_pdgId)==11&&(-1.55<lnujj_l1_l_phi)&&(lnujj_l1_l_phi<-0.9)&&(-2.5<lnujj_l1_l_eta)&&(lnujj_l1_l_eta<-1.479)))'
 ## new cut on pT/M:
 cuts['common'] = cuts['common'] + '*(lnujj_l1_pt/lnujj_LV_mass>0.4&&lnujj_l2_pt/lnujj_LV_mass>0.4)'
 ## ensure orthogonality with VBF analysis:
 cuts['common'] = cuts['common'] + '*(!(lnujj_nJets>=2&&lnujj_vbfDEta>4.0&&lnujj_vbfMass>500))'
+## lumi-based reweighting for MC
+cuts['common'] = cuts['common'] + '*( (run>500) + (run<500)*((year==2016)*'+lumiWeight2016+'+(year==2017)*'+lumiWeight2017+'+(year==2018)*'+lumiWeight2018+') )'
 
-
-cuts['nob'] = '(lnujj_nMediumBTags==0)' #*lnujj_btagWeight'
-cuts['b'] = '(lnujj_nMediumBTags>0)' #*lnujj_btagWeight'
-## b-tag veto is now the default; put the btag weight only here:
+cuts['nob'] = '(lnujj_nMediumBTags==0)'
+cuts['b'] = '(lnujj_nMediumBTags>0)'
 cuts['common'] = cuts['common'] + '*' + cuts['nob'] + '*lnujj_btagWeight'
 
 cuts['e'] = '(abs(lnujj_l1_l_pdgId)==11)'
@@ -139,21 +141,25 @@ categoriesMerged=['allC']
 cuts['resW']='(lnujj_l2_mergedVTruth==1)'
 cuts['nonres']='(lnujj_l2_mergedVTruth==0)'
 
+renormNonRes2016=0.942220835364
+renormNonRes2017=0.799382735674
+renormNonRes2018=0.904081371649
+cuts['renormNonRes'] = '((year==2016)*'+str(renormNonRes2016)+'+(year==2017)*'+str(renormNonRes2017)+'+(year==2018)*'+str(renormNonRes2018)+')'
 
 
 
-WWTemplate="BulkGravToWWToWlepWhad_narrow"
+WWTemplate="ntuples2016/BulkGravToWWToWlepWhad_narrow,ntuples2017/BulkGravToWWToWlepWhad_narrow,ntuples2018/BulkGravToWWToWlepWhad_narrow"
 BRWW=2.*0.327*0.6760
 
-WZTemplate="WprimeToWZToWlepZhad_narrow"
+WZTemplate="ntuples2016/WprimeToWZToWlepZhad_narrow,ntuples2017/WprimeToWZToWlepZhad_narrow,ntuples2018/WprimeToWZToWlepZhad_narrow"
 BRWZ=0.327*0.6991
 
-WHTemplate="WprimeToWHToWlepHinc_narrow"
+WHTemplate="ntuples2016/WprimeToWHToWlepHinc_narrow,ntuples2017/WprimeToWHToWlepHinc_narrow,ntuples2018/WprimeToWHToWlepHinc_narrow"
 BRWH=0.327
 
-resWTemplate = ttbar+",WWToLNuQQ,WZTo1L1Nu2Q,T_tW,TBar_tW"
-nonResTemplate = ttbar+",WJetsToLNu_HT,DYJetsToLL_M50_HT"
-dataTemplate = electronPD+",SingleMuon,MET"
+resWTemplate = "ntuples2016/TT_pow,ntuples2017/TTHad_pow,ntuples2017/TTLep_pow,ntuples2017/TTSemi_pow,ntuples2018/TTHad_pow,ntuples2018/TTLep_pow,ntuples2018/TTSemi_pow,ntuples2016/WWToLNuQQ,ntuples2016/WZTo1L1Nu2Q,ntuples2017/WWToLNuQQ,ntuples2017/WZTo1L1Nu2Q,ntuples2018/WWToLNuQQ,ntuples2018/WZTo1L1Nu2Q,ntuples2016/T_tW,ntuples2017/T_tW,ntuples2018/T_tW,ntuples2016/TBar_tW,ntuples2017/TBar_tW,ntuples2018/TBar_tW"
+nonResTemplate = "ntuples2016/TT_pow,ntuples2017/TTHad_pow,ntuples2017/TTLep_pow,ntuples2017/TTSemi_pow,ntuples2018/TTHad_pow,ntuples2018/TTLep_pow,ntuples2018/TTSemi_pow,ntuples2016/WJetsToLNu_HT,ntuples2017/WJetsToLNu_HT,ntuples2018/WJetsToLNu_HT,ntuples2016/DYJetsToLL_M50_HT,ntuples2017/DYJetsToLL_M50_HT,ntuples2018/DYJetsToLL_M50_HT"
+dataTemplate = "ntuples2016/SingleElectron,ntuples2017/SingleElectron,ntuples2018/EGamma,ntuples2016/SingleMuon,ntuples2017/SingleMuon,ntuples2018/SingleMuon,ntuples2016/MET,ntuples2017/MET,ntuples2018/MET"
 
 
 
@@ -249,11 +255,11 @@ def makeSignalShapesMVV(filename,template):
                 os.system(cmd)
 
 
-def makeSignalYields(filename,template,branchingFraction,sfP={'HP':1.0,'LP':1.0},sfC={'bb':'1','nobb':'1'}):
+def makeSignalYields(filename,template,branchingFraction,sfP={'HP':'1','LP':'1'},sfC={'bb':'1','nobb':'1'}):
     for l in leptons:
         for p in purities:
             for c in categories:
-                cut = "*".join([cuts['common'],cuts[l],cuts[p],cuts[c],cuts['acceptance'],str(sfP[p]),sfC[c]])
+                cut = "*".join([cuts['common'],cuts[l],cuts[p],cuts[c],cuts['acceptance'],sfP[p],sfC[c]])
 
                 yieldFile=outDir+filename+"_"+l+"_"+p+"_"+c+"_yield"
                 debugFile=outDir+"debugSignalYield_"+filename+"_"+l+"_"+p+"_"+c
@@ -414,7 +420,7 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',factor=1):
 
 ## Normalizations
 if DONORMMC:
-    makeNormalizations("nonRes","LNuJJ_norm",nonResTemplate,0,cuts['nonres'],(1.,renormNonRes)[RENORMNONRES])
+    makeNormalizations("nonRes","LNuJJ_norm",nonResTemplate,0,cuts['nonres']+"*"+cuts['renormNonRes'])
     makeNormalizations("resW","LNuJJ_norm",resWTemplate,0,cuts['resW'])
 if DONORMDATA:
     makeNormalizations("data","LNuJJ_norm",dataTemplate,1)
