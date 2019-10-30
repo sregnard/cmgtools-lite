@@ -472,7 +472,7 @@ class Fitter(object):
         peak2 = ROOT.RooDoubleCB('TopPeak','modelS',self.w.var(poi[1]),self.w.function('meanTop'),self.w.function('sigmaTop'),self.w.function('alphaTop'),self.w.var('n'),self.w.function("alpha2Top"),self.w.var("n"))
         getattr(self.w,'import')(peak2,ROOT.RooFit.Rename('TopPeak'))
 
-        self.w.factory("f0[0.2,0,1]")
+        self.w.factory("f0[0.6,0,1]")
         self.w.factory("f2[200000,0,300000000]")
         self.w.factory("expr::f('(f0+f2/({x}*{x}))+({vv_syst})*min((f0+f2/({x}*{x})),(1-(f0+f2/({x}*{x}))))',f0,f2,{x},{vv_systs})".format(x=poi[0],vv_syst=fractionStr,vv_systs=','.join(fractionSysts)))
 
@@ -503,7 +503,7 @@ class Fitter(object):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
         self.w.factory("MH[1000]")
         self.w.factory("MEAN[400,13000]")
-        self.w.factory("SIGMA[1,5000]")
+        self.w.factory("SIGMA[100,1,5000]")
         self.w.factory("ALPHA1[1,0.5,3]")
         self.w.factory("N1[5]")
         if singleSided:

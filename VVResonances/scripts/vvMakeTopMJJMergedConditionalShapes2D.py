@@ -19,16 +19,16 @@ parser.add_option("-o","--output",dest="output",help="Output ROOT file",default=
 parser.add_option("-d","--debugoutput",dest="debugoutput",help="Output debug plots",default='')
 parser.add_option("-O","--outDir",dest="outDir",help="Output directory",default='')
 parser.add_option("-v","--varx",dest="varx",help="variablex",default='lnujj_LV_mass')
-parser.add_option("-b","--binsx",dest="binsx",type=int,help="bins in x",default=168)
+parser.add_option("-b","--binsx",dest="binsx",type=int,help="bins in x (for the template)",default=168)
 parser.add_option("-x","--minx",dest="minx",type=float,help="minimum x",default=800.)
-parser.add_option("-X","--maxx",dest="maxx",type=float, help="maximum x",default=5000.)
+parser.add_option("-X","--maxx",dest="maxx",type=float,help="maximum x",default=5000.)
 parser.add_option("-V","--vary",dest="vary",help="variabley",default='lnujj_l2_softDrop_mass')
 parser.add_option("-B","--binsy",dest="binsy",type=int,help="bins in y (for the template)",default=90)
+parser.add_option("-y","--miny",dest="miny",type=float,help="minimum y",default=30.)
+parser.add_option("-Y","--maxy",dest="maxy",type=float,help="maximum y",default=210.)
 parser.add_option("-E","--binsxfit",dest="binsxfit",type=int,help="bins in x (for the fit)",default=168)
 parser.add_option("-F","--binsyfit",dest="binsyfit",type=int,help="bins in y (for the fit)",default=90)
-parser.add_option("-y","--miny",dest="miny",type=float,help="minimum y",default=30.)
-parser.add_option("-Y","--maxy",dest="maxy",type=float, help="maximum y",default=210.)
-parser.add_option("-l","--lumi",dest="lumi",type=float, help="lumi",default="35000")
+parser.add_option("-l","--lumi",dest="lumi",type=float,help="lumi",default="35000")
 parser.add_option("-f","--fix",dest="fixPars",help="Fixed parameters",default="")
 parser.add_option("-e","--doExp",dest="doExp",action="store_true",help="DoExp",default=False)
 
@@ -40,7 +40,13 @@ samples={}
 sampleTypes=options.samples.split(',')
 dataPlotters=[]
 
-for filename in os.listdir(args[0]):
+filelist = []
+if args[0]=='ntuples':
+    filelist = [g for flist in [[(path+'/'+f) for f in os.listdir(args[0]+'/'+path)] for path in os.listdir(args[0])] for g in flist]
+else:
+    filelist = os.listdir(args[0])
+
+for filename in filelist:
     for sampleType in sampleTypes:
         if filename.find(sampleType)!=-1:
             fnameParts=filename.split('.')
@@ -53,9 +59,9 @@ for filename in os.listdir(args[0]):
             dataPlotters[-1].addCorrectionFactor('xsec','tree')
             dataPlotters[-1].addCorrectionFactor('genWeight','tree')
             dataPlotters[-1].addCorrectionFactor('puWeight','tree')
-            dataPlotters[-1].addCorrectionFactor('lnujj_sf','tree')
-            dataPlotters[-1].addCorrectionFactor('truth_genTop_weight','tree')
-    
+            dataPlotters[-1].addCorrectionFactor('truth_genTop_weight','branch')
+            ##dataPlotters[-1].addCorrectionFactor('lnujj_sf','branch')
+            ##dataPlotters[-1].addCorrectionFactor('lnujj_btagWeight','branch')
 data=MergedPlotter(dataPlotters)
 
 h = data.drawTH2(options.vary+":"+options.varx,options.cut,str(options.lumi),options.binsxfit,options.minx,options.maxx,options.binsyfit,options.miny,options.maxy) 

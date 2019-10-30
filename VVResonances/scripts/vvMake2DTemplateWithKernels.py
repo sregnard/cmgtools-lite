@@ -11,12 +11,14 @@ setTDRStyle()
 from CMGTools.VVResonances.plotting.TreePlotter import TreePlotter
 from CMGTools.VVResonances.plotting.MergedPlotter import MergedPlotter
 ROOT.gSystem.Load("libCMGToolsVVResonances")
+
 parser = optparse.OptionParser()
 parser.add_option("-o","--output",dest="output",help="Output",default='')
 parser.add_option("-r","--res",dest="res",help="res",default='')
 parser.add_option("-s","--samples",dest="samples",default='',help="Type of sample")
 parser.add_option("-c","--cut",dest="cut",help="Cut to apply for yield in gen sample",default='')
 parser.add_option("-v","--vars",dest="vars",help="variable for x",default='')
+parser.add_option("-u","--uncweight",dest="uncweight",help="weights for upward shape variation, split by comma",default='')
 parser.add_option("-b","--binsx",dest="binsx",type=int,help="bins",default=1)
 parser.add_option("-B","--binsy",dest="binsy",type=int,help="conditional bins split by comma",default=1)
 parser.add_option("-x","--minx",dest="minx",type=float,help="bins",default=0)
@@ -24,7 +26,7 @@ parser.add_option("-X","--maxx",dest="maxx",type=float,help="conditional bins sp
 parser.add_option("-y","--miny",dest="miny",type=float,help="bins",default=0)
 parser.add_option("-Y","--maxy",dest="maxy",type=float,help="conditional bins split by comma",default=1)
 parser.add_option("-l","--limit",dest="limit",type=float,help="lower limit of the high-mass smoothing range",default=2500)
-
+(options,args) = parser.parse_args()
 
 DEBUG=0
 
@@ -40,27 +42,6 @@ def mirror(histo,histoNominal,name):
             nominal=histoNominal.GetBinContent(i,j)/intNominal
             newHisto.SetBinContent(i,j,nominal*nominal/up)
     return newHisto        
-
-
-def unequalScale(histo,name,alpha,power=1):
-    newHistoU =copy.deepcopy(histo) 
-    newHistoU.SetName(name+"Up")
-    newHistoD =copy.deepcopy(histo) 
-    newHistoD.SetName(name+"Down")
-    maxFactor = max(pow(histo.GetXaxis().GetXmax(),power),pow(histo.GetXaxis().GetXmin(),power))
-    for i in range(1,histo.GetNbinsX()+1):
-        x= histo.GetXaxis().GetBinCenter(i)
-        for j in range(1,histo.GetNbinsY()+1):
-            nominal=histo.GetBinContent(i,j)
-            factor = 1+alpha*pow(x,power) 
-            newHistoU.SetBinContent(i,j,nominal*factor)
-            newHistoD.SetBinContent(i,j,nominal/factor)
-    if newHistoU.Integral()>0.0:        
-        newHistoU.Scale(1.0/newHistoU.Integral())        
-    if newHistoD.Integral()>0.0:        
-        newHistoD.Scale(1.0/newHistoD.Integral())        
-    return newHistoU,newHistoD        
-
 
 
 def expandHisto(histo,options):
@@ -98,18 +79,21 @@ def smoothTail(hist):
     fun=ROOT.TF1("func","{Y}*(((x-[1])/({X}-[1]))^[0])".format(X=X,Y=Y),options.limit,options.maxx)
     fun.SetParameter(0,-10.)
 
-    histfit.Fit(fun,"R")
+    histfit.Fit(fun,"WL,R")
+
+#    fTemp=ROOT.TFile("checkFitTails.root","RECREATE")
+#    fTemp.cd()
+#    histfit.Write()
+#    fTemp.Close()
 
     for i in range(1,hist.GetNbinsX()+1):
         x=hist.GetXaxis().GetBinCenter(i)
         if x>options.limit:
             for j in range(1,hist.GetNbinsY()+1):
                 hist.SetBinContent(i,j,fun.Eval(x)*hist.GetBinContent(bin_limit,j)/fun.Eval(histfit.GetBinCenter(bin_limit)))
-    
 
 
 
-(options,args) = parser.parse_args()
 
 
 random=ROOT.TRandom3(101082)
@@ -119,7 +103,13 @@ sampleTypes=options.samples.split(',')
 dataPlotters=[]
 dataPlottersNW=[]
 
-for filename in os.listdir(args[0]):
+filelist = []
+if args[0]=='ntuples':
+    filelist = [g for flist in [[(path+'/'+f) for f in os.listdir(args[0]+'/'+path)] for path in os.listdir(args[0])] for g in flist]
+else:
+    filelist = os.listdir(args[0])
+
+for filename in filelist:
     for sampleType in sampleTypes:
         if filename.find(sampleType)!=-1:
             fnameParts=filename.split('.')
@@ -127,33 +117,27 @@ for filename in os.listdir(args[0]):
             ext=fnameParts[1]
             if ext.find("root") ==-1:
                 continue
+
             dataPlotters.append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
             dataPlotters[-1].setupFromFile(args[0]+'/'+fname+'.pck')
             dataPlotters[-1].addCorrectionFactor('xsec','tree')
             dataPlotters[-1].addCorrectionFactor('genWeight','tree')
             dataPlotters[-1].addCorrectionFactor('puWeight','tree')
-            dataPlotters[-1].addCorrectionFactor('lnujj_sf','branch')
-            dataPlotters[-1].addCorrectionFactor('lnujj_btagWeight','branch')
             dataPlotters[-1].addCorrectionFactor('truth_genTop_weight','branch')
+            ##dataPlotters[-1].addCorrectionFactor('lnujj_sf','branch')
+            ##dataPlotters[-1].addCorrectionFactor('lnujj_btagWeight','branch')
+            #dataPlotters[-1].addCorrectionFactor(options.uncweight,'branch')
             dataPlotters[-1].filename = fname
 
-
             dataPlottersNW.append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
-            dataPlottersNW[-1].addCorrectionFactor('puWeight','tree')
             dataPlottersNW[-1].addCorrectionFactor('genWeight','tree')
-            dataPlottersNW[-1].addCorrectionFactor('lnujj_sf','branch')
+            dataPlottersNW[-1].addCorrectionFactor('puWeight','tree')
             dataPlottersNW[-1].addCorrectionFactor('truth_genTop_weight','branch')
-            dataPlottersNW[-1].addCorrectionFactor('lnujj_btagWeight','branch')
+            ##dataPlottersNW[-1].addCorrectionFactor('lnujj_sf','branch')
+            ##dataPlottersNW[-1].addCorrectionFactor('lnujj_btagWeight','branch')
             dataPlottersNW[-1].filename = fname
 
 
-#if options.data==2:
-#    sigmas=[]
-#    for d in dataPlotters:
-#        sigmas.append(d.tree.GetMaximum("xsec")/d.weightinv)
-#    sigmaW=max(sigmas)
-#    for p in dataPlotters:
-#        p.addCorrectionFactor(1.0/sigmaW,'flat')
 data=MergedPlotter(dataPlotters)
 
 
@@ -167,7 +151,6 @@ res_y=fcorr.Get("resyHisto")
 variables=options.vars.split(',')
 
 
-ptBins=[0,150,200,250,300,350,400,450,500,550,600,700,800,900,1000,1500,2000,5000]
 binsx=[]
 for i in range(0,options.binsx+1):
     binsx.append(options.minx+i*(options.maxx-options.minx)/options.binsx)
@@ -191,102 +174,53 @@ for i in range(1,scale_x.GetNbinsX()+1):
     scaleDown.SetBinContent(i,scale_x.GetBinContent(i)-0.09)
 
 
-
-
-
-
-ptBins=[200,300,400,500,600,700,800,1000,1500,2000,3000,5000]
-
-###Make pt spectrum
-#print 'Making W Pt spectra for reweighting'
-#wptNominal=data.drawTH1Binned("lnujj_l1_pt","lnujj_LV_mass>600",'1',ptBins)
-#wptUp=data.drawTH1Binned("1.3*lnujj_l1_pt","lnujj_LV_mass>600",'1',ptBins)
-#wptDown=data.drawTH1Binned("0.7*lnujj_l1_pt","lnujj_LV_mass>600&&(0.7*lnujj_l1_pt)>200",'1',ptBins)
-#wptNominal.Scale(1.0/wptNominal.Integral())
-#wptUp.Scale(1.0/wptUp.Integral())
-#wptDown.Scale(1.0/wptDown.Integral())
-#wptUp.Divide(wptNominal)
-#wptDown.Divide(wptNominal)
-
-#print 'Making  Pt spectra for reweighting'
-#ptNominal=data.drawTH1Binned("lnujj_l2_gen_pt","lnujj_LV_mass>600",'1',ptBins)
-#ptUp=data.drawTH1Binned("1.3*lnujj_l2_gen_pt","lnujj_LV_mass>600",'1',ptBins)
-#ptDown=data.drawTH1Binned("0.7*lnujj_l2_gen_pt","lnujj_LV_mass>600&&(0.7*lnujj_l2_gen_pt)>100",'1',ptBins)
-#ptNominal.Scale(1.0/ptNominal.Integral())
-#ptUp.Scale(1.0/ptUp.Integral())
-#ptDown.Scale(1.0/ptDown.Integral())
-#ptUp.Divide(ptNominal)
-#ptDown.Divide(ptNominal)
-
-
-
-#print 'Making quark gluon spectra for reweighting'
-#partonFlavour=data.drawTH1Binned("lnujj_l2_partonFlavour",options.cut,'1',[0.,20.,22])
-#quarkGluonUp=data.drawTH1Binned("lnujj_l2_partonFlavour",options.cut,'1',[0.,20.,22])
-#quarkGluonDown=data.drawTH1Binned("lnujj_l2_partonFlavour",options.cut,'1',[0.,20.,22])
-#partonFlavour.Scale(1.0/partonFlavour.Integral())
-#quarkGluonUp.Scale(1.0/quarkGluonUp.Integral())
-#quarkGluonDown.Scale(1.0/quarkGluonDown.Integral())
-#quarks=partonFlavour.GetBinContent(1)
-#offset=1
-#quarkGluonUp.SetBinContent(1,quarkGluonUp.GetBinContent(1)*(1+offset))
-#quarkGluonUp.SetBinContent(2,1-quarkGluonUp.GetBinContent(1))
-#offset=-1
-#quarkGluonDown.SetBinContent(1,quarkGluonDown.GetBinContent(1)*(1+offset))
-#quarkGluonDown.SetBinContent(2,1-quarkGluonDown.GetBinContent(1))
-#quarkGluonUp.Divide(partonFlavour)
-#quarkGluonDown.Divide(partonFlavour)
-#
-#print 'Making Tail spectra for reweighting'
-#tailSyst=0.0012
-#tailUp=ROOT.TH1F("tailUp","tailUp",100,400,10000)
-#tailDown=ROOT.TH1F("tailDown","tailDown",100,400,10000)
-#for i in range(1,tailUp.GetNbinsX()+1):
-#    x=tailUp.GetXaxis().GetBinCenter(i)
-#    if x<2500:
-#        tailUp.SetBinContent(i,1.0)
-#        tailDown.SetBinContent(i,1.0)
-#    else:
-#        tailUp.SetBinContent(i,exp(tailSyst*(x-2500)))
-#        tailDown.SetBinContent(i,1/tailUp.GetBinContent(i))
-
-
-
+## Make histograms for uncertainty weights
+uncWeights=options.uncweight.split(',')
+uncw1=uncWeights[0]
+uncw2=uncWeights[1]
+hGenPtUp=ROOT.TH1F("hGenPtUp","hGenPtUp",5000,0,5000)
+hGenPtDn=ROOT.TH1F("hGenPtDn","hGenPtDn",5000,0,5000)
+hGenPt2Up=ROOT.TH1F("hGenPt2Up","hGenPt2Up",5000,0,5000)
+hGenPt2Dn=ROOT.TH1F("hGenPt2Dn","hGenPt2Dn",5000,0,5000)
+fGenPtUp=ROOT.TF1("fGenPtUp",uncw1.replace("lnujj_l2_gen_pt","x"),0,5000)
+fGenPtDn=ROOT.TF1("fGenPtDn",'1/'+uncw1.replace("lnujj_l2_gen_pt","x"),0,5000)
+fGenPt2Up=ROOT.TF1("fGenPt2Up",uncw2.replace("lnujj_l2_gen_pt","x"),0,5000)
+fGenPt2Dn=ROOT.TF1("fGenPt2Dn",'1/'+uncw2.replace("lnujj_l2_gen_pt","x"),0,5000)
+for i in range(5000):
+    hGenPtUp.Fill(i+0.5,fGenPtUp.Eval(i+0.5))
+    hGenPtDn.Fill(i+0.5,fGenPtDn.Eval(i+0.5))
+    hGenPt2Up.Fill(i+0.5,fGenPt2Up.Eval(i+0.5))
+    hGenPt2Dn.Fill(i+0.5,fGenPt2Dn.Eval(i+0.5))
 
 
 histogram=ROOT.TH2F("histo","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+histogram_gpt_up=ROOT.TH2F("histo_GPTUp","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+histogram_gpt_down=ROOT.TH2F("histo_GPTDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+histogram_gpt2_up=ROOT.TH2F("histo_GPT2Up","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+histogram_gpt2_down=ROOT.TH2F("histo_GPT2Down","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+'''
 histogram_top_up=ROOT.TH2F("histo_TOPUp","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
 histogram_top_down=ROOT.TH2F("histo_TOPDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-
 histogram_scale_up=ROOT.TH2F("histo_ScaleUp","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
 histogram_scale_down=ROOT.TH2F("histo_ScaleDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-
 histogram_res_up=ROOT.TH2F("histo_ResUp","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
 #histogram_res_down=ROOT.TH2F("histo_ResDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-
-#histogram_qg_up=ROOT.TH2F("histo_GluonUp","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-#histogram_qg_down=ROOT.TH2F("histo_GluonDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-#histogram_tail_up=ROOT.TH2F("histo_TailUp","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-#histogram_tail_down=ROOT.TH2F("histo_TailDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-
-#systs
+#'''
 
 histograms=[
     histogram,
+    histogram_gpt_up,
+    histogram_gpt_down,
+    histogram_gpt2_up,
+    histogram_gpt2_down,
 #    histogram_pt_up,
 #    histogram_pt_down,
-    histogram_top_up,
-    histogram_top_down,
-    histogram_scale_up,
-    histogram_scale_down,
-#    histogram_scaleLog_up,
-#    histogram_scaleLog_down,
-    histogram_res_up,
+#    histogram_top_up,
+#    histogram_top_down,
+#    histogram_scale_up,
+#    histogram_scale_down,
+#    histogram_res_up,
 #    histogram_res_down,
-#    histogram_qg_up,
-#    histogram_qg_down,
-#    histogram_tail_up,
-#    histogram_tail_down,
 ]
 
 #ok lets populate!
@@ -295,33 +229,60 @@ histograms=[
 
 
 for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
-    histI=plotter.drawTH1(variables[0],options.cut,"1",1,0,1000000000)
-    norm=histI.Integral()
+    #histI=plotter.drawTH1(variables[0],options.cut,"1",1,0,1000000000)
+    #norm=histI.Integral()
 
     #nominal
     histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
     dataset=plotter.makeDataSet('lnujj_l1_pt,lnujj_l2_gen_pt,'+variables[1]+','+variables[0],options.cut,-1)
-    datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,scale_y,res_x,res_y,histTMP);
+    datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,scale_y,res_x,res_y,histTMP)
     if histTMP.Integral()>0:
         #histTMP.Scale(histI.Integral()/histTMP.Integral())
         histogram.Add(histTMP)
+    histTMP.Delete()
 
+    #'''
+    #gen pt up (linear)
+    histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+    datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,scale_y,res_x,res_y,histTMP,'lnujj_l2_gen_pt',hGenPtUp)
+    if histTMP.Integral()>0:
+        histogram_gpt_up.Add(histTMP)
+    histTMP.Delete()
+
+    #gen pt down (linear)
+    histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+    datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,scale_y,res_x,res_y,histTMP,'lnujj_l2_gen_pt',hGenPtDn)
+    if histTMP.Integral()>0:
+        histogram_gpt_down.Add(histTMP)
+    histTMP.Delete()
+
+    #gen pt up (quadratic)
+    histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+    datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,scale_y,res_x,res_y,histTMP,'lnujj_l2_gen_pt',hGenPt2Up)
+    if histTMP.Integral()>0:
+        histogram_gpt2_up.Add(histTMP)
+    histTMP.Delete()
+
+    #gen pt down (quadratic)
+    histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+    datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,scale_y,res_x,res_y,histTMP,'lnujj_l2_gen_pt',hGenPt2Dn)
+    if histTMP.Integral()>0:
+        histogram_gpt2_down.Add(histTMP)
+    histTMP.Delete()
+    #'''
+
+    '''
         #TOP UP/DOWN
         if "TT" in plotterNW.filename:
             histogram_top_up.Add(histTMP,2.0)
             histogram_top_down.Add(histTMP,0.5)
         else:
-
             histogram_top_up.Add(histTMP)
             histogram_top_down.Add(histTMP)
-
     histTMP.Delete()
+    #'''
 
-
-
-
-    #remove the factor you added:
-
+    '''
     #resUp
     histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
     datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,scale_y,resUp,res_y,histTMP);
@@ -329,8 +290,6 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
         #histTMP.Scale(histI.Integral()/histTMP.Integral())
         histogram_res_up.Add(histTMP)
     histTMP.Delete()
-
-
 
     #scale up
     histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
@@ -347,8 +306,8 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
         #histTMP.Scale(histI.Integral()/histTMP.Integral())
         histogram_scale_down.Add(histTMP)
     histTMP.Delete()
-    histI.Delete()
-
+    #histI.Delete()
+    #'''
 
 
 
@@ -369,25 +328,6 @@ for hist in histograms:
     expanded.Write()
     finalHistograms[hist.GetName()]=expanded
 
-histogram_pt_down,histogram_pt_up=unequalScale(finalHistograms['histo'],"histo_PT",1.5/5000)
-conditional(histogram_pt_down)
-histogram_pt_down.Write()
-conditional(histogram_pt_up)
-histogram_pt_up.Write()
-
-
-
-h1,h2=unequalScale(finalHistograms['histo'],"histo_OPT",1.5*800,-1)
-conditional(h1)
-h1.Write()
-conditional(h2)
-h2.Write()
-
-h1,h2=unequalScale(finalHistograms['histo'],"histo_PT2",5*5000*5000,2)
-conditional(h1)
-h1.Write()
-conditional(h2)
-h2.Write()
 
 
 ##special treatment for mirroring
@@ -397,22 +337,19 @@ conditional(histogram_res_down)
 histogram_res_down.Write()
 '''
 
-
+'''
 #ptUp.Write("ptUp")
 #ptDown.Write("ptDown")
-#wptUp.Write("wptUp")
-#wptDown.Write("wptDown")
-
 scaleUp.Write("scaleUp")
 scaleDown.Write("scaleDown")
 #resUp.Write("resUp")
-
 #resDown.Write("resDown")
+#'''
 
-#quarkGluonUp.Write("qgUp")
-#quarkGluonDown.Write("qgDwn")
-#tailUp.Write("tailUp")
-#tailDown.Write("tailDown")
+hGenPtUp.Write("hGenPtUp")
+hGenPtDn.Write("hGenPtDn")
+hGenPt2Up.Write("hGenPt2Up")
+hGenPt2Dn.Write("hGenPt2Dn")
 
 f.Close()
 
