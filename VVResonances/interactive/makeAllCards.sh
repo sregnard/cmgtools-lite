@@ -3,8 +3,12 @@
 for signal in XWW XWZ XWH
 do
 
-    for year in 2016 2017 #2018
+    for year in 2016 2017 2018
     do
+
+	if [ $# -ne 0 ] && [ ${year} != "$1" ]
+	then continue
+	fi
 
 	python ../makeCard.py -y ${year} -s ${signal} -c bb -b 2>&1 | tee log_makeCard_${year}_${signal}.txt
 
@@ -60,23 +64,24 @@ do
 	text2workspace.py combined_HP_${year}.txt -o combined_HP_${year}.root
 	combineCards.py  bb_e_LP_${year}=datacard_bb_e_LP_${year}.txt  bb_mu_LP_${year}=datacard_bb_mu_LP_${year}.txt  nobb_e_LP_${year}=datacard_nobb_e_LP_${year}.txt  nobb_mu_LP_${year}=datacard_nobb_mu_LP_${year}.txt > combined_LP_${year}.txt
 	text2workspace.py combined_LP_${year}.txt -o combined_LP_${year}.root
-	'
+	#'
 
 	combineCards.py  bb_e_HP_${year}=datacard_bb_e_HP_${year}.txt  bb_mu_HP_${year}=datacard_bb_mu_HP_${year}.txt  bb_e_LP_${year}=datacard_bb_e_LP_${year}.txt  bb_mu_LP_${year}=datacard_bb_mu_LP_${year}.txt  nobb_e_HP_${year}=datacard_nobb_e_HP_${year}.txt  nobb_mu_HP_${year}=datacard_nobb_mu_HP_${year}.txt  nobb_e_LP_${year}=datacard_nobb_e_LP_${year}.txt  nobb_mu_LP_${year}=datacard_nobb_mu_LP_${year}.txt > combined_${year}.txt
 	text2workspace.py combined_${year}.txt -o combined_${year}.root
 	
     done
 
+    if [ $# -eq 0 ] 
+    then
+	combineCards.py    bb_e_HP_2016=datacard_bb_e_HP_2016.txt  bb_mu_HP_2016=datacard_bb_mu_HP_2016.txt  bb_e_LP_2016=datacard_bb_e_LP_2016.txt  bb_mu_LP_2016=datacard_bb_mu_LP_2016.txt  nobb_e_HP_2016=datacard_nobb_e_HP_2016.txt  nobb_mu_HP_2016=datacard_nobb_mu_HP_2016.txt  nobb_e_LP_2016=datacard_nobb_e_LP_2016.txt  nobb_mu_LP_2016=datacard_nobb_mu_LP_2016.txt      bb_e_HP_2017=datacard_bb_e_HP_2017.txt  bb_mu_HP_2017=datacard_bb_mu_HP_2017.txt  bb_e_LP_2017=datacard_bb_e_LP_2017.txt  bb_mu_LP_2017=datacard_bb_mu_LP_2017.txt  nobb_e_HP_2017=datacard_nobb_e_HP_2017.txt  nobb_mu_HP_2017=datacard_nobb_mu_HP_2017.txt  nobb_e_LP_2017=datacard_nobb_e_LP_2017.txt  nobb_mu_LP_2017=datacard_nobb_mu_LP_2017.txt      bb_e_HP_2018=datacard_bb_e_HP_2018.txt  bb_mu_HP_2018=datacard_bb_mu_HP_2018.txt  bb_e_LP_2018=datacard_bb_e_LP_2018.txt  bb_mu_LP_2018=datacard_bb_mu_LP_2018.txt  nobb_e_HP_2018=datacard_nobb_e_HP_2018.txt  nobb_mu_HP_2018=datacard_nobb_mu_HP_2018.txt  nobb_e_LP_2018=datacard_nobb_e_LP_2018.txt  nobb_mu_LP_2018=datacard_nobb_mu_LP_2018.txt    > combined.txt
 
-    combineCards.py  bb_e_HP_2016=datacard_bb_e_HP_2016.txt  bb_mu_HP_2016=datacard_bb_mu_HP_2016.txt  bb_e_LP_2016=datacard_bb_e_LP_2016.txt  bb_mu_LP_2016=datacard_bb_mu_LP_2016.txt  nobb_e_HP_2016=datacard_nobb_e_HP_2016.txt  nobb_mu_HP_2016=datacard_nobb_mu_HP_2016.txt  nobb_e_LP_2016=datacard_nobb_e_LP_2016.txt  nobb_mu_LP_2016=datacard_nobb_mu_LP_2016.txt  bb_e_HP_2017=datacard_bb_e_HP_2017.txt  bb_mu_HP_2017=datacard_bb_mu_HP_2017.txt  bb_e_LP_2017=datacard_bb_e_LP_2017.txt  bb_mu_LP_2017=datacard_bb_mu_LP_2017.txt  nobb_e_HP_2017=datacard_nobb_e_HP_2017.txt  nobb_mu_HP_2017=datacard_nobb_mu_HP_2017.txt  nobb_e_LP_2017=datacard_nobb_e_LP_2017.txt  nobb_mu_LP_2017=datacard_nobb_mu_LP_2017.txt > combined.txt
-    text2workspace.py combined.txt -o combined.root
+	text2workspace.py combined.txt -o combined.root
 
-    cp combined.root combined_full.root
-
-
+	cp combined.root combined_full.root
+    fi
 	
     mkdir -p Dc_${signal}/
-    
+
     \mv datacard* Dc_${signal}/
     \mv comb* Dc_${signal}/
     \mv log_makeCard* Dc_${signal}/

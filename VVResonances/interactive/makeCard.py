@@ -6,7 +6,7 @@ cmd='combineCards.py '
 
 import optparse
 parser = optparse.OptionParser()
-parser.add_option("-y","--year",dest="year",type=int,default=2016,help="2016 or 2017 or 2018")
+parser.add_option("-y","--year",dest="year",type=int,default=2016,help="2016 or 2017 or 2018 or Run2")
 parser.add_option("-s","--signalType",dest="signalType",default='XWW',help="XWW or XWZ or XWH")
 parser.add_option("-c","--cat",dest="categories",default='bb',help="categorization scheme")
 parser.add_option("-b","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=False)
@@ -21,7 +21,24 @@ if YEAR=="2016":
 elif YEAR=="2017":
   intlumi = 41530
 elif YEAR=="2018":
-  intlumi = 59970
+  intlumi = 59740
+elif YEAR=="Run2":
+  intlumi=35920+41530+59740
+
+if YEAR=="2016": ## TBU with new WP
+  HPunc = 0.14
+  LPunc = 0.33
+elif YEAR=="2017" or YEAR=="2018": ## TBU for 2018
+  HPunc = 0.06
+  LPunc = 0.29
+elif YEAR=="Run2": ## TBU with an uncertainty for the 3 years together
+  HPunc = 0.14
+  LPunc = 0.33
+
+## TBU
+bbunc = 0.07
+nobbunc = 0.07
+
 
 
 sig=options.signalType
@@ -34,8 +51,6 @@ if options.categories == 'old':
     categories = ['nob']
 elif options.categories == 'bb':
     categories = ['bb','nobb']
-#elif options.categories == 'charge':
-#    categories = ['Wplus','Wminus']
 
 
 
@@ -58,9 +73,9 @@ for category in categories:
             ## Signal
             card.addMVVSignalParametricShape(sig+"_MVV",varMVV,inputDir+"LNuJJ_"+sig+"_MVV_"+purity+"_"+category+".json",{'CMS_scale_j_'+YEAR:1,'CMS_scale_MET_'+YEAR:1.0,'CMS_scale_'+lepton+'_'+YEAR:1.0},{'CMS_res_j_'+YEAR:1.0,'CMS_res_MET_'+YEAR:1.0})
             if purity=='LP':
-                card.addMJJSignalParametricShape(sig+"_MJJ",varMJJ,inputDir+"LNuJJ_"+sig+"_MJJ_"+purity+"_"+category+".json",{'CMS_scale_prunedj_'+YEAR:1},{'CMS_res_prunedj_'+YEAR:1.0})
+                card.addMJJSignalParametricShape(sig+"_MJJ",varMJJ,inputDir+"LNuJJ_"+sig+"_MJJ_"+purity+"_"+category+".json",{'CMS_scale_prunedj_'+YEAR:0.0094},{'CMS_res_prunedj_'+YEAR:0.2}) 
             else:
-                card.addMJJSignalParametricShapeNOEXP(sig+"_MJJ",varMJJ,inputDir+"LNuJJ_"+sig+"_MJJ_"+purity+"_"+category+".json",{'CMS_scale_prunedj_'+YEAR:1},{'CMS_res_prunedj_'+YEAR:1.0})
+                card.addMJJSignalParametricShapeNOEXP(sig+"_MJJ",varMJJ,inputDir+"LNuJJ_"+sig+"_MJJ_"+purity+"_"+category+".json",{'CMS_scale_prunedj_'+YEAR:0.0094},{'CMS_res_prunedj_'+YEAR:0.2})
             card.product(sig,sig+"_MJJ",sig+"_MVV")
 
             if purity=='HP':
@@ -72,10 +87,9 @@ for category in categories:
             ## Non-resonant bkgd
             nonResTag ="_".join([lepton,purity,category,YEAR])
             rootFile=inputDir+"LNuJJ_nonRes_2D_"+lepton+"_"+purity+"_"+category+".root"
-#            card.addHistoShapeFromFile("nonRes",[varMVV,varMJJ],rootFile,"histo",['OPTX:CMS_VV_LNuJ_nonRes_OPTX_'+nonResTag,'PTX:CMS_VV_LNuJ_nonRes_PTX_'+nonResTag,'PTX2:CMS_VV_LNuJ_nonRes_PTX2_'+nonResTag,'PTY:CMS_VV_LNuJ_nonRes_PTY_'+nonResTag,'OPTY:CMS_VV_LNuJ_nonRes_OPTY_'+nonResTag],False,0)
-            card.addHistoShapeFromFile("nonRes",[varMVV,varMJJ],rootFile,"histo",['PTX:CMS_VV_LNuJ_nonRes_PTX_'+nonResTag,'OPTX:CMS_VV_LNuJ_nonRes_OPTX_'+nonResTag,'OPTY:CMS_VV_LNuJ_nonRes_OPTY_'+nonResTag,'PTY:CMS_VV_LNuJ_nonRes_PTY_'+nonResTag],False,0)
+            card.addHistoShapeFromFile("nonRes",[varMVV,varMJJ],rootFile,"histo",['GPTX:CMS_VV_LNuJ_nonRes_GPT_'+nonResTag,'GPT2X:CMS_VV_LNuJ_nonRes_GPT2_'+nonResTag,'SDY:CMS_VV_LNuJ_nonRes_SD_'+nonResTag],False,0)
             
-            card.addFixedYieldFromFile("nonRes",1,inputDir+"LNuJJ_"+lepton+"_"+purity+"_"+category+".root","nonRes")
+            card.addFixedYieldFromFile("nonRes",1,inputDir+"LNuJJ_norm_"+lepton+"_"+purity+"_"+category+".root","nonRes")
 
 
             ## Resonant bkgd
@@ -85,14 +99,14 @@ for category in categories:
             card.addHistoShapeFromFile("mjjRes",[varMVV,varMJJ],rootFile,"histo",['Scale:CMS_scale_prunedj_'+YEAR,'Res:CMS_res_prunedj_'+YEAR,'TopPt0:CMS_VV_topPt_0_'+resWTag,'TopPt1:CMS_VV_topPt_1_'+resWTag],True,0)
 
             rootFile=inputDir+"LNuJJ_resW_MVV_"+lepton+"_"+purity+"_"+category+".root"
-            card.addHistoShapeFromFile("resW_MVV",[varMVV],rootFile,"histo",['PT:CMS_VV_LNuJ_resW_PT_'+resWTag,'OPT:CMS_VV_LNuJ_resW_OPT_'+resWTag],False,0)
+            card.addHistoShapeFromFile("resW_MVV",[varMVV],rootFile,"histo",['GPT:CMS_VV_LNuJ_resW_GPT_'+resWTag,'GPT2:CMS_VV_LNuJ_resW_GPT2_'+resWTag],False,0)
 
             card.conditionalProduct("resW","mjjRes",varMVV,"resW_MVV")
-            card.addFixedYieldFromFile("resW",2,inputDir+"LNuJJ_"+lepton+"_"+purity+"_"+category+".root","resW")
+            card.addFixedYieldFromFile("resW",2,inputDir+"LNuJJ_norm_"+lepton+"_"+purity+"_"+category+".root","resW")
 
 
             ## DATA
-            card.importBinnedData(inputDir+"LNuJJ_"+lepton+"_"+purity+"_"+category+".root","data",[varMVV,varMJJ])
+            card.importBinnedData(inputDir+"LNuJJ_norm_"+lepton+"_"+purity+"_"+category+".root","data",[varMVV,varMJJ])
 
 
 
@@ -109,21 +123,28 @@ for category in categories:
 
             #bkgd normalization
             card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+nonResTag,"lnN",{'nonRes':1.5})
-            card.addSystematic("CMS_VV_LNuJ_resW_norm_"+resWTag,"lnN",{'resW':1.20})
+            card.addSystematic("CMS_VV_LNuJ_resW_norm_"+resWTag,"lnN",{'resW':1.5})
 
-            #tau21 
+            #V tagging
             if purity=='HP':
-                card.addSystematic("CMS_VV_LNuJ_tau21_eff_"+YEAR,"lnN",{'XWW':1+0.14,'XWZ':1+0.14,'XWH':1+0.14})
+                card.addSystematic("CMS_VV_LNuJ_Vtag_eff_"+YEAR,"lnN",{'XWW':1+HPunc,'XWZ':1+HPunc,'XWH':1+HPunc})
             if purity=='LP':
-                card.addSystematic("CMS_VV_LNuJ_tau21_eff_"+YEAR,"lnN",{'XWW':1-0.33,'XWZ':1-0.33,'XWH':1-0.33})
+                card.addSystematic("CMS_VV_LNuJ_Vtag_eff_"+YEAR,"lnN",{'XWW':1-LPunc,'XWZ':1-LPunc,'XWH':1-LPunc})
+
+            #bb tagging 
+            if category=='bb':
+                card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'XWW':1+bbunc,'XWZ':1+bbunc,'XWH':1+bbunc})
+            if category=='nobb':
+                card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'XWW':1-nobbunc,'XWZ':1-nobbunc,'XWH':1-nobbunc})
 
             card.addSystematic("CMS_btag_fake_"+YEAR,"lnN",{'XWW':1+0.02,'XWZ':1+0.02,'XWH':1+0.02})
 
 
+            #shapes
             card.addSystematic("CMS_scale_j_"+YEAR,"param",[0.0,0.02])
             card.addSystematic("CMS_res_j_"+YEAR,"param",[0.0,0.05])
-            card.addSystematic("CMS_scale_prunedj_"+YEAR,"param",[0.0,0.333])
-            card.addSystematic("CMS_res_prunedj_"+YEAR,"param",[0.0,0.333])
+            card.addSystematic("CMS_scale_prunedj_"+YEAR,"param",[0.0,1.0]) ## /!\ A magnitude of 0.0094 is hardcoded above for the signal, and in the template maker for resW
+            card.addSystematic("CMS_res_prunedj_"+YEAR,"param",[0.0,1.0]) ## /!\ A magnitude of 0.2 is hardcoded above for the signal, and in the template maker for resW
             card.addSystematic("CMS_scale_MET_"+YEAR,"param",[0.0,0.02])
             card.addSystematic("CMS_res_MET_"+YEAR,"param",[0.0,0.01])
             if lepton=='e':
@@ -131,16 +152,14 @@ for category in categories:
             elif lepton=='mu':
                 card.addSystematic("CMS_scale_mu_"+YEAR,"param",[0.0,0.003])
 
-            card.addSystematic("CMS_VV_LNuJ_nonRes_PTX_"+nonResTag,"param",[0.0,0.333])
-            card.addSystematic("CMS_VV_LNuJ_nonRes_OPTX_"+nonResTag,"param",[0.0,0.333])
-#            card.addSystematic("CMS_VV_LNuJ_nonRes_ScaleY_"+nonResTag,"param",[0.0,333])
-            card.addSystematic("CMS_VV_LNuJ_nonRes_PTY_"+nonResTag,"param",[0.0,0.333])
-            card.addSystematic("CMS_VV_LNuJ_nonRes_OPTY_"+nonResTag,"param",[0.0,0.6])
+            card.addSystematic("CMS_VV_LNuJ_nonRes_GPT_"+nonResTag,"param",[0.0,1.0])
+            card.addSystematic("CMS_VV_LNuJ_nonRes_GPT2_"+nonResTag,"param",[0.0,1.0])
+            card.addSystematic("CMS_VV_LNuJ_nonRes_SD_"+nonResTag,"param",[0.0,0.5])
 
-            card.addSystematic("CMS_VV_LNuJ_resW_PT_"+resWTag,"param",[0.0,0.333])
-            card.addSystematic("CMS_VV_LNuJ_resW_OPT_"+resWTag,"param",[0.0,0.333])
-            card.addSystematic('CMS_VV_topPt_0_'+resWTag,"param",[0.0,0.333])
-            card.addSystematic('CMS_VV_topPt_1_'+resWTag,"param",[0.0,0.333])
+            card.addSystematic("CMS_VV_LNuJ_resW_GPT_"+resWTag,"param",[0.0,1.0])
+            card.addSystematic("CMS_VV_LNuJ_resW_GPT2_"+resWTag,"param",[0.0,1.0])
+            card.addSystematic('CMS_VV_topPt_0_'+resWTag,"param",[0.0,1.0]) ## /!\ A magnitude of 0.2 is hardcoded in the template maker
+            card.addSystematic('CMS_VV_topPt_1_'+resWTag,"param",[0.0,1.0]) ## /!\ A magnitude of 25000.0/MVV^2 is hardcoded in the template maker
 
 
             card.makeCard()
