@@ -481,6 +481,52 @@ class Fitter(object):
         self.w.factory("SUM::"+name+"(g[0.99,0,1]*modelS,modelB)")
 
 
+    def jetPeakCond(self,name,poi,p,scale={},resolution={}):
+        ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
+
+        scaleStr='0'
+        resolutionStr='0'
+        scaleSysts=[]
+        resolutionSysts=[]
+        for syst,factor in scale.iteritems():
+            self.w.factory(syst+"[0,-0.1,0.1]")
+            scaleStr=scaleStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
+            scaleSysts.append(syst)
+            self.w.var(syst).setVal(0.0)
+            self.w.var(syst).setConstant(1)
+        for syst,factor in resolution.iteritems():
+            self.w.factory(syst+"[0,-0.5,0.5]")
+            resolutionStr=resolutionStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
+            resolutionSysts.append(syst)
+            self.w.var(syst).setVal(0.0)
+            self.w.var(syst).setConstant(1)
+
+        self.w.factory("n[5]")
+        if p=="W":
+            self.w.factory("mean"+p+"0[85,60,100]")
+        elif p=="Top":
+            self.w.factory("mean"+p+"0[170,140,200]")
+        else:
+            print "peak", p, "not supported" 
+        self.w.factory("mean"+p+"1[0,-500000,500000]")
+        self.w.factory("mean"+p+"2[0,-300000000,300000000]")
+        self.w.factory(("expr::mean"+p+"('(mean"+p+"0+mean"+p+"1/{x}+mean"+p+"2/({x}*{x}))*(1+{vv_syst})',mean"+p+"0,mean"+p+"1,mean"+p+"2,{x},{vv_systs})").format(x=poi[0],vv_syst=scaleStr,vv_systs=','.join(scaleSysts)))
+        if p=="W":
+            self.w.factory("sigma"+p+"0[10,2,50]")
+        elif p=="Top":
+            self.w.factory("sigma"+p+"0[15,2,50]")
+        else:
+            print "peak", p, "not supported" 
+        self.w.factory(("expr::sigma"+p+"('(sigma"+p+"0+0*{x})*(1+{vv_syst})',sigma"+p+"0,{x},{vv_systs})").format(x=poi[0],vv_syst=resolutionStr,vv_systs=','.join(resolutionSysts)))
+        self.w.factory("alpha"+p+"0[1,0.1,10]")
+        self.w.factory(("expr::alpha"+p+"('(alpha"+p+"0+0*{x})',alpha"+p+"0,{x})").format(x=poi[0]))
+        self.w.factory("alpha2"+p+"0[1,0.1,10]")
+        self.w.factory(("expr::alpha2"+p+"('(alpha2"+p+"0+0*{x})',alpha2"+p+"0,{x})").format(x=poi[0]))
+
+        peak = ROOT.RooDoubleCB(name,p+'Peak',self.w.var(poi[1]),self.w.function('mean'+p),self.w.function('sigma'+p),self.w.function('alpha'+p),self.w.var('n'),self.w.function('alpha2'+p),self.w.var('n'))
+        getattr(self.w,'import')(peak,ROOT.RooFit.Rename(name))
+
+
 
     def jetResonanceCB2(self,name = 'model',poi='x'):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")

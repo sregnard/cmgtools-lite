@@ -100,7 +100,7 @@ cuts['common'] = '1'
 cuts['common'] = cuts['common'] + '*(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET120)*((run>500) + (run<500)*lnujj_sfWV)' ## changed from lnujj_sf to lnujj_sfWV for 2016 
 cuts['common'] = cuts['common'] + '*(lnujj_nOtherLeptons==0&&lnujj_l2_softDrop_mass>0&&lnujj_LV_mass>0)'
 ## Not just for 2016 now:
-cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&Flag_badChargedHadronFilter&&Flag_badMuonFilter)'
+cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&(Flag_eeBadScFilter*(run>500)+(run<500))&&Flag_badMuonFilter)'
 if REMOVE2018ELEHEM1516:
     cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&abs(lnujj_l1_l_pdgId)==11&&(-1.55<lnujj_l1_l_phi)&&(lnujj_l1_l_phi<-0.9)&&(-2.5<lnujj_l1_l_eta)&&(lnujj_l1_l_eta<-1.479)))'
 ## new cut on pT/M:
@@ -136,7 +136,10 @@ cuts['allC'] = '1'
 categories=['bb','nobb']
 categoriesMerged=['allC']
 
-cuts['resW']='(lnujj_l2_mergedVTruth==1)'
+
+cuts['resW']  ='(lnujj_l2_mergedVTruth==1&&lnujj_l2_gen_softDrop_mass<100)'
+cuts['resTop']='(lnujj_l2_mergedVTruth==1&&lnujj_l2_gen_softDrop_mass>100)'
+
 cuts['nonres']='(lnujj_l2_mergedVTruth==0)'
 
 
@@ -151,7 +154,9 @@ BRWZ=0.327*0.6991
 WHTemplate="WprimeToWHToWlepHinc_narrow"
 BRWH=0.327
 
-resWTemplate = ttbar+",WWToLNuQQ,WZTo1L1Nu2Q,T_tW,TBar_tW"
+#resWTemplate = ttbar+",WWToLNuQQ,WZTo1L1Nu2Q,T_tW,TBar_tW"
+resWTemplate = ttbar+',WWToLNuQQ' #+",WZTo1L1Nu2Q,T_tW,TBar_tW"
+resTopTemplate = resWTemplate
 nonResTemplate = ttbar+",WJetsToLNu_HT,DYJetsToLL_M50_HT"
 dataTemplate = electronPD+",SingleMuon,MET"
 
@@ -356,27 +361,38 @@ def makeBackgroundShapesMVV(name,filename,template,addCut="1"):
     cmd='vvMake2DDetectorParam.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_LV_mass,lnujj_l2_softDrop_mass" -g "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass,lnujj_l2_gen_pt" -b "150,200,250,300,350,400,450,500,600,700,800,900,1000,1500,2000,5000" {ntuples}'.format(rootFile=resFile,samples=template,cut=cut,ntuples=ntuples)
     os.system(cmd)
 
-    for l in leptons:
-        for p in purities:
-            for c in categories:
+    for l in leptonsMerged:#leptons:
+        for p in puritiesMerged:#purities:
+            for c in categoriesMerged:#categories:
                 cut='*'.join([cuts['common'],cuts[l],cuts[p],cuts[c],addCut,cuts['acceptanceGENMVV']])
-
-                rootFile=outDir+filename+"_"+name+"_MVV_"+l+"_"+p+"_"+c+".root"            
+                rootFile=outDir+filename+"_"+name+"_MVV_"+l+"_"+p+"_"+c+".root"
+                cmd='vvMake1DTemplateWithKernels.py -H "x" -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass" -u "(1+0.0004*lnujj_l2_gen_pt),(1+0.000001*lnujj_l2_gen_pt*lnujj_l2_gen_pt)" -b {binsMVV} -x {minMVV} -X {maxMVV} -r {res} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,res=resFile,binsMVV=binsMVV[c],minMVV=minMVV,maxMVV=maxMVV,ntuples=ntuples)
+                os.system(cmd)
+    for l in leptons:
+        for p in ['HP']:
+            for c in ['nobb']:
+                cut='*'.join([cuts['common'],cuts[l],cuts[p],cuts[c],addCut,cuts['acceptanceGENMVV']])
+                rootFile=outDir+filename+"_"+name+"_MVV_"+l+"_"+p+"_"+c+".root"
                 cmd='vvMake1DTemplateWithKernels.py -H "x" -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass" -u "(1+0.0004*lnujj_l2_gen_pt),(1+0.000001*lnujj_l2_gen_pt*lnujj_l2_gen_pt)" -b {binsMVV} -x {minMVV} -X {maxMVV} -r {res} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,res=resFile,binsMVV=binsMVV[c],minMVV=minMVV,maxMVV=maxMVV,ntuples=ntuples)
                 os.system(cmd)
 
 
-def makeResTopMJJShapes2D(name,filename,template,addCut="1"):
+def makeResMJJPeaksShapes2D(name,filename,template,peak,addCut="1"):
     for l in leptonsMerged:
-        for p in purities:
-            for c in categories:
+        for p in puritiesMerged:#purities:
+            for c in categoriesMerged:#categories:
                 cut='*'.join([cuts['common'],cuts[l],cuts[p],cuts[c],addCut])
-
                 tplFile=outDir+filename+"_"+name+"_MJJGivenMVV_"+p+"_"+c
                 debugName=filename+"_"+name+"_MJJ_"+p+"_"+c
+                cmd='vvMakeWTopMJJConditionalShapes2D.py -s "{template}" -c "{cut}" -o "{rootFile}" -O "{outDir}" -d "{debugName}" -v "lnujj_LV_mass" -V "lnujj_l2_softDrop_mass" -b {binsMVV} -x {minMVV} -X {maxMVV} -B {binsMJJ} -y {minMJJ} -Y {maxMJJ} -E {binsMVVFit} -F {binsMJJFit} -p {peak} {ntuples}'.format(template=template,cut=cut,rootFile=tplFile,outDir=outDir,debugName=debugName,binsMVV=binsMVV[c],minMVV=minMVV,maxMVV=maxMVV,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,binsMVVFit=168,binsMJJFit=90,peak=peak,ntuples=ntuples)
+                os.system(cmd)
 
-                cmd='vvMakeTopMJJMergedConditionalShapes2D.py -s "{template}" -c "{cut}" -o "{rootFile}" -O "{outDir}" -d "{debugName}" -v "lnujj_LV_mass" -V "lnujj_l2_softDrop_mass" -b {binsMVV} -x {minMVV} -X {maxMVV} -B {binsMJJ} -y {minMJJ} -Y {maxMJJ} -E {binsMVVFit} -F {binsMJJFit} {e} {ntuples}'.format(template=template,cut=cut,rootFile=tplFile,outDir=outDir,debugName=debugName,binsMVV=binsMVV[c],minMVV=minMVV,maxMVV=maxMVV,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,binsMVVFit=168,binsMJJFit=90,e="-e",ntuples=ntuples) 
-
+        for p in ['HP']:
+            for c in ['nobb']:
+                cut='*'.join([cuts['common'],cuts[l],cuts[p],cuts[c],addCut])
+                tplFile=outDir+filename+"_"+name+"_MJJGivenMVV_"+p+"_"+c
+                debugName=filename+"_"+name+"_MJJ_"+p+"_"+c
+                cmd='vvMakeWTopMJJConditionalShapes2D.py -s "{template}" -c "{cut}" -o "{rootFile}" -O "{outDir}" -d "{debugName}" -v "lnujj_LV_mass" -V "lnujj_l2_softDrop_mass" -b {binsMVV} -x {minMVV} -X {maxMVV} -B {binsMJJ} -y {minMJJ} -Y {maxMJJ} -E {binsMVVFit} -F {binsMJJFit} -p {peak} {ntuples}'.format(template=template,cut=cut,rootFile=tplFile,outDir=outDir,debugName=debugName,binsMVV=binsMVV[c],minMVV=minMVV,maxMVV=maxMVV,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,binsMVVFit=168,binsMJJFit=90,peak=peak,ntuples=ntuples)
                 os.system(cmd)
 
 
@@ -416,6 +432,7 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',factor=1):
 if DONORMMC:
     makeNormalizations("nonRes","LNuJJ_norm",nonResTemplate,0,cuts['nonres'],(1.,renormNonRes)[RENORMNONRES])
     makeNormalizations("resW","LNuJJ_norm",resWTemplate,0,cuts['resW'])
+    makeNormalizations("resTop","LNuJJ_norm",resTopTemplate,0,cuts['resTop'])
 if DONORMDATA:
     makeNormalizations("data","LNuJJ_norm",dataTemplate,1)
 
@@ -451,8 +468,32 @@ if DOSIGNALCTPL:
 
 ## Resonant background templates (W+V/t)
 if DORESONANT:
+
     makeBackgroundShapesMVV("resW","LNuJJ",resWTemplate,cuts['resW'])
-    makeResTopMJJShapes2D("resW","LNuJJ",resWTemplate,cuts['resW'])
+    makeResMJJPeaksShapes2D("resW","LNuJJ",resWTemplate,"W",cuts['resW'])
+
+    makeBackgroundShapesMVV("resTop","LNuJJ",resTopTemplate,cuts['resTop'])
+    makeResMJJPeaksShapes2D("resTop","LNuJJ",resTopTemplate,"Top",cuts['resTop'])
+
+    os.system( '\cp -p '+outDir+'LNuJJ_resW_MVV_allL_allP_allC.root '+outDir+'LNuJJ_resW_MVV_e_HP_bb.root; '
+              +'\cp -p '+outDir+'LNuJJ_resW_MVV_allL_allP_allC.root '+outDir+'LNuJJ_resW_MVV_e_LP_bb.root; '
+              +'\cp -p '+outDir+'LNuJJ_resW_MVV_allL_allP_allC.root '+outDir+'LNuJJ_resW_MVV_e_LP_nobb.root; '
+              +'\cp -p '+outDir+'LNuJJ_resW_MVV_allL_allP_allC.root '+outDir+'LNuJJ_resW_MVV_mu_HP_bb.root; '
+              +'\cp -p '+outDir+'LNuJJ_resW_MVV_allL_allP_allC.root '+outDir+'LNuJJ_resW_MVV_mu_LP_bb.root; '
+              +'\cp -p '+outDir+'LNuJJ_resW_MVV_allL_allP_allC.root '+outDir+'LNuJJ_resW_MVV_mu_LP_nobb.root; '
+              +'\cp -p '+outDir+'LNuJJ_resW_MJJGivenMVV_allP_allC.root '+outDir+'LNuJJ_resW_MJJGivenMVV_HP_bb.root; '
+              +'\cp -p '+outDir+'LNuJJ_resW_MJJGivenMVV_allP_allC.root '+outDir+'LNuJJ_resW_MJJGivenMVV_LP_bb.root; '
+              +'\cp -p '+outDir+'LNuJJ_resW_MJJGivenMVV_allP_allC.root '+outDir+'LNuJJ_resW_MJJGivenMVV_LP_nobb.root; '
+              +'\cp -p '+outDir+'LNuJJ_resTop_MVV_allL_allP_allC.root '+outDir+'LNuJJ_resTop_MVV_e_HP_bb.root; '
+              +'\cp -p '+outDir+'LNuJJ_resTop_MVV_allL_allP_allC.root '+outDir+'LNuJJ_resTop_MVV_e_LP_bb.root; '
+              +'\cp -p '+outDir+'LNuJJ_resTop_MVV_allL_allP_allC.root '+outDir+'LNuJJ_resTop_MVV_e_LP_nobb.root; '
+              +'\cp -p '+outDir+'LNuJJ_resTop_MVV_allL_allP_allC.root '+outDir+'LNuJJ_resTop_MVV_mu_HP_bb.root; '
+              +'\cp -p '+outDir+'LNuJJ_resTop_MVV_allL_allP_allC.root '+outDir+'LNuJJ_resTop_MVV_mu_LP_bb.root; '
+              +'\cp -p '+outDir+'LNuJJ_resTop_MVV_allL_allP_allC.root '+outDir+'LNuJJ_resTop_MVV_mu_LP_nobb.root; '
+              +'\cp -p '+outDir+'LNuJJ_resTop_MJJGivenMVV_allP_allC.root '+outDir+'LNuJJ_resTop_MJJGivenMVV_HP_bb.root; '
+              +'\cp -p '+outDir+'LNuJJ_resTop_MJJGivenMVV_allP_allC.root '+outDir+'LNuJJ_resTop_MJJGivenMVV_LP_bb.root; '
+              +'\cp -p '+outDir+'LNuJJ_resTop_MJJGivenMVV_allP_allC.root '+outDir+'LNuJJ_resTop_MJJGivenMVV_LP_nobb.root; ')
+
 
 
 ## Non-resonant background templates (W+jets)

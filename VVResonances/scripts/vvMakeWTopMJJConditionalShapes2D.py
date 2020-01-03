@@ -28,8 +28,8 @@ parser.add_option("-y","--miny",dest="miny",type=float,help="minimum y",default=
 parser.add_option("-Y","--maxy",dest="maxy",type=float,help="maximum y",default=210.)
 parser.add_option("-E","--binsxfit",dest="binsxfit",type=int,help="bins in x (for the fit)",default=168)
 parser.add_option("-F","--binsyfit",dest="binsyfit",type=int,help="bins in y (for the fit)",default=90)
+parser.add_option("-l","--lumi",dest="lumi",type=float,help="lumi",default="35000")
 parser.add_option("-f","--fix",dest="fixPars",help="Fixed parameters",default="")
-parser.add_option("-l","--lumi",dest="lumi",type=float, help="lumi",default="35000")
 #parser.add_option("-e","--doExp",dest="doExp",action="store_true",help="DoExp",default=False)
 parser.add_option("-p","--peak",dest="peak",help="choose if W or top peak",default="")
 (options,args) = parser.parse_args()
@@ -40,7 +40,13 @@ samples={}
 sampleTypes=options.samples.split(',')
 dataPlotters=[]
 
-for filename in os.listdir(args[0]):
+filelist = []
+if args[0]=='ntuples':
+    filelist = [g for flist in [[(path+'/'+f) for f in os.listdir(args[0]+'/'+path)] for path in os.listdir(args[0])] for g in flist]
+else:
+    filelist = os.listdir(args[0])
+
+for filename in filelist:
     for sampleType in sampleTypes:
         if filename.find(sampleType)!=-1:
             fnameParts=filename.split('.')
@@ -53,9 +59,9 @@ for filename in os.listdir(args[0]):
             dataPlotters[-1].addCorrectionFactor('xsec','tree')
             dataPlotters[-1].addCorrectionFactor('genWeight','tree')
             dataPlotters[-1].addCorrectionFactor('puWeight','tree')
-            #dataPlotters[-1].addCorrectionFactor('lnujj_sf','tree')
-            dataPlotters[-1].addCorrectionFactor('truth_genTop_weight','tree')
-    
+            dataPlotters[-1].addCorrectionFactor('truth_genTop_weight','branch')
+            ##dataPlotters[-1].addCorrectionFactor('lnujj_sf','branch')
+            ##dataPlotters[-1].addCorrectionFactor('lnujj_btagWeight','branch')
 data=MergedPlotter(dataPlotters)
 
 h = data.drawTH2(options.vary+":"+options.varx,options.cut,str(options.lumi),options.binsxfit,options.minx,options.maxx,options.binsyfit,options.miny,options.maxy) 
@@ -70,8 +76,10 @@ fitter.w.var("MJJ").setVal((options.maxy-options.miny)/2.0)
 fitter.w.var("MJJ").setMax(options.maxy)
 fitter.w.var("MJJ").setMin(options.miny)
 
-scaleSysts= {'Scale':"0.0094"}
-resSysts  = {'Res':"0.2"}
+scaleSysts= {'Scale0':"0.01",
+             'Scale1':"10./MVV"}
+resSysts  = {'Res0':"0.2",
+             'Res1':"200./MVV"}
 fitter.jetPeakCond('model',['MVV','MJJ'],options.peak,scaleSysts,resSysts)
 
 #if options.doExp==0:
