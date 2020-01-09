@@ -998,8 +998,8 @@ class RooPlotter(object):
             if log and maxY>0:
                 self.frame.GetYaxis().SetRangeUser(0.3,maxY)
         if var.startswith("MJ"):
-            #self.frame.GetXaxis().SetRangeUser(30,210)
-            self.frame.SetAxisRange(30,210,'X')
+            self.frame.GetXaxis().SetRangeUser(30,210)
+            #self.frame.SetAxisRange(30,210,'X')
             if not log and maxY>0:
                 self.frame.GetYaxis().SetRangeUser(0.,maxY)
 
@@ -1091,8 +1091,8 @@ class RooPlotter(object):
             self.line.SetX1(800)
             self.line.SetX2(4500)
         if var.startswith("MJ"):
-            #self.frame2.GetXaxis().SetRangeUser(30,210)
-            self.frame2.SetAxisRange(30,210,'X')
+            self.frame2.GetXaxis().SetRangeUser(30,210)
+            #self.frame2.SetAxisRange(30,210,'X')
         self.frame2.GetYaxis().SetRangeUser(0.5,1.5)
 
         ## draw everything
@@ -1106,6 +1106,135 @@ class RooPlotter(object):
         self.pad2.RedrawAxis()
         self.pad2.Update()
 
+
+
+
+
+
+
+
+
+
+
+    
+    def drawOverlay(self,var,varDesc,label,cat,blinded=[],log=False,rebin=0,rangeStr="",maxY=-1.):
+
+        setTDRStyle()
+        style=gROOT.GetStyle("tdrStyle").Clone()
+        style.SetPadLeftMargin(0.14)
+        style.SetPadRightMargin(0.04)
+        #style.SetGridColor(15)
+        style.SetErrorX(0)
+        style.cd()
+
+        self.canvas=ROOT.TCanvas("c","",500,500)
+        self.canvas.cd()
+        style.cd()
+                
+        varMax=self.w.var(var).getMax()
+        varMin=self.w.var(var).getMin()
+        varNBins=self.w.var(var).getBins()
+        newNBins=int(varNBins / (1. if not rebin else rebin))
+        print varMin, varMax, varNBins, newNBins ## debug
+
+        ## make the frame
+        self.frame=self.w.var(var).frame()
+        cutStr="CMS_channel==CMS_channel::"+cat
+        dataset=self.w.data("data_obs").reduce(cutStr)
+        
+        projRange=[]
+        if rangeStr!="":
+            ranges=rangeStr.split(',')
+            for r in ranges:
+                rdata=r.split(':')
+                self.w.var(rdata[0]).setRange(rdata[1],float(rdata[2]),float(rdata[3]))
+                projRange.append(rdata[1])
+                dataset=dataset.reduce("{var}>{mini}&&{var}<{maxi}".format(var=rdata[0],mini=rdata[2],maxi=rdata[3]))
+        
+        #dataset.plotOn(self.frame,ROOT.RooFit.Name("datapoints"),ROOT.RooFit.Invisible(),ROOT.RooFit.Binning(newNBins))
+        dataset.plotOn(self.frame,ROOT.RooFit.Name("datapoints"),ROOT.RooFit.Invisible(),ROOT.RooFit.Binning(newNBins),ROOT.RooFit.DataError(ROOT.RooAbsData.Poisson))
+        ##---- debug
+        #for i in range(dataset.numEntries()):
+        #    line = dataset.get(i)
+        #    x = line.find("MLNuJ").getVal()
+        #    y = line.find("MJ").getVal()
+        #    cat = line.find("CMS_channel").getLabel()
+        #    wgt = dataset.weight()
+        #    print x, cat, wgt
+        ##----
+        
+        ## retrieve each curve and add all backgrounds
+        for i in range(0,len(self.contributions)):
+            data = self.contributions[i]
+            print 'Plotting ',data['name']
+
+            if self.contributions[i]['signal']:
+                name=('shapeSig_'+self.contributions[i]['name']+"_"+cat+self.contributions[i]['suffix'])
+            else:
+                name=('shapeBkg_'+self.contributions[i]['name']+"_"+cat+self.contributions[i]['suffix'])
+            
+            if rangeStr=="":    
+                self.w.pdf("model_s").getPdf(cat).plotOn(self.frame,ROOT.RooFit.Components(name),ROOT.RooFit.Name(data['name']),ROOT.RooFit.Invisible(),ROOT.RooFit.Normalization(1.0,ROOT.RooAbsReal.RelativeExpected),ROOT.RooFit.Binning(newNBins))
+            else:
+                self.w.pdf("model_s").getPdf(cat).plotOn(self.frame,ROOT.RooFit.Components(name),ROOT.RooFit.Name(data['name']),ROOT.RooFit.Invisible(),ROOT.RooFit.Normalization(1.0,ROOT.RooAbsReal.RelativeExpected),ROOT.RooFit.Binning(newNBins),ROOT.RooFit.ProjectionRange(','.join(projRange)))
+                
+            curve=self.frame.getCurve(data['name'])
+            histo = ROOT.TH1D("histo_"+name,"histo",newNBins,varMin,varMax)
+            histo.SetLineColor(data['linecolor'] if self.contributions[i]['signal'] else data['fillcolor'])
+            histo.SetLineWidth(3)
+            histo.SetFillStyle(0)
+            for j in range(1,histo.GetNbinsX()+1):
+                x=histo.GetXaxis().GetBinCenter(j)
+                histo.SetBinContent(j,curve.Eval(x))
+            self.contributions[i]['histo']=histo    
+
+
+        self.legend = ROOT.TLegend(0.57,0.79-0.065*len(self.contributions),0.92,0.95,"","brNDC")
+	self.legend.SetBorderSize(0)
+	self.legend.SetLineColor(1)
+	self.legend.SetLineStyle(1)
+	self.legend.SetLineWidth(1)
+	self.legend.SetFillColor(0)
+	self.legend.SetFillStyle(0)
+	self.legend.SetTextFont(42)
+	self.legend.SetTextSize(0.055)
+        self.legend.SetHeader(label)
+
+        self.frame.SetTitle("")    
+        self.frame.SetXTitle(varDesc)
+        self.frame.SetYTitle("Events")
+        self.frame.SetLabelSize(0.04,"X")    
+        self.frame.SetLabelSize(0.06,"Y")    
+        self.frame.SetTitleSize(0.05,"X")    
+        self.frame.SetTitleSize(0.07,"Y")    
+        self.frame.SetTitleOffset(3,"X")    
+        self.frame.SetLabelOffset(3,"X")    
+        self.frame.SetTitleOffset(0.9,"Y")    
+        self.frame.Draw("AH")
+
+        for i in range(len(self.contributions)-1,-1,-1):
+            c=self.contributions[i]
+            c['histo'].Draw("HIST,SAME")
+            self.legend.AddEntry(c['histo'],c['description'],"F")
+            
+        binWidth=(varMax-varMin)/newNBins
+        self.frame.SetYTitle("Events / "+str(int(binWidth))+" GeV")
+
+        ## hardcoded axis range customization
+        if var.startswith("MLNuJ"):
+            self.frame.GetXaxis().SetRangeUser(800,4500)
+            if log and maxY>0:
+                self.frame.GetYaxis().SetRangeUser(0.3,maxY)
+        if var.startswith("MJ"):
+            self.frame.GetXaxis().SetRangeUser(30,210)
+            #self.frame.SetAxisRange(30,210,'X')
+            if not log and maxY>0:
+                self.frame.GetYaxis().SetRangeUser(0.,maxY)
+
+        self.legend.Draw()
+
+        self.canvas.RedrawAxis()
+        self.canvas.Update()
 
 
 
