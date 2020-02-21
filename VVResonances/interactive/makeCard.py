@@ -124,7 +124,7 @@ for category in categories:
             ## SYSTEMATICS
 
             #luminosity
-            card.addSystematic("CMS_lumi_"+YEAR,"lnN",{'XWW':1.026,'XWZ':1.026,'XWH':1.026})
+            card.addSystematic("CMS_lumi_"+YEAR,"lnN",{'XWW':1.018,'XWZ':1.018,'XWH':1.018})
 
             #kPDF uncertainty for the signal
             card.addSystematic("CMS_pdf","lnN",{'XWW':1.01,'XWZ':1.01,'XWH':1.01})

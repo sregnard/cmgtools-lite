@@ -512,15 +512,15 @@ class Fitter(object):
         self.w.factory("mean"+p+"2[0,-300000000,300000000]")
         self.w.factory(("expr::mean"+p+"('(mean"+p+"0+mean"+p+"1/{x}+mean"+p+"2/({x}*{x}))*(1+{vv_syst})',mean"+p+"0,mean"+p+"1,mean"+p+"2,{x},{vv_systs})").format(x=poi[0],vv_syst=scaleStr,vv_systs=','.join(scaleSysts)))
         if p=="W":
-            self.w.factory("sigma"+p+"0[10,2,50]")
+            self.w.factory("sigma"+p+"0[8,2,50]")
         elif p=="Top":
             self.w.factory("sigma"+p+"0[15,2,50]")
         else:
             print "peak", p, "not supported" 
         self.w.factory(("expr::sigma"+p+"('(sigma"+p+"0+0*{x})*(1+{vv_syst})',sigma"+p+"0,{x},{vv_systs})").format(x=poi[0],vv_syst=resolutionStr,vv_systs=','.join(resolutionSysts)))
-        self.w.factory("alpha"+p+"0[1,0.1,10]")
+        self.w.factory("alpha"+p+"0[1.5,0.1,10]")
         self.w.factory(("expr::alpha"+p+"('(alpha"+p+"0+0*{x})',alpha"+p+"0,{x})").format(x=poi[0]))
-        self.w.factory("alpha2"+p+"0[1,0.1,10]")
+        self.w.factory("alpha2"+p+"0[1.5,0.1,10]")
         self.w.factory(("expr::alpha2"+p+"('(alpha2"+p+"0+0*{x})',alpha2"+p+"0,{x})").format(x=poi[0]))
 
         peak = ROOT.RooDoubleCB(name,p+'Peak',self.w.var(poi[1]),self.w.function('mean'+p),self.w.function('sigma'+p),self.w.function('alpha'+p),self.w.var('n'),self.w.function('alpha2'+p),self.w.var('n'))

@@ -800,7 +800,7 @@ class RooPlotter(object):
 
 
     
-    def drawBinned(self,var,varDesc,label,cat,blinded=[],doUncBand=False,log=False,rebin=0,rangeStr="",maxY=-1.,unstackSignal=False,scaleSignal=-1.,sigLabel=""):
+    def drawBinned(self,var,varDesc,label,cat,blinded=[],doUncBand=False,log=False,rebin=0,rangeStr="",minX=0.,maxX=10000.,maxY=-1.,unstackSignal=False,scaleSignal=-1.,sigLabel=""):
 
         setTDRStyle()
         style=gROOT.GetStyle("tdrStyle").Clone()
@@ -992,14 +992,12 @@ class RooPlotter(object):
         binWidth=(varMax-varMin)/newNBins
         self.frame.SetYTitle("Events / "+str(int(binWidth))+" GeV")
 
-        ## hardcoded axis range customization
+        ## axis range customization
+        self.frame.GetXaxis().SetRangeUser(minX,maxX)
         if var.startswith("MLNuJ"):
-            self.frame.GetXaxis().SetRangeUser(800,4500)
             if log and maxY>0:
                 self.frame.GetYaxis().SetRangeUser(0.3,maxY)
         if var.startswith("MJ"):
-            self.frame.GetXaxis().SetRangeUser(30,210)
-            #self.frame.SetAxisRange(30,210,'X')
             if not log and maxY>0:
                 self.frame.GetYaxis().SetRangeUser(0.,maxY)
 
@@ -1085,14 +1083,11 @@ class RooPlotter(object):
         self.line.SetLineWidth(2 if drawSigRatio else 1)
         self.line.SetLineColor(14)
 
-        ## hardcoded axis range customization
+        ## axis range customization
+        self.frame2.GetXaxis().SetRangeUser(minX,maxX)
         if var.startswith("MLNuJ"):
-            self.frame2.GetXaxis().SetRangeUser(800,4500)
-            self.line.SetX1(800)
-            self.line.SetX2(4500)
-        if var.startswith("MJ"):
-            self.frame2.GetXaxis().SetRangeUser(30,210)
-            #self.frame2.SetAxisRange(30,210,'X')
+            self.line.SetX1(minX)
+            self.line.SetX2(maxX)
         self.frame2.GetYaxis().SetRangeUser(0.5,1.5)
 
         ## draw everything
@@ -1117,7 +1112,7 @@ class RooPlotter(object):
 
 
     
-    def drawOverlay(self,var,varDesc,label,cat,blinded=[],log=False,rebin=0,rangeStr="",maxY=-1.):
+    def drawOverlay(self,var,varDesc,label,cat,blinded=[],log=False,rebin=0,rangeStr="",minX=0.,maxX=10000.,maxY=-1.):
 
         setTDRStyle()
         style=gROOT.GetStyle("tdrStyle").Clone()
@@ -1220,14 +1215,12 @@ class RooPlotter(object):
         binWidth=(varMax-varMin)/newNBins
         self.frame.SetYTitle("Events / "+str(int(binWidth))+" GeV")
 
-        ## hardcoded axis range customization
+        ## axis range customization
+        self.frame.GetXaxis().SetRangeUser(minX,maxX)
         if var.startswith("MLNuJ"):
-            self.frame.GetXaxis().SetRangeUser(800,4500)
             if log and maxY>0:
                 self.frame.GetYaxis().SetRangeUser(0.3,maxY)
         if var.startswith("MJ"):
-            self.frame.GetXaxis().SetRangeUser(30,210)
-            #self.frame.SetAxisRange(30,210,'X')
             if not log and maxY>0:
                 self.frame.GetYaxis().SetRangeUser(0.,maxY)
 

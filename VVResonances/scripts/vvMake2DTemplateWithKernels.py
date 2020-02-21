@@ -31,6 +31,12 @@ parser.add_option("-l","--limit",dest="limit",type=float,help="lower limit of th
 DEBUG=0
 
 
+def addToYSlice(h2,b,h1):
+    for i in range(1,h2.GetNbinsX()+1):
+        h2.Fill(h2.GetXaxis().GetBinLowEdge(i),h2.GetYaxis().GetBinLowEdge(b),h1.GetBinContent(i))
+        #print 'addToYSlice', i, b, h1.GetBinContent(i), h2.GetBinContent(i,b)
+
+
 def mirror(histo,histoNominal,name):
     newHisto =copy.deepcopy(histoNominal) 
     newHisto.SetName(name)
@@ -101,7 +107,6 @@ random=ROOT.TRandom3(101082)
 
 sampleTypes=options.samples.split(',')
 dataPlotters=[]
-dataPlottersNW=[]
 
 filelist = []
 if args[0]=='ntuples':
@@ -129,23 +134,15 @@ for filename in filelist:
             #dataPlotters[-1].addCorrectionFactor(options.uncweight,'branch')
             dataPlotters[-1].filename = fname
 
-            dataPlottersNW.append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
-            dataPlottersNW[-1].addCorrectionFactor('genWeight','tree')
-            dataPlottersNW[-1].addCorrectionFactor('puWeight','tree')
-            dataPlottersNW[-1].addCorrectionFactor('truth_genTop_weight','branch')
-            ##dataPlottersNW[-1].addCorrectionFactor('lnujj_sf','branch')
-            ##dataPlottersNW[-1].addCorrectionFactor('lnujj_btagWeight','branch')
-            dataPlottersNW[-1].filename = fname
-
 
 data=MergedPlotter(dataPlotters)
 
 
 fcorr=ROOT.TFile(options.res)
 scale_x=fcorr.Get("scalexHisto")
-scale_y=fcorr.Get("scaleyHisto")
+#scale_y=fcorr.Get("scaleyHisto")
 res_x=fcorr.Get("resxHisto")
-res_y=fcorr.Get("resyHisto")
+#res_y=fcorr.Get("resyHisto")
 
 
 variables=options.vars.split(',')
@@ -155,7 +152,7 @@ binsx=[]
 for i in range(0,options.binsx+1):
     binsx.append(options.minx+i*(options.maxx-options.minx)/options.binsx)
 
-binsy=[30.,40.,50.,60.,70.,80.,90.,100.,110.,120.,140.,150.,160.,180.,210.]    
+binsy=[20.,25.,30.,40.,50.,60.,70.,80.,90.,100.,110.,120.,140.,150.,160.,180.,210.]    
 
 
 ###Make res up and down
@@ -163,15 +160,6 @@ resUp = ROOT.TH1F(res_x)
 resUp.SetName("resUp")
 for i in range(1,res_x.GetNbinsX()+1):
     resUp.SetBinContent(i,res_x.GetBinContent(i)+0.3)
-
-
-scaleUp = ROOT.TH1F(scale_x)
-scaleUp.SetName("scaleUp")
-scaleDown = ROOT.TH1F(scale_x)
-scaleDown.SetName("scaleDown")
-for i in range(1,scale_x.GetNbinsX()+1):
-    scaleUp.SetBinContent(i,scale_x.GetBinContent(i)+0.09)
-    scaleDown.SetBinContent(i,scale_x.GetBinContent(i)-0.09)
 
 
 ## Make histograms for uncertainty weights
@@ -198,14 +186,6 @@ histogram_gpt_up=ROOT.TH2F("histo_GPTUp","histo",len(binsx)-1,array('f',binsx),l
 histogram_gpt_down=ROOT.TH2F("histo_GPTDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
 histogram_gpt2_up=ROOT.TH2F("histo_GPT2Up","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
 histogram_gpt2_down=ROOT.TH2F("histo_GPT2Down","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-'''
-histogram_top_up=ROOT.TH2F("histo_TOPUp","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-histogram_top_down=ROOT.TH2F("histo_TOPDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-histogram_scale_up=ROOT.TH2F("histo_ScaleUp","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-histogram_scale_down=ROOT.TH2F("histo_ScaleDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-histogram_res_up=ROOT.TH2F("histo_ResUp","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-#histogram_res_down=ROOT.TH2F("histo_ResDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-#'''
 
 histograms=[
     histogram,
@@ -213,102 +193,57 @@ histograms=[
     histogram_gpt_down,
     histogram_gpt2_up,
     histogram_gpt2_down,
-#    histogram_pt_up,
-#    histogram_pt_down,
-#    histogram_top_up,
-#    histogram_top_down,
-#    histogram_scale_up,
-#    histogram_scale_down,
-#    histogram_res_up,
-#    histogram_res_down,
 ]
 
-#ok lets populate!
 
 
 
 
-for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
-    #histI=plotter.drawTH1(variables[0],options.cut,"1",1,0,1000000000)
-    #norm=histI.Integral()
+for plotter in dataPlotters:
 
-    #nominal
-    histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-    dataset=plotter.makeDataSet('lnujj_l1_pt,lnujj_l2_gen_pt,'+variables[1]+','+variables[0],options.cut,-1)
-    datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,scale_y,res_x,res_y,histTMP)
-    if histTMP.Integral()>0:
-        #histTMP.Scale(histI.Integral()/histTMP.Integral())
-        histogram.Add(histTMP)
-    histTMP.Delete()
+    for b in range(1,histogram.GetNbinsY()+1):
 
-    #'''
-    #gen pt up (linear)
-    histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-    datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,scale_y,res_x,res_y,histTMP,'lnujj_l2_gen_pt',hGenPtUp)
-    if histTMP.Integral()>0:
-        histogram_gpt_up.Add(histTMP)
-    histTMP.Delete()
+        bincut = options.cut+"*("+str(histogram.GetYaxis().GetBinLowEdge(b))+"<"+variables[1]+")*("+variables[1]+"<"+str(histogram.GetYaxis().GetBinUpEdge(b))+")"
 
-    #gen pt down (linear)
-    histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-    datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,scale_y,res_x,res_y,histTMP,'lnujj_l2_gen_pt',hGenPtDn)
-    if histTMP.Integral()>0:
-        histogram_gpt_down.Add(histTMP)
-    histTMP.Delete()
+        dataset=plotter.makeDataSet('lnujj_l1_pt,lnujj_l2_gen_pt,'+variables[1]+','+variables[0],bincut,-1)
 
-    #gen pt up (quadratic)
-    histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-    datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,scale_y,res_x,res_y,histTMP,'lnujj_l2_gen_pt',hGenPt2Up)
-    if histTMP.Integral()>0:
-        histogram_gpt2_up.Add(histTMP)
-    histTMP.Delete()
+        ##nominal
+        histTMP=ROOT.TH1F("histoTMP","histo",len(binsx)-1,array('f',binsx))
+        datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,variables[0],'lnujj_l2_gen_pt',scale_x,res_x,histTMP)
+        if histTMP.Integral()>0:
+            addToYSlice(histogram,b,histTMP)
+            #print histTMP.Integral(), histogram.Integral()
+        histTMP.Delete()
 
-    #gen pt down (quadratic)
-    histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-    datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,scale_y,res_x,res_y,histTMP,'lnujj_l2_gen_pt',hGenPt2Dn)
-    if histTMP.Integral()>0:
-        histogram_gpt2_down.Add(histTMP)
-    histTMP.Delete()
-    #'''
+        #'''
+        ##gen pt up (linear)
+        histTMP=ROOT.TH1F("histoTMP","histo",len(binsx)-1,array('f',binsx))
+        datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,variables[0],'lnujj_l2_gen_pt',scale_x,res_x,histTMP,'lnujj_l2_gen_pt',hGenPtUp)
+        if histTMP.Integral()>0:
+            addToYSlice(histogram,b,histTMP)
+        histTMP.Delete()
 
-    '''
-        #TOP UP/DOWN
-        if "TT" in plotterNW.filename:
-            histogram_top_up.Add(histTMP,2.0)
-            histogram_top_down.Add(histTMP,0.5)
-        else:
-            histogram_top_up.Add(histTMP)
-            histogram_top_down.Add(histTMP)
-    histTMP.Delete()
-    #'''
+        ##gen pt down (linear)
+        histTMP=ROOT.TH1F("histoTMP","histo",len(binsx)-1,array('f',binsx))
+        datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,variables[0],'lnujj_l2_gen_pt',scale_x,res_x,histTMP,'lnujj_l2_gen_pt',hGenPtDn)
+        if histTMP.Integral()>0:
+            addToYSlice(histogram,b,histTMP)
+        histTMP.Delete()
 
-    '''
-    #resUp
-    histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-    datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,scale_y,resUp,res_y,histTMP);
-    if histTMP.Integral()>0:
-        #histTMP.Scale(histI.Integral()/histTMP.Integral())
-        histogram_res_up.Add(histTMP)
-    histTMP.Delete()
+        ##gen pt up (quadratic)
+        histTMP=ROOT.TH1F("histoTMP","histo",len(binsx)-1,array('f',binsx))
+        datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,variables[0],'lnujj_l2_gen_pt',scale_x,res_x,histTMP,'lnujj_l2_gen_pt',hGenPt2Up)
+        if histTMP.Integral()>0:
+            addToYSlice(histogram,b,histTMP)
+        histTMP.Delete()
 
-    #scale up
-    histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-    datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scaleUp,scale_y,res_x,res_y,histTMP);
-    if histTMP.Integral()>0:
-        #histTMP.Scale(histI.Integral()/histTMP.Integral())
-        histogram_scale_up.Add(histTMP)
-    histTMP.Delete()
-
-    #scale down
-    histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-    datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scaleDown,scale_y,res_x,res_y,histTMP);
-    if histTMP.Integral()>0:
-        #histTMP.Scale(histI.Integral()/histTMP.Integral())
-        histogram_scale_down.Add(histTMP)
-    histTMP.Delete()
-    #histI.Delete()
-    #'''
-
+        ##gen pt down (quadratic)
+        histTMP=ROOT.TH1F("histoTMP","histo",len(binsx)-1,array('f',binsx))
+        datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,variables[0],'lnujj_l2_gen_pt',scale_x,res_x,histTMP,'lnujj_l2_gen_pt',hGenPt2Dn)
+        if histTMP.Integral()>0:
+            addToYSlice(histogram,b,histTMP)
+        histTMP.Delete()
+        #'''
 
 
 
@@ -329,22 +264,6 @@ for hist in histograms:
     finalHistograms[hist.GetName()]=expanded
 
 
-
-##special treatment for mirroring
-''' ###FIXME: bug with empty bins
-histogram_res_down=mirror(finalHistograms['histo_ResUp'],finalHistograms['histo'],"histo_ResDown")
-conditional(histogram_res_down)
-histogram_res_down.Write()
-'''
-
-'''
-#ptUp.Write("ptUp")
-#ptDown.Write("ptDown")
-scaleUp.Write("scaleUp")
-scaleDown.Write("scaleDown")
-#resUp.Write("resUp")
-#resDown.Write("resDown")
-#'''
 
 hGenPtUp.Write("hGenPtUp")
 hGenPtDn.Write("hGenPtDn")
