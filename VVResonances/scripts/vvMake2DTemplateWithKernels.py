@@ -220,28 +220,28 @@ for plotter in dataPlotters:
         histTMP=ROOT.TH1F("histoTMP","histo",len(binsx)-1,array('f',binsx))
         datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,variables[0],'lnujj_l2_gen_pt',scale_x,res_x,histTMP,'lnujj_l2_gen_pt',hGenPtUp)
         if histTMP.Integral()>0:
-            addToYSlice(histogram,b,histTMP)
+            addToYSlice(histogram_gpt_up,b,histTMP)
         histTMP.Delete()
 
         ##gen pt down (linear)
         histTMP=ROOT.TH1F("histoTMP","histo",len(binsx)-1,array('f',binsx))
         datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,variables[0],'lnujj_l2_gen_pt',scale_x,res_x,histTMP,'lnujj_l2_gen_pt',hGenPtDn)
         if histTMP.Integral()>0:
-            addToYSlice(histogram,b,histTMP)
+            addToYSlice(histogram_gpt_down,b,histTMP)
         histTMP.Delete()
 
         ##gen pt up (quadratic)
         histTMP=ROOT.TH1F("histoTMP","histo",len(binsx)-1,array('f',binsx))
         datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,variables[0],'lnujj_l2_gen_pt',scale_x,res_x,histTMP,'lnujj_l2_gen_pt',hGenPt2Up)
         if histTMP.Integral()>0:
-            addToYSlice(histogram,b,histTMP)
+            addToYSlice(histogram_gpt2_up,b,histTMP)
         histTMP.Delete()
 
         ##gen pt down (quadratic)
         histTMP=ROOT.TH1F("histoTMP","histo",len(binsx)-1,array('f',binsx))
         datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,variables[0],'lnujj_l2_gen_pt',scale_x,res_x,histTMP,'lnujj_l2_gen_pt',hGenPt2Dn)
         if histTMP.Integral()>0:
-            addToYSlice(histogram,b,histTMP)
+            addToYSlice(histogram_gpt2_down,b,histTMP)
         histTMP.Delete()
         #'''
 

@@ -289,7 +289,7 @@ def makeBackgroundShapesMVVConditional(name,filename,template,addCut="1"):
     for l in (leptons,leptonsMerged)[MERGELEPNONRES]:
         for p in (purities,puritiesMerged)[MERGEPURNONRES]:
             for c in (categories,categoriesMerged)[MERGECATNONRES]:
-                cut='*'.join([cuts['common'],cuts[l],cuts[p],cuts[c],addCut,cuts['acceptanceGEN']])
+                cut='*'.join([cuts['common'],cuts[l],cuts[p],cuts[c],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
 
                 rootFile=outDir+filename+"_"+name+"_COND2D_"+l+"_"+p+"_"+c+".root"
                 cmd='vvMake2DTemplateWithKernels.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass,lnujj_l2_softDrop_mass" -u "(1+0.0004*lnujj_l2_gen_pt),(1+0.000001*lnujj_l2_gen_pt*lnujj_l2_gen_pt)" -b {binsMVV} -B {binsMJJ} -x {minMVV} -X {maxMVV} -y {minMJJ} -Y {maxMJJ} -r {res} -l {limitTailFit2D} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMVV=binsMVV[c],minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,limitTailFit2D=limitTailFit2D[c],ntuples=ntuples)
