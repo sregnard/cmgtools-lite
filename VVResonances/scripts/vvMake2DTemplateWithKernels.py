@@ -52,15 +52,14 @@ def mirror(histo,histoNominal,name):
 
 def expandHisto(histo,options):
     histogram=ROOT.TH2F(histo.GetName(),"histo",options.binsx,options.minx,options.maxx,options.binsy,options.miny,options.maxy)
-    for i in range(1,histo.GetNbinsX()+1):
-        proje = histo.ProjectionY("q",i,i)
-        graph=ROOT.TGraph(proje)
+    graph=ROOT.TGraph2D(histo)
+    for i in range(1,histogram.GetNbinsX()+1):
         for j in range(1,histogram.GetNbinsY()+1):
-            x=histogram.GetYaxis().GetBinCenter(j)
-            bin=histogram.GetBin(i,j)
-            histogram.SetBinContent(bin,graph.Eval(x,0,"S"))
-    return histogram
-        
+            if histogram.GetYaxis().GetBinCenter(j)>histo.GetYaxis().GetBinCenter(1) and histogram.GetYaxis().GetBinCenter(j)<histo.GetYaxis().GetBinCenter(histo.GetNbinsY()): 
+                histogram.SetBinContent(i,j,graph.Interpolate(histogram.GetXaxis().GetBinCenter(i),histogram.GetYaxis().GetBinCenter(j)))
+            else:
+                histogram.SetBinContent(i,j,histo.GetBinContent(histo.FindBin(histogram.GetXaxis().GetBinCenter(i),histogram.GetYaxis().GetBinCenter(j))))
+    return histogram        
 
 
 def conditional(hist):
@@ -73,29 +72,40 @@ def conditional(hist):
         for j in range(1,hist.GetNbinsX()+1):
             hist.SetBinContent(j,i,hist.GetBinContent(j,i)/integral)
 
+
 def smoothTail(hist):
     hist.Scale(1.0/hist.Integral())
 
     bin_limit = hist.GetXaxis().FindBin(options.limit)
 
-    histfit=hist.ProjectionX("q",1,hist.GetNbinsY())
+    histfit=hist.ProjectionX("q",4,hist.GetNbinsY())
     X=histfit.GetBinCenter(bin_limit)
     Y=histfit.GetBinContent(bin_limit)
     print 'X', X, 'Y', Y
     fun=ROOT.TF1("func","{Y}*(((x-[1])/({X}-[1]))^[0])".format(X=X,Y=Y),options.limit,options.maxx)
     fun.SetParameter(0,-10.)
-
     histfit.Fit(fun,"WL,R")
-
-#    fTemp=ROOT.TFile("checkFitTails.root","RECREATE")
-#    fTemp.cd()
-#    histfit.Write()
-#    fTemp.Close()
 
     for i in range(1,hist.GetNbinsX()+1):
         x=hist.GetXaxis().GetBinCenter(i)
         if x>options.limit:
-            for j in range(1,hist.GetNbinsY()+1):
+            for j in range(4,hist.GetNbinsY()+1):
+                hist.SetBinContent(i,j,fun.Eval(x)*hist.GetBinContent(bin_limit,j)/fun.Eval(histfit.GetBinCenter(bin_limit)))
+
+    for j in range(1,4):
+        y=hist.GetYaxis().GetBinCenter(j)
+
+        histfit=hist.ProjectionX("q_"+str(j),j,j)
+        X=histfit.GetBinCenter(bin_limit)
+        Y=histfit.GetBinContent(bin_limit)
+        print 'X', X, 'Y', Y
+        fun=ROOT.TF1("func","{Y}*(((x-[1])/({X}-[1]))^[0])".format(X=X,Y=Y),options.limit,options.maxx)
+        fun.SetParameter(0,-10.)
+        histfit.Fit(fun,"WL,R")
+
+        for i in range(1,hist.GetNbinsX()+1):
+            x=hist.GetXaxis().GetBinCenter(i)
+            if x>options.limit:
                 hist.SetBinContent(i,j,fun.Eval(x)*hist.GetBinContent(bin_limit,j)/fun.Eval(histfit.GetBinCenter(bin_limit)))
 
 
