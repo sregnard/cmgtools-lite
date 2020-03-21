@@ -23,6 +23,7 @@ parser.add_option("-c","--cat",dest="category",default='bb',help="restrict to so
 parser.add_option("-C","--CMSlabel",dest="CMSlabel",type=int,default=0,help="0:None 1:CMS 2:CMS Preliminary 3:CMS Supplementary")
 parser.add_option("-b","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=True)
 parser.add_option("-S","--splitWTopPeaks",action="store_true",dest="splitWTopPeaks",help="separate W and top peak bkgd",default=True)
+parser.add_option("-Z","--region",dest="region",default='SR',help="signal region (SR) or control region (CR)")
 (options,args) = parser.parse_args()
 
 minMJJ=20.0
@@ -62,13 +63,12 @@ def cmsLabel(canvas):
 s = options.signalType
 YEAR=options.year
 if options.inputFile=='':
-  inputDir="Dc_"+(s if s!="" else "XWW")+"/"
+  inputDir="Dc"+("_CR" if options.region=="CR" else "")+"_"+(s if s!="" else "XWW")+"/"
   inputDC=inputDir+"combined_"+YEAR+".root"
 else:
   inputDC=options.inputFile
 
-prefix = ('preFit','postFit')[options.fit]
-inFix = ('PreFit','PostFit')[options.fit]
+prefix = ('PreFit_','PostFit_')[options.fit] + options.region + "_"
 directory='Plots_' + prefix + '_' + (s if s!="" else "Bonly") + '_' + YEAR
 os.system("mkdir -p "+directory)
 
@@ -238,11 +238,11 @@ for l in leptons:
                 ''' ##debug 1
                 plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label+", 70 #leq m_{jet} < 100 GeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,varMJJ+":sig:70:100",minMVV,maxMVV,YmaxMVV)
                 cmsLabel(plotter2.canvas)
-                saveCanvas(plotter2.canvas,directory+"/debug"+infix+"MVV_MJ70to110_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
+                saveCanvas(plotter2.canvas,directory+"/debug"+prefix+"MVV_MJ70to110_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
 
                 plotter2.drawOverlay(varMVV,"m_{WV} (GeV)",label+", 70 #leq m_{jet} < 100 GeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],0,0,varMJJ+":sig:70:100",minMVV,maxMVV,YmaxMVV)
                 cmsLabel(plotter2.canvas)
-                saveCanvas(plotter2.canvas,directory+"/debugOverlay_"+infix+"MVV_MJ70to110_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
+                saveCanvas(plotter2.canvas,directory+"/debugOverlay_"+prefix+"MVV_MJ70to110_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 #'''
 
                 ''' ##debug 2
@@ -295,17 +295,17 @@ for l in leptons:
                 ''' ##debug 1
                 plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label+", 1 #leq m_{WV} < 1.5 TeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,0,0,varMVV+":bin1:1000:1500",minMJJ,maxMJJ,YmaxMJJ)
                 cmsLabel(plotter.canvas)
-                saveCanvas(plotter.canvas,directory+"/debug"+infix+"MJJ_MVV1000to1500_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
+                saveCanvas(plotter.canvas,directory+"/debug"+prefix+"MJJ_MVV1000to1500_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label+", 1.5 #leq m_{WV} < 2 TeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,0,0,varMVV+":bin1:1500:2000",minMJJ,maxMJJ,YmaxMJJ)
                 cmsLabel(plotter.canvas)
-                saveCanvas(plotter.canvas,directory+"/debug"+infix+"MJJ_MVV1500to2000_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
+                saveCanvas(plotter.canvas,directory+"/debug"+prefix+"MJJ_MVV1500to2000_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label+", 2 #leq m_{WV} < 3 TeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,0,0,varMVV+":bin1:2000:3000",minMJJ,maxMJJ,YmaxMJJ)
                 cmsLabel(plotter.canvas)
-                saveCanvas(plotter.canvas,directory+"/debug"+infix+"MJJ_MVV2000to3000_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
+                saveCanvas(plotter.canvas,directory+"/debug"+prefix+"MJJ_MVV2000to3000_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
 
                 plotter.drawOverlay(varMJJ,"m_{jet} (GeV)",label+", 1.5 #leq m_{WV} < 2 TeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],0,0,varMVV+":bin1:1500:2000",minMJJ,maxMJJ,YmaxMJJ)
                 cmsLabel(plotter.canvas)
-                saveCanvas(plotter.canvas,directory+"/debugOverlay_"+infix+"MJJ_MVV1500to2000_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
+                saveCanvas(plotter.canvas,directory+"/debugOverlay_"+prefix+"MJJ_MVV1500to2000_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 #'''
 
                 ''' ##debug 2

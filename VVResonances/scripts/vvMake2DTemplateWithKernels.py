@@ -26,6 +26,7 @@ parser.add_option("-X","--maxx",dest="maxx",type=float,help="conditional bins sp
 parser.add_option("-y","--miny",dest="miny",type=float,help="bins",default=0)
 parser.add_option("-Y","--maxy",dest="maxy",type=float,help="conditional bins split by comma",default=1)
 parser.add_option("-l","--limit",dest="limit",type=float,help="lower limit of the high-mass smoothing range",default=2500)
+parser.add_option("-W","--wgtwjets",dest="wgtwjets",help="weights for W+jets sample for each year",default="1.,1.,1.")
 (options,args) = parser.parse_args()
 
 DEBUG=0
@@ -59,7 +60,8 @@ def expandHisto(histo,options):
                 histogram.SetBinContent(i,j,graph.Interpolate(histogram.GetXaxis().GetBinCenter(i),histogram.GetYaxis().GetBinCenter(j)))
             else:
                 histogram.SetBinContent(i,j,histo.GetBinContent(histo.FindBin(histogram.GetXaxis().GetBinCenter(i),histogram.GetYaxis().GetBinCenter(j))))
-    return histogram        
+    return histogram
+        
 
 
 def conditional(hist):
@@ -71,7 +73,6 @@ def conditional(hist):
             continue
         for j in range(1,hist.GetNbinsX()+1):
             hist.SetBinContent(j,i,hist.GetBinContent(j,i)/integral)
-
 
 def smoothTail(hist):
     hist.Scale(1.0/hist.Integral())
@@ -142,8 +143,12 @@ for filename in filelist:
             ##dataPlotters[-1].addCorrectionFactor('lnujj_sf','branch')
             ##dataPlotters[-1].addCorrectionFactor('lnujj_btagWeight','branch')
             #dataPlotters[-1].addCorrectionFactor(options.uncweight,'branch')
+            if fname.find("WJetsToLNu_HT")!=-1:
+                factors=options.wgtwjets.split(',')
+                wjetsfactor=factors[0] if fname.find("2016")!=-1 else factors[1] if fname.find("2017")!=-1 else factors[2] if fname.find("2018")!=-1 else "1."
+                dataPlotters[-1].addCorrectionFactor(float(wjetsfactor),'flat')
+                print 'reweighting '+fname+' '+wjetsfactor
             dataPlotters[-1].filename = fname
-
 
 data=MergedPlotter(dataPlotters)
 

@@ -19,6 +19,7 @@ parser.add_option("-M","--max",dest="maxes",help="maximum separated by comma",de
 parser.add_option("-d","--isData",dest="data",type=int,help="isData",default=1)
 parser.add_option("-f","--factor",dest="factor",type=float,help="factor",default=1.0)
 parser.add_option("-n","--name",dest="name",help="name",default="histo")
+parser.add_option("-W","--wgtwjets",dest="wgtwjets",help="weights for W+jets sample for each year",default="1.,1.,1.")
 #parser.add_option("-z","--zeroNegative",dest="zeroNegative",type=int,help="zero bvins with negative weights",default=0)
 
 
@@ -38,19 +39,22 @@ dataPlotters=[]
 #print [g for flist in [[(path+'/'+f) for f in os.listdir(args[0]+'/'+path)] for path in os.listdir(args[0])] for g in flist]
 
 filelist = []
-if args[0]=='ntuples':
+if args[0]=='ntuples' or args[0]=='ntuplesForData':
     filelist = [g for flist in [[(path+'/'+f) for f in os.listdir(args[0]+'/'+path)] for path in os.listdir(args[0])] for g in flist]
 else:
     filelist = os.listdir(args[0])
 
 for filename in filelist:
     for sampleType in sampleTypes:
+        #print filename, sampleType        
         if filename.find(sampleType)!=-1:
             fnameParts=filename.split('.')
             fname=fnameParts[0]
             ext=fnameParts[1]
+            #print fname, ext
             if ext.find("root") ==-1:
                 continue
+            #print args[0]+'/'+fname+'.root'
             dataPlotters.append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
             if options.data==0 or options.data==2:
                 dataPlotters[-1].setupFromFile(args[0]+'/'+fname+'.pck')
@@ -60,6 +64,11 @@ for filename in filelist:
                 dataPlotters[-1].addCorrectionFactor('truth_genTop_weight','branch')
                 ##dataPlotters[-1].addCorrectionFactor('lnujj_sf','branch')
                 ##dataPlotters[-1].addCorrectionFactor('lnujj_btagWeight','branch')  
+                if fname.find("WJetsToLNu_HT")!=-1: 
+                    factors=options.wgtwjets.split(',')
+                    wjetsfactor=factors[0] if fname.find("2016")!=-1 else factors[1] if fname.find("2017")!=-1 else factors[2] if fname.find("2018")!=-1 else "1."
+                    dataPlotters[-1].addCorrectionFactor(float(wjetsfactor),'flat')
+                    print 'reweighting '+fname+' '+wjetsfactor
 if options.data==2:
     sigmas=[]
     for d in dataPlotters:

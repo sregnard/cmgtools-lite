@@ -17,9 +17,7 @@ parser.add_option("-c","--cut",dest="cut",help="Cut to apply for yield in gen sa
 parser.add_option("-v","--vars",dest="vars",help="variable for gen",default='')
 parser.add_option("-b","--binsx",dest="binsx",help="bins",default='')
 parser.add_option("-g","--genVars",dest="genVars",help="variable for gen",default='')
-
-
-
+parser.add_option("-W","--wgtwjets",dest="wgtwjets",help="weights for W+jets sample for each year",default="1.,1.,1.")
 (options,args) = parser.parse_args()
 
 
@@ -48,6 +46,12 @@ for filename in filelist:
             dataPlotters[-1].addCorrectionFactor('truth_genTop_weight','branch')
             ##dataPlotters[-1].addCorrectionFactor('lnujj_sf','branch')
             ##dataPlotters[-1].addCorrectionFactor('lnujj_btagWeight','branch') 
+            if fname.find("WJetsToLNu_HT")!=-1:
+                factors=options.wgtwjets.split(',')
+                wjetsfactor=factors[0] if fname.find("2016")!=-1 else factors[1] if fname.find("2017")!=-1 else factors[2] if fname.find("2018")!=-1 else "1."
+                dataPlotters[-1].addCorrectionFactor(float(wjetsfactor),'flat')
+                print 'reweighting '+fname+' '+wjetsfactor
+
 data=MergedPlotter(dataPlotters)
 
 
