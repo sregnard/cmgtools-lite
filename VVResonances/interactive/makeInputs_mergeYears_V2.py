@@ -530,7 +530,7 @@ if DORESONANT:
 
 ## Non-resonant background templates (W+jets)
 if DONONRESONANT:
-#    makeBackgroundShapesMJJSpline("nonRes","LNuJJ",nonResTemplate,cuts['nonres'])
+    makeBackgroundShapesMJJSpline("nonRes","LNuJJ",nonResTemplate,cuts['nonres'])
     makeBackgroundShapesMVVConditional("nonRes","LNuJJ",nonResTemplate,cuts['nonres'])
     mergeBackgroundShapes("nonRes","LNuJJ")
 
