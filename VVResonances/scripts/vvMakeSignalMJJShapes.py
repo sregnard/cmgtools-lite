@@ -9,96 +9,119 @@ from CMGTools.VVResonances.statistics.Fitter import Fitter
 from math import log
 import os, sys, re, optparse,pickle,shutil,json
 
-def returnString(func):
-    st='0'
-    for i in range(0,func.GetNpar()):
-        st=st+"+("+str(func.GetParameter(i))+")"+("*MH"*i)
-    return st    
-
-
 parser = optparse.OptionParser()
-parser.add_option("-s","--sample",dest="sample",default='',help="Type of sample")
+parser.add_option("-s","--samples",dest="samples",default='',help="Type of sample")
+parser.add_option("-m","--minMX",dest="minMX",type=float,help="minimum MX",default=900)
+parser.add_option("-M","--maxMX",dest="maxMX",type=float,help="maximum MX",default=4600)
 parser.add_option("-c","--cut",dest="cut",help="Cut to apply for shape",default='')
-parser.add_option("-o","--output",dest="output",help="Output JSON",default='')
+parser.add_option("-o","--output",dest="output",help="Output file",default='')
+parser.add_option("-d","--debugFile",dest="debugFile",help="Output debug plots",default='')
 parser.add_option("-V","--MVV",dest="mvv",help="mVV variable",default='')
-parser.add_option("-m","--min",dest="mini",type=float,help="min MJJ",default=40)
-parser.add_option("-M","--max",dest="maxi",type=float,help="max MJJ",default=160)
+parser.add_option("-x","--min",dest="mini",type=float,help="min MJJ",default=30)
+parser.add_option("-X","--max",dest="maxi",type=float,help="max MJJ",default=210)
 parser.add_option("-e","--exp",dest="doExp",type=int,help="useExponential",default=1)
 parser.add_option("-f","--fix",dest="fixPars",help="Fixed parameters",default="")
 
 (options,args) = parser.parse_args()
-#define output dictionary
-
-samples={}
-graphs={'mean':ROOT.TGraphErrors(),'sigma':ROOT.TGraphErrors(),'alpha':ROOT.TGraphErrors(),'n':ROOT.TGraphErrors(),'f':ROOT.TGraphErrors(),'slope':ROOT.TGraphErrors(),'alpha2':ROOT.TGraphErrors(),'n2':ROOT.TGraphErrors()}
-
-for filename in os.listdir(args[0]):
-    if not (filename.find(options.sample)!=-1):
-        continue
-
-#found sample. get the mass
-    fnameParts=filename.split('.')
-    fname=fnameParts[0]
-    ext=fnameParts[1]
-    if ext.find("root") ==-1:
-        continue
-        
-
-    mass = float(fname.split('_')[-1])
-
-        
-
-    samples[mass] = fname
-
-    print 'found',filename,'mass',str(mass) 
 
 
-#Now we have the samples: Sort the masses and run the fits
+## color of control plots
+color = 0
+if 'XWW' in options.output: color = ROOT.kOrange+2
+elif 'XWZ' in options.output: color = ROOT.kViolet-8
+elif 'XWH' in options.output: color = ROOT.kTeal-6
+
+## Define output dictionary
+graphs={
+    'mean':ROOT.TGraphErrors(),
+    'sigma':ROOT.TGraphErrors(),
+    'alpha':ROOT.TGraphErrors(),
+    'n':ROOT.TGraphErrors(),
+    'f':ROOT.TGraphErrors(),
+    'slope':ROOT.TGraphErrors(),
+    'alpha2':ROOT.TGraphErrors(),
+    'n2':ROOT.TGraphErrors()
+    }
+
+
+## Find the samples for all signal mass values  
+plotters={}
+sampleTypes=options.samples.split(',')
+
+filelist = []
+if args[0]=='ntuples':
+    filelist = [g for flist in [[(path+'/'+f) for f in os.listdir(args[0]+'/'+path)] for path in os.listdir(args[0])] for g in flist]
+else:
+    filelist = os.listdir(args[0])
+
+for filename in filelist:
+    for sampleType in sampleTypes:
+        if not (filename.find(sampleType)!=-1):
+            continue
+        fnameParts=filename.split('.')
+        fname=fnameParts[0]
+        ext=fnameParts[1]
+        if ext.find("root") ==-1:
+            continue
+        mass = float(fname.split('_')[-1])
+        if mass<options.minMX or mass>options.maxMX:
+            continue
+        if not mass in plotters.keys():
+            plotters[mass] = []
+        plotters[mass].append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
+        plotters[mass][-1].setupFromFile(args[0]+'/'+fname+'.pck')
+        plotters[mass][-1].addCorrectionFactor('xsec','tree')
+        plotters[mass][-1].addCorrectionFactor('genWeight','tree')
+        plotters[mass][-1].addCorrectionFactor('puWeight','tree')
+        plotters[mass][-1].filename=fname
+        print 'found',filename,'mass',str(mass) 
+
+
+## Sort the masses and run the fits 
 N=0
-for mass in sorted(samples.keys()):
+for mass in sorted(plotters.keys()):
+    print 'fitting',str(mass)
 
-    print 'fitting',str(mass) 
-    plotter=TreePlotter(args[0]+'/'+samples[mass]+'.root','tree')
-#    plotter.setupFromFile(args[0]+'/'+samples[mass]+'.pck')
-    plotter.addCorrectionFactor('genWeight','tree')
-#    plotter.addCorrectionFactor('xsec','tree')
-    plotter.addCorrectionFactor('puWeight','tree')
-       
-        
+    if len(plotters[mass]) != (1,3)[args[0]=='ntuples']:
+        continue
+
+    ## Get the histo from MC
+    plotter=MergedPlotter(plotters[mass])
+    histo = plotter.drawTH1(options.mvv,options.cut,"1",int((options.maxi-options.mini)/4),options.mini,options.maxi)
+
+    ## Set up the fitter 
     fitter=Fitter(['x'])
     if options.doExp==1:
         fitter.jetResonance('model','x')
-#        fitter.w.var("alpha").setVal(1.41)
-#        fitter.w.var("alpha").setConstant(1)
     else:
         fitter.jetResonanceNOEXP('model','x')
-#        fitter.w.var("alpha").setVal(0.50)
-#        fitter.w.var("alpha").setConstant(1)
-
-
     if options.fixPars!="":
         fixedPars =options.fixPars.split(',')
         for par in fixedPars:
             parVal = par.split(':')
             fitter.w.var(parVal[0]).setVal(float(parVal[1]))
             fitter.w.var(parVal[0]).setConstant(1)
-
-
-#    fitter.w.var("MH").setVal(mass)
-    histo = plotter.drawTH1(options.mvv,options.cut,"1",int((options.maxi-options.mini)/4),options.mini,options.maxi)
-
+    #fitter.w.var("MH").setVal(mass)
     fitter.importBinnedData(histo,['x'],'data')
+
+    ## fit
     fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0)])
     fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0),ROOT.RooFit.Minos(1)])
-    fitter.projection("model","data","x","debugJJ_"+options.output+"_"+str(mass)+".png")
 
+    ## control plot
+    fitter.projection("model","data","x",options.debugFile+"_"+str(int(mass)).zfill(4)+".png",options.mvv,[],[ROOT.RooFit.LineColor(color)])
+    fitter.projection("model","data","x",options.debugFile+"_"+str(int(mass)).zfill(4)+".root",options.mvv,[],[ROOT.RooFit.LineColor(color)])
+
+    ## Save parameters vs MX  
     for var,graph in graphs.iteritems():
         value,error=fitter.fetch(var)
         graph.SetPoint(N,mass,value)
         graph.SetPointError(N,0.0,error)
                 
     N=N+1
-        
+
+
+## Store all graphs       
 F=ROOT.TFile(options.output,"RECREATE")
 F.cd()
 for name,graph in graphs.iteritems():

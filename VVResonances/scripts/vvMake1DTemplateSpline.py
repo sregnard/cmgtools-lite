@@ -17,13 +17,25 @@ parser.add_option("-o","--output",dest="output",help="Output",default='')
 parser.add_option("-s","--samples",dest="samples",default='',help="Type of sample")
 parser.add_option("-c","--cut",dest="cut",help="Cut to apply for yield in gen sample",default='')
 parser.add_option("-v","--var",dest="var",help="variable for x",default='')
+parser.add_option("-V","--varalt",dest="varalt",help="alternative variables for shape variation: up,down",default='')
+parser.add_option("-u","--uncweight",dest="uncweight",help="weights for upward shape variation, split by comma",default='')
 parser.add_option("-b","--bins",dest="binsx",type=int,help="bins",default=1)
 parser.add_option("-x","--minx",dest="minx",type=float,help="bins",default=0)
 parser.add_option("-X","--maxx",dest="maxx",type=float,help="conditional bins split by comma",default=1)
 parser.add_option("-f","--factor",dest="factor",type=int,help="factor to reduce stats",default=1)
-
+parser.add_option("-W","--wgtwjets",dest="wgtwjets",help="weights for W+jets sample for each year",default="1.,1.,1.")
 (options,args) = parser.parse_args()
 
+
+def amplify(histo,histoNominal,factor=10):
+    histo.Scale(histo.Integral())
+    histoNominal.Scale(histoNominal.Integral())
+    for i  in range(1,histo.GetNbinsX()+1):
+        c=histo.GetBinContent(i)
+        g=histoNominal.GetBinContent(i)
+        newC = g+ (c-g)*factor
+        histo.SetBinContent(i,newC)
+        
 
 
 def mirror(histo,histoNominal,name):
@@ -37,6 +49,7 @@ def mirror(histo,histoNominal,name):
         newHisto.SetBinContent(i,nominal*nominal/up)
     return newHisto        
 
+
 def unequalScale(histo,name,alpha,power=1):
     newHistoU =copy.deepcopy(histo) 
     newHistoU.SetName(name+"Up")
@@ -48,7 +61,7 @@ def unequalScale(histo,name,alpha,power=1):
         factor = 1+alpha*pow(x,power) 
         newHistoU.SetBinContent(i,nominal*factor)
         newHistoD.SetBinContent(i,nominal/factor)
-    return newHistoU,newHistoD        
+    return newHistoU,newHistoD    
 
 
 def expandHisto(histo,histogram):
@@ -66,7 +79,13 @@ sampleTypes=options.samples.split(',')
 dataPlotters=[]
 dataPlottersNW=[]
 
-for filename in os.listdir(args[0]):
+filelist = []
+if args[0]=='ntuples':
+    filelist = [g for flist in [[(path+'/'+f) for f in os.listdir(args[0]+'/'+path)] for path in os.listdir(args[0])] for g in flist]
+else:
+    filelist = os.listdir(args[0])
+
+for filename in filelist:
     for sampleType in sampleTypes:
         if filename.find(sampleType)!=-1:
             fnameParts=filename.split('.')
@@ -79,27 +98,88 @@ for filename in os.listdir(args[0]):
             dataPlotters[-1].addCorrectionFactor('xsec','tree')
             dataPlotters[-1].addCorrectionFactor('genWeight','tree')
             dataPlotters[-1].addCorrectionFactor('puWeight','tree')
-            dataPlotters[-1].addCorrectionFactor('lnujj_sf','branch')
-            dataPlotters[-1].addCorrectionFactor('lnujj_btagWeight','branch')
             dataPlotters[-1].addCorrectionFactor('truth_genTop_weight','branch')
-
+            ##dataPlotters[-1].addCorrectionFactor('lnujj_sf','branch')
+            ##dataPlotters[-1].addCorrectionFactor('lnujj_btagWeight','branch')
+            if fname.find("WJetsToLNu_HT")!=-1:
+                factors=options.wgtwjets.split(',')
+                wjetsfactor=factors[0] if fname.find("2016")!=-1 else factors[1] if fname.find("2017")!=-1 else factors[2] if fname.find("2018")!=-1 else "1."
+                dataPlotters[-1].addCorrectionFactor(float(wjetsfactor),'flat')
+                print 'reweighting '+fname+' '+wjetsfactor
             dataPlotters[-1].filename=fname
+
 data=MergedPlotter(dataPlotters)
 
 
+uncWeights=options.uncweight.split(',')
+uncw1=uncWeights[0]
+uncw2=uncWeights[1]
+
+cut=options.cut
+var=options.var
+altVariables=options.varalt.split(',')
+varup=altVariables[0]
+vardown=altVariables[1]
+
 histogram=ROOT.TH1F("histo","histo",options.binsx,options.minx,options.maxx)
 histogram.Sumw2()
+histogram_gpt_up=ROOT.TH1F("histo_logWeightUp","histo",options.binsx,options.minx,options.maxx)
+histogram_gpt_up.Sumw2()
+histogram_gpt_down=ROOT.TH1F("histo_logWeightDown","histo",options.binsx,options.minx,options.maxx)
+histogram_gpt_down.Sumw2()
+histogram_gpt2_up=ROOT.TH1F("histo_MJJScaleUp","histo",options.binsx,options.minx,options.maxx)
+histogram_gpt2_up.Sumw2()
+histogram_gpt2_down=ROOT.TH1F("histo_MJJScaleDown","histo",options.binsx,options.minx,options.maxx)
+histogram_gpt2_down.Sumw2()
 
-histoCoarse=data.drawTH1(options.var,options.cut,"1",options.binsx/options.factor,options.minx,options.maxx)
+
+histogram_sd_up=ROOT.TH1F("histo_SDUp","histo",options.binsx,options.minx,options.maxx)
+histogram_sd_up.Sumw2()
+histogram_sd_down=ROOT.TH1F("histo_SDDown","histo",options.binsx,options.minx,options.maxx)
+histogram_sd_down.Sumw2()
+
+newNbins=options.binsx/options.factor 
+newBinWidth=(options.maxx-options.minx)/newNbins
+histoCoarse=data.drawTH1(var,cut,"1",newNbins+1,options.minx,options.maxx+newBinWidth)
 expandHisto(histoCoarse,histogram)
+histoCoarse_gpt_up=data.drawTH1(var,cut+'*(1+'+uncw1+')',"1",newNbins+1,options.minx,options.maxx+newBinWidth)
+expandHisto(histoCoarse_gpt_up,histogram_gpt_up)
+histoCoarse_gpt_down=data.drawTH1(var,cut+'*(1.0/(1+'+uncw1+'))',"1",newNbins+1,options.minx,options.maxx+newBinWidth)
+expandHisto(histoCoarse_gpt_down,histogram_gpt_down)
 
 
+
+histoCoarse_gpt2_up=data.drawTH1(var,cut+'*(1+'+uncw2+')',"1",newNbins+1,options.minx,options.maxx+newBinWidth)
+expandHisto(histoCoarse_gpt2_up,histogram_gpt2_up)
+histoCoarse_gpt2_down=data.drawTH1(var,cut+'*(1.0/(1+'+uncw2+'))',"1",newNbins+1,options.minx,options.maxx+newBinWidth)
+expandHisto(histoCoarse_gpt2_down,histogram_gpt2_down)
+
+
+histoCoarse_sd_up=data.drawTH1(varup,cut.replace(var,varup),"1",newNbins+1,options.minx,options.maxx+newBinWidth)
+expandHisto(histoCoarse_sd_up,histogram_sd_up)
+#histoCoarse_sd_down=data.drawTH1(vardown,cut.replace(var,vardown),"1",newNbins+1,options.minx,options.maxx+newBinWidth)
+#expandHisto(histoCoarse_sd_down,histogram_sd_down)
+
+#amplify(histogram_sd_down,histogram)
+
+histogram_sd_down=mirror(histogram_sd_up,histogram,"histo_SDDown")
 
 f=ROOT.TFile(options.output,"RECREATE")
 f.cd()
 histoCoarse.Write("histo_coarse")
 
+
 histogram.Write()
+histogram_gpt_up.Write()
+histogram_gpt_down.Write()
+histogram_gpt2_up.Write()
+histogram_gpt2_down.Write()
+histogram_sd_up.Write()
+histogram_sd_down.Write()
+
+
+
+
 alpha=1.5/210
 histogram_pt_down,histogram_pt_up=unequalScale(histogram,"histo_PT",alpha)
 histogram_pt_down.Write()
@@ -109,7 +189,3 @@ histogram_opt_down,histogram_opt_up=unequalScale(histogram,"histo_OPT",alpha,-1)
 histogram_opt_down.Write()
 histogram_opt_up.Write()
 f.Close()
-
-
-
-

@@ -3,31 +3,34 @@ import os, sys
 from DoubleBscalefactors import *
 from DoubleBefficiencies import *
 
-import optparse
-parser = optparse.OptionParser()
-parser.add_option("-y","--year",dest="year",type=int,default=2016,help="2016 or 2017 or 2018")
-(options,args) = parser.parse_args()
+#import optparse
+#parser = optparse.OptionParser()
+#parser.add_option("-y","--year",dest="year",type=int,default=2016,help="2016 or 2017 or 2018")
+#(options,args) = parser.parse_args()
+#
+#if options.year not in [2016,2017,2018]:
+#    parser.error("year must be 2016, 2017, or 2018")
+#YEAR=options.year
 
-if options.year not in [2016,2017,2018]:
-    parser.error("year must be 2016, 2017, or 2018")
-YEAR=options.year
 
 
+DONORMMC       = 0
+DONORMDATA     = 0
+DONORMMCASDATA = 0
+DOSIGNALSHAPES = 0
+DOSIGNALYIELDS = 0
+DOSIGNALCTPL   = 0
+DORESONANT     = 0
+DONONRESONANT  = 0
+DONORMMCCR     = 0
+DONORMDATACR   = 0
+DONONRESONANTCR= 0
+DOXWW = 0
+DOXWZ = 0
+DOXWH = 0
+RENORMNONRES   = 0
+REMOVE2018ELEHEM1516 = 0
 
-DONORMMC       = 1
-DONORMDATA     = 1
-DOSIGNALSHAPES = 1
-DOSIGNALYIELDS = 1
-DOSIGNALCTPL   = 1
-DORESONANT     = 1
-DONONRESONANT  = 1
-
-DOXWW = 1
-DOXWZ = 1
-DOXWH = 1
-
-RENORMNONRES   = 1
-REMOVE2018ELEHEM1516 = (options.year==2018 and 1)
 
 MERGELEPNONRES = 0
 MERGEPURNONRES = 0
@@ -42,56 +45,58 @@ MERGECATNONRES = 0
 ###############################################
 
 
-outDir='Inputs_'+str(YEAR)+'/'
+outDir='Inputs_Run2/'
 os.system('mkdir -p '+outDir)
 
-ntuples='ntuples'+str(YEAR)
+ntuples='ntuples'
 
-ttbar=''
-electronPD=''
-tau21SF={'HP':1.,'LP':1.}
-if YEAR==2016: 
-    ttbar='TT_pow'
-    electronPD='SingleElectron'
-    renormNonRes=0.942220835364
-    tau21SF['HP'] = 1.03 ##TBU with new WP
-    tau21SF['LP'] = 0.95
-    bbSFWW=DoubleBsf_M2_B_80X
-    bbSFWZ=DoubleBsf_M2_B_80X
-    bbSFWH=DoubleBsf_M2_S_80X
-    bbEffWW=EffMC_M2_XWW_2016
-    bbEffWZ=EffMC_M2_XWZ_2016
-    bbEffWH=EffMC_M2_XWH_2016
-elif YEAR==2017:
-    ttbar='TTHad_pow,TTLep_pow,TTSemi_pow'
-    electronPD='SingleElectron'
-    renormNonRes=0.799382735674
-    tau21SF['HP'] = 0.97
-    tau21SF['LP'] = 1.14
-    bbSFWW=DoubleBsf_M2_B_94X
-    bbSFWZ=DoubleBsf_M2_B_94X
-    bbSFWH=DoubleBsf_M2_S_94X
-    bbEffWW=EffMC_M2_XWW_2017
-    bbEffWZ=EffMC_M2_XWZ_2017
-    bbEffWH=EffMC_M2_XWH_2017
-elif YEAR==2018:
-    ttbar='TTHad_pow,TTLep_pow,TTSemi_pow'
-    electronPD='EGamma'
-    renormNonRes=0.904081371649
-    tau21SF['HP'] = 0.97 ##TBU (copied from 2017 for now)
-    tau21SF['LP'] = 1.14
-    bbSFWW=DoubleBsf_M2_B_102X
-    bbSFWZ=DoubleBsf_M2_B_102X
-    bbSFWH=DoubleBsf_M2_S_102X
-    bbEffWW=EffMC_M2_XWW_2018
-    bbEffWZ=EffMC_M2_XWZ_2018
-    bbEffWH=EffMC_M2_XWH_2018
 
-bbWgtWW={'bb':('('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWW))+')'), 'nobb':('('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW[ptcut])+')/(1-'+str(bbEffWW[ptcut])+'))') for ptcut,sf in bbSFWW))+')')}
-bbWgtWZ={'bb':('('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWZ))+')'), 'nobb':('('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ[ptcut])+')/(1-'+str(bbEffWZ[ptcut])+'))') for ptcut,sf in bbSFWZ))+')')}
-bbWgtWH={'bb':('('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWH))+')'), 'nobb':('('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH[ptcut])+')/(1-'+str(bbEffWH[ptcut])+'))') for ptcut,sf in bbSFWH))+')')}
-#print bbWgtWW['bb']
-#print bbWgtWW['nobb']
+tau21SF={ ## TBU 
+    'HP' : '( (year==2016)*1.00 + (year==2017)*1.00 + (year==2018)*1.00 )',
+    'LP' : '( (year==2016)*1.00 + (year==2017)*1.00 + (year==2018)*1.00 )',
+    }
+
+bbSFWW_2016 = DoubleBsf_M2_B_80X
+bbSFWZ_2016 = DoubleBsf_M2_B_80X
+bbSFWH_2016 = DoubleBsf_M2_S_80X
+bbEffWW_2016 = EffMC_M2_XWW_2016
+bbEffWZ_2016 = EffMC_M2_XWZ_2016
+bbEffWH_2016 = EffMC_M2_XWH_2016
+bbSFWW_2017 = DoubleBsf_M2_B_94X
+bbSFWZ_2017 = DoubleBsf_M2_B_94X
+bbSFWH_2017 = DoubleBsf_M2_S_94X
+bbEffWW_2017 = EffMC_M2_XWW_2017
+bbEffWZ_2017 = EffMC_M2_XWZ_2017
+bbEffWH_2017 = EffMC_M2_XWH_2017
+bbSFWW_2018 = DoubleBsf_M2_B_102X
+bbSFWZ_2018 = DoubleBsf_M2_B_102X
+bbSFWH_2018 = DoubleBsf_M2_S_102X
+bbEffWW_2018 = EffMC_M2_XWW_2018
+bbEffWZ_2018 = EffMC_M2_XWZ_2018
+bbEffWH_2018 = EffMC_M2_XWH_2018
+bbWgtWW={
+    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWW_2018))+'))',
+    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2016[ptcut])+')/(1-'+str(bbEffWW_2016[ptcut])+'))') for ptcut,sf in bbSFWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2017[ptcut])+')/(1-'+str(bbEffWW_2017[ptcut])+'))') for ptcut,sf in bbSFWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2018[ptcut])+')/(1-'+str(bbEffWW_2018[ptcut])+'))') for ptcut,sf in bbSFWW_2018))+'))',
+    }
+bbWgtWZ={
+    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWZ_2018))+'))',
+    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2016[ptcut])+')/(1-'+str(bbEffWZ_2016[ptcut])+'))') for ptcut,sf in bbSFWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2017[ptcut])+')/(1-'+str(bbEffWZ_2017[ptcut])+'))') for ptcut,sf in bbSFWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2018[ptcut])+')/(1-'+str(bbEffWZ_2018[ptcut])+'))') for ptcut,sf in bbSFWZ_2018))+'))',
+    }
+bbWgtWH={
+    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWH_2018))+'))',
+    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2016[ptcut])+')/(1-'+str(bbEffWH_2016[ptcut])+'))') for ptcut,sf in bbSFWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2017[ptcut])+')/(1-'+str(bbEffWH_2017[ptcut])+'))') for ptcut,sf in bbSFWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2018[ptcut])+')/(1-'+str(bbEffWH_2018[ptcut])+'))') for ptcut,sf in bbSFWH_2018))+'))',
+    }
+print bbWgtWW['bb']
+print bbWgtWW['nobb']
+
+
+lumi16=35920
+lumi17=41530
+lumi18=59740
+lumiTotal=lumi16+lumi17+lumi18
+lumiWeight2016="("+str(lumi16)+"/"+str(lumiTotal)+")"
+lumiWeight2017="("+str(lumi17)+"/"+str(lumiTotal)+")"
+lumiWeight2018="("+str(lumi18)+"/"+str(lumiTotal)+")"
 
 
 cuts={}
@@ -99,7 +104,6 @@ cuts={}
 cuts['common'] = '1'
 cuts['common'] = cuts['common'] + '*(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET120)*((run>500) + (run<500)*lnujj_sfWV)' ## changed from lnujj_sf to lnujj_sfWV for 2016 
 cuts['common'] = cuts['common'] + '*(lnujj_nOtherLeptons==0&&lnujj_l2_softDrop_mass>0&&lnujj_LV_mass>0)'
-## Not just for 2016 now:
 cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&(Flag_eeBadScFilter*(run>500)+(run<500))&&Flag_badMuonFilter)'
 if REMOVE2018ELEHEM1516:
     cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&abs(lnujj_l1_l_pdgId)==11&&(-1.55<lnujj_l1_l_phi)&&(lnujj_l1_l_phi<-0.9)&&(-2.5<lnujj_l1_l_eta)&&(lnujj_l1_l_eta<-1.479)))'
@@ -107,11 +111,12 @@ if REMOVE2018ELEHEM1516:
 cuts['common'] = cuts['common'] + '*(lnujj_l1_pt/lnujj_LV_mass>0.4&&lnujj_l2_pt/lnujj_LV_mass>0.4)'
 ## ensure orthogonality with VBF analysis:
 cuts['common'] = cuts['common'] + '*(!(lnujj_nJets>=2&&lnujj_vbfDEta>4.0&&lnujj_vbfMass>500))'
+## lumi-based reweighting for MC
+cuts['common'] = cuts['common'] + '*( (run>500) + (run<500)*((year==2016)*'+lumiWeight2016+'+(year==2017)*'+lumiWeight2017+'+(year==2018)*'+lumiWeight2018+') )'
 
-
-cuts['nob'] = '(lnujj_nMediumBTags==0)' #*lnujj_btagWeight'
-cuts['b'] = '(lnujj_nMediumBTags>0)' #*lnujj_btagWeight'
-## b-tag veto is now the default; put the btag weight only here:
+cuts['nob'] = '(lnujj_nMediumBTags==0)'
+cuts['b'] = '(lnujj_nMediumBTags>0)'
+cuts['CR'] = cuts['common'] + '*' + cuts['b'] + '*lnujj_btagWeight'
 cuts['common'] = cuts['common'] + '*' + cuts['nob'] + '*lnujj_btagWeight'
 
 cuts['e'] = '(abs(lnujj_l1_l_pdgId)==11)'
@@ -120,9 +125,9 @@ cuts['allL'] = '(abs(lnujj_l1_l_pdgId)==11||abs(lnujj_l1_l_pdgId)==13)'
 leptons=['e','mu']
 leptonsMerged=['allL']
 
-Vtagger='(lnujj_l2_tau2/lnujj_l2_tau1)'
-thrHP='0.35'
-thrLP='0.75'
+Vtagger='(lnujj_l2_tau2/lnujj_l2_tau1-(-0.08)*log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt))'
+thrHP='0.55'
+thrLP='0.96'
 cuts['HP'] = '('+Vtagger+'<'+thrHP+')'
 cuts['LP'] = '('+thrHP+'<='+Vtagger+'&&'+Vtagger+'<'+thrLP+')'
 cuts['allP'] = '('+cuts['HP']+'||'+cuts['LP']+')'
@@ -137,41 +142,47 @@ categories=['bb','nobb']
 categoriesMerged=['allC']
 
 
-cuts['resW']  ='(lnujj_l2_mergedVTruth==1&&lnujj_l2_gen_softDrop_mass<100)'
-cuts['resTop']='(lnujj_l2_mergedVTruth==1&&lnujj_l2_gen_softDrop_mass>100)'
-
+cuts['resW']  ='(lnujj_l2_mergedVTruth==1&&!(lnujj_l2_nearestBDRTruth<0.8&&lnujj_l2_gen_b_pt/(lnujj_l2_gen_qq_pt+lnujj_l2_gen_b_pt)>0.1&&lnujj_l2_gen_softDrop_mass>100))'
+cuts['resTop']='(lnujj_l2_mergedVTruth==1&&(lnujj_l2_nearestBDRTruth<0.8&&lnujj_l2_gen_b_pt/(lnujj_l2_gen_qq_pt+lnujj_l2_gen_b_pt)>0.1&&lnujj_l2_gen_softDrop_mass>100))'
 cuts['nonres']='(lnujj_l2_mergedVTruth==0)'
 
 
+renormWJets2016='0.8727054353'
+renormWJets2017='0.699592444047'
+renormWJets2018='0.728005348312'
+renormWJets3Yrs=",".join([renormWJets2016,renormWJets2017,renormWJets2018])
+renormWJetsRun2='0.760376974966'
 
 
-WWTemplate="BulkGravToWWToWlepWhad_narrow"
+WWTemplate="ntuples2016/BulkGravToWWToWlepWhad_narrow,ntuples2017/BulkGravToWWToWlepWhad_narrow,ntuples2018/BulkGravToWWToWlepWhad_narrow"
 BRWW=2.*0.327*0.6760
 
-WZTemplate="WprimeToWZToWlepZhad_narrow"
+WZTemplate="ntuples2016/WprimeToWZToWlepZhad_narrow,ntuples2017/WprimeToWZToWlepZhad_narrow,ntuples2018/WprimeToWZToWlepZhad_narrow"
 BRWZ=0.327*0.6991
 
-WHTemplate="WprimeToWHToWlepHinc_narrow"
+WHTemplate="ntuples2016/WprimeToWHToWlepHinc_narrow,ntuples2017/WprimeToWHToWlepHinc_narrow,ntuples2018/WprimeToWHToWlepHinc_narrow"
 BRWH=0.327
 
-#resWTemplate = ttbar+",WWToLNuQQ,WZTo1L1Nu2Q,T_tW,TBar_tW"
-resWTemplate = ttbar+',WWToLNuQQ' #+",WZTo1L1Nu2Q,T_tW,TBar_tW"
+resWTemplate = "ntuples2016/TT_pow,ntuples2017/TTHad_pow,ntuples2017/TTLep_pow,ntuples2017/TTSemi_pow,ntuples2018/TTHad_pow,ntuples2018/TTLep_pow,ntuples2018/TTSemi_pow,ntuples2016/WWToLNuQQ,ntuples2017/WWToLNuQQ,ntuples2018/WWToLNuQQ,ntuples2016/WZTo1L1Nu2Q,ntuples2017/WZTo1L1Nu2Q,ntuples2018/WZTo1L1Nu2Q,ntuples2016/ZZTo2L2Q,ntuples2017/ZZTo2L2Q,ntuples2018/ZZTo2L2Q,ntuples2016/T_tW,ntuples2017/T_tW,ntuples2018/T_tW,ntuples2016/TBar_tW,ntuples2017/TBar_tW,ntuples2018/TBar_tW"
 resTopTemplate = resWTemplate
-nonResTemplate = ttbar+",WJetsToLNu_HT,DYJetsToLL_M50_HT"
-dataTemplate = electronPD+",SingleMuon,MET"
+nonResTemplate = "ntuples2016/TT_pow,ntuples2017/TTHad_pow,ntuples2017/TTLep_pow,ntuples2017/TTSemi_pow,ntuples2018/TTHad_pow,ntuples2018/TTLep_pow,ntuples2018/TTSemi_pow,ntuples2016/WJetsToLNu_HT,ntuples2017/WJetsToLNu_HT,ntuples2018/WJetsToLNu_HT,ntuples2016/DYJetsToLL_M50_HT,ntuples2017/DYJetsToLL_M50_HT,ntuples2018/DYJetsToLL_M50_HT,ntuples2016/T_tW,ntuples2017/T_tW,ntuples2018/T_tW,ntuples2016/TBar_tW,ntuples2017/TBar_tW,ntuples2018/TBar_tW"
+allMCTemplate = "ntuples2016/TT_pow,ntuples2017/TTHad_pow,ntuples2017/TTLep_pow,ntuples2017/TTSemi_pow,ntuples2018/TTHad_pow,ntuples2018/TTLep_pow,ntuples2018/TTSemi_pow,ntuples2016/WWToLNuQQ,ntuples2017/WWToLNuQQ,ntuples2018/WWToLNuQQ,ntuples2016/WZTo1L1Nu2Q,ntuples2017/WZTo1L1Nu2Q,ntuples2018/WZTo1L1Nu2Q,ntuples2016/ZZTo2L2Q,ntuples2017/ZZTo2L2Q,ntuples2018/ZZTo2L2Q,ntuples2016/T_tW,ntuples2017/T_tW,ntuples2018/T_tW,ntuples2016/TBar_tW,ntuples2017/TBar_tW,ntuples2018/TBar_tW,ntuples2016/WJetsToLNu_HT,ntuples2017/WJetsToLNu_HT,ntuples2018/WJetsToLNu_HT,ntuples2016/DYJetsToLL_M50_HT,ntuples2017/DYJetsToLL_M50_HT,ntuples2018/DYJetsToLL_M50_HT"
+dataTemplate = "ntuples2016/SingleElectron,ntuples2017/SingleElectron,ntuples2018/EGamma,ntuples2016/SingleMuon,ntuples2017/SingleMuon,ntuples2018/SingleMuon,ntuples2016/MET,ntuples2017/MET,ntuples2018/MET"
 
 
 
-minMJJ=30.0
+
+
+minMJJ=20.0
 maxMJJ=210.0
 
 minMVV=800.0
 maxMVV=5000.0
 
 binsMJJ={}
-binsMJJ['bb']=18
-binsMJJ['nobb']=45
-binsMJJ['allC']=90
+binsMJJ['bb']=19
+binsMJJ['nobb']=38
+binsMJJ['allC']=95
 binsMVV={}
 binsMVV['bb']=42
 binsMVV['nobb']=168
@@ -190,13 +201,13 @@ limitTailFit2D['allC']=1600
 
 
 minMXSigShapeParam = 799
-maxMXSigShapeParam = 8001
+maxMXSigShapeParam = 5001
 minMXSigYieldParam = 999
 maxMXSigYieldParam = 4501
 
 
 cuts['acceptance']= "(lnujj_LV_mass>{minMVV}&&lnujj_LV_mass<{maxMVV}&&lnujj_l2_softDrop_mass>{minMJJ}&&lnujj_l2_softDrop_mass<{maxMJJ})".format(minMVV=minMVV,maxMVV=maxMVV,minMJJ=minMJJ,maxMJJ=maxMJJ)
-cuts['acceptanceGEN']= "(lnujj_l2_gen_softDrop_mass>{minMJJ}&&lnujj_l2_gen_softDrop_mass<{maxMJJ}&&lnujj_gen_partialMass>{minMVV}&&lnujj_gen_partialMass<{maxMVV})".format(minMJJ=25,maxMJJ=300,minMVV=700,maxMVV=10000)                
+cuts['acceptanceGEN']= "(lnujj_l2_gen_softDrop_mass>{minMJJ}&&lnujj_l2_gen_softDrop_mass<{maxMJJ}&&lnujj_gen_partialMass>{minMVV}&&lnujj_gen_partialMass<{maxMVV})".format(minMJJ=10,maxMJJ=300,minMVV=700,maxMVV=10000)
 #cuts['acceptanceGEN']= "(lnujj_l2_gen_softDrop_mass>0&&lnujj_gen_partialMass>0)"
 
 cuts['acceptanceGENMVV']= "(lnujj_gen_partialMass>{minMVV}&&lnujj_gen_partialMass<{maxMVV})".format(minMVV=700,maxMVV=5000)
@@ -254,11 +265,11 @@ def makeSignalShapesMVV(filename,template):
                 os.system(cmd)
 
 
-def makeSignalYields(filename,template,branchingFraction,sfP={'HP':1.0,'LP':1.0},sfC={'bb':'1','nobb':'1'}):
+def makeSignalYields(filename,template,branchingFraction,sfP={'HP':'1','LP':'1'},sfC={'bb':'1','nobb':'1'}):
     for l in leptons:
         for p in purities:
             for c in categories:
-                cut = "*".join([cuts['common'],cuts[l],cuts[p],cuts[c],cuts['acceptance'],str(sfP[p]),sfC[c]])
+                cut = "*".join([cuts['common'],cuts[l],cuts[p],cuts[c],cuts['acceptance'],sfP[p],sfC[c]])
 
                 yieldFile=outDir+filename+"_"+l+"_"+p+"_"+c+"_yield"
                 debugFile=outDir+"debugSignalYield_"+filename+"_"+l+"_"+p+"_"+c
@@ -275,49 +286,37 @@ def makeSignalYields(filename,template,branchingFraction,sfP={'HP':1.0,'LP':1.0}
 
 
 def makeBackgroundShapesMVVConditional(name,filename,template,addCut="1"):
-    cut='*'.join([cuts['common'],cuts['allL'],cuts['allP'],cuts['allC'],'lnujj_l2_gen_softDrop_mass>10&&lnujj_gen_partialMass>0',addCut])
-    resFile=outDir+filename+"_"+name+"_detectorResponse.root"            
-    cmd='vvMake2DDetectorParam.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_LV_mass,lnujj_l2_softDrop_mass" -g "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass,lnujj_l2_gen_pt" -b "150,200,250,300,350,400,450,500,600,700,800,900,1000,1500,2000,5000" {ntuples}'.format(rootFile=resFile,samples=template,cut=cut,ntuples=ntuples)
+    inCR = ("CR" in name)
+
+    cut='*'.join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts['allP'],cuts['allC'],'lnujj_l2_gen_softDrop_mass>10&&lnujj_gen_partialMass>0',addCut])
+    resFile=outDir+filename+"_"+name+"_detectorResponse.root"  
+    cmd='vvMake2DDetectorParam.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_LV_mass,lnujj_l2_softDrop_mass" -g "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass,lnujj_l2_gen_pt" -b "100,150,200,250,300,350,400,450,500,600,700,800,900,1000,1500,2000,5000" {rwwj} {ntuples}'.format(rootFile=resFile,samples=template,cut=cut,rwwj=('' if inCR else '-W '+renormWJets3Yrs),ntuples=ntuples)
     os.system(cmd)
 
     for l in (leptons,leptonsMerged)[MERGELEPNONRES]:
         for p in (purities,puritiesMerged)[MERGEPURNONRES]:
             for c in (categories,categoriesMerged)[MERGECATNONRES]:
-                cut='*'.join([cuts['common'],cuts[l],cuts[p],cuts[c],addCut,cuts['acceptanceGEN']])
+                cut='*'.join([cuts['CR' if inCR else 'common'],cuts[l],cuts[p],cuts[c],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
 
                 rootFile=outDir+filename+"_"+name+"_COND2D_"+l+"_"+p+"_"+c+".root"
-                cmd='vvMake2DTemplateWithKernels.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass" -u "(1+0.0004*lnujj_l2_gen_pt),(1+0.000001*lnujj_l2_gen_pt*lnujj_l2_gen_pt)" -b {binsMVV} -B {binsMJJ} -x {minMVV} -X {maxMVV} -y {minMJJ} -Y {maxMJJ} -r {res} -l {limitTailFit2D} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMVV=binsMVV[c],minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,limitTailFit2D=limitTailFit2D[c],ntuples=ntuples)
+                cmd='vvMake2DTemplateWithKernels.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass,lnujj_l2_softDrop_mass" -u "(1+0.0004*lnujj_l2_gen_pt),(1+0.000001*lnujj_l2_gen_pt*lnujj_l2_gen_pt)" -b {binsMVV} -B {binsMJJ} -x {minMVV} -X {maxMVV} -y {minMJJ} -Y {maxMJJ} -r {res} -l {limitTailFit2D} {rwwj} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMVV=binsMVV[c],minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,limitTailFit2D=limitTailFit2D[c],rwwj=('' if inCR else '-W '+renormWJets3Yrs),ntuples=ntuples)
                 os.system(cmd)
 
                 ## store gen distributions, just for control plots
                 rootFile=outDir+filename+"_"+l+"_"+p+"_"+c+"_GEN.root"
-                cmd='vvMakeData.py -s "{samples}" -d {data} -c "{cut}" -o "{rootFile}" -v "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass" -b "{BINS},{bins}" -m "{MINI},{mini}" -M "{MAXI},{maxi}" -f {factor} -n "{name}" {ntuples}'.format(samples=template,cut=cut,rootFile=rootFile,BINS=binsMVV[c],bins=binsMJJ[c],MINI=minMVV,MAXI=maxMVV,mini=minMJJ,maxi=maxMJJ,factor=1,name=name,data=0,ntuples=ntuples)
-                os.system(cmd)
-
-
-def makeBackgroundShapesMJJKernel(name,filename,template,addCut="1"):
-    cut='*'.join([cuts['common'],cuts['allL'],cuts['allP'],cuts['allC'],'lnujj_l2_gen_softDrop_mass>10&&lnujj_gen_partialMass>0',addCut])
-    resFile=outDir+filename+"_"+name+"_detectorResponse.root"            
-    cmd='vvMake2DDetectorParam.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_LV_mass,lnujj_l2_softDrop_mass" -g "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass,lnujj_l2_gen_pt" -b "150,200,250,300,350,400,450,500,600,700,800,900,1000,1500,2000,5000" {ntuples}'.format(rootFile=resFile,samples=template,cut=cut,ntuples=ntuples)
-    os.system(cmd)
-
-    for l in (leptons,leptonsMerged)[MERGELEPNONRES]:
-        for p in (purities,puritiesMerged)[MERGEPURNONRES]:
-            for c in (categories,categoriesMerged)[MERGECATNONRES]:
-                cut='*'.join([cuts['common'],cuts[l],cuts[p],cuts[c],addCut,cuts['acceptanceGENMJJ']])
-
-                rootFile=outDir+filename+"_"+name+"_MJJ_"+l+"_"+p+"_"+c+".root"            
-                cmd='vvMake1DTemplateWithKernels.py -H "y" -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_l2_gen_softDrop_mass" -u "(1+0.0004*lnujj_l2_gen_pt),(1+0.000001*lnujj_l2_gen_pt*lnujj_l2_gen_pt)" -b {binsMJJ} -x {minMJJ} -X {maxMJJ} -r {res} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,res=resFile,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,ntuples=ntuples)
+                cmd='vvMakeData.py -s "{samples}" -d {data} -c "{cut}" -o "{rootFile}" -v "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass" -b "{BINS},{bins}" -m "{MINI},{mini}" -M "{MAXI},{maxi}" -f {factor} -n "{name}" {rwwj} {ntuples}'.format(samples=template,cut=cut,rootFile=rootFile,BINS=binsMVV[c],bins=binsMJJ[c],MINI=minMVV,MAXI=maxMVV,mini=minMJJ,maxi=maxMJJ,factor=1,name=name,data=0,rwwj=('' if inCR else '-W '+renormWJets3Yrs),ntuples=ntuples)
                 os.system(cmd)
 
 
 def makeBackgroundShapesMJJSpline(name,filename,template,addCut="1"):
+    inCR = ("CR" in name)
+
     for l in (leptons,leptonsMerged)[MERGELEPNONRES]:
         for p in (purities,puritiesMerged)[MERGEPURNONRES]:
             for c in (categories,categoriesMerged)[MERGECATNONRES]:
-                cut='*'.join([cuts['common'],cuts[l],cuts[p],cuts[c],addCut,cuts['acceptanceMVV']])
+                cut='*'.join([cuts['CR' if inCR else 'common'],cuts[l],cuts[p],cuts[c],addCut,cuts['acceptanceMVV']])
                 rootFile=outDir+filename+"_"+name+"_MJJ_"+l+"_"+p+"_"+c+".root"            
-                cmd='vvMake1DTemplateSpline.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_l2_softDrop_mass" -V "lnujj_l2_softDrop_mass_high,lnujj_l2_softDrop_mass_low" -u "(1+0.0004*lnujj_l2_gen_pt),(1+0.000001*lnujj_l2_gen_pt*lnujj_l2_gen_pt)" -b {binsMJJ} -x {minMJJ} -X {maxMJJ} -f {fspline} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,fspline=fspline[c],ntuples=ntuples)
+                cmd='vvMake1DTemplateSpline.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_l2_softDrop_mass" -V "lnujj_l2_softDrop_mass_high,lnujj_l2_softDrop_mass_low" -u "(1+0.0004*lnujj_l2_gen_pt),(1+0.000001*lnujj_l2_gen_pt*lnujj_l2_gen_pt)" -b {binsMJJ} -x {minMJJ} -X {maxMJJ} -f {fspline} {rwwj} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,fspline=fspline[c],rwwj=('' if inCR else '-W '+renormWJets3Yrs),ntuples=ntuples)
                 os.system(cmd)
 
 
@@ -327,9 +326,8 @@ def mergeBackgroundShapes(name,filename):
             for c in (categories,categoriesMerged)[MERGECATNONRES]:
                 inputy=outDir+filename+"_"+name+"_MJJ_"+l+"_"+p+"_"+c+".root"            
                 inputx=outDir+filename+"_"+name+"_COND2D_"+l+"_"+p+"_"+c+".root"            
-                rootFile=outDir+filename+"_"+name+"_2D_"+l+"_"+p+"_"+c+".root"            
-                #cmd='vvMergeHistosToPDF2D.py -i "{inputx}" -I "{inputy}" -o "{rootFile}" -C "GPT:GPTBoth" -S "SD:SDY" '.format(rootFile=rootFile,inputx=inputx,inputy=inputy)
-                cmd='vvMergeHistosToPDF2D.py -i "{inputx}" -I "{inputy}" -o "{rootFile}" -s "GPT:GPTX,GPT2:GPT2X" -S "SD:SDY" '.format(rootFile=rootFile,inputx=inputx,inputy=inputy)
+                rootFile=outDir+filename+"_"+name+"_2D_"+l+"_"+p+"_"+c+".root"
+                cmd='vvMergeHistosToPDF2D.py -i "{inputx}" -I "{inputy}" -o "{rootFile}" -s "GPT:GPTX,GPT2:GPT2X" -S "SD:SDY,PT:PTY,OPT:OPTY" '.format(rootFile=rootFile,inputx=inputx,inputy=inputy)
                 os.system(cmd)
 
             if MERGECATNONRES:
@@ -357,7 +355,7 @@ def mergeBackgroundShapes(name,filename):
 
 def makeBackgroundShapesMVV(name,filename,template,addCut="1"):
     cut='*'.join([cuts['common'],cuts['allL'],cuts['allP'],cuts['allC'],'lnujj_l2_gen_softDrop_mass>10&&lnujj_gen_partialMass>0',addCut])
-    resFile=outDir+filename+"_"+name+"_detectorResponse.root"            
+    resFile=outDir+filename+"_"+name+"_detectorResponse.root"
     cmd='vvMake2DDetectorParam.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_LV_mass,lnujj_l2_softDrop_mass" -g "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass,lnujj_l2_gen_pt" -b "150,200,250,300,350,400,450,500,600,700,800,900,1000,1500,2000,5000" {ntuples}'.format(rootFile=resFile,samples=template,cut=cut,ntuples=ntuples)
     os.system(cmd)
 
@@ -365,14 +363,14 @@ def makeBackgroundShapesMVV(name,filename,template,addCut="1"):
         for p in puritiesMerged:#purities:
             for c in categoriesMerged:#categories:
                 cut='*'.join([cuts['common'],cuts[l],cuts[p],cuts[c],addCut,cuts['acceptanceGENMVV']])
-                rootFile=outDir+filename+"_"+name+"_MVV_"+l+"_"+p+"_"+c+".root"
+                rootFile=outDir+filename+"_"+name+"_MVV_"+l+"_"+p+"_"+c+".root"            
                 cmd='vvMake1DTemplateWithKernels.py -H "x" -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass" -u "(1+0.0004*lnujj_l2_gen_pt),(1+0.000001*lnujj_l2_gen_pt*lnujj_l2_gen_pt)" -b {binsMVV} -x {minMVV} -X {maxMVV} -r {res} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,res=resFile,binsMVV=binsMVV[c],minMVV=minMVV,maxMVV=maxMVV,ntuples=ntuples)
                 os.system(cmd)
     for l in leptons:
         for p in ['HP']:
             for c in ['nobb']:
                 cut='*'.join([cuts['common'],cuts[l],cuts[p],cuts[c],addCut,cuts['acceptanceGENMVV']])
-                rootFile=outDir+filename+"_"+name+"_MVV_"+l+"_"+p+"_"+c+".root"
+                rootFile=outDir+filename+"_"+name+"_MVV_"+l+"_"+p+"_"+c+".root"            
                 cmd='vvMake1DTemplateWithKernels.py -H "x" -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass" -u "(1+0.0004*lnujj_l2_gen_pt),(1+0.000001*lnujj_l2_gen_pt*lnujj_l2_gen_pt)" -b {binsMVV} -x {minMVV} -X {maxMVV} -r {res} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,res=resFile,binsMVV=binsMVV[c],minMVV=minMVV,maxMVV=maxMVV,ntuples=ntuples)
                 os.system(cmd)
 
@@ -384,7 +382,7 @@ def makeResMJJPeaksShapes2D(name,filename,template,peak,addCut="1"):
                 cut='*'.join([cuts['common'],cuts[l],cuts[p],cuts[c],addCut])
                 tplFile=outDir+filename+"_"+name+"_MJJGivenMVV_"+p+"_"+c
                 debugName=filename+"_"+name+"_MJJ_"+p+"_"+c
-                cmd='vvMakeWTopMJJConditionalShapes2D.py -s "{template}" -c "{cut}" -o "{rootFile}" -O "{outDir}" -d "{debugName}" -v "lnujj_LV_mass" -V "lnujj_l2_softDrop_mass" -b {binsMVV} -x {minMVV} -X {maxMVV} -B {binsMJJ} -y {minMJJ} -Y {maxMJJ} -E {binsMVVFit} -F {binsMJJFit} -p {peak} {ntuples}'.format(template=template,cut=cut,rootFile=tplFile,outDir=outDir,debugName=debugName,binsMVV=binsMVV[c],minMVV=minMVV,maxMVV=maxMVV,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,binsMVVFit=168,binsMJJFit=90,peak=peak,ntuples=ntuples)
+                cmd='vvMakeWTopMJJConditionalShapes2D.py -s "{template}" -c "{cut}" -o "{rootFile}" -O "{outDir}" -d "{debugName}" -v "lnujj_LV_mass" -V "lnujj_l2_softDrop_mass" -b {binsMVV} -x {minMVV} -X {maxMVV} -B {binsMJJ} -y {minMJJ} -Y {maxMJJ} -E {binsMVVFit} -F {binsMJJFit} -p {peak} {force} {ntuples}'.format(template=template,cut=cut,rootFile=tplFile,outDir=outDir,debugName=debugName,binsMVV=binsMVV[c],minMVV=minMVV,maxMVV=maxMVV,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,binsMVVFit=168,binsMJJFit=190,peak=peak,force='-f "meanW0:80.,sigmaW0:8.,alpha2W0:1.1"' if peak=="W" else '',ntuples=ntuples)
                 os.system(cmd)
 
         for p in ['HP']:
@@ -392,7 +390,7 @@ def makeResMJJPeaksShapes2D(name,filename,template,peak,addCut="1"):
                 cut='*'.join([cuts['common'],cuts[l],cuts[p],cuts[c],addCut])
                 tplFile=outDir+filename+"_"+name+"_MJJGivenMVV_"+p+"_"+c
                 debugName=filename+"_"+name+"_MJJ_"+p+"_"+c
-                cmd='vvMakeWTopMJJConditionalShapes2D.py -s "{template}" -c "{cut}" -o "{rootFile}" -O "{outDir}" -d "{debugName}" -v "lnujj_LV_mass" -V "lnujj_l2_softDrop_mass" -b {binsMVV} -x {minMVV} -X {maxMVV} -B {binsMJJ} -y {minMJJ} -Y {maxMJJ} -E {binsMVVFit} -F {binsMJJFit} -p {peak} {ntuples}'.format(template=template,cut=cut,rootFile=tplFile,outDir=outDir,debugName=debugName,binsMVV=binsMVV[c],minMVV=minMVV,maxMVV=maxMVV,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,binsMVVFit=168,binsMJJFit=90,peak=peak,ntuples=ntuples)
+                cmd='vvMakeWTopMJJConditionalShapes2D.py -s "{template}" -c "{cut}" -o "{rootFile}" -O "{outDir}" -d "{debugName}" -v "lnujj_LV_mass" -V "lnujj_l2_softDrop_mass" -b {binsMVV} -x {minMVV} -X {maxMVV} -B {binsMJJ} -y {minMJJ} -Y {maxMJJ} -E {binsMVVFit} -F {binsMJJFit} -p {peak} {ntuples}'.format(template=template,cut=cut,rootFile=tplFile,outDir=outDir,debugName=debugName,binsMVV=binsMVV[c],minMVV=minMVV,maxMVV=maxMVV,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,binsMVVFit=168,binsMJJFit=190,peak=peak,ntuples=ntuples)
                 os.system(cmd)
 
 
@@ -406,12 +404,13 @@ def makeResMJJPeaksShapes2D(name,filename,template,peak,addCut="1"):
 
 
 def makeNormalizations(name,filename,template,data=0,addCut='1',factor=1):
+    inCR = ("CR" in name)
     for l in leptons:
         for p in purities:
             for c in categories:
                 rootFile=outDir+filename+"_"+l+"_"+p+"_"+c+".root"
-                cut="*".join([cuts['common'],cuts[l],cuts[p],cuts[c],addCut,cuts['acceptance']])
-                cmd='vvMakeData.py -s "{samples}" -d {data} -c "{cut}" -o "{rootFile}" -v "lnujj_LV_mass,lnujj_l2_softDrop_mass" -b "{BINS},{bins}" -m "{MINI},{mini}" -M "{MAXI},{maxi}" -f {factor} -n "{name}" {ntuples}'.format(samples=template,cut=cut,rootFile=rootFile,BINS=binsMVV[c],bins=binsMJJ[c],MINI=minMVV,MAXI=maxMVV,mini=minMJJ,maxi=maxMJJ,factor=factor,name=name,data=data,ntuples=ntuples)
+                cut="*".join([cuts['CR' if inCR else 'common'],cuts[l],cuts[p],cuts[c],addCut,cuts['acceptance']])
+                cmd='vvMakeData.py -s "{samples}" -d {data} -c "{cut}" -o "{rootFile}" -v "lnujj_LV_mass,lnujj_l2_softDrop_mass" -b "{BINS},{bins}" -m "{MINI},{mini}" -M "{MAXI},{maxi}" -f {factor} -n "{name}" {rwwj} {ntuples}'.format(samples=template,cut=cut,rootFile=rootFile,BINS=binsMVV[c],bins=binsMJJ[c],MINI=minMVV,MAXI=maxMVV,mini=minMJJ,maxi=maxMJJ,factor=factor,name=name,data=data,rwwj=('' if inCR else '-W '+renormWJets3Yrs),ntuples=ntuples)
                 os.system(cmd)
 
 
@@ -430,11 +429,20 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',factor=1):
 
 ## Normalizations
 if DONORMMC:
-    makeNormalizations("nonRes","LNuJJ_norm",nonResTemplate,0,cuts['nonres'],(1.,renormNonRes)[RENORMNONRES])
+    makeNormalizations("nonRes","LNuJJ_norm",nonResTemplate,0,cuts['nonres'])
     makeNormalizations("resW","LNuJJ_norm",resWTemplate,0,cuts['resW'])
     makeNormalizations("resTop","LNuJJ_norm",resTopTemplate,0,cuts['resTop'])
 if DONORMDATA:
     makeNormalizations("data","LNuJJ_norm",dataTemplate,1)
+if DONORMMCASDATA:
+    makeNormalizations("MCasData","LNuJJ_norm",allMCTemplate,0)
+
+if DONORMMCCR:
+    makeNormalizations("nonRes_CR","LNuJJ_norm_CR",nonResTemplate,0,cuts['nonres'])
+    makeNormalizations("resW_CR","LNuJJ_norm_CR",resWTemplate,0,cuts['resW'])
+    makeNormalizations("resTop_CR","LNuJJ_norm_CR",resTopTemplate,0,cuts['resTop'])
+if DONORMDATACR:
+    makeNormalizations("data_CR","LNuJJ_norm_CR",dataTemplate,1)
 
 
 ## Signal templates
@@ -501,6 +509,12 @@ if DONONRESONANT:
     makeBackgroundShapesMJJSpline("nonRes","LNuJJ",nonResTemplate,cuts['nonres'])
     makeBackgroundShapesMVVConditional("nonRes","LNuJJ",nonResTemplate,cuts['nonres'])
     mergeBackgroundShapes("nonRes","LNuJJ")
+
+if DONONRESONANTCR:
+    makeBackgroundShapesMJJSpline("nonRes_CR","LNuJJ",nonResTemplate,cuts['nonres'])
+    makeBackgroundShapesMVVConditional("nonRes_CR","LNuJJ",nonResTemplate,cuts['nonres'])
+    mergeBackgroundShapes("nonRes_CR","LNuJJ")
+
 
 
 

@@ -800,7 +800,7 @@ class RooPlotter(object):
 
 
     
-    def drawBinned(self,var,varDesc,label,cat,blinded=[],doUncBand = False,log=False,rangeStr="",maxY=-1.):
+    def drawBinned(self,var,varDesc,label,cat,blinded=[],doUncBand=False,log=False,rebin=0,rangeStr="",minX=0.,maxX=10000.,maxY=-1.,unstackSignal=False,scaleSignal=-1.,sigLabel=""):
 
         setTDRStyle()
         style=gROOT.GetStyle("tdrStyle").Clone()
@@ -834,10 +834,11 @@ class RooPlotter(object):
                 
         varMax=self.w.var(var).getMax()
         varMin=self.w.var(var).getMin()
-        varBins=self.w.var(var).getBins()
+        varNBins=self.w.var(var).getBins()
+        newNBins=int(varNBins / (1. if not rebin else rebin))
+        print varMin, varMax, varNBins, newNBins ## debug
 
-
-        #make frame
+        ## make the frame
         self.frame=self.w.var(var).frame()
         cutStr="CMS_channel==CMS_channel::"+cat
         dataset=self.w.data("data_obs").reduce(cutStr)
@@ -851,42 +852,45 @@ class RooPlotter(object):
                 projRange.append(rdata[1])
                 dataset=dataset.reduce("{var}>{mini}&&{var}<{maxi}".format(var=rdata[0],mini=rdata[2],maxi=rdata[3]))
         
-        dataset.plotOn(self.frame,ROOT.RooFit.Name("datapoints"),ROOT.RooFit.Invisible())
-
+        #dataset.plotOn(self.frame,ROOT.RooFit.Name("datapoints"),ROOT.RooFit.Invisible(),ROOT.RooFit.Binning(newNBins))
+        dataset.plotOn(self.frame,ROOT.RooFit.Name("datapoints"),ROOT.RooFit.Invisible(),ROOT.RooFit.Binning(newNBins),ROOT.RooFit.DataError(ROOT.RooAbsData.Poisson))
+        ##---- debug
+        #for i in range(dataset.numEntries()):
+        #    line = dataset.get(i)
+        #    x = line.find("MLNuJ").getVal()
+        #    y = line.find("MJ").getVal()
+        #    cat = line.find("CMS_channel").getLabel()
+        #    wgt = dataset.weight()
+        #    print x, cat, wgt
+        ##----
 
         visError=False
         
-        #make special binning for fats drawing
-        binArray = self.w.var(var).getBinning().array()
-        nBins = self.w.var(var).getBinning().numBins()
-        axis = ROOT.TAxis(nBins,binArray)
-
-        self.histoSum = ROOT.TH1D("histoSum","histo",nBins,binArray)
-        self.bkgUncRatio=ROOT.TH1D(self.histoSum)
-        
-        #OK now stack for each curve add all the others
+        self.histoSum = ROOT.TH1D("histoSum","histo",newNBins,varMin,varMax)
+        self.bkgUncRatio = ROOT.TH1D(self.histoSum)
+        self.hSig = ROOT.TH1D(self.histoSum)
         backgrounds=[]
+        hasSignal=False
+        
+        ## retrieve each curve and add all backgrounds
         for i in range(0,len(self.contributions)):
             data = self.contributions[i]
             print 'Plotting ',data['name']
-            hasSignal=False
+
             if self.contributions[i]['signal']:
                 name=('shapeSig_'+self.contributions[i]['name']+"_"+cat+self.contributions[i]['suffix'])
                 hasSignal=True
             else:
                 name=('shapeBkg_'+self.contributions[i]['name']+"_"+cat+self.contributions[i]['suffix'])
-                backgrounds.append(name)
-                
-        
-
+                backgrounds.append(name)            
+            
             if rangeStr=="":    
-                self.w.pdf("model_s").getPdf(cat).plotOn(self.frame,ROOT.RooFit.Components(name),ROOT.RooFit.Name(data['name']),ROOT.RooFit.Invisible(),ROOT.RooFit.Normalization(1.0,ROOT.RooAbsReal.RelativeExpected))
+                self.w.pdf("model_s").getPdf(cat).plotOn(self.frame,ROOT.RooFit.Components(name),ROOT.RooFit.Name(data['name']),ROOT.RooFit.Invisible(),ROOT.RooFit.Normalization(1.0,ROOT.RooAbsReal.RelativeExpected),ROOT.RooFit.Binning(newNBins))
             else:
-                self.w.pdf("model_s").getPdf(cat).plotOn(self.frame,ROOT.RooFit.Components(name),ROOT.RooFit.Name(data['name']),ROOT.RooFit.Invisible(),ROOT.RooFit.Normalization(1.0,ROOT.RooAbsReal.RelativeExpected),ROOT.RooFit.ProjectionRange(','.join(projRange)))
-
+                self.w.pdf("model_s").getPdf(cat).plotOn(self.frame,ROOT.RooFit.Components(name),ROOT.RooFit.Name(data['name']),ROOT.RooFit.Invisible(),ROOT.RooFit.Normalization(1.0,ROOT.RooAbsReal.RelativeExpected),ROOT.RooFit.Binning(newNBins),ROOT.RooFit.ProjectionRange(','.join(projRange)))
                 
             curve=self.frame.getCurve(data['name'])
-            histo = ROOT.TH1D("histo_"+name,"histo",nBins,binArray)
+            histo = ROOT.TH1D("histo_"+name,"histo",newNBins,varMin,varMax)
             histo.SetLineColor(data['linecolor'])
             histo.SetLineWidth(data['linewidth'])
             histo.SetLineStyle(data['linestyle'])
@@ -899,15 +903,15 @@ class RooPlotter(object):
                 self.histoSum.Add(histo)
             self.contributions[i]['histo']=histo    
 
-        if (not visError) and (self.fitResult != None)  and doUncBand:
+        ## create uncertainty band
+        if (not visError) and (self.fitResult != None) and doUncBand:
             if rangeStr=="":
-                self.w.pdf("model_s").getPdf(cat).plotOn(self.frame,ROOT.RooFit.Components(",".join(backgrounds)),ROOT.RooFit.Name('bkgError'),ROOT.RooFit.Invisible(),ROOT.RooFit.Normalization(1.0,ROOT.RooAbsReal.RelativeExpected),ROOT.RooFit.VisualizeError(self.fitResult))
+                self.w.pdf("model_s").getPdf(cat).plotOn(self.frame,ROOT.RooFit.Components(",".join(backgrounds)),ROOT.RooFit.Name('bkgError'),ROOT.RooFit.Invisible(),ROOT.RooFit.Normalization(1.0,ROOT.RooAbsReal.RelativeExpected),ROOT.RooFit.Binning(newNBins),ROOT.RooFit.VisualizeError(self.fitResult))
             else:
-                self.w.pdf("model_s").getPdf(cat).plotOn(self.frame,ROOT.RooFit.Components(",".join(backgrounds)),ROOT.RooFit.Name('bkgError'),ROOT.RooFit.Invisible(),ROOT.RooFit.Normalization(1.0,ROOT.RooAbsReal.RelativeExpected),ROOT.RooFit.VisualizeError(self.fitResult),ROOT.RooFit.ProjectionRange(','.join(projRange)))
+                self.w.pdf("model_s").getPdf(cat).plotOn(self.frame,ROOT.RooFit.Components(",".join(backgrounds)),ROOT.RooFit.Name('bkgError'),ROOT.RooFit.Invisible(),ROOT.RooFit.Normalization(1.0,ROOT.RooAbsReal.RelativeExpected),ROOT.RooFit.Binning(newNBins),ROOT.RooFit.VisualizeError(self.fitResult),ROOT.RooFit.ProjectionRange(','.join(projRange)))
             errorCurve=self.frame.getCurve('bkgError')
             visError=True
 
-            #create histo like error curve
             for i in range(1,self.histoSum.GetNbinsX()+1):
                 x=self.histoSum.GetXaxis().GetBinCenter(i)
                 bkg=self.histoSum.GetBinContent(i)
@@ -925,11 +929,12 @@ class RooPlotter(object):
             self.bkgUncRatio.SetMarkerSize(0)
             self.bkgUncRatio.SetLineColor(uncColor)
 
+
+        ## build stack and legend
         self.stack = ROOT.THStack("stack","")
 
-        
-        ## legend
-        self.legend = ROOT.TLegend(0.58,(0.61,0.54)[visError],0.92,0.91,"","brNDC")
+        printSigLabel = sigLabel!=""
+        self.legend = ROOT.TLegend(0.57,0.79-0.065*(visError+len(self.contributions)+printSigLabel),0.92,0.95,"","brNDC")
 	self.legend.SetBorderSize(0)
 	self.legend.SetLineColor(1)
 	self.legend.SetLineStyle(1)
@@ -937,23 +942,32 @@ class RooPlotter(object):
 	self.legend.SetFillColor(0)
 	self.legend.SetFillStyle(0)
 	self.legend.SetTextFont(42)
-	self.legend.SetTextSize(0.06)
+	self.legend.SetTextSize(0.055)
 
         self.legend.SetHeader(label)
-        
-        self.legend.AddEntry(self.frame.getHist("datapoints"),"Data","P")
-            
+        self.legend.AddEntry(self.frame.getHist("datapoints"),"Data","EP")
+
         for i in range(len(self.contributions)-1,-1,-1):
             c=self.contributions[i]
             hist=c['histo']
-            self.stack.Add(hist)
+            if c['signal']:
+                if scaleSignal>0:
+                    hist.Scale(scaleSignal)
+                self.hSig=hist
+            if not(unstackSignal and c['signal']):
+                self.stack.Add(hist)
         for c in self.contributions:
-            hist=c['histo']
-            desc=c['description']
-            self.legend.AddEntry(hist,desc,"F")
-
+            if not(unstackSignal and c['signal']):
+                self.legend.AddEntry(c['histo'],c['description'],"F")
+                if c['signal'] and printSigLabel:
+                    self.legend.AddEntry(None,sigLabel,"")
         if visError:
             self.legend.AddEntry(self.histoSum,"Bkg. shape unc.","F")            
+        for c in self.contributions:
+            if unstackSignal and c['signal']:
+                self.legend.AddEntry(c['histo'],c['description'],"F")
+                if printSigLabel:
+                    self.legend.AddEntry(None,sigLabel,"")
 
         self.frame.SetTitle("")    
         self.frame.SetXTitle(varDesc)
@@ -970,16 +984,22 @@ class RooPlotter(object):
 
         self.stack.Draw("A,HIST,SAME")
 
-        ## hardcoded axis customization
-        if var=="MLNuJ":
-            self.frame.GetXaxis().SetRangeUser(800,4500)
-            self.frame.SetYTitle("Events / 25 GeV")
-            if log:
-                self.frame.GetYaxis().SetRangeUser(0.3,5e+3) #2e+4)
-        if var=="MJ":
-            self.frame.SetYTitle("Events / 2 GeV")
-            if not log:
-                self.frame.GetYaxis().SetRangeUser(0.,maxY if maxY>0 else 650.)
+        if unstackSignal:
+            self.hSig.SetLineWidth(2)
+            self.hSig.Draw("HIST,SAME")
+
+            
+        binWidth=(varMax-varMin)/newNBins
+        self.frame.SetYTitle("Events / "+str(int(binWidth))+" GeV")
+
+        ## axis range customization
+        self.frame.GetXaxis().SetRangeUser(minX,maxX)
+        if var.startswith("MLNuJ"):
+            if log and maxY>0:
+                self.frame.GetYaxis().SetRangeUser(0.3,maxY)
+        if var.startswith("MJ"):
+            if not log and maxY>0:
+                self.frame.GetYaxis().SetRangeUser(0.,maxY)
 
         if visError:
             self.histoSum.Draw("E2,same")
@@ -987,7 +1007,7 @@ class RooPlotter(object):
         hist=self.frame.getHist("datapoints")
         hist.SetMarkerStyle(20)
         hist.SetMarkerSize(0.5)
-        if var=="MLNuJ":
+        if var.startswith("MLNuJ"):
             hist.SetMarkerSize(0.4)
         #hist.SetLineWidth(2)
         if len(blinded)==0:
@@ -1010,7 +1030,7 @@ class RooPlotter(object):
                 N=N+1
             hist.Draw("Psame")
 
-        self.legend.Draw()    
+        self.legend.Draw()
 
         self.pad1.RedrawAxis()
         self.pad1.Update()
@@ -1021,7 +1041,7 @@ class RooPlotter(object):
         ## pad for data/MC ratio
 
         self.pad2.cd()
-        self.pad2.SetGridy()
+        #self.pad2.SetGridy()
 
         self.frame2=self.w.var(var).frame()
         self.frame2.SetTitle("")    
@@ -1035,7 +1055,7 @@ class RooPlotter(object):
 
         self.frame2.Draw()
         self.frame2.SetXTitle(varDesc)
-        self.frame2.SetYTitle("Data/fit") #"Data/MC")
+        self.frame2.SetYTitle("Data/Bkg." if hasSignal else "Data/fit")
         self.frame2.GetYaxis().SetNdivisions(206)
 
         self.ratioGraph = ROOT.TGraphAsymmErrors(hist)
@@ -1052,18 +1072,27 @@ class RooPlotter(object):
             self.ratioGraph.SetPointError(i,0,0,hist.GetErrorYlow(i)/bkg,hist.GetErrorYhigh(i)/bkg)
         #print 'chisquare=', chisq
 
+        self.hSigRatio = self.hSig.Clone()
+        self.hSigRatio.SetName(self.hSig.GetName()+"_ratio")
+        drawSigRatio = hasSignal and not unstackSignal
+        if drawSigRatio:
+            self.hSigRatio.Add(self.histoSum)
+            self.hSigRatio.Divide(self.histoSum)
+
         self.line=ROOT.TLine(varMin,1.0,varMax,1)
-        self.line.SetLineWidth(1)
+        self.line.SetLineWidth(2 if drawSigRatio else 1)
         self.line.SetLineColor(14)
 
-        ## axis ranges (hardcoded for now)
-        if var=="MLNuJ":
-            self.frame2.GetXaxis().SetRangeUser(800,4500)
-            self.line.SetX1(800)
-            self.line.SetX2(4500)
+        ## axis range customization
+        self.frame2.GetXaxis().SetRangeUser(minX,maxX)
+        if var.startswith("MLNuJ"):
+            self.line.SetX1(minX)
+            self.line.SetX2(maxX)
         self.frame2.GetYaxis().SetRangeUser(0.5,1.5)
 
         ## draw everything
+        if drawSigRatio:
+            self.hSigRatio.Draw("hist,same")
         if visError:
             self.bkgUncRatio.Draw("E2,same")
         self.line.Draw()
@@ -1072,6 +1101,133 @@ class RooPlotter(object):
         self.pad2.RedrawAxis()
         self.pad2.Update()
 
+
+
+
+
+
+
+
+
+
+
+    
+    def drawOverlay(self,var,varDesc,label,cat,blinded=[],log=False,rebin=0,rangeStr="",minX=0.,maxX=10000.,maxY=-1.):
+
+        setTDRStyle()
+        style=gROOT.GetStyle("tdrStyle").Clone()
+        style.SetPadLeftMargin(0.14)
+        style.SetPadRightMargin(0.04)
+        #style.SetGridColor(15)
+        style.SetErrorX(0)
+        style.cd()
+
+        self.canvas=ROOT.TCanvas("c","",500,500)
+        self.canvas.cd()
+        style.cd()
+                
+        varMax=self.w.var(var).getMax()
+        varMin=self.w.var(var).getMin()
+        varNBins=self.w.var(var).getBins()
+        newNBins=int(varNBins / (1. if not rebin else rebin))
+        print varMin, varMax, varNBins, newNBins ## debug
+
+        ## make the frame
+        self.frame=self.w.var(var).frame()
+        cutStr="CMS_channel==CMS_channel::"+cat
+        dataset=self.w.data("data_obs").reduce(cutStr)
+        
+        projRange=[]
+        if rangeStr!="":
+            ranges=rangeStr.split(',')
+            for r in ranges:
+                rdata=r.split(':')
+                self.w.var(rdata[0]).setRange(rdata[1],float(rdata[2]),float(rdata[3]))
+                projRange.append(rdata[1])
+                dataset=dataset.reduce("{var}>{mini}&&{var}<{maxi}".format(var=rdata[0],mini=rdata[2],maxi=rdata[3]))
+        
+        #dataset.plotOn(self.frame,ROOT.RooFit.Name("datapoints"),ROOT.RooFit.Invisible(),ROOT.RooFit.Binning(newNBins))
+        dataset.plotOn(self.frame,ROOT.RooFit.Name("datapoints"),ROOT.RooFit.Invisible(),ROOT.RooFit.Binning(newNBins),ROOT.RooFit.DataError(ROOT.RooAbsData.Poisson))
+        ##---- debug
+        #for i in range(dataset.numEntries()):
+        #    line = dataset.get(i)
+        #    x = line.find("MLNuJ").getVal()
+        #    y = line.find("MJ").getVal()
+        #    cat = line.find("CMS_channel").getLabel()
+        #    wgt = dataset.weight()
+        #    print x, cat, wgt
+        ##----
+        
+        ## retrieve each curve and add all backgrounds
+        for i in range(0,len(self.contributions)):
+            data = self.contributions[i]
+            print 'Plotting ',data['name']
+
+            if self.contributions[i]['signal']:
+                name=('shapeSig_'+self.contributions[i]['name']+"_"+cat+self.contributions[i]['suffix'])
+            else:
+                name=('shapeBkg_'+self.contributions[i]['name']+"_"+cat+self.contributions[i]['suffix'])
+            
+            if rangeStr=="":    
+                self.w.pdf("model_s").getPdf(cat).plotOn(self.frame,ROOT.RooFit.Components(name),ROOT.RooFit.Name(data['name']),ROOT.RooFit.Invisible(),ROOT.RooFit.Normalization(1.0,ROOT.RooAbsReal.RelativeExpected),ROOT.RooFit.Binning(newNBins))
+            else:
+                self.w.pdf("model_s").getPdf(cat).plotOn(self.frame,ROOT.RooFit.Components(name),ROOT.RooFit.Name(data['name']),ROOT.RooFit.Invisible(),ROOT.RooFit.Normalization(1.0,ROOT.RooAbsReal.RelativeExpected),ROOT.RooFit.Binning(newNBins),ROOT.RooFit.ProjectionRange(','.join(projRange)))
+                
+            curve=self.frame.getCurve(data['name'])
+            histo = ROOT.TH1D("histo_"+name,"histo",newNBins,varMin,varMax)
+            histo.SetLineColor(data['linecolor'] if self.contributions[i]['signal'] else data['fillcolor'])
+            histo.SetLineWidth(3)
+            histo.SetFillStyle(0)
+            for j in range(1,histo.GetNbinsX()+1):
+                x=histo.GetXaxis().GetBinCenter(j)
+                histo.SetBinContent(j,curve.Eval(x))
+            self.contributions[i]['histo']=histo    
+
+
+        self.legend = ROOT.TLegend(0.57,0.79-0.065*len(self.contributions),0.92,0.95,"","brNDC")
+	self.legend.SetBorderSize(0)
+	self.legend.SetLineColor(1)
+	self.legend.SetLineStyle(1)
+	self.legend.SetLineWidth(1)
+	self.legend.SetFillColor(0)
+	self.legend.SetFillStyle(0)
+	self.legend.SetTextFont(42)
+	self.legend.SetTextSize(0.055)
+        self.legend.SetHeader(label)
+
+        self.frame.SetTitle("")    
+        self.frame.SetXTitle(varDesc)
+        self.frame.SetYTitle("Events")
+        self.frame.SetLabelSize(0.04,"X")    
+        self.frame.SetLabelSize(0.06,"Y")    
+        self.frame.SetTitleSize(0.05,"X")    
+        self.frame.SetTitleSize(0.07,"Y")    
+        self.frame.SetTitleOffset(3,"X")    
+        self.frame.SetLabelOffset(3,"X")    
+        self.frame.SetTitleOffset(0.9,"Y")    
+        self.frame.Draw("AH")
+
+        for i in range(len(self.contributions)-1,-1,-1):
+            c=self.contributions[i]
+            c['histo'].Draw("HIST,SAME")
+            self.legend.AddEntry(c['histo'],c['description'],"F")
+            
+        binWidth=(varMax-varMin)/newNBins
+        self.frame.SetYTitle("Events / "+str(int(binWidth))+" GeV")
+
+        ## axis range customization
+        self.frame.GetXaxis().SetRangeUser(minX,maxX)
+        if var.startswith("MLNuJ"):
+            if log and maxY>0:
+                self.frame.GetYaxis().SetRangeUser(0.3,maxY)
+        if var.startswith("MJ"):
+            if not log and maxY>0:
+                self.frame.GetYaxis().SetRangeUser(0.,maxY)
+
+        self.legend.Draw()
+
+        self.canvas.RedrawAxis()
+        self.canvas.Update()
 
 
 
