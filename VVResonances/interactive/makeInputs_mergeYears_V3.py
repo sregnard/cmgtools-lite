@@ -14,21 +14,21 @@ from DoubleBefficiencies import *
 
 
 
-DONORMMC       = 0
-DONORMDATA     = 0
+DONORMMC       = 1
+DONORMDATA     = 1
 DONORMMCASDATA = 0
-DOSIGNALSHAPES = 0
-DOSIGNALYIELDS = 0
+DOSIGNALSHAPES = 1
+DOSIGNALYIELDS = 1
 DOSIGNALCTPL   = 0
-DORESONANT     = 0
+DORESONANT     = 1
 DONONRESONANT  = 1
 DONORMMCCR     = 0
 DONORMDATACR   = 0
 DONONRESONANTCR= 0
-DOXWW    = 0
-DOXWZ    = 0
-DOXWH    = 0
-DOVBFXWW = 0
+DOXWW    = 1
+DOXWZ    = 1
+DOXWH    = 1
+DOVBFXWW = 1
 RENORMNONRES   = 0
 REMOVE2018ELEHEM1516 = 0
 
@@ -156,15 +156,15 @@ renormWJets3Yrs=",".join([renormWJets2016,renormWJets2017,renormWJets2018])
 renormWJetsRun2='0.760376974966'
 
 
-#Get resonant yield from CR
+#Get resonant yield from CR (need to fix for vbf)
 renormRes = {
 'mu': {
-        'HP':{'nobb':0.96,'bb':0.96},
-        'LP':{'nobb':0.88,'bb':0.79},
+        'HP':{'nobb':0.96,'bb':0.96,'vbf':0.96},
+        'LP':{'nobb':0.88,'bb':0.79,'vbf':0.88},
       },
 'e': {
-        'HP':{'nobb':0.96,'bb':0.96},
-        'LP':{'nobb':0.88,'bb':0.81},
+        'HP':{'nobb':0.96,'bb':0.96,'vbf':0.96},
+        'LP':{'nobb':0.88,'bb':0.81,'vbf':0.88},
       },
 
 
@@ -479,11 +479,11 @@ if DOSIGNALSHAPES:
     if DOXWW: makeSignalShapesMJJ("LNuJJ_XWW",WWTemplate)
     if DOXWZ: makeSignalShapesMJJ("LNuJJ_XWZ",WZTemplate)
     if DOXWH: makeSignalShapesMJJ("LNuJJ_XWH",WHTemplate)
+    if DOVBFXWW: makeSignalShapesMJJ("LNuJJ_VBFXWW",VBFWWTemplate)
 
     if DOXWW: makeSignalShapesMVV("LNuJJ_XWW",WWTemplate)
     if DOXWZ: makeSignalShapesMVV("LNuJJ_XWZ",WZTemplate)
     if DOXWH: makeSignalShapesMVV("LNuJJ_XWH",WHTemplate)
-
     if DOVBFXWW: makeSignalShapesMVV("LNuJJ_VBFXWW",VBFWWTemplate)
 
 if DOSIGNALYIELDS:
