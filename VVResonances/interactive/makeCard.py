@@ -51,19 +51,7 @@ if sig not in ['XWW','XWZ','XWH']:
 
 
 #''' ## initial values and uncertainties for SR taken from post-fit values and uncertainties in CR
-init_R0_TopPeak = -3.13042e-01
-init_R0_WPeak   = 1.59600e-01
-init_R1_TopPeak = -3.17645e-01
-init_R1_WPeak   = 1.16771e-01 
-init_S0_TopPeak = -4.04221e-02
-init_S0_WPeak   = -1.24174e-01
-init_S1_TopPeak = -4.06752e-02
-init_S1_WPeak   = -1.34847e-01
 
-unc_R0_TopPeak = 1.35285e-01
-unc_R0_WPeak   = 1.55126e-01
-unc_R1_TopPeak = 1.33250e-01
-unc_R1_WPeak   = 1.47659e-01 
 unc_S0_TopPeak = 2.08713e-01 
 unc_S0_WPeak   = 2.09594e-01 
 unc_S1_TopPeak = 2.08674e-01
@@ -90,6 +78,7 @@ for lepton in ['e','mu']:
 
 
             PCtag = "_".join([purity,category])
+            PYtag = "_".join([purity,YEAR])
             LPCtag = "_".join([lepton,purity,category])
             PCYtag = "_".join([purity,category,YEAR])
             LPCYtag = "_".join([lepton,purity,category,YEAR])
@@ -97,9 +86,9 @@ for lepton in ['e','mu']:
             ## Signal
             card.addMVVSignalParametricShape(sig+"_MVV",varMVV,inputDir+"LNuJJ_"+sig+"_MVV_"+PCtag+".json",{'CMS_scale_j_'+YEAR:1,'CMS_scale_MET_'+YEAR:1.0,'CMS_scale_'+lepton+'_'+YEAR:1.0},{'CMS_res_j_'+YEAR:1.0,'CMS_res_MET_'+YEAR:1.0})
             if purity=='LP':
-                card.addMJJSignalParametricShape(sig+"_MJJ",varMJJ,inputDir+"LNuJJ_"+sig+"_MJJ_"+PCtag+".json",{'CMS_scale0_prunedj_WPeak_'+YEAR:'3*0.01','CMS_scale1_prunedj_WPeak_'+YEAR:'3*10.0/MH'},{'CMS_res0_prunedj_WPeak_'+YEAR:'3*0.2','CMS_res1_prunedj_WPeak_'+YEAR:'3*200.0/MH'})
+                card.addMJJSignalParametricShape(sig+"_MJJ",varMJJ,inputDir+"LNuJJ_"+sig+"_MJJ_"+PCtag+".json",{'CMS_scale_prunedj_resAndSig_'+PYtag:'0.15'},{'CMS_res_prunedj_resAndSig_'+PYtag:'0.25'})
             else:
-                card.addMJJSignalParametricShapeNOEXP(sig+"_MJJ",varMJJ,inputDir+"LNuJJ_"+sig+"_MJJ_"+PCtag+".json",{'CMS_scale0_prunedj_WPeak_'+YEAR:'3*0.01','CMS_scale1_prunedj_WPeak_'+YEAR:'3*10.0/MH'},{'CMS_res0_prunedj_WPeak_'+YEAR:'3*0.2','CMS_res1_prunedj_WPeak_'+YEAR:'3*200.0/MH'})
+                card.addMJJSignalParametricShapeNOEXP(sig+"_MJJ",varMJJ,inputDir+"LNuJJ_"+sig+"_MJJ_"+PCtag+".json",{'CMS_scale_prunedj_resAndSig_'+PYtag:'0.15'},{'CMS_res_prunedj_resAndSig_'+PYtag:'0.25'})
             card.product(sig,sig+"_MJJ",sig+"_MVV")
 
             if purity=='HP':
@@ -110,44 +99,19 @@ for lepton in ['e','mu']:
 
             ## Non-resonant bkgd
             rootFile=inputDir+"LNuJJ_nonRes"+sfx_rgn+"_2D_"+LPCtag+".root"
-            card.addHistoShapeFromFile("nonRes",[varMVV,varMJJ],rootFile,"histo",['GPTX:CMS_VV_LNuJ_nonRes_GPT_'+LPCYtag,'GPT2X:CMS_VV_LNuJ_nonRes_GPT2_'+LPCYtag,'SDY:CMS_VV_LNuJ_nonRes_SD_'+LPCYtag,'PTY:CMS_VV_LNuJ_nonRes_PTY_'+LPCYtag,'OPTY:CMS_VV_LNuJ_nonRes_OPTY_'+LPCYtag],False,0)
+            card.addHistoShapeFromFile("nonRes",[varMVV,varMJJ],rootFile,"histo",['MVVScale:CMS_VV_LNuJ_nonRes_MVVScale_'+LPCYtag,'Diag:CMS_VV_LNuJ_nonRes_Diag_'+LPCYtag,'logWeight:CMS_VV_LNuJ_nonRes_logWeight_'+LPCYtag,'MJJScale:CMS_VV_LNuJ_nonRes_MJJScale_'+LPCYtag],False,0)
             
             card.addFixedYieldFromFile("nonRes",1,inputDir+"LNuJJ_norm"+sfx_rgn+"_"+LPCtag+".root","nonRes"+sfx_rgn)
 
 
-            ## Resonant W bkgd
-            rootFile=inputDir+"LNuJJ_resW_MJJGivenMVV_"+PCtag+".root"
-            card.addHistoShapeFromFile("resW_MJJ",[varMVV,varMJJ],rootFile,"histo",['Scale0:CMS_scale0_prunedj_WPeak_'+YEAR,'Scale1:CMS_scale1_prunedj_WPeak_'+YEAR,'Res0:CMS_res0_prunedj_WPeak_'+YEAR,'Res1:CMS_res1_prunedj_WPeak_'+YEAR],True,0)
+            ##resonant bkgd
+            rootFile=inputDir+"LNuJJ_res"+sfx_rgn+"_2D_"+LPCtag+".root"
+            card.addHistoShapeFromFile("res",[varMVV,varMJJ],rootFile,"histo",['MVVScale:CMS_VV_LNuJ_res_MVVScale_'+LPCYtag,'Diag:CMS_VV_LNuJ_res_Diag_'+LPCYtag,'scaleY:CMS_scale_prunedj_resAndSig_'+PYtag,'resY:CMS_res_prunedj_resAndSig_'+PYtag,'fractionY:CMS_VV_LNuJ_res_fractionY_'+LPCYtag],False,0)
+            
+            card.addFixedYieldFromFile("res",1,inputDir+"LNuJJ_norm"+sfx_rgn+"_"+LPCtag+".root","res"+sfx_rgn)
 
-            rootFile=inputDir+"LNuJJ_resW_MVV_"+LPCtag+".root"
-            card.addHistoShapeFromFile("resW_MVV",[varMVV],rootFile,"histo",['GPT:CMS_VV_LNuJ_res_GPT_'+LPCYtag,'GPT2:CMS_VV_LNuJ_res_GPT2_'+LPCYtag],False,0)
-
-            card.conditionalProduct("resW","resW_MJJ",varMVV,"resW_MVV")
-
-            card.addFixedYieldFromFile("resW",2,inputDir+"LNuJJ_norm"+sfx_rgn+"_"+LPCtag+".root","resW"+sfx_rgn)
-            #if inCR:
-            #else:
-            #  card.addFixedYieldFromFile("resW",2,inputDir+"LNuJJ_norm"+sfx_rgn+"_"+LPCtag+".root","resW"+sfx_rgn,  ###initNormResW[LPCtag])
-
-
-            ## Resonant Top bkgd
-            rootFile=inputDir+"LNuJJ_resTop_MJJGivenMVV_"+PCtag+".root"
-            card.addHistoShapeFromFile("resTop_MJJ",[varMVV,varMJJ],rootFile,"histo",['Scale0:CMS_scale0_prunedj_TopPeak_'+YEAR,'Scale1:CMS_scale1_prunedj_TopPeak_'+YEAR,'Res0:CMS_res0_prunedj_TopPeak_'+YEAR,'Res1:CMS_res1_prunedj_TopPeak_'+YEAR],True,0)
-
-            rootFile=inputDir+"LNuJJ_resTop_MVV_"+LPCtag+".root"
-            card.addHistoShapeFromFile("resTop_MVV",[varMVV],rootFile,"histo",['GPT:CMS_VV_LNuJ_res_GPT_'+LPCYtag,'GPT2:CMS_VV_LNuJ_res_GPT2_'+LPCYtag],False,0)
-
-            card.conditionalProduct("resTop","resTop_MJJ",varMVV,"resTop_MVV")
-
-            card.addFixedYieldFromFile("resTop",3,inputDir+"LNuJJ_norm"+sfx_rgn+"_"+LPCtag+".root","resTop"+sfx_rgn)
-            #if inCR:
-            #else:
-            #  card.addFixedYieldFromFile("resTop",3,inputDir+"LNuJJ_norm"+sfx_rgn+"_"+LPCtag+".root","resTop"+sfx_rgn,  ###initNormResTop[LPCtag])
-
-
-            ## DATA
+            #DATA
             card.importBinnedData(inputDir+"LNuJJ_norm"+sfx_rgn+"_"+LPCtag+".root","data"+sfx_rgn,[varMVV,varMJJ])
-
 
 
             ## SYSTEMATICS
@@ -177,32 +141,21 @@ for lepton in ['e','mu']:
                 card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'XWW':1-nobbunc,'XWZ':1-nobbunc,'XWH':1-nobbunc})
 
             ## background normalization
-            card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+lepton+"_"+YEAR,"lnN",{'nonRes':1.15})
-            card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+purity+"_"+YEAR,"lnN",{'nonRes':1.15})
-            card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+category+"_"+YEAR,"lnN",{'nonRes':1.15})
 
-            card.addSystematic("CMS_VV_LNuJ_resW_norm_"+lepton+"_"+YEAR,"lnN",{'resW':1.2})
-            card.addSystematic("CMS_VV_LNuJ_resW_norm_"+purity+"_"+YEAR,"lnN",{'resW':1.2})
-            card.addSystematic("CMS_VV_LNuJ_resW_norm_"+category+"_"+YEAR,"lnN",{'resW':1.2})
+#            card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+lepton+"_"+purity+"_"+category+"_"+YEAR,"lnN",{'nonRes':1.25})
 
-            card.addSystematic("CMS_VV_LNuJ_resTop_norm_"+lepton+"_"+YEAR,"lnN",{'resTop':1.2})
-            card.addSystematic("CMS_VV_LNuJ_resTop_norm_"+purity+"_"+YEAR,"lnN",{'resTop':1.2})
-            card.addSystematic("CMS_VV_LNuJ_resTop_norm_"+category+"_"+YEAR,"lnN",{'resTop':1.2})
+            card.addSystematic("CMS_VV_LNuJ_bkg_norm_"+lepton+"_"+YEAR,"lnN",{'nonRes':1.05,'res':1.05})
+            card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+purity+"_"+category+"_"+YEAR,"lnN",{'nonRes':1.25})
 
-            '''
-            if inCR:
+#            card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+purity+"_"+YEAR,"lnN",{'nonRes':1.15})
+#            card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+category+"_"+YEAR,"lnN",{'nonRes':1.15})
 
-            else:
-              card.addSystematic("CMS_VV_LNuJ_resW_norm_"+lepton+"_"+YEAR,"lnN",{'resW':uncNormResW[lepton]})
-              card.addSystematic("CMS_VV_LNuJ_resW_norm_"+purity+"_"+YEAR,"lnN",{'resW':uncNormResW[purity]})
-              card.addSystematic("CMS_VV_LNuJ_resW_norm_"+category+"_"+YEAR,"lnN",{'resW':uncNormResW[category]})
-
-              card.addSystematic("CMS_VV_LNuJ_resTop_norm_"+lepton+"_"+YEAR,"lnN",{'resTop':uncNormResTop[lepton]})
-              card.addSystematic("CMS_VV_LNuJ_resTop_norm_"+purity+"_"+YEAR,"lnN",{'resTop':uncNormResTop[purity]})
-              card.addSystematic("CMS_VV_LNuJ_resTop_norm_"+category+"_"+YEAR,"lnN",{'resTop':uncNormResTop[category]})
             
-              card.addSystematic("CMS_VV_LNuJ_res_norm_global_"+YEAR,"lnN",{'resW':1.1,'resTop':1.1})
-            #'''
+#            card.addSystematic("CMS_VV_LNuJ_res_norm_"+lepton+"_"+purity+"_"+category+"_"+YEAR,"lnN",{'res':1.25})
+            card.addSystematic("CMS_VV_LNuJ_res_norm_"+purity+"_"+category+"_"+YEAR,"lnN",{'res':1.25})
+#            card.addSystematic("CMS_VV_LNuJ_res_norm_"+lepton+"_"+YEAR,"lnN",{'res':1.05})
+#            card.addSystematic("CMS_VV_LNuJ_res_norm_"+purity+"_"+YEAR,"lnN",{'res':1.15})
+#            card.addSystematic("CMS_VV_LNuJ_res_norm_"+category+"_"+YEAR,"lnN",{'res':1.15})
 
             ## shapes
             card.addSystematic("CMS_scale_j_"+YEAR,"param",[0.0,0.02])
@@ -214,40 +167,20 @@ for lepton in ['e','mu']:
             elif lepton=='mu':
                 card.addSystematic("CMS_scale_mu_"+YEAR,"param",[0.0,0.003])
 
-            card.addSystematic("CMS_VV_LNuJ_nonRes_GPT_"+LPCYtag,"param",[0.0,1.0])
-            card.addSystematic("CMS_VV_LNuJ_nonRes_GPT2_"+LPCYtag,"param",[0.0,1.0])
-            card.addSystematic("CMS_VV_LNuJ_nonRes_SD_"+LPCYtag,"param",[0.0,1.0])
-            card.addSystematic("CMS_VV_LNuJ_nonRes_PTY_"+LPCYtag,"param",[0.0,0.333])
-            card.addSystematic("CMS_VV_LNuJ_nonRes_OPTY_"+LPCYtag,"param",[0.0,0.333])
+            card.addSystematic("CMS_VV_LNuJ_nonRes_MVVScale_"+LPCYtag,"param",[0.0,0.333])
+            card.addSystematic("CMS_VV_LNuJ_nonRes_Diag_"+LPCYtag,"param",[0.0,0.333])
+            card.addSystematic("CMS_VV_LNuJ_nonRes_logWeight_"+LPCYtag,"param",[0.0,0.333])
+#            card.addSystematic("CMS_VV_LNuJ_nonRes_SD_"+LPCYtag,"param",[0.0,0.333])
+            card.addSystematic("CMS_VV_LNuJ_nonRes_MJJScale_"+LPCYtag,"param",[0.0,0.333])
+#            card.addSystematic("CMS_VV_LNuJ_nonRes_OPTY_"+LPCYtag,"param",[0.0,0.333])
 
 
-            card.addSystematic("CMS_VV_LNuJ_res_GPT_"+LPCYtag,"param",[0.0,1.0])
-            card.addSystematic("CMS_VV_LNuJ_res_GPT2_"+LPCYtag,"param",[0.0,1.0])
+            card.addSystematic("CMS_VV_LNuJ_res_MVVScale_"+LPCYtag,"param",[0.0,0.333])
+            card.addSystematic("CMS_VV_LNuJ_res_Diag_"+LPCYtag,"param",[0.0,0.333])
+            card.addSystematic("CMS_VV_LNuJ_res_fractionY_"+LPCYtag,"param",[0.0,0.333])
 
-            if inCR:
-              card.addSystematic("CMS_scale0_prunedj_WPeak_"+YEAR,"param",[0.0,0.333]) ## /!\ Magnitude hardcoded in the template maker for the bkgd, and above for the signal
-              card.addSystematic("CMS_res0_prunedj_WPeak_"+YEAR,"param",[0.0,0.333]) ## /!\ Magnitude hardcoded in the template maker the bkgd, and above for the signal
-              card.addSystematic("CMS_scale1_prunedj_WPeak_"+YEAR,"param",[0.0,0.333]) ## /!\ Magnitude hardcoded in the template maker the bkgd, and above for the signal
-              card.addSystematic("CMS_res1_prunedj_WPeak_"+YEAR,"param",[0.0,0.333]) ## /!\ Magnitude hardcoded in the template maker the bkgd, and above for the signal
-              card.addSystematic("CMS_scale0_prunedj_TopPeak_"+YEAR,"param",[0.0,0.333]) ## /!\ Magnitude hardcoded in the template maker
-              card.addSystematic("CMS_res0_prunedj_TopPeak_"+YEAR,"param",[0.0,0.333]) ## /!\ Magnitude hardcoded in the template maker
-              card.addSystematic("CMS_scale1_prunedj_TopPeak_"+YEAR,"param",[0.0,0.333]) ## /!\ Magnitude hardcoded in the template maker
-              card.addSystematic("CMS_res1_prunedj_TopPeak_"+YEAR,"param",[0.0,0.333]) ## /!\ Magnitude hardcoded in the template maker
-
-            else:
-              #card.addSystematic("CMS_VV_LNuJ_res_GPT_"+LPCYtag,"param",[initGPTRes[LPCtag],1.0*uncGPTRes[LPCtag]])
-              #card.addSystematic("CMS_VV_LNuJ_res_GPT2_"+LPCYtag,"param",[initGPT2Res[LPCtag],1.0*uncGPT2Res[LPCtag]])
-
-              card.addSystematic("CMS_scale0_prunedj_WPeak_"+YEAR,"param",[init_S0_WPeak,0.333*unc_S0_WPeak]) ## /!\ Magnitude hardcoded in the template maker for the bkgd, and above for the signal
-              card.addSystematic("CMS_res0_prunedj_WPeak_"+YEAR,"param",[init_R0_WPeak,0.333*unc_R0_WPeak]) ## /!\ Magnitude hardcoded in the template maker the bkgd, and above for the signal
-              card.addSystematic("CMS_scale1_prunedj_WPeak_"+YEAR,"param",[init_S1_WPeak,0.333*unc_S1_WPeak]) ## /!\ Magnitude hardcoded in the template maker the bkgd, and above for the signal
-              card.addSystematic("CMS_res1_prunedj_WPeak_"+YEAR,"param",[init_R1_WPeak,0.333*unc_R1_WPeak]) ## /!\ Magnitude hardcoded in the template maker the bkgd, and above for the signal
-              card.addSystematic("CMS_scale0_prunedj_TopPeak_"+YEAR,"param",[init_S0_TopPeak,0.333*unc_S0_TopPeak]) ## /!\ Magnitude hardcoded in the template maker
-              card.addSystematic("CMS_res0_prunedj_TopPeak_"+YEAR,"param",[init_R0_TopPeak,0.333*unc_R0_TopPeak]) ## /!\ Magnitude hardcoded in the template maker
-              card.addSystematic("CMS_scale1_prunedj_TopPeak_"+YEAR,"param",[init_S1_TopPeak,0.333*unc_S1_TopPeak]) ## /!\ Magnitude hardcoded in the template maker
-              card.addSystematic("CMS_res1_prunedj_TopPeak_"+YEAR,"param",[init_R1_TopPeak,0.333*unc_R1_TopPeak]) ## /!\ Magnitude hardcoded in the template maker
-
-
+            card.addSystematic("CMS_scale_prunedj_resAndSig_"+PYtag,"param",[0.0,0.333])
+            card.addSystematic("CMS_res_prunedj_resAndSig_"+PYtag,"param",[0.0,0.333]) 
             card.makeCard()
 
 
