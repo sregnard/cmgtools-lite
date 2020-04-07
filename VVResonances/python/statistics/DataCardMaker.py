@@ -90,11 +90,11 @@ class DataCardMaker:
         scaleSysts=[]
         resolutionSysts=[]
         for syst,factor in scale.iteritems():
-            self.w.factory(syst+"[0,-0.1,0.1]")
+            self.w.factory(syst+"[0,-1.,1.]")
             scaleStr=scaleStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
             scaleSysts.append(syst)
         for syst,factor in resolution.iteritems():
-            self.w.factory(syst+"[0,-0.5,0.5]")
+            self.w.factory(syst+"[0,-1.,1.]")
             resolutionStr=resolutionStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
             resolutionSysts.append(syst)
        
@@ -246,11 +246,11 @@ class DataCardMaker:
         scaleSysts=[]
         resolutionSysts=[]
         for syst,factor in scale.iteritems():
-            self.w.factory(syst+"[0,-0.1,0.1]")
+            self.w.factory(syst+"[0,-1.,1.]")
             scaleStr=scaleStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
             scaleSysts.append(syst)
         for syst,factor in resolution.iteritems():
-            self.w.factory(syst+"[0,-0.5,0.5]")
+            self.w.factory(syst+"[0,-1.,1.]")
             resolutionStr=resolutionStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
             resolutionSysts.append(syst)
        
