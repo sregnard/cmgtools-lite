@@ -22,14 +22,14 @@ parser.add_option("-p","--pur",dest="purity",default='',help="restrict to some p
 parser.add_option("-c","--cat",dest="category",default='',help="restrict to some category")
 parser.add_option("-C","--CMSlabel",dest="CMSlabel",type=int,default=0,help="0:None 1:CMS 2:CMS Preliminary 3:CMS Supplementary")
 parser.add_option("-b","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=True)
-parser.add_option("-S","--splitWTopPeaks",action="store_true",dest="splitWTopPeaks",help="separate W and top peak bkgd",default=True)
+parser.add_option("-S","--splitWTopPeaks",action="store_true",dest="splitWTopPeaks",help="separate W and top peak bkgd",default=False)
 parser.add_option("-Z","--region",dest="region",default='SR',help="signal region (SR) or control region (CR)")
 (options,args) = parser.parse_args()
 
 minMJJ=20.0
 maxMJJ=210.0
 
-minMVV=800.0
+minMVV=600.0
 maxMVV=5000.0
 
 YmaxMJJ = -1 #paper: 650
@@ -115,7 +115,7 @@ if doMjj:
         plotter.addContribution("resW",False,"W peak",1,1,ROOT.TColor.GetColor("#00551B"),1001,ROOT.TColor.GetColor("#37B04D"),("","_opt")[OPTINRESW]) #4CB319"))
         plotter.addContribution("resTop",False,"top peak",1,1,ROOT.TColor.GetColor("#707A23"),1001,ROOT.TColor.GetColor("#C3D631"),("","_opt")[OPTINRESW]) #4CB319"))
     else:
-        plotter.addContribution("resW",False,"W+V/t",1,1,ROOT.TColor.GetColor("#0F5500"),1001,ROOT.TColor.GetColor("#60B037"),("","_opt")[OPTINRESW]) #4CB319"))
+        plotter.addContribution("res",False,"W+V/t",1,1,ROOT.TColor.GetColor("#0F5500"),1001,ROOT.TColor.GetColor("#60B037"),("","_opt")[OPTINRESW]) #4CB319"))
     plotter.addContribution("nonRes",False,"W+jets",1,1,ROOT.TColor.GetColor("#0041AA"),1001,ROOT.TColor.GetColor("#A5D2FF"),"_opt")
 
 
@@ -138,7 +138,7 @@ if doMvv:
         plotter2.addContribution("resW",False,"W peak",1,1,ROOT.TColor.GetColor("#00551B"),1001,ROOT.TColor.GetColor("#37B04D"),("","_opt")[OPTINRESW]) #4CB319"))
         plotter2.addContribution("resTop",False,"top peak",1,1,ROOT.TColor.GetColor("#707A23"),1001,ROOT.TColor.GetColor("#C3D631"),("","_opt")[OPTINRESW]) #4CB319"))
     else:
-        plotter2.addContribution("resW",False,"W+V/t",1,1,ROOT.TColor.GetColor("#0F5500"),1001,ROOT.TColor.GetColor("#60B037"),("","_opt")[OPTINRESW]) #4CB319"))
+        plotter2.addContribution("res",False,"W+V/t",1,1,ROOT.TColor.GetColor("#0F5500"),1001,ROOT.TColor.GetColor("#60B037"),("","_opt")[OPTINRESW]) #4CB319"))
 
 
 

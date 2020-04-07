@@ -7,7 +7,8 @@ class GaussianSumTemplateMaker1D{
  public:
   GaussianSumTemplateMaker1D();
   ~GaussianSumTemplateMaker1D();
-  GaussianSumTemplateMaker1D(const RooDataSet* dataset,const char* varx,const char* varpt, TH1* sx,TH1* resx,TH1* out,const char* varw =0, TH1 *weight=0 );
+  GaussianSumTemplateMaker1D(const RooDataSet* dataset,const char* varx,const char* varpt, TH1* sx,TH1* resx,TH1* out,TH1* outScaleUp, TH1* outScaleDown,TH1* outResUp,TH1* outResDown,const char* varw =0, TH1 *weight=0 );
+
 
 
  private:

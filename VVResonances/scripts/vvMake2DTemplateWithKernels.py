@@ -113,7 +113,7 @@ def smoothTail(hist):
 
 
 
-random=ROOT.TRandom3(101082)
+
 
 
 sampleTypes=options.samples.split(',')
@@ -197,10 +197,10 @@ for i in range(5000):
 
 
 histogram=ROOT.TH2F("histo","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-histogram_gpt_up=ROOT.TH2F("histo_GPTUp","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-histogram_gpt_down=ROOT.TH2F("histo_GPTDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-histogram_gpt2_up=ROOT.TH2F("histo_GPT2Up","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-histogram_gpt2_down=ROOT.TH2F("histo_GPT2Down","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+histogram_gpt_up=ROOT.TH2F("histo_MVVScaleUp","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+histogram_gpt_down=ROOT.TH2F("histo_MVVScaleDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+histogram_gpt2_up=ROOT.TH2F("histo_DiagUp","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+histogram_gpt2_down=ROOT.TH2F("histo_DiagDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
 
 histograms=[
     histogram,
@@ -215,51 +215,21 @@ histograms=[
 
 
 for plotter in dataPlotters:
+    dataset=plotter.makeDataSet('lnujj_l1_pt,lnujj_l2_gen_pt,'+variables[1]+','+variables[0],options.cut,-1)
+    reweigh=0
+    if options.output.find("nonRes")!=-1:
+        if options.output.find("_HP_")!=-1 and options.output.find("_nobb_")!=-1:
+            reweigh=-2.1e-4;
+        elif options.output.find("_HP_")!=-1 and options.output.find("_bb_")!=-1:
+            reweigh=-2.65e-4;
+        elif options.output.find("_LP_")!=-1 and options.output.find("_nobb_")!=-1:
+            reweigh=-2.57e-4;
+        elif options.output.find("_LP_")!=-1 and options.output.find("_bb_")!=-1:
+            reweigh=-2.61e-4;
+        else:
+            reweigh=0.0;
 
-    for b in range(1,histogram.GetNbinsY()+1):
-
-        bincut = options.cut+"*("+str(histogram.GetYaxis().GetBinLowEdge(b))+"<"+variables[1]+")*("+variables[1]+"<"+str(histogram.GetYaxis().GetBinUpEdge(b))+")"
-
-        dataset=plotter.makeDataSet('lnujj_l1_pt,lnujj_l2_gen_pt,'+variables[1]+','+variables[0],bincut,-1)
-
-        ##nominal
-        histTMP=ROOT.TH1F("histoTMP","histo",len(binsx)-1,array('f',binsx))
-        datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,variables[0],'lnujj_l2_gen_pt',scale_x,res_x,histTMP)
-        if histTMP.Integral()>0:
-            addToYSlice(histogram,b,histTMP)
-            #print histTMP.Integral(), histogram.Integral()
-        histTMP.Delete()
-
-        #'''
-        ##gen pt up (linear)
-        histTMP=ROOT.TH1F("histoTMP","histo",len(binsx)-1,array('f',binsx))
-        datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,variables[0],'lnujj_l2_gen_pt',scale_x,res_x,histTMP,'lnujj_l2_gen_pt',hGenPtUp)
-        if histTMP.Integral()>0:
-            addToYSlice(histogram_gpt_up,b,histTMP)
-        histTMP.Delete()
-
-        ##gen pt down (linear)
-        histTMP=ROOT.TH1F("histoTMP","histo",len(binsx)-1,array('f',binsx))
-        datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,variables[0],'lnujj_l2_gen_pt',scale_x,res_x,histTMP,'lnujj_l2_gen_pt',hGenPtDn)
-        if histTMP.Integral()>0:
-            addToYSlice(histogram_gpt_down,b,histTMP)
-        histTMP.Delete()
-
-        ##gen pt up (quadratic)
-        histTMP=ROOT.TH1F("histoTMP","histo",len(binsx)-1,array('f',binsx))
-        datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,variables[0],'lnujj_l2_gen_pt',scale_x,res_x,histTMP,'lnujj_l2_gen_pt',hGenPt2Up)
-        if histTMP.Integral()>0:
-            addToYSlice(histogram_gpt2_up,b,histTMP)
-        histTMP.Delete()
-
-        ##gen pt down (quadratic)
-        histTMP=ROOT.TH1F("histoTMP","histo",len(binsx)-1,array('f',binsx))
-        datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,variables[0],'lnujj_l2_gen_pt',scale_x,res_x,histTMP,'lnujj_l2_gen_pt',hGenPt2Dn)
-        if histTMP.Integral()>0:
-            addToYSlice(histogram_gpt2_down,b,histTMP)
-        histTMP.Delete()
-        #'''
-
+    datamaker=ROOT.cmg.ConditionalGaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,res_x,histogram,histogram_gpt_up,histogram_gpt_down,histogram_gpt2_up,histogram_gpt2_down,reweigh);
 
 
 f=ROOT.TFile(options.output,"RECREATE")

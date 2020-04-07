@@ -5,7 +5,7 @@ using namespace cmg;
 GaussianSumTemplateMaker1D::GaussianSumTemplateMaker1D() {}
 GaussianSumTemplateMaker1D::~GaussianSumTemplateMaker1D() {}
 
-GaussianSumTemplateMaker1D::GaussianSumTemplateMaker1D(const RooDataSet* dataset, const char* varx,const char* varpt,TH1* hscalex,TH1* hresx,TH1* output,const char* varw,TH1* weightH) {
+GaussianSumTemplateMaker1D::GaussianSumTemplateMaker1D(const RooDataSet* dataset, const char* varx,const char* varpt,TH1* hscalex,TH1* hresx,TH1* output,TH1* outputScaleUp,TH1* outputScaleDown,TH1* outputResUp,TH1* outputResDown,const char* varw,TH1* weightH) {
 
   double genx,x,scalex,resx,genpt,reweight,genw;
   genx=0.0;
@@ -40,6 +40,11 @@ GaussianSumTemplateMaker1D::GaussianSumTemplateMaker1D(const RooDataSet* dataset
     for (int i=1;i<output->GetNbinsX()+1;++i) {
       x=output->GetXaxis()->GetBinCenter(i);
       output->Fill(x,reweight*dataset->weight()*gaus(x,scalex,resx));
+      outputScaleUp->Fill(x,reweight*dataset->weight()*gaus(x,1.15*scalex,resx));
+      outputScaleDown->Fill(x,reweight*dataset->weight()*gaus(x,0.85*scalex,resx));
+      outputResUp->Fill(x,reweight*dataset->weight()*gaus(x,scalex,1.25*resx));
+      outputResDown->Fill(x,reweight*dataset->weight()*gaus(x,scalex,0.75*resx));
+
     }
   }
 }

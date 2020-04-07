@@ -8,6 +8,183 @@ from  CMGTools.VVResonances.plotting.CMS_lumi import *
 import os
 from array import array
 
+from DoubleBscalefactors import *
+from DoubleBefficiencies import *
+
+DONORMMC       = 0
+DONORMDATA     = 0
+DONORMMCASDATA = 0
+DOSIGNALSHAPES = 0
+DOSIGNALYIELDS = 0
+DOSIGNALCTPL   = 0
+DORESONANT     = 0
+DONONRESONANT  = 0
+DONORMMCCR     = 0
+DONORMDATACR   = 0
+DONONRESONANTCR= 0
+DOXWW = 0
+DOXWZ = 0
+DOXWH = 0
+RENORMNONRES   = 0
+REMOVE2018ELEHEM1516 = 0
+
+
+MERGELEPNONRES = 0
+MERGEPURNONRES = 0
+MERGECATNONRES = 0
+
+
+###############################################
+###############################################
+#################  PARAMETERS  ################
+###############################################
+###############################################
+
+minMJJ=20.0
+maxMJJ=210.0
+
+minMVV=600.0
+maxMVV=5000.0
+
+binsMJJ={}
+binsMJJ['bb']=19
+binsMJJ['nobb']=38
+binsMJJ['allC']=95
+binsMVV={}
+binsMVV['bb']  =176
+binsMVV['nobb']=176
+binsMVV['allC']=176
+
+
+outDir='Inputs_Run2/'
+os.system('mkdir -p '+outDir)
+
+ntuples='ntuples'
+
+
+tau21SF={ ## TBU 
+    'HP' : '( (year==2016)*1.00 + (year==2017)*1.00 + (year==2018)*1.00 )',
+    'LP' : '( (year==2016)*1.00 + (year==2017)*1.00 + (year==2018)*1.00 )',
+    }
+
+bbSFWW_2016 = DoubleBsf_M2_B_80X
+bbSFWZ_2016 = DoubleBsf_M2_B_80X
+bbSFWH_2016 = DoubleBsf_M2_S_80X
+bbEffWW_2016 = EffMC_M2_XWW_2016
+bbEffWZ_2016 = EffMC_M2_XWZ_2016
+bbEffWH_2016 = EffMC_M2_XWH_2016
+bbSFWW_2017 = DoubleBsf_M2_B_94X
+bbSFWZ_2017 = DoubleBsf_M2_B_94X
+bbSFWH_2017 = DoubleBsf_M2_S_94X
+bbEffWW_2017 = EffMC_M2_XWW_2017
+bbEffWZ_2017 = EffMC_M2_XWZ_2017
+bbEffWH_2017 = EffMC_M2_XWH_2017
+bbSFWW_2018 = DoubleBsf_M2_B_102X
+bbSFWZ_2018 = DoubleBsf_M2_B_102X
+bbSFWH_2018 = DoubleBsf_M2_S_102X
+bbEffWW_2018 = EffMC_M2_XWW_2018
+bbEffWZ_2018 = EffMC_M2_XWZ_2018
+bbEffWH_2018 = EffMC_M2_XWH_2018
+bbWgtWW={
+    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWW_2018))+'))',
+    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2016[ptcut])+')/(1-'+str(bbEffWW_2016[ptcut])+'))') for ptcut,sf in bbSFWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2017[ptcut])+')/(1-'+str(bbEffWW_2017[ptcut])+'))') for ptcut,sf in bbSFWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2018[ptcut])+')/(1-'+str(bbEffWW_2018[ptcut])+'))') for ptcut,sf in bbSFWW_2018))+'))',
+    }
+bbWgtWZ={
+    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWZ_2018))+'))',
+    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2016[ptcut])+')/(1-'+str(bbEffWZ_2016[ptcut])+'))') for ptcut,sf in bbSFWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2017[ptcut])+')/(1-'+str(bbEffWZ_2017[ptcut])+'))') for ptcut,sf in bbSFWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2018[ptcut])+')/(1-'+str(bbEffWZ_2018[ptcut])+'))') for ptcut,sf in bbSFWZ_2018))+'))',
+    }
+bbWgtWH={
+    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWH_2018))+'))',
+    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2016[ptcut])+')/(1-'+str(bbEffWH_2016[ptcut])+'))') for ptcut,sf in bbSFWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2017[ptcut])+')/(1-'+str(bbEffWH_2017[ptcut])+'))') for ptcut,sf in bbSFWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2018[ptcut])+')/(1-'+str(bbEffWH_2018[ptcut])+'))') for ptcut,sf in bbSFWH_2018))+'))',
+    }
+print bbWgtWW['bb']
+print bbWgtWW['nobb']
+
+
+lumi16=35920
+lumi17=41530
+lumi18=59740
+lumiTotal=lumi16+lumi17+lumi18
+lumiWeight2016="("+str(lumi16)+"/"+str(lumiTotal)+")"
+lumiWeight2017="("+str(lumi17)+"/"+str(lumiTotal)+")"
+lumiWeight2018="("+str(lumi18)+"/"+str(lumiTotal)+")"
+
+
+cuts={}
+
+cuts['common'] = '1'
+cuts['common'] = cuts['common'] + '*(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET120)*((run>500) + (run<500)*lnujj_sfWV)' ## changed from lnujj_sf to lnujj_sfWV for 2016 
+cuts['common'] = cuts['common'] + '*(lnujj_nOtherLeptons==0&&lnujj_l2_softDrop_mass>0&&lnujj_LV_mass>0)'
+cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&(Flag_eeBadScFilter*(run>500)+(run<500))&&Flag_badMuonFilter)'
+if REMOVE2018ELEHEM1516:
+    cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&abs(lnujj_l1_l_pdgId)==11&&(-1.55<lnujj_l1_l_phi)&&(lnujj_l1_l_phi<-0.9)&&(-2.5<lnujj_l1_l_eta)&&(lnujj_l1_l_eta<-1.479)))'
+## new cut on pT/M:
+cuts['common'] = cuts['common'] + '*(lnujj_l1_pt/lnujj_LV_mass>0.4&&lnujj_l2_pt/lnujj_LV_mass>0.4)'
+## ensure orthogonality with VBF analysis:
+cuts['common'] = cuts['common'] + '*(!(lnujj_nJets>=2&&lnujj_vbfDEta>4.0&&lnujj_vbfMass>500))'
+## lumi-based reweighting for MC
+cuts['common'] = cuts['common'] + '*( (run>500) + (run<500)*((year==2016)*'+lumiWeight2016+'+(year==2017)*'+lumiWeight2017+'+(year==2018)*'+lumiWeight2018+') )'
+
+cuts['nob'] = '(lnujj_nMediumBTags==0)'
+cuts['b'] = '(lnujj_nMediumBTags>0)'
+cuts['CR'] = cuts['common'] + '*' + cuts['b'] + '*lnujj_btagWeight'
+cuts['common'] = cuts['common'] + '*' + cuts['nob'] + '*lnujj_btagWeight'
+
+cuts['e'] = '(abs(lnujj_l1_l_pdgId)==11)'
+cuts['mu'] = '(abs(lnujj_l1_l_pdgId)==13)'
+cuts['allL'] = '(abs(lnujj_l1_l_pdgId)==11||abs(lnujj_l1_l_pdgId)==13)'
+leptons=['e','mu']
+leptonsMerged=['allL']
+
+Vtagger='(lnujj_l2_tau2/lnujj_l2_tau1-(-0.08)*log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt))'
+thrHP=0.55
+thrLP=0.96
+cuts['HP'] = '('+Vtagger+'<'+str(thrHP)+')'
+cuts['LP'] = '('+str(thrHP)+'<='+Vtagger+'&&'+Vtagger+'<'+str(thrLP)+')'
+cuts['allP'] = '('+cuts['HP']+'||'+cuts['LP']+')'
+purities=['HP','LP']
+puritiesMerged=['allP']
+
+bbtag='(lnujj_l2_btagBOOSTED>0.8)'
+cuts['bb'] = bbtag
+cuts['nobb'] = '(!'+bbtag+')'
+cuts['allC'] = '1'
+categories=['bb','nobb']
+categoriesMerged=['allC']
+
+
+cuts['resW']  ='(lnujj_l2_mergedVTruth==1&&!(lnujj_l2_nearestBDRTruth<0.8&&lnujj_l2_gen_b_pt/(lnujj_l2_gen_qq_pt+lnujj_l2_gen_b_pt)>0.1&&lnujj_l2_gen_softDrop_mass>100))'
+cuts['resTop']='(lnujj_l2_mergedVTruth==1&&(lnujj_l2_nearestBDRTruth<0.8&&lnujj_l2_gen_b_pt/(lnujj_l2_gen_qq_pt+lnujj_l2_gen_b_pt)>0.1&&lnujj_l2_gen_softDrop_mass>100))'
+cuts['nonres']='(lnujj_l2_mergedVTruth==0)'
+
+
+renormWJets2016='0.8727054353'
+renormWJets2017='0.699592444047'
+renormWJets2018='0.728005348312'
+renormWJets3Yrs=",".join([renormWJets2016,renormWJets2017,renormWJets2018])
+renormWJetsRun2='0.760376974966'
+
+
+WWTemplate="ntuples2016/BulkGravToWWToWlepWhad_narrow,ntuples2017/BulkGravToWWToWlepWhad_narrow,ntuples2018/BulkGravToWWToWlepWhad_narrow"
+BRWW=2.*0.327*0.6760
+
+WZTemplate="ntuples2016/WprimeToWZToWlepZhad_narrow,ntuples2017/WprimeToWZToWlepZhad_narrow,ntuples2018/WprimeToWZToWlepZhad_narrow"
+BRWZ=0.327*0.6991
+
+WHTemplate="ntuples2016/WprimeToWHToWlepHinc_narrow,ntuples2017/WprimeToWHToWlepHinc_narrow,ntuples2018/WprimeToWHToWlepHinc_narrow"
+BRWH=0.327
+
+resWTemplate = "ntuples2016/TT_pow,ntuples2017/TTHad_pow,ntuples2017/TTLep_pow,ntuples2017/TTSemi_pow,ntuples2018/TTHad_pow,ntuples2018/TTLep_pow,ntuples2018/TTSemi_pow,ntuples2016/WWToLNuQQ,ntuples2017/WWToLNuQQ,ntuples2018/WWToLNuQQ,ntuples2016/WZTo1L1Nu2Q,ntuples2017/WZTo1L1Nu2Q,ntuples2018/WZTo1L1Nu2Q,ntuples2016/ZZTo2L2Q,ntuples2017/ZZTo2L2Q,ntuples2018/ZZTo2L2Q,ntuples2016/T_tW,ntuples2017/T_tW,ntuples2018/T_tW,ntuples2016/TBar_tW,ntuples2017/TBar_tW,ntuples2018/TBar_tW"
+resTopTemplate = resWTemplate
+nonResTemplate = "ntuples2016/TT_pow,ntuples2017/TTHad_pow,ntuples2017/TTLep_pow,ntuples2017/TTSemi_pow,ntuples2018/TTHad_pow,ntuples2018/TTLep_pow,ntuples2018/TTSemi_pow,ntuples2016/WJetsToLNu_HT,ntuples2017/WJetsToLNu_HT,ntuples2018/WJetsToLNu_HT,ntuples2016/DYJetsToLL_M50_HT,ntuples2017/DYJetsToLL_M50_HT,ntuples2018/DYJetsToLL_M50_HT,ntuples2016/T_tW,ntuples2017/T_tW,ntuples2018/T_tW,ntuples2016/TBar_tW,ntuples2017/TBar_tW,ntuples2018/TBar_tW"
+allMCTemplate = "ntuples2016/TT_pow,ntuples2017/TTHad_pow,ntuples2017/TTLep_pow,ntuples2017/TTSemi_pow,ntuples2018/TTHad_pow,ntuples2018/TTLep_pow,ntuples2018/TTSemi_pow,ntuples2016/WWToLNuQQ,ntuples2017/WWToLNuQQ,ntuples2018/WWToLNuQQ,ntuples2016/WZTo1L1Nu2Q,ntuples2017/WZTo1L1Nu2Q,ntuples2018/WZTo1L1Nu2Q,ntuples2016/ZZTo2L2Q,ntuples2017/ZZTo2L2Q,ntuples2018/ZZTo2L2Q,ntuples2016/T_tW,ntuples2017/T_tW,ntuples2018/T_tW,ntuples2016/TBar_tW,ntuples2017/TBar_tW,ntuples2018/TBar_tW,ntuples2016/WJetsToLNu_HT,ntuples2017/WJetsToLNu_HT,ntuples2018/WJetsToLNu_HT,ntuples2016/DYJetsToLL_M50_HT,ntuples2017/DYJetsToLL_M50_HT,ntuples2018/DYJetsToLL_M50_HT"
+dataTemplate = "ntuples2016/SingleElectron,ntuples2017/SingleElectron,ntuples2018/EGamma,ntuples2016/SingleMuon,ntuples2017/SingleMuon,ntuples2018/SingleMuon,ntuples2016/MET,ntuples2017/MET,ntuples2018/MET"
+
+VJetsTemplate = "ntuples2016/WJetsToLNu_HT,ntuples2017/WJetsToLNu_HT,ntuples2018/WJetsToLNu_HT,ntuples2016/DYJetsToLL_M50_HT,ntuples2017/DYJetsToLL_M50_HT,ntuples2018/DYJetsToLL_M50_HT"
+
+
+
+
 def efficiency1D(plotter,var,bins,denom,num):    
     h1 = plotter.drawTH1Binned(var,denom,"1",bins)
     h2 = plotter.drawTH1Binned(var,denom+"*"+num,"1",bins)
@@ -56,8 +233,11 @@ def makeEff():
 
 def getPlotters(samples,isData=False,corr="1"):
     sampleTypes=samples.split(',')
-    plotters=[]
-    for filename in os.listdir('samples'):
+    dataPlotters=[]
+
+
+    filelist = [g for flist in [[(path+'/'+f) for f in os.listdir("ntuples"+'/'+path)] for path in os.listdir("ntuples")] for g in flist]
+    for filename in filelist:
         for sampleType in sampleTypes:
             if filename.find(sampleType)!=-1:
                 fnameParts=filename.split('.')
@@ -65,18 +245,15 @@ def getPlotters(samples,isData=False,corr="1"):
                 ext=fnameParts[1]
                 if ext.find("root") ==-1:
                     continue
-                print 'Adding file',fname
-                plotters.append(TreePlotter('samples/'+fname+'.root','tree'))
-                if not isData:
-                    plotters[-1].setupFromFile('samples/'+fname+'.pck')
-                    plotters[-1].addCorrectionFactor('xsec','tree')
-                    plotters[-1].addCorrectionFactor('genWeight','tree')
-                    plotters[-1].addCorrectionFactor('puWeight','tree')
-                    plotters[-1].addCorrectionFactor('lnujj_sf','tree')
-                    plotters[-1].addCorrectionFactor('truth_genTop_weight','tree')
-                    plotters[-1].addCorrectionFactor(corr,'flat')
-                    
-    return  plotters
+
+                dataPlotters.append(TreePlotter('ntuples/'+fname+'.root','tree'))
+                if not isData:    
+                    dataPlotters[-1].setupFromFile('ntuples/'+fname+'.pck')
+                    dataPlotters[-1].addCorrectionFactor('xsec','tree')
+                    dataPlotters[-1].addCorrectionFactor('genWeight','tree')
+                    dataPlotters[-1].addCorrectionFactor('puWeight','tree')
+                    dataPlotters[-1].addCorrectionFactor('truth_genTop_weight','branch')
+    return  dataPlotters
 
 
 def compare(p1,p2,var,cut1,cut2,bins,mini,maxi,title,unit,leg1,leg2):
@@ -116,81 +293,54 @@ def compare(p1,p2,var,cut1,cut2,bins,mini,maxi,title,unit,leg1,leg2):
     return canvas,h1,h2,legend,pt
 
 
-cuts={}
-
-cuts['common'] = '(((HLT_MU)&&(abs(lnujj_l1_l_pdgId)==13))||((HLT_ELE)&&abs(lnujj_l1_l_pdgId)==11)||HLT_MET120)*(Flag_goodVertices&&Flag_CSCTightHaloFilter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&lnujj_nOtherLeptons==0&&lnujj_l2_softDrop_mass>0&&lnujj_LV_mass>600&&Flag_badChargedHadronFilter&&Flag_badMuonFilter&&Flag_globalTightHalo2016Filter)'
-
-
-cuts['mu'] = '(abs(lnujj_l1_l_pdgId)==13)'
-cuts['e'] = '(abs(lnujj_l1_l_pdgId)==11)'
-cuts['HP'] = '(lnujj_l2_tau2/lnujj_l2_tau1<0.55)'
-cuts['LP'] = '(lnujj_l2_tau2/lnujj_l2_tau1>0.55&&lnujj_l2_tau2/lnujj_l2_tau1<0.75)'
-cuts['nob'] = '(lnujj_nMediumBTags==0)*lnujj_btagWeight'
-cuts['b'] = '(lnujj_nMediumBTags>0)*lnujj_btagWeight'
-cuts['resW']='(lnujj_l2_mergedVTruth==1)'
-cuts['nonres']='(lnujj_l2_mergedVTruth==0)'
-
-
-#change the CMS_lumi variables (see CMS_lumi.py)
-lumi_13TeV = "35.9 fb^{-1}"
-lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
-iPeriod=4
-iPos = 11
 
 
 
-#zjPlotters=[]
-VJetsPlotters = getPlotters('DYJetsToLL_M50_HT,WJetsToLNu_HT',False)
-VJets = MergedPlotter(VJetsPlotters)
+nonResPlotters = getPlotters(allMCTemplate,0,cuts['nonres'])
+nonRes = MergedPlotter(nonResPlotters)
+
+vjetsPlotters = getPlotters(VJetsTemplate,0)
+vjets = MergedPlotter(vjetsPlotters)
+
+ttvvPlotters = getPlotters(resWTemplate,0)
+ttvv = MergedPlotter(ttvvPlotters)
+
+resWPlotters = getPlotters(allMCTemplate,0,cuts['resW'])
+resW = MergedPlotter(resWPlotters)
+
+resTPlotters = getPlotters(allMCTemplate,0,cuts['resTop'])
+resTop = MergedPlotter(resTPlotters)
 
 
-TTVVPlotters = getPlotters('TT_pow,T_tWch,TBar_tWch,WWTo1L1Nu2Q,WZTo1L1Nu2Q',False)
-ttVV=MergedPlotter(TTVVPlotters)
+signalPlotters = getPlotters(WWTemplate,0)
+signal = MergedPlotter(signalPlotters)
 
 
-
-
-BKGPlotters = getPlotters('DYJetsToLL_M50_HT,WJetsToLNu_HT,TT_pow,T_tWch,TBar_tWch,WWTo1L1Nu2Q,WZTo1L1Nu2Q',False,cuts['nonres'])
-BKG = MergedPlotter(BKGPlotters)
-
-WPlotters = getPlotters('TT_pow,T_tWch,TBar_tWch,WWTo1L1Nu2Q,WZTo1L1Nu2Q',False,cuts['resW'])
-W = MergedPlotter(WPlotters)
-
-
-TOPPlotters = getPlotters('TT_pow,T_tWch,TBar_tWch',False)
-top = MergedPlotter(TOPPlotters)
-
-
-
-QCDPlotters = getPlotters('QCD_HT',False)
-QCD = MergedPlotter(QCDPlotters)
-
-
-mc = MergedPlotter(QCDPlotters+WPlotters+BKGPlotters)
-
-
-DATAPlotters = getPlotters('SingleMuon_,SingleElectron_,MET_',True)
-data=MergedPlotter(DATAPlotters)
-
-SigPlotters = getPlotters('BulkGravToWWToWlepWhad_narrow_1400',False)
-sig = MergedPlotter(SigPlotters)
+dataPlotters = getPlotters(dataTemplate,1)
+data = MergedPlotter(dataPlotters)
 
 
 #Fill properties
-VJets.setFillProperties(1001,ROOT.kAzure-9)
-BKG.setFillProperties(1001,ROOT.kAzure-9)
-ttVV.setFillProperties(1001,ROOT.kSpring-5)
-W.setFillProperties(1001,ROOT.kSpring-5)
-QCD.setFillProperties(1001,ROOT.kGray)
+nonRes.setFillProperties(1001,ROOT.kAzure-9)
+vjets.setFillProperties(1001,ROOT.kAzure-9)
+#BKG.setFillProperties(1001,ROOT.kAzure-9)
+ttvv.setFillProperties(1001,ROOT.kSpring-5)
+resW.setFillProperties(1001,ROOT.kSpring-5)
+resTop.setFillProperties(1001,ROOT.kSpring+2)
+
+
+
+#W.setFillProperties(1001,ROOT.kSpring-5)
+#QCD.setFillProperties(1001,ROOT.kGray)
 
 
 #Stack for lnu+J
 lnujjStack = StackPlotter()
-lnujjStack.addPlotter(QCD,"QCD","QCD multijet","background")
-#lnujjStack.addPlotter(VJets,"WJets","V+Jets","background")
-lnujjStack.addPlotter(BKG,"Bkg","V+Jets","background")
-#lnujjStack.addPlotter(ttVV,"top","top/VV","background")
-lnujjStack.addPlotter(W,"W","W","background")
+#lnujjStack.addPlotter(QCD,"QCD","QCD multijet","background")
+lnujjStack.addPlotter(vjets,"WJets","V+Jets","background")
+#lnujjStack.addPlotter(BKG,"Bkg","V+Jets","background")
+lnujjStack.addPlotter(ttvv,"top","top/VV","background")
+#lnujjStack.addPlotter(W,"W","W","background")
 lnujjStack.addPlotter(data,"data_obs","Data","data")
 
 

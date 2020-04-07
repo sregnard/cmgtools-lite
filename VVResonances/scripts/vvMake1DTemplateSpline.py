@@ -27,6 +27,16 @@ parser.add_option("-W","--wgtwjets",dest="wgtwjets",help="weights for W+jets sam
 (options,args) = parser.parse_args()
 
 
+def amplify(histo,histoNominal,factor=10):
+    histo.Scale(histo.Integral())
+    histoNominal.Scale(histoNominal.Integral())
+    for i  in range(1,histo.GetNbinsX()+1):
+        c=histo.GetBinContent(i)
+        g=histoNominal.GetBinContent(i)
+        newC = g+ (c-g)*factor
+        histo.SetBinContent(i,newC)
+        
+
 
 def mirror(histo,histoNominal,name):
     newHisto =copy.deepcopy(histoNominal) 
@@ -113,13 +123,13 @@ vardown=altVariables[1]
 
 histogram=ROOT.TH1F("histo","histo",options.binsx,options.minx,options.maxx)
 histogram.Sumw2()
-histogram_gpt_up=ROOT.TH1F("histo_GPTUp","histo",options.binsx,options.minx,options.maxx)
+histogram_gpt_up=ROOT.TH1F("histo_logWeightUp","histo",options.binsx,options.minx,options.maxx)
 histogram_gpt_up.Sumw2()
-histogram_gpt_down=ROOT.TH1F("histo_GPTDown","histo",options.binsx,options.minx,options.maxx)
+histogram_gpt_down=ROOT.TH1F("histo_logWeightDown","histo",options.binsx,options.minx,options.maxx)
 histogram_gpt_down.Sumw2()
-histogram_gpt2_up=ROOT.TH1F("histo_GPT2Up","histo",options.binsx,options.minx,options.maxx)
+histogram_gpt2_up=ROOT.TH1F("histo_MJJScaleUp","histo",options.binsx,options.minx,options.maxx)
 histogram_gpt2_up.Sumw2()
-histogram_gpt2_down=ROOT.TH1F("histo_GPT2Down","histo",options.binsx,options.minx,options.maxx)
+histogram_gpt2_down=ROOT.TH1F("histo_MJJScaleDown","histo",options.binsx,options.minx,options.maxx)
 histogram_gpt2_down.Sumw2()
 histogram_sd_up=ROOT.TH1F("histo_SDUp","histo",options.binsx,options.minx,options.maxx)
 histogram_sd_up.Sumw2()
@@ -130,20 +140,23 @@ newNbins=options.binsx/options.factor
 newBinWidth=(options.maxx-options.minx)/newNbins
 histoCoarse=data.drawTH1(var,cut,"1",newNbins+1,options.minx,options.maxx+newBinWidth)
 expandHisto(histoCoarse,histogram)
-histoCoarse_gpt_up=data.drawTH1(var,cut+'*'+uncw1,"1",newNbins+1,options.minx,options.maxx+newBinWidth)
+histoCoarse_gpt_up=data.drawTH1(var,cut+'*(1+'+uncw1+')',"1",newNbins+1,options.minx,options.maxx+newBinWidth)
 expandHisto(histoCoarse_gpt_up,histogram_gpt_up)
-histoCoarse_gpt_down=data.drawTH1(var,cut+'*(1/'+uncw1+')',"1",newNbins+1,options.minx,options.maxx+newBinWidth)
+histoCoarse_gpt_down=data.drawTH1(var,cut+'*(1.0/(1+'+uncw1+'))',"1",newNbins+1,options.minx,options.maxx+newBinWidth)
 expandHisto(histoCoarse_gpt_down,histogram_gpt_down)
-histoCoarse_gpt2_up=data.drawTH1(var,cut+'*'+uncw2,"1",newNbins+1,options.minx,options.maxx+newBinWidth)
+histoCoarse_gpt2_up=data.drawTH1(var,cut+'*(1+'+uncw2+')',"1",newNbins+1,options.minx,options.maxx+newBinWidth)
 expandHisto(histoCoarse_gpt2_up,histogram_gpt2_up)
-histoCoarse_gpt2_down=data.drawTH1(var,cut+'*(1/'+uncw2+')',"1",newNbins+1,options.minx,options.maxx+newBinWidth)
+histoCoarse_gpt2_down=data.drawTH1(var,cut+'*(1.0/(1+'+uncw2+'))',"1",newNbins+1,options.minx,options.maxx+newBinWidth)
 expandHisto(histoCoarse_gpt2_down,histogram_gpt2_down)
 histoCoarse_sd_up=data.drawTH1(varup,cut.replace(var,varup),"1",newNbins+1,options.minx,options.maxx+newBinWidth)
 expandHisto(histoCoarse_sd_up,histogram_sd_up)
-histoCoarse_sd_down=data.drawTH1(vardown,cut.replace(var,vardown),"1",newNbins+1,options.minx,options.maxx+newBinWidth)
-expandHisto(histoCoarse_sd_down,histogram_sd_down)
+#histoCoarse_sd_down=data.drawTH1(vardown,cut.replace(var,vardown),"1",newNbins+1,options.minx,options.maxx+newBinWidth)
+#expandHisto(histoCoarse_sd_down,histogram_sd_down)
 
-#histogram_sd_down=mirror(histogram_sd_up,histogram,"histo_SDDown")
+#amplify(histogram_sd_down,histogram)
+
+histogram_sd_down=mirror(histogram_sd_up,histogram,"histo_SDDown")
+
 
 f=ROOT.TFile(options.output,"RECREATE")
 f.cd()

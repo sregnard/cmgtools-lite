@@ -68,7 +68,7 @@ class Fitter(object):
 
     def gaussianSum(self,name,poi,dataset,variable):
         self.w.factory('scale[1.0,0.1,2]')
-        self.w.factory('sigma[30,5,1e+4]')
+        self.w.factory('sigma[30,1,1e+4]')
         self.w.factory('sigma2[0]')
         gaussianSum=ROOT.RooGaussianSumPdf(name,name,self.w.var(poi), self.w.var('scale'),self.w.var('sigma'),self.w.var('sigma2'),dataset,variable)
         getattr(self.w,'import')(gaussianSum,ROOT.RooFit.Rename(name))
@@ -394,19 +394,22 @@ class Fitter(object):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
         
         self.w.factory("meanW[80,75,85]")
-        self.w.factory("sigmaW[10,5,20]")
+        self.w.factory("sigmaW[10,7.5,20]")
         self.w.factory("alphaW[1,0.1,10]")
         self.w.factory("alphaW2[1,0.1,10]")
-        self.w.factory("n[5]")
+        self.w.factory("n1[5,1,20]")
+        self.w.factory("n2[5,1,20]")
 
         self.w.factory("meanTop[160,140,190]")
-        self.w.factory("sigmaTop[30,5,100]")
-        self.w.factory("alphaTop[1,0.1,10]")
-        self.w.factory("alphaTop2[1,0.1,10]")
+        self.w.factory("sigmaTop[30,12,100]")
+        self.w.factory("alphaTop[3,0.1,10]")
+        self.w.factory("alphaTop2[3,0.1,10]")
+        self.w.factory("n3[5,1,20]")
+        self.w.factory("n4[5,1,20]")
 
-        peak = ROOT.RooDoubleCB('WPeak','modelS',self.w.var(poi),self.w.var('meanW'),self.w.var('sigmaW'),self.w.var('alphaW'),self.w.var('n'),self.w.var("alphaW2"),self.w.var("n"))
+        peak = ROOT.RooDoubleCB('WPeak','modelS',self.w.var(poi),self.w.var('meanW'),self.w.var('sigmaW'),self.w.var('alphaW'),self.w.var('n1'),self.w.var("alphaW2"),self.w.var("n2"))
         getattr(self.w,'import')(peak,ROOT.RooFit.Rename('WPeak'))
-        peak2 = ROOT.RooDoubleCB('TopPeak','modelS',self.w.var(poi),self.w.var('meanTop'),self.w.var('sigmaTop'),self.w.var('alphaTop'),self.w.var('n'),self.w.var("alphaTop2"),self.w.var("n"))
+        peak2 = ROOT.RooDoubleCB('TopPeak','modelS',self.w.var(poi),self.w.var('meanTop'),self.w.var('sigmaTop'),self.w.var('alphaTop'),self.w.var('n3'),self.w.var("alphaTop2"),self.w.var("n4"))
         getattr(self.w,'import')(peak2,ROOT.RooFit.Rename('TopPeak'))
         self.w.factory("SUM::"+name+"(f[0.5,0,1]*WPeak,TopPeak)")
 
@@ -414,7 +417,7 @@ class Fitter(object):
     def jetDoublePeakExp(self,name = 'model',poi='x'):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
         self.jetDoublePeak('modelS',poi)
-        self.w.factory("RooExponential::modelB("+poi+",slope[0,-5,5])")
+        self.w.factory("RooExponential::modelB("+poi+",slope[0,-3,3])")
         self.w.factory("SUM::"+name+"(f2[0.5,0,1]*modelS,modelB)")
 
 
