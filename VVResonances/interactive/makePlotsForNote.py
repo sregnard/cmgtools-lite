@@ -9,47 +9,62 @@ from CMGTools.VVResonances.plotting.RooPlotter import *
 
 import optparse
 parser = optparse.OptionParser()
-parser.add_option("-y","--year",dest="year",type=int,default=2016,help="2016 or 2017 or 2018")
+parser.add_option("-y","--year",dest="year",default="Run2",help="2016 or 2017 or 2018 or Run2")
 parser.add_option("-o","--outDir",dest="outDirPrefix",default='PlotsTemplates_',help="where to save the plots")
-parser.add_option("-p","--plots",dest="plots",default='all',help="possible plots: all, signal, nonRes, resW, scaleres")
-parser.add_option("-c","--cat",dest="categories",default='bb',help="categorization scheme")
-#parser.add_option("-b","--binmvv",dest="mvvbinning",type=int,default=168,help="168 or 84 or 42")
-#parser.add_option("-B","--binmjet",dest="mjetbinning",type=int,default=90,help="90 or 18")
+parser.add_option("-p","--plots",dest="plots",default='all',help="possible plots: all, signal, nonRes, nonReSyst, CRNonRes, CRNonReSyst, resW, resTop, res2, scaleres")
 parser.add_option("-d","--withDC",dest="withDC",type=int,default=1,help="include plots that require datacards")
 parser.add_option("-D","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=True)
 (options,args) = parser.parse_args()
 
-YEAR=str(options.year)
+YEAR=options.year
 inDir='Inputs_'+YEAR+'/'
 outDir=options.outDirPrefix+YEAR+'/'
 
 
 plots = options.plots
 if 'all' in plots:
-    plots = plots + ',signal,nonRes,resW,scaleres'
+    plots = plots + ',signal,nonRes,nonReSyst,CRNonRes,CRNonReSyst,res2,scaleres'
 
 
-signals = ['XWW','XWZ','XWH']
-leptons = ['mu','e']
-purities = ['LP','HP']
-categories = []
+COMPYEARS=0
+inDir16='Inputs_2016/'
+inDir17='Inputs_2017/'
+inDir18='Inputs_2018/'
+inDirR2='../Inputs_45bu/Inputs_Run2/'
+
+DOXWW=1
+DOXWZ=1
+DOXWH=1
+
+#signals = ['XWW','XWZ','XWH']
+signals = []
+if DOXWW: signals.append('XWW')
+if DOXWZ: signals.append('XWZ')
+if DOXWH: signals.append('XWH')
+
+leptons = ['mu','e']#['allL']#
+purities = ['LP','HP']#['allP']#
+categories = ['bb','nobb']#['bb','nobbHP','nobbLP']#
 DcFolder = 'Dc_XWW'
 
-if options.categories == 'old':
-    categories = ['nob']
-elif options.categories == 'bb':
-    categories = ['bb','nobb']
-#elif options.categories == 'charge':
-#    categories = ['Wplus','Wminus']
+minMJJ=20.0
+maxMJJ=210.0
+
+minMVV=600.0
+maxMVV=5000.0
 
 binsMJJ={}
-binsMJJ['bb']=18
-binsMJJ['nobb']=45
-binsMJJ['nob']=90
+binsMJJ['bb']=19
+binsMJJ['nobb']=38
+binsMJJ['nobbHP']=38
+binsMJJ['nobbLP']=38
+binsMJJ['nob']=95
 binsMVV={}
-binsMVV['bb']=42
-binsMVV['nobb']=168
-binsMVV['nob']=168
+binsMVV['bb']=176#44
+binsMVV['nobb']=176
+binsMVV['nobbHP']=176
+binsMVV['nobbLP']=176
+binsMVV['nob']=176
 
 varMVV = {}
 varMJJ = {}
@@ -77,7 +92,7 @@ def saveCanvas(canvas,name):
   #canvas.SaveAs(name+".png")
   canvas.SaveAs(name+".eps")
   os.system("convert -density 150 -quality 100 "+name+".eps "+name+".png")
-  os.system("rm "+name+".eps")
+  #os.system("rm "+name+".eps")
 
 def setColZGradient_Rainbow1():
     NRGBs = 5
@@ -152,76 +167,22 @@ def getMJJParams(filename,newname):
 
 
 
-def makeShapeUncertaintiesMJJ(filename,sample,tag,syst):
-    f=ROOT.TFile(filename)
-    hN = f.Get("histo").ProjectionY("nominal")
-    hU = f.Get("histo_"+syst+"_"+sample+"_"+tag+"Up").ProjectionY("up")
-    hD = f.Get("histo_"+syst+"_"+sample+"_"+tag+"Down").ProjectionY("down")
-    hN.SetLineColor(ROOT.kBlack)
-    hN.SetLineStyle(1)
-    hN.SetLineWidth(2)
-    hU.SetLineColor(ROOT.kBlack)
-    hU.SetLineStyle(3)
-    hU.SetLineWidth(2)
-
-    hD.SetLineColor(ROOT.kBlack)
-    hD.SetLineStyle(4)
-    hD.SetLineWidth(2)
-
-    c=ROOT.TCanvas("c")
-    c.cd()
-    frame=c.DrawFrame(40,0,160,0.07)
-    frame.GetXaxis().SetTitle("m_{jet} (GeV)")
-    frame.GetYaxis().SetTitle("a.u.")
-    hN.Draw("HIST,SAME")
-    hU.Draw("HIST,SAME")
-    hD.Draw("HIST,SAME")
-    cmslabel_sim(c,YEAR,12)
-
-    c.Update()
-    saveCanvas(c,outDir+"/"+sample+"_"+syst+tag)
-
-
-
-def makeShapeUncertaintiesMVV(filename,sample,tag,syst):
-    f=ROOT.TFile(filename)
-    hN = f.Get("histo").ProjectionX("nominal")
-    hU = f.Get("histo_"+syst+"_"+sample+"_"+tag+"Up").ProjectionX("up")
-    hD = f.Get("histo_"+syst+"_"+sample+"_"+tag+"Down").ProjectionX("down")
-    hN.SetLineColor(ROOT.kBlack)
-    hN.SetLineStyle(1)
-    hN.SetLineWidth(2)
-    hU.SetLineColor(ROOT.kBlack)
-    hU.SetLineStyle(3)
-    hU.SetLineWidth(2)
-
-    hD.SetLineColor(ROOT.kBlack)
-    hD.SetLineStyle(4)
-    hD.SetLineWidth(2)
-
-    c=ROOT.TCanvas("c")
-    c.cd()
-    frame=c.DrawFrame(600,0,4800,0.07)
-    frame.GetXaxis().SetTitle("m_{WV} (GeV)")
-    frame.GetYaxis().SetTitle("a.u.")
-    hN.Draw("HIST,SAME")
-    hU.Draw("HIST,SAME")
-    hD.Draw("HIST,SAME")
-    cmslabel_sim(c,YEAR,12)
-
-    c.Update()
-    saveCanvas(c,outDir+"/"+sample+"_"+syst+tag)
-
-
 
 def makeShapeUncertainties2D(filename,sample,syst):
     ROOT.gStyle.SetOptTitle(0)
     ROOT.gStyle.SetOptStat(0)
+    setColZGradient_PosNeg()
 
     f=ROOT.TFile(filename)
     hN = f.Get("histo")
+    if not f.GetListOfKeys().Contains("histo_"+syst+"Up"):
+        print 'Warning in makeShapeUncertainties2D: did not find uncertainty', syst
+        return
     hU = f.Get("histo_"+syst+"Up")
     hD = f.Get("histo_"+syst+"Down")
+    hN.Scale(1./hN.Integral())
+    hU.Scale(1./hU.Integral())
+    hD.Scale(1./hD.Integral())
     hU.Divide(hN)
     hD.Divide(hN)
 
@@ -229,17 +190,31 @@ def makeShapeUncertainties2D(filename,sample,syst):
     c.cd()
     hU.GetXaxis().SetTitle("m_{WV} (GeV)")
     hU.GetYaxis().SetTitle("m_{jet} (GeV)")
-    hU.Draw("COL")
-    saveCanvas(c,outDir+"/"+sample+"_"+syst+"Up")
+    hU.Draw("COLZ")
+    c.Update()
+    c.UseCurrentStyle()
+    c.SetRightMargin(0.14)
+    hU.GetZaxis().SetRangeUser(0.5,1.5)
+    #hU.GetZaxis().SetRangeUser(0.95,1.05)
+    pal=hU.GetListOfFunctions().FindObject("palette")
+    pal.SetX1NDC(0.875)
+    pal.SetX2NDC(0.90)
+    saveCanvas(c,outDir+"/"+sample+"_"+syst+"_2DUp")
 
     c=ROOT.TCanvas("c")
     c.cd()
     hD.GetXaxis().SetTitle("m_{WV} (GeV)")
     hD.GetYaxis().SetTitle("m_{jet} (GeV)")
-    hD.Draw("COL")
-    saveCanvas(c,outDir+"/"+sample+"_"+syst+"Down")
-
-
+    hD.Draw("COLZ")
+    c.Update()
+    c.UseCurrentStyle()
+    c.SetRightMargin(0.14)
+    hD.GetZaxis().SetRangeUser(0.5,1.5)
+    #hD.GetZaxis().SetRangeUser(0.95,1.05)
+    pal=hD.GetListOfFunctions().FindObject("palette")
+    pal.SetX1NDC(0.875)
+    pal.SetX2NDC(0.90)
+    saveCanvas(c,outDir+"/"+sample+"_"+syst+"_2DDown")
 
 def makeShapeUncertaintiesProj2D(filename,sample,syst):
     ROOT.gStyle.SetOptTitle(0)
@@ -247,52 +222,269 @@ def makeShapeUncertaintiesProj2D(filename,sample,syst):
 
     f=ROOT.TFile(filename)
     hN = f.Get("histo")
+    if not f.GetListOfKeys().Contains("histo_"+syst+"Up"):
+        print 'Warning in makeShapeUncertaintiesProj2D: did not find uncertainty', syst
+        return
+    hU = f.Get("histo_"+syst+"Up")
+    hD = f.Get("histo_"+syst+"Down")
+    
+    cX=ROOT.TCanvas("cX")
+    cX.cd()
+    padX1 = ROOT.TPad("padX1","",0.0,0.24,1.0,0.95,0)
+    padX2 = ROOT.TPad("padX2","",0.0,0.0,1.0,0.24,0)
+    padX1.SetTopMargin(0.)
+    padX1.SetBottomMargin(0.028)
+    padX1.SetLeftMargin(0.14)
+    padX1.SetRightMargin(0.04)
+    padX2.SetTopMargin(0.)
+    padX2.SetBottomMargin(0.5)
+    padX2.SetLeftMargin(0.14)
+    padX2.SetRightMargin(0.04)
+    padX1.Draw()
+    padX2.Draw()
+    padX1.cd()
+    projXN=hN.Clone().ProjectionX("qqqX")
+    projXN.Scale(1./projXN.Integral())
+    projXN.SetLineWidth(3)
+    projXN.SetLineColor(ROOT.kBlack)
+    #projXN.GetYaxis().SetRangeUser(0,)
+    projXN.GetXaxis().SetLabelOffset(3)
+    projXN.Draw("HIST")
+    projXU=hU.Clone().ProjectionX("qqqqX")
+    projXU.Scale(1./projXU.Integral())
+    projXU.SetLineWidth(3)
+    projXU.SetLineColor(ROOT.kRed)
+    projXU.GetXaxis().SetLabelOffset(3)
+    projXU.Draw("HIST,SAME")
+    projXD=hD.Clone().ProjectionX("qqqqqX")
+    projXD.Scale(1./projXD.Integral())
+    projXD.SetLineWidth(3)
+    projXD.SetLineColor(ROOT.kAzure+1)
+    projXD.GetXaxis().SetLabelOffset(3)
+    projXD.Draw("HIST,SAME")
+    projXN.GetYaxis().SetRangeUser(0,1.1*max(projXN.GetMaximum(),projXU.GetMaximum(),projXD.GetMaximum()))
+    lX=ROOT.TLegend(0.6,0.65,0.95,0.95)
+    lX.SetHeader(syst+" parameter")
+    lX.AddEntry(projXN,"nominal","l")
+    lX.AddEntry(projXU,"up","l")
+    lX.AddEntry(projXD,"down","l")
+    lX.SetBorderSize(0)
+    lX.SetFillStyle(0)
+    lX.SetTextSize(0.05)
+    lX.Draw()
+    padX1.RedrawAxis()
+    padX1.Update()
+    padX2.cd()
+    padX2.SetGridy()
+    ratioXN=projXN.Clone()
+    ratioXN.Divide(ratioXN)
+    ratioXN.GetXaxis().SetLabelSize(0.16)
+    ratioXN.GetYaxis().SetLabelSize(0.125)
+    ratioXN.GetXaxis().SetLabelOffset(0.007)
+    ratioXN.GetXaxis().SetTitleSize(0.21)
+    ratioXN.GetYaxis().SetTitleSize(0.11)
+    ratioXN.GetXaxis().SetTitleOffset(0.95)
+    ratioXN.GetYaxis().SetTitleOffset(0.45)
+    ratioXN.GetXaxis().SetTitle("m_{WV} (GeV)")
+    ratioXN.GetYaxis().SetTitle("Ratio to nominal")
+    ratioXN.GetYaxis().SetNdivisions(206)
+    ratioXN.GetYaxis().SetRangeUser(0.51,1.49)
+    ratioXN.Draw("HIST")
+    ratioXU=projXU.Clone()
+    ratioXU.Divide(projXN)
+    ratioXU.Draw("HIST,SAME")
+    ratioXD=projXD.Clone()
+    ratioXD.Divide(projXN)
+    ratioXD.Draw("HIST,SAME")
+    padX2.RedrawAxis()
+    padX2.Update()
+    saveCanvas(cX,outDir+"/"+sample+"_"+syst+"_ProjX")
+
+    cY=ROOT.TCanvas("cY")
+    cY.cd()
+    padY1 = ROOT.TPad("padY1","",0.0,0.24,1.0,0.95,0)
+    padY2 = ROOT.TPad("padY2","",0.0,0.0,1.0,0.24,0)
+    padY1.SetTopMargin(0.)
+    padY1.SetBottomMargin(0.028)
+    padY1.SetLeftMargin(0.14)
+    padY1.SetRightMargin(0.04)
+    padY2.SetTopMargin(0.)
+    padY2.SetBottomMargin(0.5)
+    padY2.SetLeftMargin(0.14)
+    padY2.SetRightMargin(0.04)
+    padY1.Draw()
+    padY2.Draw()
+    padY1.cd()
+    projYN=hN.Clone().ProjectionY("qqqY")
+    projYN.Scale(1./projYN.Integral())
+    projYN.SetLineWidth(3)
+    projYN.SetLineColor(ROOT.kBlack)
+    projYN.GetXaxis().SetLabelOffset(3)
+    projYN.Draw("HIST")
+    projYU=hU.Clone().ProjectionY("qqqqY")
+    projYU.Scale(1./projYU.Integral())
+    projYU.SetLineWidth(3)
+    projYU.SetLineColor(ROOT.kRed)
+    projYU.GetXaxis().SetLabelOffset(3)
+    projYU.Draw("HIST,SAME")
+    projYD=hD.Clone().ProjectionY("qqqqqY")
+    projYD.Scale(1./projYD.Integral())
+    projYD.SetLineWidth(3)
+    projYD.SetLineColor(ROOT.kAzure+1)
+    projYD.GetXaxis().SetLabelOffset(3)
+    projYD.Draw("HIST,SAME")
+    projYN.GetYaxis().SetRangeUser(0,1.1*max(projYN.GetMaximum(),projYU.GetMaximum(),projYD.GetMaximum()))
+    lY=ROOT.TLegend(0.6,0.65,0.95,0.95)
+    lY.SetHeader(syst+" parameter")
+    lY.AddEntry(projYN,"nominal","l")
+    lY.AddEntry(projYU,"up","l")
+    lY.AddEntry(projYD,"down","l")
+    lY.SetBorderSize(0)
+    lY.SetFillStyle(0)
+    lY.SetTextSize(0.05)
+    lY.Draw()
+    padY1.RedrawAxis()
+    padY1.Update()
+    padY2.cd()
+    padY2.SetGridy()
+    ratioYN=projYN.Clone()
+    ratioYN.Divide(ratioYN)
+    ratioYN.GetXaxis().SetLabelSize(0.16)
+    ratioYN.GetYaxis().SetLabelSize(0.125)
+    ratioYN.GetXaxis().SetLabelOffset(0.007)
+    ratioYN.GetXaxis().SetTitleSize(0.21)
+    ratioYN.GetYaxis().SetTitleSize(0.11)
+    ratioYN.GetXaxis().SetTitleOffset(0.95)
+    ratioYN.GetYaxis().SetTitleOffset(0.45)
+    ratioYN.GetXaxis().SetTitle("m_{jet} (GeV)")
+    ratioYN.GetYaxis().SetTitle("Ratio to nominal")
+    ratioYN.GetYaxis().SetNdivisions(206)
+    ratioYN.GetYaxis().SetRangeUser(0.51,1.49)
+    ratioYN.Draw("HIST")
+    ratioYU=projYU.Clone()
+    ratioYU.Divide(projYN)
+    ratioYU.Draw("HIST,SAME")
+    ratioYD=projYD.Clone()
+    ratioYD.Divide(projYN)
+    ratioYD.Draw("HIST,SAME")
+    padY2.RedrawAxis()
+    padY2.Update()
+    saveCanvas(cY,outDir+"/"+sample+"_"+syst+"_ProjY")
+
+def makeShapeUncertainties1D(filename,sample,syst,axistitle):
+    ROOT.gStyle.SetOptTitle(0)
+    ROOT.gStyle.SetOptStat(0)
+
+    f=ROOT.TFile(filename)
+    hN = f.Get("histo")
+    if not f.GetListOfKeys().Contains("histo_"+syst+"Up"):
+        print 'Warning in makeShapeUncertainties1D: did not find uncertainty', syst
+        return
     hU = f.Get("histo_"+syst+"Up")
     hD = f.Get("histo_"+syst+"Down")
     
     c=ROOT.TCanvas("c")
     c.cd()
-    proje1=hN.Clone().ProjectionX("qqq")
-    proje1.GetXaxis().SetTitle("m_{WV} (GeV)")
-    proje1.DrawNormalized("HIST")
-    proje1.SetLineColor(ROOT.kBlack)
-    proje1.GetYaxis().SetRangeUser(0,8)
-    proje2=hU.Clone().ProjectionX("qqqq")
-    proje2.SetLineColor(ROOT.kRed)
-    proje2.DrawNormalized("HIST,SAME")
-    proje3=hD.Clone().ProjectionX("qqqqq")
-    proje3.SetLineColor(ROOT.kBlue)
-    proje3.DrawNormalized("HIST,SAME")
-    l=ROOT.TLegend(0.6,0.6,0.85,0.85)
-    l.AddEntry(proje1,"nominal","l")
-    l.AddEntry(proje2,"up","l")
-    l.AddEntry(proje3,"down","l")
+    pad1 = ROOT.TPad("pad1","",0.0,0.24,1.0,0.95,0)
+    pad2 = ROOT.TPad("pad2","",0.0,0.0,1.0,0.24,0)
+    pad1.SetTopMargin(0.)
+    pad1.SetBottomMargin(0.028)
+    pad1.SetLeftMargin(0.14)
+    pad1.SetRightMargin(0.04)
+    pad2.SetTopMargin(0.)
+    pad2.SetBottomMargin(0.5)
+    pad2.SetLeftMargin(0.14)
+    pad2.SetRightMargin(0.04)
+    pad1.Draw()
+    pad2.Draw()
+    pad1.cd()
+    hN.Scale(1./hN.Integral())
+    hN.SetStats(0)
+    hN.SetLineWidth(3)
+    hN.SetLineColor(ROOT.kBlack)
+    hN.GetXaxis().SetLabelOffset(3)
+    hN.Draw("HIST")
+    hU.Scale(1./hU.Integral())
+    hU.SetStats(0)
+    hU.SetLineWidth(3)
+    hU.SetLineColor(ROOT.kRed)
+    hU.GetXaxis().SetLabelOffset(3)
+    hU.Draw("HIST,SAME")
+    hD.Scale(1./hD.Integral())
+    hD.SetStats(0)
+    hD.SetLineWidth(3)
+    hD.SetLineColor(ROOT.kAzure+1)
+    hD.GetXaxis().SetLabelOffset(3)
+    hD.Draw("HIST,SAME")
+    hN.GetYaxis().SetRangeUser(0,1.1*max(hN.GetMaximum(),hU.GetMaximum(),hD.GetMaximum()))
+    l=ROOT.TLegend(0.6,0.65,0.95,0.95)
+    l.SetHeader(syst+" parameter")
+    l.AddEntry(hN,"nominal","l")
+    l.AddEntry(hU,"up","l")
+    l.AddEntry(hD,"down","l")
     l.SetBorderSize(0)
     l.SetFillStyle(0)
+    l.SetTextSize(0.05)
     l.Draw()
-    saveCanvas(c,outDir+"/"+sample+"_"+syst+"ProjX")
+    pad1.RedrawAxis()
+    pad1.Update()
+    pad2.cd()
+    pad2.SetGridy()
+    ratioN=hN.Clone()
+    ratioN.Divide(ratioN)
+    ratioN.GetXaxis().SetLabelSize(0.16)
+    ratioN.GetYaxis().SetLabelSize(0.125)
+    ratioN.GetXaxis().SetLabelOffset(0.007)
+    ratioN.GetXaxis().SetTitleSize(0.21)
+    ratioN.GetYaxis().SetTitleSize(0.11)
+    ratioN.GetXaxis().SetTitleOffset(0.95)
+    ratioN.GetYaxis().SetTitleOffset(0.45)
+    ratioN.GetXaxis().SetTitle(axistitle)
+    ratioN.GetYaxis().SetTitle("Ratio to nominal")
+    ratioN.GetYaxis().SetNdivisions(206)
+    ratioN.GetYaxis().SetRangeUser(0.51,1.49)
+    ratioN.Draw("HIST")
+    ratioU=hU.Clone()
+    ratioU.Divide(hN)
+    ratioU.Draw("HIST,SAME")
+    ratioD=hD.Clone()
+    ratioD.Divide(hN)
+    ratioD.Draw("HIST,SAME")
+    pad2.RedrawAxis()
+    pad2.Update()
+    saveCanvas(c,outDir+"/"+sample+"_"+syst+"_")
 
-    c2=ROOT.TCanvas("c2")
-    c2.cd()
-    proje4=hN.Clone().ProjectionY("qqqa")
-    proje4.GetXaxis().SetTitle("m_{jet} (GeV)")
-    proje4.DrawNormalized("HIST")
-    proje4.SetLineColor(ROOT.kBlack)
-    proje4.GetYaxis().SetRangeUser(0,0.8)
-    proje5=hU.Clone().ProjectionY("qqqqa")
-    proje5.SetLineColor(ROOT.kRed)
-    proje5.DrawNormalized("HIST,SAME")
-    proje6=hD.Clone().ProjectionY("qqqqqa")
-    proje6.SetLineColor(ROOT.kBlue)
-    proje6.DrawNormalized("HIST,SAME")
-    l.Draw()
-    saveCanvas(c2,outDir+"/"+sample+"_"+syst+"ProjY")
+
 
     
+def extractResTemplateFromDC(DCfilename,cat,outputname,c):
+    f = ROOT.TFile(DCfilename)
+    w = f.Get("w")
+    pdf = w.pdf("shapeBkg_res_"+cat)
+    h2 = pdf.createHistogram(varMVV[c]+","+varMJJ[c])
+    h2.GetXaxis().SetTitle("m_{WV} (GeV)")
+    h2.GetYaxis().SetTitle("m_{jet} (GeV)")
+    h2.GetZaxis().SetTitle("")
+    fOut = ROOT.TFile(outputname+".root","recreate")
+    h2.Write("histo")
+    fOut.Close()
+
 def extractResWTemplateFromDC(DCfilename,cat,outputname,c):
     f = ROOT.TFile(DCfilename)
     w = f.Get("w")
     pdf = w.pdf("shapeBkg_resW_"+cat)
+    h2 = pdf.createHistogram(varMVV[c]+","+varMJJ[c])
+    h2.GetXaxis().SetTitle("m_{WV} (GeV)")
+    h2.GetYaxis().SetTitle("m_{jet} (GeV)")
+    h2.GetZaxis().SetTitle("")
+    fOut = ROOT.TFile(outputname+".root","recreate")
+    h2.Write("histo")
+    fOut.Close()
+
+def extractResTopTemplateFromDC(DCfilename,cat,outputname,c):
+    f = ROOT.TFile(DCfilename)
+    w = f.Get("w")
+    pdf = w.pdf("shapeBkg_resTop_"+cat)
     h2 = pdf.createHistogram(varMVV[c]+","+varMJJ[c])
     h2.GetXaxis().SetTitle("m_{WV} (GeV)")
     h2.GetYaxis().SetTitle("m_{jet} (GeV)")
@@ -313,6 +505,32 @@ def extractSignalTemplateFromDC(DCfilename,pdfname,signal,mx,outputname,c):
     h2.GetZaxis().SetTitle("")
     fOut = ROOT.TFile(outputname+".root","update")
     h2.Write(signal+str(mx).zfill(4))
+    fOut.Close()
+    f.Close()
+
+def extractSignalMjjPdfFromDC(DCfilename,pdfname,signal,mx,outputname,c):
+    f = ROOT.TFile(DCfilename)
+    w = f.Get("w")
+    w.var("MH").setVal(mx)
+    w.var("MH").setConstant(1)
+    pdf = w.pdf(pdfname)
+    h = pdf.createHistogram(varMJJ[c])
+    h.GetXaxis().SetTitle("m_{jet} (GeV)")
+    h.GetYaxis().SetTitle("")
+    fOut = ROOT.TFile(outputname+".root","update")
+    h.Write(signal+str(mx).zfill(4))
+    fOut.Close()
+
+def extractSignalVsMXTemplateFromDC(DCfilename,signal,cat,outputname,c):
+    f = ROOT.TFile(DCfilename)
+    w = f.Get("w")
+    pdf = w.pdf(signal+"_"+cat)
+    h2 = pdf.createHistogram("histo", w.var("MH"), ROOT.RooFit.Binning(binsMVV[c],minMVV,maxMVV), ROOT.RooFit.YVar(w.var(varMJJ[c]),ROOT.RooFit.Binning(binsMJJ[c],minMJJ,maxMJJ)))#, ROOT.RooFit.ConditionalObservables(ROOT.RooArgSet(w.var("MH"))))
+    h2.GetXaxis().SetTitle("m_{X} (GeV)")
+    h2.GetYaxis().SetTitle("m_{jet} (GeV)")
+    h2.GetZaxis().SetTitle("")
+    fOut = ROOT.TFile(outputname+".root","recreate")
+    h2.Write("histo")
     fOut.Close()
 
 
@@ -451,14 +669,15 @@ def compCategories(fileprefix,histoname,projection,lep,pur,cat,outputprefix,var,
     if logy:
         c1.SetLogy()
 
+    nL=len(lep)
     nP=len(pur)
     nC=len(cat)
-    f = np.zeros((2,nP,nC),dtype=object)
-    h2 = np.zeros((2,nP,nC),dtype=object)
-    h = np.zeros((2,nP,nC),dtype=object)
+    f = np.zeros((nL,nP,nC),dtype=object)
+    h2 = np.zeros((nL,nP,nC),dtype=object)
+    h = np.zeros((nL,nP,nC),dtype=object)
     hmaxmax = 0.
 
-    for l in range(2):
+    for l in range(nL):
         for p in range(nP):
             for c in range(nC):
                 filename = fileprefix+"_"+lep[l]+"_"+pur[p]+"_"+cat[c]+".root" 
@@ -487,14 +706,14 @@ def compCategories(fileprefix,histoname,projection,lep,pur,cat,outputprefix,var,
 
     lepColor=[ROOT.kBlue,ROOT.kRed]
     purHue=[-9,+2]
-    catStyle=[1,3]
+    catStyle=[1,3,9]
     lgd=ROOT.TLegend(0.6,0.91-2*2*nC*0.042,0.9,0.91)
     lgd.SetBorderSize(0)
     lgd.SetFillStyle(0)
     lgd.SetTextFont(42)
     lgd.SetTextSize(0.036)
 
-    for l in range(2):
+    for l in range(nL):
         for p in range(nP):
             for c in range(nC):
                 h[l][p][c].GetXaxis().SetTitle(xaxistitle)
@@ -508,6 +727,71 @@ def compCategories(fileprefix,histoname,projection,lep,pur,cat,outputprefix,var,
 
     lgd.Draw()
     saveCanvas(c1,outDir+"/"+outputprefix+"_"+var+("_log" if logy else ""))
+
+
+def compYears(fileprefixes,legends,histoname,projection,lep,pur,cat,outputprefix,var,xaxistitle,logy=False,rebin=0):
+
+    nL=len(lep)
+    nP=len(pur)
+    nC=len(cat)
+    nF=len(fileprefixes)
+    ca = np.zeros((nL,nP,nC),dtype=object)
+    lgd = np.zeros((nL,nP,nC),dtype=object)
+    f = np.zeros((nL,nP,nC,nF),dtype=object)
+    h2 = np.zeros((nL,nP,nC,nF),dtype=object)
+    h = np.zeros((nL,nP,nC,nF),dtype=object)
+
+    for l in range(nL):
+        for p in range(nP):
+            for c in range(nC):
+
+                ca[l][p][c]=ROOT.TCanvas("c_"+lep[l]+"_"+pur[p]+"_"+cat[c])
+                ca[l][p][c].cd()
+                if logy:
+                    ca[l][p][c].SetLogy()
+
+                for i in range(nF):
+                    filename = fileprefixes[i]+"_"+lep[l]+"_"+pur[p]+"_"+cat[c]+".root" 
+                    if not os.path.isfile(filename):
+                        print "Error in compCategories: file "+filename+" does not exist."
+                        return
+                    f[l][p][c][i] = ROOT.TFile(filename)
+                    if projection:
+                        h2[l][p][c][i] = f[l][p][c][i].Get(histoname)
+                        if var=="MVV":
+                            h[l][p][c][i] = h2[l][p][c][i].Clone().ProjectionX('_px_'+lep[l]+'_'+pur[p]+'_'+cat[c]+'_'+str(i))
+                        elif var=="MJJ":
+                            h[l][p][c][i] = h2[l][p][c][i].Clone().ProjectionY('_py_'+lep[l]+'_'+pur[p]+'_'+cat[c]+'_'+str(i))
+                    else:
+                        h[l][p][c][i] = f[l][p][c][i].Get(histoname)
+                    if rebin!=0:
+                        print "Info in compCategories: rebinning ("+str(rebin)+")"
+                        h[l][p][c][i].Rebin(rebin)
+                    h[l][p][c][i].Scale(1./h[l][p][c][i].Integral())
+
+                hmax = max([h[l][p][c][i].GetMaximum() for i in range(nF)])
+                if not logy:
+                    h[l][p][c][0].SetMinimum(0)
+                h[l][p][c][0].SetMaximum(hmax*(2. if logy else 1.1))
+
+                color=[ROOT.kBlue-7,ROOT.kGreen-3,ROOT.kOrange-5,ROOT.kBlack]
+                lgd[l][p][c]=ROOT.TLegend(0.6,0.91-2*2*nC*0.042,0.9,0.91)
+                lgd[l][p][c].SetBorderSize(0)
+                lgd[l][p][c].SetFillStyle(0)
+                lgd[l][p][c].SetTextFont(42)
+                lgd[l][p][c].SetTextSize(0.036)
+
+                for i in range(nF):
+                    h[l][p][c][i].GetXaxis().SetTitle(xaxistitle)
+                    h[l][p][c][i].GetYaxis().SetTitle("integral normalized to 1")
+                    h[l][p][c][i].UseCurrentStyle()
+                    h[l][p][c][i].SetStats(0)
+                    h[l][p][c][i].SetLineColor(color[i])
+                    lgd[l][p][c].AddEntry(h[l][p][c][i],lep[l]+", "+pur[p]+", "+cat[c]+", "+legends[i],"l")
+                    h[l][p][c][i].Draw("hist,same")
+
+                lgd[l][p][c].Draw()
+                saveCanvas(ca[l][p][c],outDir+"/"+outputprefix+"_"+lep[l]+"_"+pur[p]+"_"+cat[c]+"_"+var+("_log" if logy else ""))
 
 
 def makeSignalParamFromHisto(filename,outputname,var,signal,mxpoints):
@@ -531,6 +815,7 @@ def makeSignalParamFromHisto(filename,outputname,var,signal,mxpoints):
     hmaxmax = 0.
     for m in range(nM):
         if not f.GetListOfKeys().Contains(signal+masses[m]):
+            print 'Warning in makeSignalParamFromHisto: did not find histo', signal+masses[m]
             continue
         h2[m] = f.Get(signal+masses[m])
         if var=="MVV":
@@ -621,7 +906,7 @@ def slopeVsMjet(fileprefix,graphname,lep,pur,cat,outputprefix):
                 g[l][p][c].SetMarkerColor(lepColor[l]+purHue[p])
                 g[l][p][c].SetMarkerStyle(1)
                 g[l][p][c].Draw(("ALP","LPSAME")[l+p+c!=0])
-                g[l][p][c].GetXaxis().SetRangeUser(30.,210.)
+                g[l][p][c].GetXaxis().SetRangeUser(minMJJ,maxMJJ)
                 g[l][p][c].GetYaxis().SetRangeUser(-0.008,-0.002)
                 lgd.AddEntry(g[l][p][c],lep[l]+", "+pur[p]+", "+cat[c],"l")
 
@@ -703,22 +988,21 @@ def makeTemplatesProjMJJ(filename1,filename2,tag):
 
 def makeSignalShapeParam(fileW,fileZ,fileH,var,region,outputPrefix):
 
-    n=3
-    if not os.path.isfile(fileW):
+    if DOXWW and not os.path.isfile(fileW):
         print "Error in makeSignalShapeParam: file "+fileW+" does not exist."
         return
-    if not os.path.isfile(fileZ):
+    if DOXWZ and not os.path.isfile(fileZ):
         print "Error in makeSignalShapeParam: file "+fileZ+" does not exist."
         return
-    if not os.path.isfile(fileH):
-        print "Warning in makeSignalShapeParam: file "+fileH+" does not exist."
-        n=2
+    if DOXWH and not os.path.isfile(fileH):
+        print "Error in makeSignalShapeParam: file "+fileH+" does not exist."
+        return
 
-    contribs = [
-        (fileW, colorSignal['XWW'], 20, "X #rightarrow WW",),
-        (fileZ, colorSignal['XWZ'], 21, "X #rightarrow WZ",),
-        (fileH, colorSignal['XWH'], 22, "X #rightarrow WH",),
-        ]
+    contribs = []
+    if DOXWW: contribs.append((fileW, colorSignal['XWW'], 20, "X #rightarrow WW",))
+    if DOXWZ: contribs.append((fileZ, colorSignal['XWZ'], 21, "X #rightarrow WZ",))
+    if DOXWH: contribs.append((fileH, colorSignal['XWH'], 22, "X #rightarrow WH",))
+    n=len(contribs)
 
     f=[None]*n
     g=[None]*n
@@ -785,22 +1069,20 @@ def makeSignalShapeParam(fileW,fileZ,fileH,var,region,outputPrefix):
 
 def makeSignalYieldParam(fileW,fileZ,fileH,outputname):
 
-    n=3
-    if not os.path.isfile(fileW):
+    if DOXWW and not os.path.isfile(fileW):
         print "Error in makeSignalYieldParam: file "+fileW+" does not exist."
         return
-    if not os.path.isfile(fileZ):
+    if DOXWZ and not os.path.isfile(fileZ):
         print "Error in makeSignalYieldParam: file "+fileZ+" does not exist."
         return
-    if not os.path.isfile(fileH):
-        print "Warning in makeSignalYieldParam: file "+fileH+" does not exist."
-        n=2
+    if DOXWH and not os.path.isfile(fileH):
+        print "Error in makeSignalYieldParam: file "+fileH+" does not exist."
+        return
 
-    contribs = [
-        (fileW, colorSignal['XWW'], 20, "X #rightarrow WW",),
-        (fileZ, colorSignal['XWZ'], 21, "X #rightarrow WZ",),
-        (fileH, colorSignal['XWH'], 22, "X #rightarrow WH",),
-        ]
+    contribs = []
+    if DOXWW: contribs.append((fileW, colorSignal['XWW'], 20, "X #rightarrow WW",))
+    if DOXWZ: contribs.append((fileZ, colorSignal['XWZ'], 21, "X #rightarrow WZ",))
+    if DOXWH: contribs.append((fileH, colorSignal['XWH'], 22, "X #rightarrow WH",))
     n=len(contribs)
 
     f=[None]*n
@@ -815,6 +1097,7 @@ def makeSignalYieldParam(fileW,fileZ,fileH,outputname):
     l.SetBorderSize(0)
     l.SetFillStyle(0)
 
+    maxy=0.
     for j in range(n):
         g[j]=f[j].Get('yield')
         g[j].Draw(("A" if j==0 else "")+"Psame")
@@ -827,26 +1110,26 @@ def makeSignalYieldParam(fileW,fileZ,fileH,outputname):
         func[j]=g[j].GetFunction("func")
         func[j].SetLineColor(contribs[j][1])
         l.AddEntry(g[j],contribs[j][3],"p")
+        maxtemp=g[j].GetHistogram().GetMaximum()
+        if maxtemp>maxy: maxy=maxtemp
 
     g[0].GetXaxis().SetRangeUser(minmx,maxmx)
-    g[0].GetYaxis().SetRangeUser(0.,1.3*g[0].GetHistogram().GetMaximum())
+    g[0].GetYaxis().SetRangeUser(0.,1.3*maxy)
     l.Draw()
     cmslabel_sim(c,YEAR,11)
     saveCanvas(c,outDir+'/'+outputname)
 
 
 
-def makeResWMJJShapeParam(fileResW,region):
+def makeResWTopMergedMJJShapeParam(fileResW,region,outputPrefix):
 
     peaks = [
         (ROOT.kOrange+2,  20, "merged W",),
         (ROOT.kGreen+1,   21, "merged top",),
         ]
-    f=[None]*2
-    g=[None]*2
-    func=[None]*2    
-
     f = ROOT.TFile(fileResW)
+    g=[None]*2
+    func=[None]*2
 
     paramsPerPeak = [
         ("mean",  "meanW",  "meanTop",  "#mu (GeV)",    50,  250, ),
@@ -865,7 +1148,7 @@ def makeResWMJJShapeParam(fileResW,region):
         name = paramsPerPeak[i][0]
         c=ROOT.TCanvas("c_"+name)
         c.cd()
-        frame=c.DrawFrame(800,paramsPerPeak[i][4],5000,paramsPerPeak[i][5])
+        frame=c.DrawFrame(minMVV,paramsPerPeak[i][4],maxMVV,paramsPerPeak[i][5])
         frame.GetXaxis().SetTitle("m_{WV} (GeV)")
         frame.GetYaxis().SetTitle(paramsPerPeak[i][3])
         l=ROOT.TLegend(0.6,0.75,0.9,0.85)
@@ -885,13 +1168,13 @@ def makeResWMJJShapeParam(fileResW,region):
             l.AddEntry(g[j],peaks[j][2],"p")
         l.Draw()
         cmslabel_sim(c,YEAR,11)
-        saveCanvas(c,outDir+"/paramresWMJJShape_"+region+"_"+name)
+        saveCanvas(c,outDir+"/"+outputPrefix+region+"_"+name)
 
     for i in range(4):
         name = paramsCommon[i][0]
         c=ROOT.TCanvas("c_"+name)
         c.cd()
-        frame=c.DrawFrame(800,paramsCommon[i][2],5000,paramsCommon[i][3])
+        frame=c.DrawFrame(minMVV,paramsCommon[i][2],maxMVV,paramsCommon[i][3])
         frame.GetXaxis().SetTitle("m_{WV} (GeV)")
         frame.GetYaxis().SetTitle(paramsCommon[i][1])
         color=ROOT.kBlue+1
@@ -906,7 +1189,54 @@ def makeResWMJJShapeParam(fileResW,region):
         funcc.SetLineColor(color)
         funcc.Draw("lsame")
         cmslabel_sim(c,YEAR,11)
-        saveCanvas(c,outDir+"/paramresWMJJShape_"+region+"_"+name)
+        saveCanvas(c,outDir+"/"+outputPrefix+region+"_"+name)
+
+
+
+def makeResWResTopMJJShapeParam(fileResW,fileResTop,region,outputPrefix):
+
+    peaks = [
+        (ROOT.kOrange+2,  20, "W",),
+        (ROOT.kGreen+1,   21, "top",),
+        ]
+    f = [ROOT.TFile(fileResW),ROOT.TFile(fileResTop)]
+    g=[None]*2
+    func=[None]*2
+
+    paramsPerPeak = [
+        ("mean",  "mean",   "#mu (GeV)",    50,  250, ),
+        ("sigma", "sigma",  "#sigma (GeV)", 0,   50,  ),
+        ("alpha", "alpha",  "#alpha",       0,   5,   ),
+        ("alpha2","alpha2", "#alpha2",      0,   5,   ),
+        ("n",     "n",      "n",            0,   10., ),
+        ("n2",    "n2",     "n2",           0,   10., ),
+        ]
+
+    for i in range(6):
+        name = paramsPerPeak[i][0]
+        c=ROOT.TCanvas("c_"+name)
+        c.cd()
+        frame=c.DrawFrame(minMVV,paramsPerPeak[i][3],maxMVV,paramsPerPeak[i][4])
+        frame.GetXaxis().SetTitle("m_{WV} (GeV)")
+        frame.GetYaxis().SetTitle(paramsPerPeak[i][2])
+        l=ROOT.TLegend(0.6,0.75,0.9,0.85)
+        l.SetBorderSize(0)
+        l.SetFillStyle(0)
+        for j in range(2):
+            g[j]=f[j].Get(paramsPerPeak[i][1])
+            g[j].SetName(name+str(j))
+            g[j].SetMarkerColor(peaks[j][0])
+            g[j].SetMarkerStyle(peaks[j][1])
+            g[j].SetMarkerSize(0.8)
+            g[j].SetLineColor(peaks[j][0])
+            g[j].Draw("Psame")
+            func[j]=f[j].Get(paramsPerPeak[i][1]+"_func")
+            func[j].SetLineColor(peaks[j][0])
+            func[j].Draw("lsame")
+            l.AddEntry(g[j],peaks[j][2],"p")
+        l.Draw()
+        cmslabel_sim(c,YEAR,11)
+        saveCanvas(c,outDir+"/"+outputPrefix+region+"_"+name)
 
 
 
@@ -1187,7 +1517,7 @@ def makeBias():
 
 
 
-def makeKernelScaleResolution(filename,histoname):
+def makeKernelScaleResolution(filename,histoname,outputPrefix):
     #ROOT.gStyle.SetOptTitle(0)
     #ROOT.gStyle.SetOptStat(0)
 
@@ -1199,21 +1529,19 @@ def makeKernelScaleResolution(filename,histoname):
 
     f=ROOT.TFile(filename)
     histo=f.Get(histoname)
-    name=""
+    suffix=""
     if "scalex" in histoname:
         histo.GetYaxis().SetTitle("m_{WV} scale")
-        name="background_scale_MVV.root"
+        suffix="scale_MVV"
     if "scaley" in histoname:
         histo.GetYaxis().SetTitle("m_{jet} scale")
-        name="background_scale_MJJ.root"
-
+        suffix="scale_MJJ"
     if "resx" in histoname:
         histo.GetYaxis().SetTitle("m_{WV} resolution")
-        name="background_resolution_MVV.root"
-
+        suffix="resolution_MVV"
     if "resy" in histoname:
         histo.GetYaxis().SetTitle("m_{jet} resolution")
-        name="background_resolution_MJJ.root"
+        suffix="resolution_MJJ"
 
     if histo.GetXaxis().GetTitle()=="":
         histo.GetXaxis().SetTitle("gen jet p_{T} (GeV)")
@@ -1227,7 +1555,7 @@ def makeKernelScaleResolution(filename,histoname):
     histo.GetXaxis().SetLabelSize(0.035)
     histo.GetYaxis().SetLabelSize(0.035)
     cmslabel_sim(c,YEAR,0)
-    saveCanvas(c,outDir+"/"+name.replace(".root",""))    
+    saveCanvas(c,outDir+"/detectorParam_"+outputPrefix+suffix)
 
 
 
@@ -1270,21 +1598,6 @@ makeTopMJJParam("LNUJJ_2016/LNuJJ_MJJ_topRes_LP.root",'LP')
 makeBackgroundMVVParamPlot("LNUJJ_2016/combinedSlow.root","Wjets_MVV_nob_mu_HP_13TeV",varMVV,'Wjets_mu_')
 makeBackgroundMVVParamPlot("LNUJJ_2016/combinedSlow.root","Wjets_MVV_nob_e_HP_13TeV",varMVV,'Wjets_e_')
 
-
-makeShapeUncertaintiesMJJ("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_HP.root","Wjets","HP","slopeSystMJJ")
-makeShapeUncertaintiesMJJ("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_HP.root","Wjets","HP","meanSystMJJ")
-makeShapeUncertaintiesMJJ("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_HP.root","Wjets","HP","widthSystMJJ")
-
-makeShapeUncertaintiesMJJ("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_LP.root","Wjets","LP","slopeSystMJJ")
-makeShapeUncertaintiesMJJ("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_LP.root","Wjets","LP","meanSystMJJ")
-makeShapeUncertaintiesMJJ("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_LP.root","Wjets","LP","widthSystMJJ")
-
-
-makeShapeUncertaintiesMVV("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_HP.root","Wjets","mu","slopeSyst")
-makeShapeUncertaintiesMVV("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_HP.root","Wjets","mu","meanSyst0")
-makeShapeUncertaintiesMVV("LNUJJ_2016/LNuJJ_MVVHist_Wjets_mu_HP.root","Wjets","mu","widthSyst")
-
-
 makeGOF("gof.root",23447.0)
 makeBias()
 
@@ -1294,142 +1607,502 @@ makeTopVsVJetsMVV(inDir+"LNuJJ_nonRes_COND2D_mu_HP_nob.root")
 
 
 if 'nonRes' in plots:
+    #'''
     compCategories(inDir+"LNuJJ_nonRes_2D","histo",True,leptons,purities,categories,"compTemplate_nonRes","MVV","m_{WV} (GeV)",False)
     compCategories(inDir+"LNuJJ_nonRes_2D","histo",True,leptons,purities,categories,"compTemplate_nonRes","MVV","m_{WV} (GeV)",True)
     compCategories(inDir+"LNuJJ_nonRes_2D","histo",True,leptons,purities,categories,"compTemplate_nonRes","MJJ","m_{jet} (GeV)")
-    compCategories(inDir+"LNuJJ","nonRes",True,leptons,purities,categories,"compReco_nonRes","MVV","m_{WV} (GeV)",False)
-    compCategories(inDir+"LNuJJ","nonRes",True,leptons,purities,categories,"compReco_nonRes","MVV","m_{WV} (GeV)",True)
-    compCategories(inDir+"LNuJJ","nonRes",True,leptons,purities,categories,"compReco_nonRes","MJJ","m_{jet} (GeV)")
+    compCategories(inDir+"LNuJJ_norm","nonRes",True,leptons,purities,categories,"compReco_nonRes","MVV","m_{WV} (GeV)",False)
+    compCategories(inDir+"LNuJJ_norm","nonRes",True,leptons,purities,categories,"compReco_nonRes","MVV","m_{WV} (GeV)",True)
+    compCategories(inDir+"LNuJJ_norm","nonRes",True,leptons,purities,categories,"compReco_nonRes","MJJ","m_{jet} (GeV)")
 
+    if COMPYEARS:
+        compYears([inDir16+"LNuJJ_nonRes_2D",inDir17+"LNuJJ_nonRes_2D",inDir18+"LNuJJ_nonRes_2D",inDirR2+"LNuJJ_nonRes_2D"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_nonRes","MVV","m_{WV} (GeV)",False)
+        compYears([inDir16+"LNuJJ_nonRes_2D",inDir17+"LNuJJ_nonRes_2D",inDir18+"LNuJJ_nonRes_2D",inDirR2+"LNuJJ_nonRes_2D"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_nonRes","MVV","m_{WV} (GeV)",True)
+        compYears([inDir16+"LNuJJ_nonRes_2D",inDir17+"LNuJJ_nonRes_2D",inDir18+"LNuJJ_nonRes_2D",inDirR2+"LNuJJ_nonRes_2D"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_nonRes","MJJ","m_{jet} (GeV)")
+    #'''
     #slopeVsMjet(inDir+"LNuJJ_nonRes_COND2D","gr_tailSlopeVsMjet_histo",leptons,purities,categories,"nonRes_tailSlopeVsMjet")
 
+    #'''
     for c in categories:
-        os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -c {c} -b {b} -B {B}".format(i=inDir, o=outDir, C='nonRes', c=c, b=binsMVV[c], B=binsMJJ[c]))
-        os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -c {c} -b {b} -B {B} -d 1".format(i=inDir, o=outDir, C='nonRes', c=c, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
+        for p in purities:
+            for l in leptons:
+                #continue
+                
+                #'''
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B}".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c]))
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -d 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
+                #'''
 
+                #'''
+                makeTemplate2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","histo","template_nonRes_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+".root","histo","templCond_nonRes_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarse","template_nonResCoarse_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarsesmoothed","template_nonResCoarseSmoothed_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","nonRes","reco_nonRes_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_GEN.root","nonRes","gen_nonRes_"+l+"_"+p+"_"+c)
+                makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","nonRes","templateVsReco_nonRes_"+l+"_"+p+"_"+c) #,4,(5,0)[binsMJJ[c]==18])
+                #'''
+                ##makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarse",inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","nonRes","templateVsReco_nonResCoarse_"+l+"_"+p+"_"+c)
+                #makeTemplateVsReco1D(inDir+"LNuJJ_nonRes_MVV_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","nonRes","templateVsReco1D_nonRes_MVV_"+l+"_"+p+"_"+c,"MVV","m_{WV} (GeV)")
+
+if 'nonReSyst' in plots:
+    for c in categories:
         for p in purities:
             for l in leptons:
                 #continue
 
-                makeTemplate2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","histo","template_nonRes_"+l+"_"+p+"_"+c)
-                #makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+".root","histo","templCond_nonRes_"+l+"_"+p+"_"+c)
-                makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarse","template_nonResCoarse_"+l+"_"+p+"_"+c)
-                makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","nonRes","reco_nonRes_"+l+"_"+p+"_"+c)
-                makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_GEN.root","nonRes","gen_nonRes_"+l+"_"+p+"_"+c)
-                makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","nonRes","templateVsReco_nonRes_"+l+"_"+p+"_"+c,4,(5,0)[binsMJJ[c]==18])
-
-                ##makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarse",inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","nonRes","templateVsReco_nonResCoarse_"+l+"_"+p+"_"+c)
-                #makeTemplateVsReco1D(inDir+"LNuJJ_nonRes_MVV_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","nonRes","templateVsReco1D_nonRes_MVV_"+l+"_"+p+"_"+c,"MVV","m_{WV} (GeV)")
-
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTX")
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTX")
+                '''
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTX")
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTX")
                 makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTY")
                 makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTX")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTX")
-            
-                ##makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTY")
-                ##makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTY")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"GPTBoth")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"GPT2Both")
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"GPTX")
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"GPT2X")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"SDY")
+
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTX")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTX")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"GPTBoth")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"GPT2Both")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"GPTX")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"GPT2X")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"SDY")
+                #'''
+
+                #'''
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"MVVScale")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"Diag")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"logWeight")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"MJJScale")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"SD")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTY")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTY")
+
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"MVVScale")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"Diag")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"logWeight")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"MJJScale")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"SD")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTY")
+                #'''
+
+
+if 'CRNonRes' in plots:
+    #'''
+    compCategories(inDir+"LNuJJ_nonRes_CR_2D","histo",True,leptons,purities,categories,"compTemplate_CRnonRes","MVV","m_{WV} (GeV)",False)
+    compCategories(inDir+"LNuJJ_nonRes_CR_2D","histo",True,leptons,purities,categories,"compTemplate_CRnonRes","MVV","m_{WV} (GeV)",True)
+    compCategories(inDir+"LNuJJ_nonRes_CR_2D","histo",True,leptons,purities,categories,"compTemplate_CRnonRes","MJJ","m_{jet} (GeV)")
+    compCategories(inDir+"LNuJJ_norm_CR","nonRes_CR",True,leptons,purities,categories,"compReco_CRnonRes","MVV","m_{WV} (GeV)",False)
+    compCategories(inDir+"LNuJJ_norm_CR","nonRes_CR",True,leptons,purities,categories,"compReco_CRnonRes","MVV","m_{WV} (GeV)",True)
+    compCategories(inDir+"LNuJJ_norm_CR","nonRes_CR",True,leptons,purities,categories,"compReco_CRnonRes","MJJ","m_{jet} (GeV)")
+
+    if COMPYEARS:
+        compYears([inDir16+"LNuJJ_nonRes_CR_2D",inDir17+"LNuJJ_nonRes_CR_2D",inDir18+"LNuJJ_nonRes_CR_2D",inDirR2+"LNuJJ_nonRes_CR_2D"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_CRnonRes","MVV","m_{WV} (GeV)",False)
+        compYears([inDir16+"LNuJJ_nonRes_CR_2D",inDir17+"LNuJJ_nonRes_CR_2D",inDir18+"LNuJJ_nonRes_CR_2D",inDirR2+"LNuJJ_nonRes_CR_2D"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_CRnonRes","MVV","m_{WV} (GeV)",True)
+        compYears([inDir16+"LNuJJ_nonRes_CR_2D",inDir17+"LNuJJ_nonRes_CR_2D",inDir18+"LNuJJ_nonRes_CR_2D",inDirR2+"LNuJJ_nonRes_CR_2D"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_CRnonRes","MJJ","m_{jet} (GeV)")
+    #'''
+
+    #'''
+    for c in categories:
+        for p in purities:
+            for l in leptons:
+                #continue
+                
+                #'''
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -R".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c]))
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -R -d 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
+                #'''
+
+                #'''
+                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","histo","template_CRnonRes_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_COND2D_"+l+"_"+p+"_"+c+".root","histo","templCond_CRnonRes_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarse","template_CRnonResCoarse_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarsesmoothed","template_CRnonResCoarseSmoothed_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+".root","nonRes_CR","reco_CRnonRes_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_GEN.root","nonRes_CR","gen_CRnonRes_"+l+"_"+p+"_"+c)
+                makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+".root","nonRes_CR","templateVsReco_CRnonRes_"+l+"_"+p+"_"+c) #,4,(5,0)[binsMJJ[c]==18])
+                #'''
+
+if 'CRNonReSyst' in plots:
+    for c in categories:
+        for p in purities:
+            for l in leptons:
+                #continue
+
+                '''
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"PTX")
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"OPTX")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"PTY")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"OPTY")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"GPTBoth")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"GPT2Both")
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"GPTX")
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"GPT2X")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"SDY")
+
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"PTX")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"OPTX")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"PTY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"OPTY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"GPTBoth")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"GPT2Both")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"GPTX")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"GPT2X")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"SDY")
+                #'''
+
+                #'''
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"MVVScale")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"Diag")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"logWeight")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"MJJScale")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"SD")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"PTY")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"OPTY")
+
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"MVVScale")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"Diag")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"logWeight")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"MJJScale")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"SD")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"PTY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"OPTY")
+                #'''
+
+
+if 'res2' in plots:
+    #'''
+    if options.withDC:
+        for c in categories:
+            for p in purities:
+                for l in leptons:
+                    extractResTemplateFromDC(DcFolder+"/combined_"+YEAR+".root",c+"_"+l+"_"+p+"_"+YEAR+"_opt",inDir+"LNuJJ_res_2DFromDC_"+l+"_"+p+"_"+c,c)
+                    ##extractResTemplateFromDC(DcFolder+"/combined_"+YEAR+".root",c+"_"+l+"_"+p+"_"+YEAR,inDir+"LNuJJ_res_2DFromDC_"+l+"_"+p+"_"+c,c) ##old syntax, before new res 2D fit
+    #'''
+    #'''
+    #compCategories(inDir+"LNuJJ_res_MVV","histo",False,leptons,purities,categories,"compTemplate_res","MVV","m_{WV} (GeV)")
+    #compCategories(inDir+"LNuJJ_res_MVV","histo",False,leptons,purities,categories,"compTemplate_res","MVV","m_{WV} (GeV)",True)
+    if options.withDC:
+        compCategories(inDir+"LNuJJ_res_2DFromDC","histo",True,leptons,purities,categories,"compTemplate_res","MVV","m_{WV} (GeV)",False)
+        compCategories(inDir+"LNuJJ_res_2DFromDC","histo",True,leptons,purities,categories,"compTemplate_res","MVV","m_{WV} (GeV)",True)
+        compCategories(inDir+"LNuJJ_res_2DFromDC","histo",True,leptons,purities,categories,"compTemplate_res","MJJ","m_{jet} (GeV)")
+        compCategories(inDir+"LNuJJ_norm","res",True,leptons,purities,categories,"compReco_res","MVV","m_{WV} (GeV)",False)
+        compCategories(inDir+"LNuJJ_norm","res",True,leptons,purities,categories,"compReco_res","MVV","m_{WV} (GeV)",True)
+        compCategories(inDir+"LNuJJ_norm","res",True,leptons,purities,categories,"compReco_res","MJJ","m_{jet} (GeV)")
+    #'''
+    #'''
+    if COMPYEARS:
+        compYears([inDir16+"LNuJJ_res_2DFromDC",inDir17+"LNuJJ_res_2DFromDC",inDir18+"LNuJJ_res_2DFromDC",inDirR2+"LNuJJ_res_2DFromDC"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_res","MVV","m_{WV} (GeV)",False)
+        compYears([inDir16+"LNuJJ_res_2DFromDC",inDir17+"LNuJJ_res_2DFromDC",inDir18+"LNuJJ_res_2DFromDC",inDirR2+"LNuJJ_res_2DFromDC"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_res","MVV","m_{WV} (GeV)",True)
+        compYears([inDir16+"LNuJJ_res_2DFromDC",inDir17+"LNuJJ_res_2DFromDC",inDir18+"LNuJJ_res_2DFromDC",inDirR2+"LNuJJ_res_2DFromDC"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_res","MJJ","m_{jet} (GeV)")
+    #'''
+    #'''
+    for c in categories:
+        for p in purities:
+            for l in leptons:
+                #continue
+                #'''
+                if options.withDC:
+                    os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B}".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c]))
+                #'''
+                #'''
+                if options.withDC:
+                    makeTemplate2D(inDir+"LNuJJ_res_2DFromDC_"+l+"_"+p+"_"+c+".root","histo","template_res_"+l+"_"+p+"_"+c)
+                    makeTemplateVsReco2D(inDir+"LNuJJ_res_2DFromDC_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","res","templateVsReco_res_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","res","reco_res_"+l+"_"+p+"_"+c)
+                #'''
+
+            #'''
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"MVVScale")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"Diag")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"scaleY")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"resY")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"fractionY")
+            makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"MVVScale")
+            makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"Diag")
+            makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"scaleY")
+            makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"resY")
+            makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"fractionY")
+            #'''
 
 
 if 'resW' in plots:
+    #'''
+    if options.withDC:
+        for c in categories:
+            for p in purities:
+                for l in leptons:
+                    extractResWTemplateFromDC(DcFolder+"/combined_"+YEAR+".root",c+"_"+l+"_"+p+"_"+YEAR+"_opt",inDir+"LNuJJ_resW_2DFromDC_"+l+"_"+p+"_"+c,c)
+                    ##extractResWTemplateFromDC(DcFolder+"/combined_"+YEAR+".root",c+"_"+l+"_"+p+"_"+YEAR,inDir+"LNuJJ_resW_2DFromDC_"+l+"_"+p+"_"+c,c) ##old syntax, before new resW 2D fit
+    #'''
+    #'''
     #compCategories(inDir+"LNuJJ_resW_MVV","histo",False,leptons,purities,categories,"compTemplate_resW","MVV","m_{WV} (GeV)")
     #compCategories(inDir+"LNuJJ_resW_MVV","histo",False,leptons,purities,categories,"compTemplate_resW","MVV","m_{WV} (GeV)",True)
     if options.withDC:
         compCategories(inDir+"LNuJJ_resW_2DFromDC","histo",True,leptons,purities,categories,"compTemplate_resW","MVV","m_{WV} (GeV)",False)
         compCategories(inDir+"LNuJJ_resW_2DFromDC","histo",True,leptons,purities,categories,"compTemplate_resW","MVV","m_{WV} (GeV)",True)
         compCategories(inDir+"LNuJJ_resW_2DFromDC","histo",True,leptons,purities,categories,"compTemplate_resW","MJJ","m_{jet} (GeV)")
-        compCategories(inDir+"LNuJJ","resW",True,leptons,purities,categories,"compReco_resW","MVV","m_{WV} (GeV)",False)
-        compCategories(inDir+"LNuJJ","resW",True,leptons,purities,categories,"compReco_resW","MVV","m_{WV} (GeV)",True)
-        compCategories(inDir+"LNuJJ","resW",True,leptons,purities,categories,"compReco_resW","MJJ","m_{jet} (GeV)")
-
-    if options.withDC:
-        for c in categories:
-            os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -c {c} -b {b} -B {B}".format(i=inDir, o=outDir, C='resW', c=c, b=binsMVV[c], B=binsMJJ[c]))
-
+        compCategories(inDir+"LNuJJ_norm","resW",True,leptons,purities,categories,"compReco_resW","MVV","m_{WV} (GeV)",False)
+        compCategories(inDir+"LNuJJ_norm","resW",True,leptons,purities,categories,"compReco_resW","MVV","m_{WV} (GeV)",True)
+        compCategories(inDir+"LNuJJ_norm","resW",True,leptons,purities,categories,"compReco_resW","MJJ","m_{jet} (GeV)")
+    #'''
+    #'''
+    if COMPYEARS:
+        compYears([inDir16+"LNuJJ_resW_2DFromDC",inDir17+"LNuJJ_resW_2DFromDC",inDir18+"LNuJJ_resW_2DFromDC",inDirR2+"LNuJJ_resW_2DFromDC"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_resW","MVV","m_{WV} (GeV)",False)
+        compYears([inDir16+"LNuJJ_resW_2DFromDC",inDir17+"LNuJJ_resW_2DFromDC",inDir18+"LNuJJ_resW_2DFromDC",inDirR2+"LNuJJ_resW_2DFromDC"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_resW","MVV","m_{WV} (GeV)",True)
+        compYears([inDir16+"LNuJJ_resW_2DFromDC",inDir17+"LNuJJ_resW_2DFromDC",inDir18+"LNuJJ_resW_2DFromDC",inDirR2+"LNuJJ_resW_2DFromDC"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_resW","MJJ","m_{jet} (GeV)")
+    #'''
+    #'''
     for c in categories:
         for p in purities:
             for l in leptons:
                 #continue
-
+                #'''
                 if options.withDC:
-                    extractResWTemplateFromDC(DcFolder+"/combined_"+YEAR+".root",c+"_"+l+"_"+p+"_"+YEAR+"_opt",inDir+"LNuJJ_resW_2DFromDC_"+l+"_"+p+"_"+c,c)
-                    ##extractResWTemplateFromDC(DcFolder+"/combined_"+YEAR+".root",c+"_"+l+"_"+p+"_"+YEAR,inDir+"LNuJJ_resW_2DFromDC_"+l+"_"+p+"_"+c,c) ##old syntax, before new resW 2D fit
+                    os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B}".format(i=inDir, o=outDir, C='resW', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c]))
+                #'''
+                #'''
+                if options.withDC:
                     makeTemplate2D(inDir+"LNuJJ_resW_2DFromDC_"+l+"_"+p+"_"+c+".root","histo","template_resW_"+l+"_"+p+"_"+c)
-                    makeTemplateVsReco2D(inDir+"LNuJJ_resW_2DFromDC_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","resW","templateVsReco_resW_"+l+"_"+p+"_"+c)
-                makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","resW","reco_resW_"+l+"_"+p+"_"+c)
-
-                #makeTemplate1D(inDir+"LNuJJ_resW_MVV_"+l+"_"+p+"_"+c+".root","histo","template1D_resW_MVV_"+l+"_"+p+"_"+c,"m_{WV} (GeV)")
+                    makeTemplateVsReco2D(inDir+"LNuJJ_resW_2DFromDC_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","resW","templateVsReco_resW_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","resW","reco_resW_"+l+"_"+p+"_"+c)
+                #'''
+                makeTemplate1D(inDir+"LNuJJ_resW_MVV_"+l+"_"+p+"_"+c+".root","histo","template1D_resW_MVV_"+l+"_"+p+"_"+c,"m_{WV} (GeV)")
                 #makeTemplateVsReco1D(inDir+"LNuJJ_resW_MVV_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","resW","templateVsReco1D_resW_MVV_"+l+"_"+p+"_"+c,"MVV","m_{WV} (GeV)")
+                #'''
+                #'''
+                makeShapeUncertainties1D(inDir+"LNuJJ_resW_MVV_"+l+"_"+p+"_"+c+".root","systs_resW_MVV_"+l+"_"+p+"_"+c,"GPT","m_{WV} (GeV)")
+                makeShapeUncertainties1D(inDir+"LNuJJ_resW_MVV_"+l+"_"+p+"_"+c+".root","systs_resW_MVV_"+l+"_"+p+"_"+c,"GPT2","m_{WV} (GeV)")
+                #'''
 
-            ##makeResWMJJShapeParam(inDir+"debug_LNuJJ_resW_MJJ_"+p+"_"+c+".json.root",p+"_"+c) ##old, before new resW 2D fit
-
+            ##makeResWTopMergedMJJShapeParam(inDir+"debug_LNuJJ_resW_MJJ_"+p+"_"+c+".json.root",p+"_"+c,"paramResWMJJShape_") ##old, before new resW 2D fit
+            #'''
             makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo","template_resW_MJJGivenMVV_"+p+"_"+c+"_Nominal",False)
             makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_ScaleUp",  "template_resW_MJJGivenMVV_"+p+"_"+c+"_ScaleUp",False)
             makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_ScaleDown","template_resW_MJJGivenMVV_"+p+"_"+c+"_ScaleDn",False)
             makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_ResUp",  "template_resW_MJJGivenMVV_"+p+"_"+c+"_ResUp",False)
             makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_ResDown","template_resW_MJJGivenMVV_"+p+"_"+c+"_ResDn",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_Scale0Up",  "template_resW_MJJGivenMVV_"+p+"_"+c+"_Scale0Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_Scale0Down","template_resW_MJJGivenMVV_"+p+"_"+c+"_Scale0Dn",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_Scale1Up",  "template_resW_MJJGivenMVV_"+p+"_"+c+"_Scale1Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_Scale1Down","template_resW_MJJGivenMVV_"+p+"_"+c+"_Scale1Dn",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_Res0Up",  "template_resW_MJJGivenMVV_"+p+"_"+c+"_Res0Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_Res0Down","template_resW_MJJGivenMVV_"+p+"_"+c+"_Res0Dn",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_Res1Up",  "template_resW_MJJGivenMVV_"+p+"_"+c+"_Res1Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_Res1Down","template_resW_MJJGivenMVV_"+p+"_"+c+"_Res1Dn",False)
             makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_TopPt0Up",  "template_resW_MJJGivenMVV_"+p+"_"+c+"_TopPt0Up",False)
             makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_TopPt0Down","template_resW_MJJGivenMVV_"+p+"_"+c+"_TopPt0Dn",False)
             makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_TopPt1Up",  "template_resW_MJJGivenMVV_"+p+"_"+c+"_TopPt1Up",False)
             makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_TopPt1Down","template_resW_MJJGivenMVV_"+p+"_"+c+"_TopPt1Dn",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_GPTUp",  "template_resW_MJJGivenMVV_"+p+"_"+c+"_GPTUp",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_GPTDown","template_resW_MJJGivenMVV_"+p+"_"+c+"_GPTDn",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_GPT2Up",  "template_resW_MJJGivenMVV_"+p+"_"+c+"_GPT2Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","histo_GPT2Down","template_resW_MJJGivenMVV_"+p+"_"+c+"_GPT2Dn",False)
 
             makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo","templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_Nominal",False)
             makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_ScaleUp",  "templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_ScaleUp",False)
             makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_ScaleDown","templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_ScaleDn",False)
             makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_ResUp",  "templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_ResUp",False)
             makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_ResDown","templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_ResDn",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_Scale0Up",  "templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_Scale0Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_Scale0Down","templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_Scale0Dn",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_Scale1Up",  "templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_Scale1Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_Scale1Down","templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_Scale1Dn",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_Res0Up",  "templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_Res0Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_Res0Down","templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_Res0Dn",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_Res1Up",  "templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_Res1Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_Res1Down","templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_Res1Dn",False)
             makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_TopPt0Up",  "templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_TopPt0Up",False)
             makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_TopPt0Down","templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_TopPt0Dn",False)
             makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_TopPt1Up",  "templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_TopPt1Up",False)
             makeTemplate2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_TopPt1Down","templateFine_resW_MJJGivenMVV_"+p+"_"+c+"_TopPt1Dn",False)
+            #'''
+            #'''
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","systs_resW_MJJGivenMVV_"+p+"_"+c,"Scale")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","systs_resW_MJJGivenMVV_"+p+"_"+c,"Res")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","systs_resW_MJJGivenMVV_"+p+"_"+c,"Scale0")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","systs_resW_MJJGivenMVV_"+p+"_"+c,"Scale1")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","systs_resW_MJJGivenMVV_"+p+"_"+c,"Res0")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","systs_resW_MJJGivenMVV_"+p+"_"+c,"Res1")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","systs_resW_MJJGivenMVV_"+p+"_"+c,"TopPt0")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","systs_resW_MJJGivenMVV_"+p+"_"+c,"TopPt1")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","systs_resW_MJJGivenMVV_"+p+"_"+c,"GPT")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resW_MJJGivenMVV_"+p+"_"+c+".root","systs_resW_MJJGivenMVV_"+p+"_"+c,"GPT2")
+            #makeShapeUncertainties2D(inDir+"LNuJJ_resW_2DFromDC_"+l+"_"+p+"_"+c+".root","systs_resW_"+l+"_"+p+"_"+c,"Scale")
+            #makeShapeUncertainties2D(inDir+"LNuJJ_resW_2DFromDC_"+l+"_"+p+"_"+c+".root","systs_resW_"+l+"_"+p+"_"+c,"Res")
+            #makeShapeUncertainties2D(inDir+"LNuJJ_resW_2DFromDC_"+l+"_"+p+"_"+c+".root","systs_resW_"+l+"_"+p+"_"+c,"TopPt0")
+            #makeShapeUncertainties2D(inDir+"LNuJJ_resW_2DFromDC_"+l+"_"+p+"_"+c+".root","systs_resW_"+l+"_"+p+"_"+c,"TopPt1")
+            #'''
+
+
+if 'resTop' in plots:
+    #'''
+    if options.withDC:
+        for c in categories:
+            for p in purities:
+                for l in leptons:
+                    extractResTopTemplateFromDC(DcFolder+"/combined_"+YEAR+".root",c+"_"+l+"_"+p+"_"+YEAR+"_opt",inDir+"LNuJJ_resTop_2DFromDC_"+l+"_"+p+"_"+c,c)
+    #'''
+    #'''
+    #compCategories(inDir+"LNuJJ_resTop_MVV","histo",False,leptons,purities,categories,"compTemplate_resTop","MVV","m_{WV} (GeV)")
+    #compCategories(inDir+"LNuJJ_resTop_MVV","histo",False,leptons,purities,categories,"compTemplate_resTop","MVV","m_{WV} (GeV)",True)
+    if options.withDC:
+        compCategories(inDir+"LNuJJ_resTop_2DFromDC","histo",True,leptons,purities,categories,"compTemplate_resTop","MVV","m_{WV} (GeV)",False)
+        compCategories(inDir+"LNuJJ_resTop_2DFromDC","histo",True,leptons,purities,categories,"compTemplate_resTop","MVV","m_{WV} (GeV)",True)
+        compCategories(inDir+"LNuJJ_resTop_2DFromDC","histo",True,leptons,purities,categories,"compTemplate_resTop","MJJ","m_{jet} (GeV)")
+        compCategories(inDir+"LNuJJ_norm","resTop",True,leptons,purities,categories,"compReco_resTop","MVV","m_{WV} (GeV)",False)
+        compCategories(inDir+"LNuJJ_norm","resTop",True,leptons,purities,categories,"compReco_resTop","MVV","m_{WV} (GeV)",True)
+        compCategories(inDir+"LNuJJ_norm","resTop",True,leptons,purities,categories,"compReco_resTop","MJJ","m_{jet} (GeV)")
+    #'''
+    #'''
+    if COMPYEARS:
+        compYears([inDir16+"LNuJJ_resTop_2DFromDC",inDir17+"LNuJJ_resTop_2DFromDC",inDir18+"LNuJJ_resTop_2DFromDC",inDirR2+"LNuJJ_resTop_2DFromDC"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_resTop","MVV","m_{WV} (GeV)",False)
+        compYears([inDir16+"LNuJJ_resTop_2DFromDC",inDir17+"LNuJJ_resTop_2DFromDC",inDir18+"LNuJJ_resTop_2DFromDC",inDirR2+"LNuJJ_resTop_2DFromDC"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_resTop","MVV","m_{WV} (GeV)",True)
+        compYears([inDir16+"LNuJJ_resTop_2DFromDC",inDir17+"LNuJJ_resTop_2DFromDC",inDir18+"LNuJJ_resTop_2DFromDC",inDirR2+"LNuJJ_resTop_2DFromDC"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_resTop","MJJ","m_{jet} (GeV)")
+    #'''
+    #'''
+    for c in categories:
+        for p in purities:
+            for l in leptons:
+                #continue
+                #'''
+                if options.withDC:
+                    os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B}".format(i=inDir, o=outDir, C='resTop', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c]))
+                #'''
+                #'''
+                if options.withDC:
+                    makeTemplate2D(inDir+"LNuJJ_resTop_2DFromDC_"+l+"_"+p+"_"+c+".root","histo","template_resTop_"+l+"_"+p+"_"+c)
+                    makeTemplateVsReco2D(inDir+"LNuJJ_resTop_2DFromDC_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","resTop","templateVsReco_resTop_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","resTop","reco_resTop_"+l+"_"+p+"_"+c)
+                #'''
+                makeTemplate1D(inDir+"LNuJJ_resTop_MVV_"+l+"_"+p+"_"+c+".root","histo","template1D_resTop_MVV_"+l+"_"+p+"_"+c,"m_{WV} (GeV)")
+                #makeTemplateVsReco1D(inDir+"LNuJJ_resTop_MVV_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","resTop","templateVsReco1D_resTop_MVV_"+l+"_"+p+"_"+c,"MVV","m_{WV} (GeV)")
+                #'''
+                #'''
+                makeShapeUncertainties1D(inDir+"LNuJJ_resTop_MVV_"+l+"_"+p+"_"+c+".root","systs_resTop_MVV_"+l+"_"+p+"_"+c,"GPT","m_{WV} (GeV)")
+                makeShapeUncertainties1D(inDir+"LNuJJ_resTop_MVV_"+l+"_"+p+"_"+c+".root","systs_resTop_MVV_"+l+"_"+p+"_"+c,"GPT2","m_{WV} (GeV)")
+                #'''
+
+            #'''
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","histo","template_resTop_MJJGivenMVV_"+p+"_"+c+"_Nominal",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","histo_ScaleUp",  "template_resTop_MJJGivenMVV_"+p+"_"+c+"_ScaleUp",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","histo_ScaleDown","template_resTop_MJJGivenMVV_"+p+"_"+c+"_ScaleDn",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","histo_ResUp",  "template_resTop_MJJGivenMVV_"+p+"_"+c+"_ResUp",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","histo_ResDown","template_resTop_MJJGivenMVV_"+p+"_"+c+"_ResDn",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","histo_Scale0Up",  "template_resTop_MJJGivenMVV_"+p+"_"+c+"_Scale0Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","histo_Scale0Down","template_resTop_MJJGivenMVV_"+p+"_"+c+"_Scale0Dn",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","histo_Scale1Up",  "template_resTop_MJJGivenMVV_"+p+"_"+c+"_Scale1Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","histo_Scale1Down","template_resTop_MJJGivenMVV_"+p+"_"+c+"_Scale1Dn",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","histo_Res0Up",  "template_resTop_MJJGivenMVV_"+p+"_"+c+"_Res0Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","histo_Res0Down","template_resTop_MJJGivenMVV_"+p+"_"+c+"_Res0Dn",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","histo_Res1Up",  "template_resTop_MJJGivenMVV_"+p+"_"+c+"_Res1Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","histo_Res1Down","template_resTop_MJJGivenMVV_"+p+"_"+c+"_Res1Dn",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","histo_GPTUp",  "template_resTop_MJJGivenMVV_"+p+"_"+c+"_GPTUp",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","histo_GPTDown","template_resTop_MJJGivenMVV_"+p+"_"+c+"_GPTDn",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","histo_GPT2Up",  "template_resTop_MJJGivenMVV_"+p+"_"+c+"_GPT2Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","histo_GPT2Down","template_resTop_MJJGivenMVV_"+p+"_"+c+"_GPT2Dn",False)
+
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo","templateFine_resTop_MJJGivenMVV_"+p+"_"+c+"_Nominal",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_ScaleUp",  "templateFine_resTop_MJJGivenMVV_"+p+"_"+c+"_ScaleUp",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_ScaleDown","templateFine_resTop_MJJGivenMVV_"+p+"_"+c+"_ScaleDn",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_ResUp",  "templateFine_resTop_MJJGivenMVV_"+p+"_"+c+"_ResUp",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_ResDown","templateFine_resTop_MJJGivenMVV_"+p+"_"+c+"_ResDn",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_Scale0Up",  "templateFine_resTop_MJJGivenMVV_"+p+"_"+c+"_Scale0Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_Scale0Down","templateFine_resTop_MJJGivenMVV_"+p+"_"+c+"_Scale0Dn",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_Scale1Up",  "templateFine_resTop_MJJGivenMVV_"+p+"_"+c+"_Scale1Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_Scale1Down","templateFine_resTop_MJJGivenMVV_"+p+"_"+c+"_Scale1Dn",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_Res0Up",  "templateFine_resTop_MJJGivenMVV_"+p+"_"+c+"_Res0Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_Res0Down","templateFine_resTop_MJJGivenMVV_"+p+"_"+c+"_Res0Dn",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_Res1Up",  "templateFine_resTop_MJJGivenMVV_"+p+"_"+c+"_Res1Up",False)
+            makeTemplate2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+"_debug.root","histo_Res1Down","templateFine_resTop_MJJGivenMVV_"+p+"_"+c+"_Res1Dn",False)
+            #'''
+            #'''
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","systs_resTop_MJJGivenMVV_"+p+"_"+c,"Scale")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","systs_resTop_MJJGivenMVV_"+p+"_"+c,"Res")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","systs_resTop_MJJGivenMVV_"+p+"_"+c,"Scale0")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","systs_resTop_MJJGivenMVV_"+p+"_"+c,"Scale1")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","systs_resTop_MJJGivenMVV_"+p+"_"+c,"Res0")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","systs_resTop_MJJGivenMVV_"+p+"_"+c,"Res1")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","systs_resTop_MJJGivenMVV_"+p+"_"+c,"TopPt0")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","systs_resTop_MJJGivenMVV_"+p+"_"+c,"TopPt1")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","systs_resTop_MJJGivenMVV_"+p+"_"+c,"GPT")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_resTop_MJJGivenMVV_"+p+"_"+c+".root","systs_resTop_MJJGivenMVV_"+p+"_"+c,"GPT2")
+            #'''
 
 
 if 'signal' in plots:
 
+    for c in categories:#['nobb']:#
+        for p in purities:#['HP']:#
+            pass
+            #'''
+            makeSignalShapeParam(inDir+"debugSignalShape_LNuJJ_XWW_MJJ_"+p+"_"+c+".root",inDir+"debugSignalShape_LNuJJ_XWZ_MJJ_"+p+"_"+c+".root",inDir+"debugSignalShape_LNuJJ_XWH_MJJ_"+p+"_"+c+".root",'MJJ',p+"_"+c,"paramSignalShape_XWWXWZXWH_")
+            #makeSignalShapeParam(inDir+"debugSignalShape_LNuJJ_XWW_MVVGivenMJJ_"+p+"_"+c+".root",inDir+"debugSignalShape_LNuJJ_XWZ_MVVGivenMJJ_"+p+"_"+c+".root",inDir+"debugSignalShape_LNuJJ_XWH_MVVGivenMJJ_"+p+"_"+c+".root",'MVV',p+"_"+c,"paramSignalShape_XWWXWZXWH_")
+            makeSignalShapeParam(inDir+"debugSignalShape_LNuJJ_XWW_MVV_"+p+"_"+c+".root",inDir+"debugSignalShape_LNuJJ_XWZ_MVV_"+p+"_"+c+".root",inDir+"debugSignalShape_LNuJJ_XWH_MVV_"+p+"_"+c+".root",'MVV',p+"_"+c,"paramSignalShape_XWWXWZXWH_")
+            #'''
+
+            for l in leptons:#['e']:#
+                pass
+                #'''
+                makeSignalYieldParam(inDir+"LNuJJ_XWW_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_XWZ_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_XWH_"+l+"_"+p+"_"+c+"_yield.root","paramSignalYield_XWWXWZXWH_"+l+"_"+p+"_"+c)
+                #'''
+
+                for signal in signals:
+                    print c, p, l, signal
+                    if options.withDC:
+                        pass
+
+                        #'''
+                        for mx in [2000]: #[1000,2000,3000,4000]: #[1000,1400,2000,3000,4500]:
+                            os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -r 0 -s".format(i=inDir, o=outDir, C=signal+str(mx).zfill(4), l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c]))
+                        #'''
+                        '''
+                        os.system("rm "+inDir+"/LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+".root")
+                        for mx in [1000,1500,2000,2500,3000,3500,4000,4500]:
+                            print mx
+                            extractSignalTemplateFromDC("Dc_"+signal+"/combined_"+YEAR+".root","shapeSig_"+signal+"_"+c+"_"+l+"_"+p+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c,c)
+                            #extractSignalTemplateFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MVV_"+c+"_"+l+"_"+p+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_MVVGivenMJJFromDC_"+l+"_"+p+"_"+c,c)
+                            #extractSignalMjjPdfFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MJJ_"+c+"_"+l+"_"+p+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_MJJFromDC_"+l+"_"+p+"_"+c,c) ## just for a check
+                        #'''
+                        '''
+                        makeSignalParamFromHisto(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+".root","templateSignalVsMX_fromHisto_"+signal+"_MVV_"+l+"_"+p+"_"+c,"MVV",signal,"1000,1500,2000,2500,3000,3500,4000,4500")
+                        makeSignalParamFromHisto(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+".root","templateSignalVsMX_fromHisto_"+signal+"_MJJ_"+l+"_"+p+"_"+c,"MJJ",signal,"1000,1500,2000,2500,3000,3500,4000,4500")
+                        #'''
+                        #'''
+                        makeSignalParamFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MVV_"+c+"_"+l+"_"+p+"_"+YEAR,"templateSignalVsMX_fromDC_"+signal+"_MVV_"+l+"_"+p+"_"+c,signal,"1000,1500,2000,2500,3000,3500,4000,4500",varMVV[c],"m_{WV} (GeV)")
+                        makeSignalParamFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MJJ_"+c+"_"+l+"_"+p+"_"+YEAR,"templateSignalVsMX_fromDC_"+signal+"_MJJ_"+l+"_"+p+"_"+c,signal,"1000,1500,2000,2500,3000,3500,4000,4500",varMJJ[c],"m_{jet} (GeV)")
+                        #''' 
+                        '''
+                        for mx in [2000]:
+                            makeTemplate2D(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+".root",signal+str(mx),"template_"+signal+str(mx)+"_"+l+"_"+p+"_"+c,False)
+                            makeTemplate2D(inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root",signal+str(mx),"reco_"+signal+str(mx)+"_"+l+"_"+p+"_"+c,False)
+                            #makeTemplate2D(inDir+"LNuJJ_"+signal+"_MVVGivenMJJFromDC_"+l+"_"+p+"_"+c+".root",signal+str(mx),"templCond_"+signal+str(mx)+"_"+l+"_"+p+"_"+c,False)
+                            makeTemplateVsReco2D(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+".root",signal+str(mx),inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root",signal+str(mx),"templateVsReco_"+signal+str(mx)+"_"+l+"_"+p+"_"+c)
+                        #'''
+    #'''
     for signal in signals:
         #continue
         if options.withDC:
             compCategories(inDir+"LNuJJ_"+signal+"_2DFromDC",signal+"2000",True,leptons,purities,categories,"compTemplate_"+signal+"2000","MVV","m_{WV} (GeV)",False)
             compCategories(inDir+"LNuJJ_"+signal+"_2DFromDC",signal+"2000",True,leptons,purities,categories,"compTemplate_"+signal+"2000","MJJ","m_{jet} (GeV)")
-        compCategories(inDir+"LNuJJ",signal+"2000",True,leptons,purities,categories,"compReco_"+signal+"2000","MVV","m_{WV} (GeV)",False)
-        compCategories(inDir+"LNuJJ",signal+"2000",True,leptons,purities,categories,"compReco_"+signal+"2000","MJJ","m_{jet} (GeV)")
-        
-        if options.withDC:
-            for mx in [2000]: #[1000,2000,3000,4000]: #[1000,1400,2000,3000,4500]:
-                for c in categories:
-                    os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -c {c} -b {b} -B {B} -r 0 -s".format(i=inDir, o=outDir, C=signal+str(mx).zfill(4), c=c, b=binsMVV[c], B=binsMJJ[c]))
-
-    for c in categories:
-        for p in purities:
-            for l in leptons:
-                #continue
-
-                makeSignalYieldParam(inDir+"LNuJJ_XWW_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_XWZ_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_XWH_"+l+"_"+p+"_"+c+"_yield.root","paramSignalYield_XWWXWZXWH_"+l+"_"+p+"_"+c)
-                for signal in signals:
-                    if options.withDC:
-
-                        os.system("rm LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+".root")
-                        for mx in [1000,1500,2000,2500,3000,3500,4000,4500]:
-                            extractSignalTemplateFromDC("Dc_"+signal+"/combined_"+YEAR+".root","shapeSig_"+signal+"_"+c+"_"+l+"_"+p+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c,c)
-
-                        makeSignalParamFromHisto(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+".root","templateSignalVsMX_fromHisto_"+signal+"_MVV_"+l+"_"+p+"_"+c,"MVV",signal,"1000,1500,2000,2500,3000,3500,4000,4500")
-                        makeSignalParamFromHisto(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+".root","templateSignalVsMX_fromHisto_"+signal+"_MJJ_"+l+"_"+p+"_"+c,"MJJ",signal,"1000,1500,2000,2500,3000,3500,4000,4500")
-                        makeSignalParamFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MVV_"+c+"_"+l+"_"+p+"_"+YEAR,"templateSignalVsMX_fromDC_"+signal+"_MVV_"+l+"_"+p+"_"+c,signal,"1000,1500,2000,2500,3000,3500,4000,4500",varMVV[c],"m_{WV} (GeV)")
-                        makeSignalParamFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MJJ_"+c+"_"+l+"_"+p+"_"+YEAR,"templateSignalVsMX_fromDC_"+signal+"_MJJ_"+l+"_"+p+"_"+c,signal,"1000,1500,2000,2500,3000,3500,4000,4500",varMJJ[c],"m_{jet} (GeV)")
-
-                        for mx in [2000]:
-                            makeTemplate2D(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+".root",signal+str(mx),"template_"+signal+str(mx)+"_"+l+"_"+p+"_"+c,False)
-                            makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root",signal+str(mx),"reco_"+signal+str(mx)+"_"+l+"_"+p+"_"+c,False)
-                            makeTemplateVsReco2D(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+".root",signal+str(mx),inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root",signal+str(mx),"templateVsReco_"+signal+str(mx)+"_"+l+"_"+p+"_"+c)
-
-            makeSignalShapeParam(inDir+"debugSignalShape_LNuJJ_XWW_MJJ_"+p+"_"+c+".root",inDir+"debugSignalShape_LNuJJ_XWZ_MJJ_"+p+"_"+c+".root",inDir+"debugSignalShape_LNuJJ_XWH_MJJ_"+p+"_"+c+".root",'MJJ',p+"_"+c,"paramSignalShape_XWWXWZXWH_")
-            makeSignalShapeParam(inDir+"debugSignalShape_LNuJJ_XWW_MVV_"+p+"_"+c+".root",inDir+"debugSignalShape_LNuJJ_XWZ_MVV_"+p+"_"+c+".root",inDir+"debugSignalShape_LNuJJ_XWH_MVV_"+p+"_"+c+".root",'MVV',p+"_"+c,"paramSignalShape_XWWXWZXWH_")
+        compCategories(inDir+"LNuJJ_norm",signal+"2000",True,leptons,purities,categories,"compReco_"+signal+"2000","MVV","m_{WV} (GeV)",False)
+        compCategories(inDir+"LNuJJ_norm",signal+"2000",True,leptons,purities,categories,"compReco_"+signal+"2000","MJJ","m_{jet} (GeV)")
+    #'''
 
 
 if 'scaleres' in plots:
-    makeKernelScaleResolution(inDir+"LNuJJ_nonRes_detectorResponse.root","scalexHisto")
-    makeKernelScaleResolution(inDir+"LNuJJ_nonRes_detectorResponse.root","scaleyHisto")
-    makeKernelScaleResolution(inDir+"LNuJJ_nonRes_detectorResponse.root","resxHisto")
-    makeKernelScaleResolution(inDir+"LNuJJ_nonRes_detectorResponse.root","resyHisto")
+    makeKernelScaleResolution(inDir+"LNuJJ_nonRes_detectorResponse.root","scalexHisto","nonRes_")
+    makeKernelScaleResolution(inDir+"LNuJJ_nonRes_detectorResponse.root","scaleyHisto","nonRes_")
+    makeKernelScaleResolution(inDir+"LNuJJ_nonRes_detectorResponse.root","resxHisto","nonRes_")
+    makeKernelScaleResolution(inDir+"LNuJJ_nonRes_detectorResponse.root","resyHisto","nonRes_")
+
+    makeKernelScaleResolution(inDir+"LNuJJ_resW_detectorResponse.root","scalexHisto","resW_")
+    makeKernelScaleResolution(inDir+"LNuJJ_resW_detectorResponse.root","scaleyHisto","resW_")
+    makeKernelScaleResolution(inDir+"LNuJJ_resW_detectorResponse.root","resxHisto","resW_")
+    makeKernelScaleResolution(inDir+"LNuJJ_resW_detectorResponse.root","resyHisto","resW_")
 

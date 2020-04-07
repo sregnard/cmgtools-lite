@@ -7,9 +7,8 @@ cmd='combineCards.py '
 import optparse
 parser = optparse.OptionParser()
 parser.add_option("-y","--year",dest="year",default="Run2",help="2016 or 2017 or 2018 or Run2")
-parser.add_option("-s","--signalType",dest="signalType",default='XWW',help="XWW or XWZ or XWH")
-parser.add_option("-c","--cat",dest="categories",default='bb',help="categorization scheme")
-parser.add_option("-b","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=False)
+parser.add_option("-s","--signalType",dest="signalType",default='XWW',help="XWW or XWZ or XWH or XWWVBF")
+parser.add_option("-b","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=True)
 parser.add_option("-r","--region",dest="region",default='SR',help="signal region (SR) or control region (CR)")
 (options,args) = parser.parse_args()
 
@@ -79,6 +78,7 @@ for lepton in ['e','mu']:
 
 
             PCtag = "_".join([purity,category])
+            PYtag = "_".join([purity,YEAR])
             LPCtag = "_".join([lepton,purity,category])
             PCYtag = "_".join([purity,category,YEAR])
             LPCYtag = "_".join([lepton,purity,category,YEAR])
@@ -86,9 +86,9 @@ for lepton in ['e','mu']:
             ## Signal
             card.addMVVSignalParametricShape(sig+"_MVV",varMVV,inputDir+"LNuJJ_"+sig+"_MVV_"+PCtag+".json",{'CMS_scale_j_'+YEAR:1,'CMS_scale_MET_'+YEAR:1.0,'CMS_scale_'+lepton+'_'+YEAR:1.0},{'CMS_res_j_'+YEAR:1.0,'CMS_res_MET_'+YEAR:1.0})
             if purity=='LP':
-                card.addMJJSignalParametricShape(sig+"_MJJ",varMJJ,inputDir+"LNuJJ_"+sig+"_MJJ_"+PCtag+".json",{'CMS_scale0_prunedj_WPeak_'+YEAR:'3*0.01','CMS_scale1_prunedj_WPeak_'+YEAR:'3*10.0/MH'},{'CMS_res0_prunedj_WPeak_'+YEAR:'3*0.2','CMS_res1_prunedj_WPeak_'+YEAR:'3*200.0/MH'})
+                card.addMJJSignalParametricShape(sig+"_MJJ",varMJJ,inputDir+"LNuJJ_"+sig+"_MJJ_"+PCtag+".json",{'CMS_scale_prunedj_resAndSig_'+PYtag:'0.15'},{'CMS_res_prunedj_resAndSig_'+PYtag:'0.25'})
             else:
-                card.addMJJSignalParametricShapeNOEXP(sig+"_MJJ",varMJJ,inputDir+"LNuJJ_"+sig+"_MJJ_"+PCtag+".json",{'CMS_scale0_prunedj_WPeak_'+YEAR:'3*0.01','CMS_scale1_prunedj_WPeak_'+YEAR:'3*10.0/MH'},{'CMS_res0_prunedj_WPeak_'+YEAR:'3*0.2','CMS_res1_prunedj_WPeak_'+YEAR:'3*200.0/MH'})
+                card.addMJJSignalParametricShapeNOEXP(sig+"_MJJ",varMJJ,inputDir+"LNuJJ_"+sig+"_MJJ_"+PCtag+".json",{'CMS_scale_prunedj_resAndSig_'+PYtag:'0.15'},{'CMS_res_prunedj_resAndSig_'+PYtag:'0.25'})
             card.product(sig,sig+"_MJJ",sig+"_MVV")
 
             if purity=='HP':
@@ -106,7 +106,7 @@ for lepton in ['e','mu']:
 
             ##resonant bkgd
             rootFile=inputDir+"LNuJJ_res"+sfx_rgn+"_2D_"+LPCtag+".root"
-            card.addHistoShapeFromFile("res",[varMVV,varMJJ],rootFile,"histo",['MVVScale:CMS_VV_LNuJ_res_MVVScale_'+LPCYtag,'Diag:CMS_VV_LNuJ_res_Diag_'+LPCYtag,'scaleY:CMS_VV_LNuJ_res_scaleY_'+purity,'resY:CMS_VV_LNuJ_res_resY_'+purity,'fractionY:CMS_VV_LNuJ_res_fractionY_'+LPCYtag],False,0)
+            card.addHistoShapeFromFile("res",[varMVV,varMJJ],rootFile,"histo",['MVVScale:CMS_VV_LNuJ_res_MVVScale_'+LPCYtag,'Diag:CMS_VV_LNuJ_res_Diag_'+LPCYtag,'scaleY:CMS_scale_prunedj_resAndSig_'+PYtag,'resY:CMS_res_prunedj_resAndSig_'+PYtag,'fractionY:CMS_VV_LNuJ_res_fractionY_'+LPCYtag],False,0)
 
             card.addFixedYieldFromFile("res",1,inputDir+"LNuJJ_norm"+sfx_rgn+"_"+LPCtag+".root","res"+sfx_rgn)
 
@@ -177,15 +177,10 @@ for lepton in ['e','mu']:
 
             card.addSystematic("CMS_VV_LNuJ_res_MVVScale_"+LPCYtag,"param",[0.0,0.333])
             card.addSystematic("CMS_VV_LNuJ_res_Diag_"+LPCYtag,"param",[0.0,0.333])
-            card.addSystematic("CMS_VV_LNuJ_res_scaleY_"+purity,"param",[0.0,0.333])
-            card.addSystematic("CMS_VV_LNuJ_res_resY_"+purity,"param",[0.0,0.333])
             card.addSystematic("CMS_VV_LNuJ_res_fractionY_"+LPCYtag,"param",[0.0,0.333])
 
-
-            card.addSystematic("CMS_scale0_prunedj_WPeak_"+YEAR,"param",[0.0,0.333])
-            card.addSystematic("CMS_res0_prunedj_WPeak_"+YEAR,"param",[0.0,0.333])
-            card.addSystematic("CMS_scale1_prunedj_WPeak_"+YEAR,"param",[0.0,0.333])
-            card.addSystematic("CMS_res1_prunedj_WPeak_"+YEAR,"param",[0.0,0.333])
+            card.addSystematic("CMS_scale_prunedj_resAndSig_"+PYtag,"param",[0.0,0.333])
+            card.addSystematic("CMS_res_prunedj_resAndSig_"+PYtag,"param",[0.0,0.333])
             card.makeCard()
 
 
