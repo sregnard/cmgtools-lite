@@ -14,23 +14,25 @@ from DoubleBefficiencies import *
 
 
 
-DONORMMC       = 0
-DONORMDATA     = 0
-DONORMMCASDATA = 0
-DOSIGNALSHAPES = 0
-DOSIGNALYIELDS = 0
-DOSIGNALCTPL   = 0
-DORESONANT     = 0
-DONONRESONANT  = 0
-DONORMMCCR     = 0
-DONORMDATACR   = 0
-DONONRESONANTCR= 0
-DOXWW = 0
-DOXWZ = 0
-DOXWH = 0
-RENORMNONRES   = 0
-REMOVE2018ELEHEM1516 = 0
+DONORMMC       = 1
+DONORMDATA     = 1
+DONORMMCASDATA = 1
+DOSIGNALSHAPES = 1
+DOSIGNALYIELDS = 1
+DOSIGNALCTPL   = 1
+DORESONANT     = 1
+DONONRESONANT  = 1
 
+DONORMMCCR     = 1
+DONORMDATACR   = 1
+DONONRESONANTCR= 1
+
+DOXWW = 1
+DOXWZ = 1
+DOXWH = 1
+
+RENORMNONRES   = 1
+REMOVE2018ELEHEM1516 = 1
 
 MERGELEPNONRES = 0
 MERGEPURNONRES = 0
@@ -168,8 +170,6 @@ resTopTemplate = resWTemplate
 nonResTemplate = "ntuples2016/TT_pow,ntuples2017/TTHad_pow,ntuples2017/TTLep_pow,ntuples2017/TTSemi_pow,ntuples2018/TTHad_pow,ntuples2018/TTLep_pow,ntuples2018/TTSemi_pow,ntuples2016/WJetsToLNu_HT,ntuples2017/WJetsToLNu_HT,ntuples2018/WJetsToLNu_HT,ntuples2016/DYJetsToLL_M50_HT,ntuples2017/DYJetsToLL_M50_HT,ntuples2018/DYJetsToLL_M50_HT,ntuples2016/T_tW,ntuples2017/T_tW,ntuples2018/T_tW,ntuples2016/TBar_tW,ntuples2017/TBar_tW,ntuples2018/TBar_tW"
 allMCTemplate = "ntuples2016/TT_pow,ntuples2017/TTHad_pow,ntuples2017/TTLep_pow,ntuples2017/TTSemi_pow,ntuples2018/TTHad_pow,ntuples2018/TTLep_pow,ntuples2018/TTSemi_pow,ntuples2016/WWToLNuQQ,ntuples2017/WWToLNuQQ,ntuples2018/WWToLNuQQ,ntuples2016/WZTo1L1Nu2Q,ntuples2017/WZTo1L1Nu2Q,ntuples2018/WZTo1L1Nu2Q,ntuples2016/ZZTo2L2Q,ntuples2017/ZZTo2L2Q,ntuples2018/ZZTo2L2Q,ntuples2016/T_tW,ntuples2017/T_tW,ntuples2018/T_tW,ntuples2016/TBar_tW,ntuples2017/TBar_tW,ntuples2018/TBar_tW,ntuples2016/WJetsToLNu_HT,ntuples2017/WJetsToLNu_HT,ntuples2018/WJetsToLNu_HT,ntuples2016/DYJetsToLL_M50_HT,ntuples2017/DYJetsToLL_M50_HT,ntuples2018/DYJetsToLL_M50_HT"
 dataTemplate = "ntuples2016/SingleElectron,ntuples2017/SingleElectron,ntuples2018/EGamma,ntuples2016/SingleMuon,ntuples2017/SingleMuon,ntuples2018/SingleMuon,ntuples2016/MET,ntuples2017/MET,ntuples2018/MET"
-
-
 
 
 

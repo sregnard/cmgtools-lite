@@ -8,7 +8,7 @@ ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
 
 import optparse
 parser = optparse.OptionParser()
-parser.add_option("-y","--year",dest="year",default="2016",help="2016 or 2017 or 2018 or Run2")
+parser.add_option("-y","--year",dest="year",default="Run2",help="2016 or 2017 or 2018 or Run2")
 parser.add_option("-i","--input",dest="inputFile",default='',help="input root datacard")
 parser.add_option("-f","--fit",dest="fit",type=int,default=1,help="perform the fit")
 parser.add_option("-r","--fixR",dest="fixR",type=float,help="fix r in the fit")
@@ -19,7 +19,7 @@ parser.add_option("-u","--doUncBand",dest="doUncBand",type=int,default=0,help="d
 parser.add_option("-v","--var",dest="variable",default='',help="restrict mjj or mvv")
 parser.add_option("-l","--lep",dest="lepton",default='',help="restrict to some lepton")
 parser.add_option("-p","--pur",dest="purity",default='',help="restrict to some purity")
-parser.add_option("-c","--cat",dest="category",default='bb',help="restrict to some category")
+parser.add_option("-c","--cat",dest="category",default='',help="restrict to some category")
 parser.add_option("-C","--CMSlabel",dest="CMSlabel",type=int,default=0,help="0:None 1:CMS 2:CMS Preliminary 3:CMS Supplementary")
 parser.add_option("-b","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=True)
 parser.add_option("-S","--splitWTopPeaks",action="store_true",dest="splitWTopPeaks",help="separate W and top peak bkgd",default=False)
@@ -69,7 +69,7 @@ else:
   inputDC=options.inputFile
 
 prefix = ('PreFit_','PostFit_')[options.fit] + options.region + "_"
-directory='Plots_' + prefix + '_' + (s if s!="" else "Bonly") + '_' + YEAR
+directory='Plots_' + prefix + (s if s!="" else "Bonly") + '_' + YEAR
 os.system("mkdir -p "+directory)
 
 sigSF = -1.
@@ -182,7 +182,7 @@ for l in leptons:
             if doMvv:
                 pass
 
-                ''' ## blind (high and low-mjj sidebands)
+                #''' ## blind (high and low-mjj sidebands)
                 plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,varMJJ+":low:30:70",minMVV,maxMVV,YmaxMVV) #30:64",minMVV,maxMVV,YmaxMVV)
                 cmsLabel(plotter2.canvas)
                 saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVVLo_Blind_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
@@ -192,7 +192,7 @@ for l in leptons:
                 saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVVHi_Blind_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 #'''
 
-                #''' ## unblinded, for paper
+                ''' ## unblinded, for paper
                 plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,"",minMVV,maxMVV,YmaxMVV,UNSTACKSIG,sigSF,sigLabel)
                 cmsLabel(plotter2.canvas)
                 saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVV_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
@@ -254,13 +254,13 @@ for l in leptons:
             if doMjj:
                 pass
 
-                ''' ## blind
+                #''' ## blind
                 plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[70,150],options.doUncBand,0,0,"",minMJJ,maxMJJ,YmaxMJJ) #[64,106],options.doUncBand,0,0,"",minMJJ,maxMJJ,YmaxMJJ)
                 cmsLabel(plotter.canvas)
                 saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJBlind_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 #'''
 
-#                ''' ## unblinded, for paper
+                ''' ## unblinded, for paper
                 plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,0,0,"",minMJJ,maxMJJ,YmaxMJJ,UNSTACKSIG,sigSF,sigLabel)
                 cmsLabel(plotter.canvas)
                 saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
