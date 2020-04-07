@@ -32,11 +32,6 @@ DOXWZ = 1
 DOXWH = 1
 
 RENORMNONRES   = 1
-REMOVE2018ELEHEM1516 = 1
-
-MERGELEPNONRES = 0
-MERGEPURNONRES = 0
-MERGECATNONRES = 0
 
 
 
@@ -107,8 +102,8 @@ cuts['common'] = '1'
 cuts['common'] = cuts['common'] + '*(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET120)*((run>500) + (run<500)*lnujj_sfWV)' ## changed from lnujj_sf to lnujj_sfWV for 2016 
 cuts['common'] = cuts['common'] + '*(lnujj_nOtherLeptons==0&&lnujj_l2_softDrop_mass>0&&lnujj_LV_mass>0)'
 cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&(Flag_eeBadScFilter*(run>500)+(run<500))&&Flag_badMuonFilter)'
-if REMOVE2018ELEHEM1516:
-    cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&abs(lnujj_l1_l_pdgId)==11&&(-1.55<lnujj_l1_l_phi)&&(lnujj_l1_l_phi<-0.9)&&(-2.5<lnujj_l1_l_eta)&&(lnujj_l1_l_eta<-1.479)))'
+## excluding the problematic HEM15/16 region:
+cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&abs(lnujj_l1_l_pdgId)==11&&(-1.55<lnujj_l1_l_phi)&&(lnujj_l1_l_phi<-0.9)&&(-2.5<lnujj_l1_l_eta)&&(lnujj_l1_l_eta<-1.479)))'
 ## new cut on pT/M:
 cuts['common'] = cuts['common'] + '*(lnujj_l1_pt/lnujj_LV_mass>0.4&&lnujj_l2_pt/lnujj_LV_mass>0.4)'
 ## ensure orthogonality with VBF analysis:
@@ -293,9 +288,9 @@ def makeBackgroundShapesMVVConditional(name,filename,template,addCut="1"):
     cmd='vvMake2DDetectorParam.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_LV_mass,lnujj_l2_softDrop_mass" -g "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass,lnujj_l2_gen_pt" -b "100,150,200,250,300,350,400,450,500,600,700,800,900,1000,1500,2000,5000" {rwwj} {ntuples}'.format(rootFile=resFile,samples=template,cut=cut,rwwj=('' if inCR else '-W '+renormWJets3Yrs),ntuples=ntuples)
     os.system(cmd)
 
-    for l in (leptons,leptonsMerged)[MERGELEPNONRES]:
-        for p in (purities,puritiesMerged)[MERGEPURNONRES]:
-            for c in (categories,categoriesMerged)[MERGECATNONRES]:
+    for l in leptons:
+        for p in purities:
+            for c in categories:
                 cut='*'.join([cuts['CR' if inCR else 'common'],cuts[l],cuts[p],cuts[c],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
 
                 rootFile=outDir+filename+"_"+name+"_COND2D_"+l+"_"+p+"_"+c+".root"
@@ -311,9 +306,9 @@ def makeBackgroundShapesMVVConditional(name,filename,template,addCut="1"):
 def makeBackgroundShapesMJJSpline(name,filename,template,addCut="1"):
     inCR = ("CR" in name)
 
-    for l in (leptons,leptonsMerged)[MERGELEPNONRES]:
-        for p in (purities,puritiesMerged)[MERGEPURNONRES]:
-            for c in (categories,categoriesMerged)[MERGECATNONRES]:
+    for l in leptons:
+        for p in purities:
+            for c in categories:
                 cut='*'.join([cuts['CR' if inCR else 'common'],cuts[l],cuts[p],cuts[c],addCut,cuts['acceptanceMVV']])
                 rootFile=outDir+filename+"_"+name+"_MJJ_"+l+"_"+p+"_"+c+".root"            
                 cmd='vvMake1DTemplateSpline.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_l2_softDrop_mass" -V "lnujj_l2_softDrop_mass_high,lnujj_l2_softDrop_mass_low" -u "(1+0.0004*lnujj_l2_gen_pt),(1+0.000001*lnujj_l2_gen_pt*lnujj_l2_gen_pt)" -b {binsMJJ} -x {minMJJ} -X {maxMJJ} -f {fspline} {rwwj} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,fspline=fspline[c],rwwj=('' if inCR else '-W '+renormWJets3Yrs),ntuples=ntuples)
@@ -321,27 +316,14 @@ def makeBackgroundShapesMJJSpline(name,filename,template,addCut="1"):
 
 
 def mergeBackgroundShapes(name,filename):
-    for l in (leptons,leptonsMerged)[MERGELEPNONRES]:
-        for p in (purities,puritiesMerged)[MERGEPURNONRES]:
-            for c in (categories,categoriesMerged)[MERGECATNONRES]:
+    for l in leptons:
+        for p in purities:
+            for c in categories:
                 inputy=outDir+filename+"_"+name+"_MJJ_"+l+"_"+p+"_"+c+".root"            
                 inputx=outDir+filename+"_"+name+"_COND2D_"+l+"_"+p+"_"+c+".root"            
                 rootFile=outDir+filename+"_"+name+"_2D_"+l+"_"+p+"_"+c+".root"
                 cmd='vvMergeHistosToPDF2D.py -i "{inputx}" -I "{inputy}" -o "{rootFile}" -s "GPT:GPTX,GPT2:GPT2X" -S "SD:SDY,PT:PTY,OPT:OPTY" '.format(rootFile=rootFile,inputx=inputx,inputy=inputy)
                 os.system(cmd)
-
-            if MERGECATNONRES:
-                for c in categories:
-                    os.system('cp LNuJJ_nonRes_2D_'+l+'_'+p+'_allC.root LNuJJ_nonRes_2D_'+l+'_'+p+'_'+c+'.root')
-        if MERGEPURNONRES:
-            for p in purities:
-                for c in categories:
-                    os.system('cp LNuJJ_nonRes_2D_'+l+'_allP_'+c+'.root LNuJJ_nonRes_2D_'+l+'_'+p+'_'+c+'.root')
-    if MERGELEPNONRES:
-        for l in leptons:
-            for p in purities:
-                for c in categories:
-                    os.system('cp LNuJJ_nonRes_2D_allL_'+p+'_'+c+'.root LNuJJ_nonRes_2D_'+l+'_'+p+'_'+c+'.root')
 
 
 

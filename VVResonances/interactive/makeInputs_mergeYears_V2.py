@@ -22,18 +22,16 @@ DOSIGNALYIELDS = 0
 DOSIGNALCTPL   = 0
 DORESONANT     = 0
 DONONRESONANT  = 1
+
 DONORMMCCR     = 0
 DONORMDATACR   = 0
 DONONRESONANTCR= 0
+
 DOXWW = 1
 DOXWZ = 1
 DOXWH = 1
-RENORMNONRES   = 1
-REMOVE2018ELEHEM1516 = 1
 
-MERGELEPNONRES = 0
-MERGEPURNONRES = 0
-MERGECATNONRES = 0
+RENORMNONRES   = 1
 
 
 
@@ -104,8 +102,8 @@ cuts['common'] = '1'
 cuts['common'] = cuts['common'] + '*(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET120)*((run>500) + (run<500)*lnujj_sfWV)' ## changed from lnujj_sf to lnujj_sfWV for 2016 
 cuts['common'] = cuts['common'] + '*(lnujj_nOtherLeptons==0&&lnujj_l2_softDrop_mass>0&&lnujj_LV_mass>0)'
 cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&(Flag_eeBadScFilter*(run>500)+(run<500))&&Flag_badMuonFilter)'
-if REMOVE2018ELEHEM1516:
-    cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&abs(lnujj_l1_l_pdgId)==11&&(-1.55<lnujj_l1_l_phi)&&(lnujj_l1_l_phi<-0.9)&&(-2.5<lnujj_l1_l_eta)&&(lnujj_l1_l_eta<-1.479)))'
+## excluding the problematic HEM15/16 region:
+cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&abs(lnujj_l1_l_pdgId)==11&&(-1.55<lnujj_l1_l_phi)&&(lnujj_l1_l_phi<-0.9)&&(-2.5<lnujj_l1_l_eta)&&(lnujj_l1_l_eta<-1.479)))'
 ## new cut on pT/M:
 cuts['common'] = cuts['common'] + '*(lnujj_l1_pt/lnujj_LV_mass>0.4&&lnujj_l2_pt/lnujj_LV_mass>0.4)'
 ## ensure orthogonality with VBF analysis:
@@ -311,9 +309,9 @@ def makeBackgroundShapesMVVConditional(name,filename,template,addCut="1"):
 
     
 
-    for p in (purities,puritiesMerged)[MERGEPURNONRES]:
+    for p in purities:
         cut='*'.join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
-        for c in (categories,categoriesMerged)[MERGECATNONRES]:
+        for c in categories:
                
             cut='*'.join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
              
@@ -332,9 +330,9 @@ def makeBackgroundShapesMVVConditional(name,filename,template,addCut="1"):
 def makeBackgroundShapesMJJSpline(name,filename,template,addCut="1"):
     inCR = ("CR" in name)
 
-    for l in (leptons,leptonsMerged)[MERGELEPNONRES]:
-        for p in (purities,puritiesMerged)[MERGEPURNONRES]:
-            for c in (categories,categoriesMerged)[MERGECATNONRES]:
+    for l in leptons:
+        for p in purities:
+            for c in categories:
                 cut='*'.join([cuts['CR' if inCR else 'common'],cuts[l],cuts[p],cuts[c],addCut,cuts['acceptanceMVV'],'(1+0.17*exp(-0.5*(TMath::Log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt)+0.44)^2))'])
                 rootFile=outDir+filename+"_"+name+"_MJJ_"+l+"_"+p+"_"+c+".root"            
                 cmd='vvMake1DTemplateSpline.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_l2_softDrop_mass" -V "lnujj_l2_softDrop_mass_high,lnujj_l2_softDrop_mass_low" -u "(exp(-0.5*(TMath::Log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt)+0.44)^2)),(0.05*lnujj_l2_softDrop_mass)" -b {binsMJJ} -x {minMJJ} -X {maxMJJ} -f {fspline} {rwwj} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,fspline=fspline[c],rwwj=('' if inCR else '-W '+renormWJets3Yrs),ntuples=ntuples)
@@ -342,27 +340,14 @@ def makeBackgroundShapesMJJSpline(name,filename,template,addCut="1"):
 
 
 def mergeBackgroundShapes(name,filename):
-    for l in (leptons,leptonsMerged)[MERGELEPNONRES]:
-        for p in (purities,puritiesMerged)[MERGEPURNONRES]:
-            for c in (categories,categoriesMerged)[MERGECATNONRES]:
+    for l in leptons:
+        for p in purities:
+            for c in categories:
                 inputy=outDir+filename+"_"+name+"_MJJ_"+l+"_"+p+"_"+c+".root"            
                 inputx=outDir+filename+"_"+name+"_"+p+"_"+c+"_COND2D.root"
                 rootFile=outDir+filename+"_"+name+"_2D_"+l+"_"+p+"_"+c+".root"
                 cmd='vvMergeHistosToPDF2D.py -i "{inputx}" -I "{inputy}" -o "{rootFile}" -s "MVVScale:MVVScale,Diag:Diag" -S "logWeight:logWeight,MJJScale:MJJScale,SD:SD,PT:PTY,OPT:OPTY" '.format(rootFile=rootFile,inputx=inputx,inputy=inputy)
                 os.system(cmd)
-
-            if MERGECATNONRES:
-                for c in categories:
-                    os.system('cp LNuJJ_nonRes_2D_'+l+'_'+p+'_allC.root LNuJJ_nonRes_2D_'+l+'_'+p+'_'+c+'.root')
-        if MERGEPURNONRES:
-            for p in purities:
-                for c in categories:
-                    os.system('cp LNuJJ_nonRes_2D_'+l+'_allP_'+c+'.root LNuJJ_nonRes_2D_'+l+'_'+p+'_'+c+'.root')
-    if MERGELEPNONRES:
-        for l in leptons:
-            for p in purities:
-                for c in categories:
-                    os.system('cp LNuJJ_nonRes_2D_allL_'+p+'_'+c+'.root LNuJJ_nonRes_2D_'+l+'_'+p+'_'+c+'.root')
 
 
 
@@ -379,9 +364,9 @@ def makeBackgroundShapesMJJFits(name,filename,template,addCut="1"):
     inCR = ("CR" in name)
     
     cut='*'.join([cuts['CR' if inCR else 'common'],cuts['allL'],addCut,cuts['acceptanceGENMJJ'],cuts['acceptanceGENMVV']])
-    for l in (leptons,leptonsMerged)[MERGELEPNONRES]:
-        for p in (purities,puritiesMerged)[MERGEPURNONRES]:
-            for c in (categories,categoriesMerged)[MERGECATNONRES]:
+    for l in leptons:
+        for p in purities:
+            for c in categories:
                 expo=0
                 if p=='LP':
                     expo=1
@@ -392,9 +377,9 @@ def makeBackgroundShapesMJJFits(name,filename,template,addCut="1"):
 
 
 def mergeBackgroundShapesRes(name,filename):
-    for l in (leptons,leptonsMerged)[MERGELEPNONRES]:
-        for p in (purities,puritiesMerged)[MERGEPURNONRES]:
-            for c in (categories,categoriesMerged)[MERGECATNONRES]:
+    for l in leptons:
+        for p in purities:
+            for c in categories:
                 inputy=outDir+filename+"_"+name+"_MJJ_"+l+"_"+p+"_"+c+".root"            
                 inputx=outDir+filename+"_"+name+"_"+p+"_"+c+"_COND2D.root"
                 rootFile=outDir+filename+"_"+name+"_2D_"+l+"_"+p+"_"+c+".root"

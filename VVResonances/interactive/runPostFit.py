@@ -21,8 +21,8 @@ parser.add_option("-l","--lep",dest="lepton",default='',help="restrict to some l
 parser.add_option("-p","--pur",dest="purity",default='',help="restrict to some purity")
 parser.add_option("-c","--cat",dest="category",default='',help="restrict to some category")
 parser.add_option("-C","--CMSlabel",dest="CMSlabel",type=int,default=0,help="0:None 1:CMS 2:CMS Preliminary 3:CMS Supplementary")
-parser.add_option("-b","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=True)
-parser.add_option("-S","--splitWTopPeaks",action="store_true",dest="splitWTopPeaks",help="separate W and top peak bkgd",default=False)
+parser.add_option("-b","--differentBinning",dest="differentBinning",type=int,default=1,help="use other binning for bb category")
+parser.add_option("-S","--splitWTopPeaks",dest="splitWTopPeaks",type=int,default=0,help="separate W and top peak bkgd")
 parser.add_option("-Z","--region",dest="region",default='SR',help="signal region (SR) or control region (CR)")
 (options,args) = parser.parse_args()
 
@@ -267,6 +267,10 @@ for l in leptons:
                 #'''
 
                 ''' ## Plots in MLNuJ intervals
+                plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label+", 0.6 #leq m_{WV} < 0.8 TeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,0,0,varMVV+":bin0:600:800",minMJJ,maxMJJ,YmaxMJJ) #,490.)
+                cmsLabel(plotter.canvas)
+                saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_MVV0600to0800_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
+                
                 plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label+", 0.8 #leq m_{WV} < 1 TeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,0,0,varMVV+":bin1:800:1000",minMJJ,maxMJJ,YmaxMJJ) #,490.)
                 cmsLabel(plotter.canvas)
                 saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_MVV0800to1000_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
