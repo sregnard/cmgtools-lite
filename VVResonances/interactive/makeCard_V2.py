@@ -8,8 +8,7 @@ import optparse
 parser = optparse.OptionParser()
 parser.add_option("-y","--year",dest="year",default="Run2",help="2016 or 2017 or 2018 or Run2")
 parser.add_option("-s","--signalType",dest="signalType",default='XWW',help="XWW or XWZ or XWH")
-parser.add_option("-c","--cat",dest="categories",default='bb',help="categorization scheme")
-parser.add_option("-b","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=False)
+parser.add_option("-b","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=True)
 parser.add_option("-r","--region",dest="region",default='SR',help="signal region (SR) or control region (CR)")
 (options,args) = parser.parse_args()
 
