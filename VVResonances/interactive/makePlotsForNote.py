@@ -11,7 +11,7 @@ import optparse
 parser = optparse.OptionParser()
 parser.add_option("-y","--year",dest="year",default="Run2",help="2016 or 2017 or 2018 or Run2")
 parser.add_option("-o","--outDir",dest="outDirPrefix",default='PlotsTemplates_',help="where to save the plots")
-parser.add_option("-p","--plots",dest="plots",default='all',help="possible plots: all, signal, nonRes, nonReSyst, CRNonRes, CRNonReSyst, resW, resTop, scaleres")
+parser.add_option("-p","--plots",dest="plots",default='all',help="possible plots: all, signal, nonRes, nonReSyst, CRNonRes, CRNonReSyst, resW, resTop, res2, scaleres")
 parser.add_option("-d","--withDC",dest="withDC",type=int,default=1,help="include plots that require datacards")
 parser.add_option("-D","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=True)
 (options,args) = parser.parse_args()
@@ -23,7 +23,7 @@ outDir=options.outDirPrefix+YEAR+'/'
 
 plots = options.plots
 if 'all' in plots:
-    plots = plots + ',signal,nonRes,nonReSyst,CRNonRes,CRNonReSyst,resW,resTop,scaleres'
+    plots = plots + ',signal,nonRes,nonReSyst,CRNonRes,CRNonReSyst,res2,scaleres'
 
 
 COMPYEARS=0
@@ -50,7 +50,7 @@ DcFolder = 'Dc_XWW'
 minMJJ=20.0
 maxMJJ=210.0
 
-minMVV=800.0
+minMVV=600.0
 maxMVV=5000.0
 
 binsMJJ={}
@@ -60,11 +60,11 @@ binsMJJ['nobbHP']=38
 binsMJJ['nobbLP']=38
 binsMJJ['nob']=95
 binsMVV={}
-binsMVV['bb']=42
-binsMVV['nobb']=168
-binsMVV['nobbHP']=168
-binsMVV['nobbLP']=168
-binsMVV['nob']=168
+binsMVV['bb']=176#44
+binsMVV['nobb']=176
+binsMVV['nobbHP']=176
+binsMVV['nobbLP']=176
+binsMVV['nob']=176
 
 varMVV = {}
 varMJJ = {}
@@ -457,6 +457,18 @@ def makeShapeUncertainties1D(filename,sample,syst,axistitle):
 
 
     
+def extractResTemplateFromDC(DCfilename,cat,outputname,c):
+    f = ROOT.TFile(DCfilename)
+    w = f.Get("w")
+    pdf = w.pdf("shapeBkg_res_"+cat)
+    h2 = pdf.createHistogram(varMVV[c]+","+varMJJ[c])
+    h2.GetXaxis().SetTitle("m_{WV} (GeV)")
+    h2.GetYaxis().SetTitle("m_{jet} (GeV)")
+    h2.GetZaxis().SetTitle("")
+    fOut = ROOT.TFile(outputname+".root","recreate")
+    h2.Write("histo")
+    fOut.Close()
+
 def extractResWTemplateFromDC(DCfilename,cat,outputname,c):
     f = ROOT.TFile(DCfilename)
     w = f.Get("w")
@@ -1638,6 +1650,8 @@ if 'nonReSyst' in plots:
         for p in purities:
             for l in leptons:
                 #continue
+
+                '''
                 #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTX")
                 #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTX")
                 makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTY")
@@ -1657,6 +1671,25 @@ if 'nonReSyst' in plots:
                 #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"GPTX")
                 #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"GPT2X")
                 makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"SDY")
+                #'''
+
+                #'''
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"MVVScale")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"Diag")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"logWeight")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"MJJScale")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"SD")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTY")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTY")
+
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"MVVScale")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"Diag")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"logWeight")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"MJJScale")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"SD")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTY")
+                #'''
 
 
 if 'CRNonRes' in plots:
@@ -1700,6 +1733,8 @@ if 'CRNonReSyst' in plots:
         for p in purities:
             for l in leptons:
                 #continue
+
+                '''
                 #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"PTX")
                 #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"OPTX")
                 makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"PTY")
@@ -1719,6 +1754,81 @@ if 'CRNonReSyst' in plots:
                 #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"GPTX")
                 #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"GPT2X")
                 makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"SDY")
+                #'''
+
+                #'''
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"MVVScale")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"Diag")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"logWeight")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"MJJScale")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"SD")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"PTY")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"OPTY")
+
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"MVVScale")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"Diag")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"logWeight")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"MJJScale")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"SD")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"PTY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"OPTY")
+                #'''
+
+
+if 'res2' in plots:
+    #'''
+    if options.withDC:
+        for c in categories:
+            for p in purities:
+                for l in leptons:
+                    extractResTemplateFromDC(DcFolder+"/combined_"+YEAR+".root",c+"_"+l+"_"+p+"_"+YEAR+"_opt",inDir+"LNuJJ_res_2DFromDC_"+l+"_"+p+"_"+c,c)
+                    ##extractResTemplateFromDC(DcFolder+"/combined_"+YEAR+".root",c+"_"+l+"_"+p+"_"+YEAR,inDir+"LNuJJ_res_2DFromDC_"+l+"_"+p+"_"+c,c) ##old syntax, before new res 2D fit
+    #'''
+    #'''
+    #compCategories(inDir+"LNuJJ_res_MVV","histo",False,leptons,purities,categories,"compTemplate_res","MVV","m_{WV} (GeV)")
+    #compCategories(inDir+"LNuJJ_res_MVV","histo",False,leptons,purities,categories,"compTemplate_res","MVV","m_{WV} (GeV)",True)
+    if options.withDC:
+        compCategories(inDir+"LNuJJ_res_2DFromDC","histo",True,leptons,purities,categories,"compTemplate_res","MVV","m_{WV} (GeV)",False)
+        compCategories(inDir+"LNuJJ_res_2DFromDC","histo",True,leptons,purities,categories,"compTemplate_res","MVV","m_{WV} (GeV)",True)
+        compCategories(inDir+"LNuJJ_res_2DFromDC","histo",True,leptons,purities,categories,"compTemplate_res","MJJ","m_{jet} (GeV)")
+        compCategories(inDir+"LNuJJ_norm","res",True,leptons,purities,categories,"compReco_res","MVV","m_{WV} (GeV)",False)
+        compCategories(inDir+"LNuJJ_norm","res",True,leptons,purities,categories,"compReco_res","MVV","m_{WV} (GeV)",True)
+        compCategories(inDir+"LNuJJ_norm","res",True,leptons,purities,categories,"compReco_res","MJJ","m_{jet} (GeV)")
+    #'''
+    #'''
+    if COMPYEARS:
+        compYears([inDir16+"LNuJJ_res_2DFromDC",inDir17+"LNuJJ_res_2DFromDC",inDir18+"LNuJJ_res_2DFromDC",inDirR2+"LNuJJ_res_2DFromDC"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_res","MVV","m_{WV} (GeV)",False)
+        compYears([inDir16+"LNuJJ_res_2DFromDC",inDir17+"LNuJJ_res_2DFromDC",inDir18+"LNuJJ_res_2DFromDC",inDirR2+"LNuJJ_res_2DFromDC"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_res","MVV","m_{WV} (GeV)",True)
+        compYears([inDir16+"LNuJJ_res_2DFromDC",inDir17+"LNuJJ_res_2DFromDC",inDir18+"LNuJJ_res_2DFromDC",inDirR2+"LNuJJ_res_2DFromDC"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_res","MJJ","m_{jet} (GeV)")
+    #'''
+    #'''
+    for c in categories:
+        for p in purities:
+            for l in leptons:
+                #continue
+                #'''
+                if options.withDC:
+                    os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B}".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c]))
+                #'''
+                #'''
+                if options.withDC:
+                    makeTemplate2D(inDir+"LNuJJ_res_2DFromDC_"+l+"_"+p+"_"+c+".root","histo","template_res_"+l+"_"+p+"_"+c)
+                    makeTemplateVsReco2D(inDir+"LNuJJ_res_2DFromDC_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","res","templateVsReco_res_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","res","reco_res_"+l+"_"+p+"_"+c)
+                #'''
+
+            #'''
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"MVVScale")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"Diag")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"scaleY")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"resY")
+            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"fractionY")
+            makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"MVVScale")
+            makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"Diag")
+            makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"scaleY")
+            makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"resY")
+            makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"fractionY")
+            #'''
 
 
 if 'resW' in plots:

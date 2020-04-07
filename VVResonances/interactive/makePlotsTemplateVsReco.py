@@ -9,7 +9,7 @@ import optparse
 parser = optparse.OptionParser()
 parser.add_option("-i","--inDir",dest="inDir",default='.',help="directory containing inputs")
 parser.add_option("-o","--outDir",dest="outDir",default='PlotsCheckTemplates',help="where to save the plots")
-parser.add_option("-C","--contrib",dest="contrib",default='nonRes',help="nonRes or resW or resTop")
+parser.add_option("-C","--contrib",dest="contrib",default='nonRes',help="nonRes or resW or resTop or res")
 parser.add_option("-s","--signal",dest="signal",default=False,action="store_true",help="signal template")
 parser.add_option("-R","--inCR",dest="inCR",default=False,action="store_true",help="in control region")
 parser.add_option("-b","--binmvv",dest="mvvbinning",type=int,default=168,help="168 or 42")
@@ -60,7 +60,7 @@ ir = {}
 #'''
 ir['nonRes'] = {
     'nIntervalsMVV': 4,
-    'nIntervalsMJ' : 3,
+    'nIntervalsMJ' : 4,
     'binColorTpt' : [ROOT.kGray+1, ROOT.TColor.GetColor("#88A8E0"), ROOT.TColor.GetColor("#E66FD8"), ROOT.TColor.GetColor("#E68F6F"), ROOT.TColor.GetColor("#9CD663")],
     'binColorReco': [ROOT.kGray+3, ROOT.kBlue+2, ROOT.kMagenta+2, ROOT.kRed+2, ROOT.kGreen+3],
     'rangeLoMVVCoarseTpt' : [-1,1,7,11,14], ## MJ in [20,70], [70,110], [110,150], [150,210]
@@ -71,57 +71,39 @@ ir['nonRes'] = {
                    else [-1,1,11,19,27]),
     'rangeUpMVV': ([-1,5,9,13,19] if options.mjetbinning == 19
                    else [-1,10,18,26,38]),
-    'rangeLoMJ': ([-1,1,3,9] if options.mvvbinning == 42 ## MVV in [800,1000], [1000,1600], [1600,5000]
-                  else [-1,1,9,33]),
-    'rangeUpMJ': ([-1,2,8,42] if options.mvvbinning == 42
-                  else [-1,8,32,168]),
+    'rangeLoMJ': ([-1,1,3,5,11] if options.mvvbinning == 44 ## MVV in [600,800], [800,1000], [1000,1600], [1600,5000]
+                  else [-1,1,9,17,41]),
+    'rangeUpMJ': ([-1,2,4,10,44] if options.mvvbinning == 44
+                  else [-1,8,16,40,176]),
     'rangeLabelMVV': ['full m_{jet} range', '20 #leq m_{jet} < 70 GeV', '70 #leq m_{jet} < 110 GeV', '110 #leq m_{jet} < 150 GeV', '150 #leq m_{jet} < 210 GeV'],
-    'rangeLabelMJ' : ['full m_{WV} range', '0.8 #leq m_{WV} < 1.0 TeV', '1.0 #leq m_{WV} < 1.6 TeV', '1.6 #leq m_{WV} < 5.0 TeV'],
+    'rangeLabelMJ' : ['full m_{WV} range', '0.6 #leq m_{WV} < 0.8 TeV', '0.8 #leq m_{WV} < 1.0 TeV', '1.0 #leq m_{WV} < 1.6 TeV', '1.6 #leq m_{WV} < 5.0 TeV'],
     'multMVV': [1., 1., 1e-1, 5e-2, 1e-2],
-    'multMJ' : [1., 1., 1., 4.],
+    'multMJ' : [1., 1., 1., 1., 4.],
     'multLabelMVV': ['', '', ' (#times 0.1)', ' (#times 0.05)', ' (#times 0.01)'],
-    'multLabelMJ' : ['', '', '', ' (#times 4)'],
+    'multLabelMJ' : ['', '', '', '', ' (#times 4)'],
 }
 ir['resW'] = {
     'nIntervalsMVV': 3,#5,
-    'nIntervalsMJ' : 3,
+    'nIntervalsMJ' : 4,
     'binColorTpt' : [ROOT.kGray+1, ROOT.TColor.GetColor("#88A8E0"), ROOT.TColor.GetColor("#E68F6F"), ROOT.TColor.GetColor("#9CD663"), ROOT.kOrange-9, ROOT.kMagenta-9],
     'binColorReco': [ROOT.kGray+3, ROOT.kBlue+2, ROOT.kRed+2, ROOT.kGreen+3, ROOT.kOrange+2, ROOT.kMagenta+2 ],
     'rangeLoMVV': ([-1,1,6,14] if options.mjetbinning == 19 ## MJ in [20,70], [70,150], [150,210]
                    else [-1,1,11,27]),
     'rangeUpMVV': ([-1,5,13,19] if options.mjetbinning == 19
                    else [-1,10,26,38]),
-    'rangeLoMJ': ([-1,1,3,9] if options.mvvbinning == 42 ## MVV in [800,1000], [1000,1600], [1600,5000]
-                  else [-1,1,9,33]),
-    'rangeUpMJ': ([-1,2,8,42] if options.mvvbinning == 42
-                  else [-1,8,32,168]),
+    'rangeLoMJ': ([-1,1,3,5,11] if options.mvvbinning == 44 ## MVV in [600,800], [800,1000], [1000,1600], [1600,5000]
+                  else [-1,1,9,17,41]),
+    'rangeUpMJ': ([-1,2,4,10,44] if options.mvvbinning == 44
+                  else [-1,8,16,40,176]),
     'rangeLabelMVV': ['full m_{jet} range', '20 #leq m_{jet} < 70 GeV', '70 #leq m_{jet} < 150 GeV', '150 #leq m_{jet} < 210 GeV'],
-    'rangeLabelMJ' : ['full m_{WV} range', '0.8 #leq m_{WV} < 1.0 TeV', '1.0 #leq m_{WV} < 1.6 TeV', '1.6 #leq m_{WV} < 5.0 TeV'],
+    'rangeLabelMJ' : ['full m_{WV} range', '0.6 #leq m_{WV} < 0.8 TeV', '0.8 #leq m_{WV} < 1.0 TeV', '1.0 #leq m_{WV} < 1.6 TeV', '1.6 #leq m_{WV} < 5.0 TeV'],
     'multMVV': [1., 1., 1., 1e-2],
-    'multMJ' : [1., 1., 1., 4.],
+    'multMJ' : [1., 1., 1., 1., 4.],
     'multLabelMVV': ['', '', '', ' (#times 0.01)'],
-    'multLabelMJ' : ['', '', '', ' (#times 4)'],
+    'multLabelMJ' : ['', '', '', '', ' (#times 4)'],
 }
-ir['resTop'] = {
-    'nIntervalsMVV': 3,#5,
-    'nIntervalsMJ' : 3,
-    'binColorTpt' : [ROOT.kGray+1, ROOT.TColor.GetColor("#88A8E0"), ROOT.TColor.GetColor("#E68F6F"), ROOT.TColor.GetColor("#9CD663"), ROOT.kOrange-9, ROOT.kMagenta-9],
-    'binColorReco': [ROOT.kGray+3, ROOT.kBlue+2, ROOT.kRed+2, ROOT.kGreen+3, ROOT.kOrange+2, ROOT.kMagenta+2 ],
-    'rangeLoMVV': ([-1,1,6,14] if options.mjetbinning == 19 ## MJ in [20,70], [70,150], [150,210]
-                   else [-1,1,11,27]),
-    'rangeUpMVV': ([-1,5,13,19] if options.mjetbinning == 19
-                   else [-1,10,26,38]),
-    'rangeLoMJ': ([-1,1,3,9] if options.mvvbinning == 42 ## MVV in [800,1000], [1000,1600], [1600,5000]
-                  else [-1,1,9,33]),
-    'rangeUpMJ': ([-1,2,8,42] if options.mvvbinning == 42
-                  else [-1,8,32,168]),
-    'rangeLabelMVV': ['full m_{jet} range', '20 #leq m_{jet} < 70 GeV', '70 #leq m_{jet} < 150 GeV', '150 #leq m_{jet} < 210 GeV'],
-    'rangeLabelMJ' : ['full m_{WV} range', '0.8 #leq m_{WV} < 1.0 TeV', '1.0 #leq m_{WV} < 1.6 TeV', '1.6 #leq m_{WV} < 5.0 TeV'],
-    'multMVV': [1., 1., 1., 1e-2],
-    'multMJ' : [1., 1., 1., 4.],
-    'multLabelMVV': ['', '', '', ' (#times 0.01)'],
-    'multLabelMJ' : ['', '', '', ' (#times 4)'],
-}
+ir['resTop'] = ir['resW']
+ir['res'] = ir['resW']
 
 
 
@@ -166,7 +148,7 @@ def compareTemplatesVsReco(contrib,l,p,c,var,varDesc,label):
         pad2.Draw()
         pad1.cd()
 
-    LOGY = var=="MVV" and (contrib=='nonRes' or contrib=='resW' or contrib=='resTop')
+    LOGY = var=="MVV" and (contrib=='nonRes' or contrib=='resW' or contrib=='resTop' or contrib=='res')
     if LOGY:
         (pad1 if RATIOPLOT else c).SetLogy()
 
@@ -183,6 +165,8 @@ def compareTemplatesVsReco(contrib,l,p,c,var,varDesc,label):
     hTpt = []
     if contrib=='nonRes':
         fTptName = "LNuJJ_nonRes"+INCRin+"_COND2D_"+cat+".root" if options.coarse else "LNuJJ_nonRes"+INCRin+"_2D_"+cat+".root"
+    elif contrib=='res':
+        fTptName = "LNuJJ_res_2DFromDC_"+cat+".root"
     elif contrib=='resW':
         fTptName = "LNuJJ_resW_2DFromDC_"+cat+".root"
     elif contrib=='resTop':
