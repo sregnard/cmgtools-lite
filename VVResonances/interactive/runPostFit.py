@@ -173,7 +173,7 @@ for l in leptons:
             ##label="W#rightarrow"+(("e","#mu")[l=='mu'])+"#nu, "+(("low-purity","high-purity")[p=='HP'])
             ##label=(("electron","muon")[l=='mu'])+", "+(("low-purity","high-purity")[p=='HP'])
             #label="#bf{"+(("electron","muon")[l=='mu'])+", "+(("low-purity","high-purity")[p=='HP'])+"}"
-            label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+YEAR
+            label=(("e","#mu")[l=='mu'])+", "+p+", "+c#+", "+YEAR
 
             if lep!='' and lep!=l: continue
             if pur!='' and pur!=p: continue 
@@ -183,11 +183,11 @@ for l in leptons:
                 pass
 
                 #''' ## blind (high and low-mjj sidebands)
-                plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,varMJJ+":low:30:70",minMVV,maxMVV,YmaxMVV) #30:64",minMVV,maxMVV,YmaxMVV)
+                plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,varMJJ+":low:20:70",minMVV,maxMVV,YmaxMVV)
                 cmsLabel(plotter2.canvas)
                 saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVVLo_Blind_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
 
-                plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,varMJJ+":high:150:210",minMVV,maxMVV,YmaxMVV) #106:210",minMVV,maxMVV,YmaxMVV)
+                plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,varMJJ+":high:150:210",minMVV,maxMVV,YmaxMVV)
                 cmsLabel(plotter2.canvas)
                 saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVVHi_Blind_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 #'''
@@ -218,9 +218,9 @@ for l in leptons:
                 #'''
 
                 ''' ## Plots in MJ intervals
-                plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label+", 30 #leq m_{jet} < 70 GeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,varMJJ+":bin1:30:70",minMVV,maxMVV,YmaxMVV)
+                plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label+", 20 #leq m_{jet} < 70 GeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,varMJJ+":bin1:20:70",minMVV,maxMVV,YmaxMVV)
                 cmsLabel(plotter2.canvas)
-                saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVV_MJJ030to070_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
+                saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVV_MJJ020to070_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
 
                 plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label+", 70 #leq m_{jet} < 110 GeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,varMJJ+":bin2:70:110",minMVV,maxMVV,YmaxMVV)
                 cmsLabel(plotter2.canvas)
