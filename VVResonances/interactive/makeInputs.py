@@ -307,24 +307,18 @@ def makeBackgroundShapesMVVConditional(name,filename,template,addCut="1"):
     cmd='vvMake2DDetectorParam.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_LV_mass,lnujj_l2_softDrop_mass" -g "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass,lnujj_l2_gen_pt" -b "100,150,200,250,300,350,400,450,500,600,700,800,900,1000,1500,2000,5000" {rwwj} {ntuples}'.format(rootFile=resFile,samples=template,cut=cut,rwwj=('' if inCR else '-W '+renormWJets3Yrs),ntuples=ntuples)
     os.system(cmd)
 
-    
-
     for p in purities:
-        cut='*'.join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
         for c in categories:
-               
             cut='*'.join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
              
             rootFile=outDir+filename+"_"+name+"_"+p+"_"+c+"_COND2D.root"
-            cmd='vvMake2DTemplateWithKernels.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass,lnujj_l2_softDrop_mass" -u "(1+0.0004*lnujj_l2_gen_pt),(1+0.000001*lnujj_l2_gen_pt*lnujj_l2_gen_pt)" -b {binsMVV} -B {binsMJJ} -x {minMVV} -X {maxMVV} -y {minMJJ} -Y {maxMJJ} -r {res} -l {limitTailFit2D} {rwwj} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMVV=binsMVV['allC'],minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,limitTailFit2D=limitTailFit2D['allC'],rwwj=('' if inCR else '-W '+renormWJets3Yrs),ntuples=ntuples)
+            cmd='vvMake2DTemplateWithKernels.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass,lnujj_l2_softDrop_mass" -u "(1+0.0004*lnujj_l2_gen_pt),(1+0.000001*lnujj_l2_gen_pt*lnujj_l2_gen_pt)" -b {binsMVV} -B {binsMJJ} -x {minMVV} -X {maxMVV} -y {minMJJ} -Y {maxMJJ} -r {res} -l {limitTailFit2D} {rwwj} -t 2 {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMVV=binsMVV['allC'],minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,limitTailFit2D=limitTailFit2D['allC'],rwwj=('' if inCR else '-W '+renormWJets3Yrs),ntuples=ntuples)
             os.system(cmd)
 
- ## store gen distributions, just for control plots
+            ## store gen distributions, just for control plots
             rootFile=outDir+filename+"_GEN.root"
-            cmd='vvMakeData.py -s "{samples}" -d {data} -c "{cut}" -o "{rootFile}" -v "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass" -b "{BINS},{bins}" -m "{MINI},{mini}" -M "{MAXI},{maxi}" -f {factor} -n "{name}" {rwwj} {ntuples}'.format(samples=template,cut=cut,rootFile=rootFile,BINS=binsMVV['allC'],bins=binsMJJ[c],MINI=minMVV,MAXI=maxMVV,mini=minMJJ,maxi=maxMJJ,factor=1,name=name,data=0,rwwj=('' if inCR else '-W '+renormWJets3Yrs),ntuples=ntuples)
+            cmd='vvMakeData.py -s "{samples}" -d {data} -c "{cut}" -o "{rootFile}" -v "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass" -b "{BINS},{bins}" -m "{MINI},{mini}" -M "{MAXI},{maxi}" -f {factor} -n "{name}" {rwwj} {ntuples}'.format(samples=template,cut=cut,rootFile=rootFile,BINS=binsMVV['allC'],bins=binsMJJ[c],MINI=minMVV,MAXI=maxMVV,mini=minMJJ,maxi=maxMJJ,factor=1,name=name+"_"+p+"_"+c,data=0,rwwj=('' if inCR else '-W '+renormWJets3Yrs),ntuples=ntuples)
             os.system(cmd)
-
-
 
 
 def makeBackgroundShapesMJJSpline(name,filename,template,addCut="1"):
