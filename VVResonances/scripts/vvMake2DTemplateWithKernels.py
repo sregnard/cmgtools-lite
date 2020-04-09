@@ -27,6 +27,7 @@ parser.add_option("-y","--miny",dest="miny",type=float,help="bins",default=0)
 parser.add_option("-Y","--maxy",dest="maxy",type=float,help="conditional bins split by comma",default=1)
 parser.add_option("-l","--limit",dest="limit",type=float,help="lower limit of the high-mass smoothing range",default=2500)
 parser.add_option("-W","--wgtwjets",dest="wgtwjets",help="weights for W+jets sample for each year",default="1.,1.,1.")
+parser.add_option("-t","--tails",dest="tails",type=int,help="method for tail smoothing: 1: all bins together (default); 2: do lowest 4 bins independently",default=1)
 (options,args) = parser.parse_args()
 
 DEBUG=0
@@ -74,7 +75,28 @@ def conditional(hist):
         for j in range(1,hist.GetNbinsX()+1):
             hist.SetBinContent(j,i,hist.GetBinContent(j,i)/integral)
 
+
+
 def smoothTail(hist):
+    hist.Scale(1.0/hist.Integral())
+
+    bin_limit = hist.GetXaxis().FindBin(options.limit)
+
+    histfit=hist.ProjectionX("q",1,hist.GetNbinsY())
+    X=histfit.GetBinCenter(bin_limit)
+    Y=histfit.GetBinContent(bin_limit)
+    print 'X', X, 'Y', Y
+    fun=ROOT.TF1("func","{Y}*(((x-[1])/({X}-[1]))^[0])".format(X=X,Y=Y),options.limit,options.maxx)
+    fun.SetParameter(0,-10.)
+    histfit.Fit(fun,"WL,R")
+
+    for i in range(1,hist.GetNbinsX()+1):
+        x=hist.GetXaxis().GetBinCenter(i)
+        if x>options.limit:
+            for j in range(1,hist.GetNbinsY()+1):
+                hist.SetBinContent(i,j,fun.Eval(x)*hist.GetBinContent(bin_limit,j)/fun.Eval(histfit.GetBinCenter(bin_limit)))
+
+def smoothTail_4LowestBinsIndep(hist):
     hist.Scale(1.0/hist.Integral())
 
     bin_limit = hist.GetXaxis().FindBin(options.limit)
@@ -238,7 +260,10 @@ f.cd()
 finalHistograms={}
 for hist in histograms:
     hist.Write(hist.GetName()+"_coarse")
-    smoothTail(hist)
+    if options.tails==1:
+        smoothTail(hist)
+    elif options.tails==2:
+        smoothTail_4LowestBinsIndep(hist)
     hist.Write(hist.GetName()+"_coarsesmoothed")
     conditional(hist)
     hist.Write(hist.GetName()+"_coarsesmoothedcond")

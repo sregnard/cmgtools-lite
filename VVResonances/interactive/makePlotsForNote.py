@@ -11,7 +11,7 @@ import optparse
 parser = optparse.OptionParser()
 parser.add_option("-y","--year",dest="year",default="Run2",help="2016 or 2017 or 2018 or Run2")
 parser.add_option("-o","--outDir",dest="outDirPrefix",default='PlotsTemplates_',help="where to save the plots")
-parser.add_option("-p","--plots",dest="plots",default='all',help="possible plots: all, signal, nonRes, nonReSyst, CRNonRes, CRNonReSyst, resW, resTop, res2, scaleres")
+parser.add_option("-p","--plots",dest="plots",default='all',help="possible plots: all, signal, nonResTpl, nonResSys, CRNonResTpl, CRNonResSys, resTpl, resSys, resW, resTop, scaleres")
 parser.add_option("-d","--withDC",dest="withDC",type=int,default=1,help="include plots that require datacards")
 parser.add_option("-D","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=True)
 (options,args) = parser.parse_args()
@@ -23,7 +23,7 @@ outDir=options.outDirPrefix+YEAR+'/'
 
 plots = options.plots
 if 'all' in plots:
-    plots = plots + ',signal,nonRes,nonReSyst,CRNonRes,CRNonReSyst,res2,scaleres'
+    plots = plots + ', signal, nonResTpl, nonResSys, CRNonResTpl, CRNonResSys, resTpl, resSys, scaleres'
 
 
 COMPYEARS=0
@@ -1606,7 +1606,7 @@ makeTopVsVJetsMVV(inDir+"LNuJJ_nonRes_COND2D_mu_HP_nob.root")
 '''
 
 
-if 'nonRes' in plots:
+if 'nonResTpl' in plots:
     #'''
     compCategories(inDir+"LNuJJ_nonRes_2D","histo",True,leptons,purities,categories,"compTemplate_nonRes","MVV","m_{WV} (GeV)",False)
     compCategories(inDir+"LNuJJ_nonRes_2D","histo",True,leptons,purities,categories,"compTemplate_nonRes","MVV","m_{WV} (GeV)",True)
@@ -1635,9 +1635,12 @@ if 'nonRes' in plots:
 
                 #'''
                 makeTemplate2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","histo","template_nonRes_"+l+"_"+p+"_"+c)
-                makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+".root","histo","templCond_nonRes_"+l+"_"+p+"_"+c)
-                makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarse","template_nonResCoarse_"+l+"_"+p+"_"+c)
-                makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarsesmoothed","template_nonResCoarseSmoothed_"+l+"_"+p+"_"+c)
+                #makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+".root","histo","templCond_nonRes_"+l+"_"+p+"_"+c)
+                #makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarse","template_nonResCoarse_"+l+"_"+p+"_"+c)
+                #makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarsesmoothed","template_nonResCoarseSmoothed_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_"+p+"_"+c+"_COND2D.root","histo","templCond_nonRes_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_"+p+"_"+c+"_COND2D.root","histo_coarse","template_nonResCoarse_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_"+p+"_"+c+"_COND2D.root","histo_coarsesmoothed","template_nonResCoarseSmoothed_"+l+"_"+p+"_"+c)
                 makeTemplate2D(inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","nonRes","reco_nonRes_"+l+"_"+p+"_"+c)
                 makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_GEN.root","nonRes","gen_nonRes_"+l+"_"+p+"_"+c)
                 makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","nonRes","templateVsReco_nonRes_"+l+"_"+p+"_"+c) #,4,(5,0)[binsMJJ[c]==18])
@@ -1645,7 +1648,7 @@ if 'nonRes' in plots:
                 ##makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarse",inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","nonRes","templateVsReco_nonResCoarse_"+l+"_"+p+"_"+c)
                 #makeTemplateVsReco1D(inDir+"LNuJJ_nonRes_MVV_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","nonRes","templateVsReco1D_nonRes_MVV_"+l+"_"+p+"_"+c,"MVV","m_{WV} (GeV)")
 
-if 'nonReSyst' in plots:
+if 'nonResSys' in plots:
     for c in categories:
         for p in purities:
             for l in leptons:
@@ -1692,7 +1695,7 @@ if 'nonReSyst' in plots:
                 #'''
 
 
-if 'CRNonRes' in plots:
+if 'CRNonResTpl' in plots:
     #'''
     compCategories(inDir+"LNuJJ_nonRes_CR_2D","histo",True,leptons,purities,categories,"compTemplate_CRnonRes","MVV","m_{WV} (GeV)",False)
     compCategories(inDir+"LNuJJ_nonRes_CR_2D","histo",True,leptons,purities,categories,"compTemplate_CRnonRes","MVV","m_{WV} (GeV)",True)
@@ -1720,15 +1723,18 @@ if 'CRNonRes' in plots:
 
                 #'''
                 makeTemplate2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","histo","template_CRnonRes_"+l+"_"+p+"_"+c)
-                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_COND2D_"+l+"_"+p+"_"+c+".root","histo","templCond_CRnonRes_"+l+"_"+p+"_"+c)
-                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarse","template_CRnonResCoarse_"+l+"_"+p+"_"+c)
-                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarsesmoothed","template_CRnonResCoarseSmoothed_"+l+"_"+p+"_"+c)
+                #makeTemplate2D(inDir+"LNuJJ_nonRes_CR_COND2D_"+l+"_"+p+"_"+c+".root","histo","templCond_CRnonRes_"+l+"_"+p+"_"+c)
+                #makeTemplate2D(inDir+"LNuJJ_nonRes_CR_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarse","template_CRnonResCoarse_"+l+"_"+p+"_"+c)
+                #makeTemplate2D(inDir+"LNuJJ_nonRes_CR_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarsesmoothed","template_CRnonResCoarseSmoothed_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_"+p+"_"+c+"_COND2D.root","histo","templCond_nonRes_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_"+p+"_"+c+"_COND2D.root","histo_coarse","template_nonResCoarse_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_"+p+"_"+c+"_COND2D.root","histo_coarsesmoothed","template_nonResCoarseSmoothed_"+l+"_"+p+"_"+c)
                 makeTemplate2D(inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+".root","nonRes_CR","reco_CRnonRes_"+l+"_"+p+"_"+c)
                 makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_GEN.root","nonRes_CR","gen_CRnonRes_"+l+"_"+p+"_"+c)
                 makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+".root","nonRes_CR","templateVsReco_CRnonRes_"+l+"_"+p+"_"+c) #,4,(5,0)[binsMJJ[c]==18])
                 #'''
 
-if 'CRNonReSyst' in plots:
+if 'CRNonResSys' in plots:
     for c in categories:
         for p in purities:
             for l in leptons:
@@ -1775,60 +1781,59 @@ if 'CRNonReSyst' in plots:
                 #'''
 
 
-if 'res2' in plots:
+if 'resTpl' in plots:
+
     #'''
-    if options.withDC:
-        for c in categories:
-            for p in purities:
-                for l in leptons:
-                    extractResTemplateFromDC(DcFolder+"/combined_"+YEAR+".root",c+"_"+l+"_"+p+"_"+YEAR+"_opt",inDir+"LNuJJ_res_2DFromDC_"+l+"_"+p+"_"+c,c)
-                    ##extractResTemplateFromDC(DcFolder+"/combined_"+YEAR+".root",c+"_"+l+"_"+p+"_"+YEAR,inDir+"LNuJJ_res_2DFromDC_"+l+"_"+p+"_"+c,c) ##old syntax, before new res 2D fit
-    #'''
-    #'''
-    #compCategories(inDir+"LNuJJ_res_MVV","histo",False,leptons,purities,categories,"compTemplate_res","MVV","m_{WV} (GeV)")
-    #compCategories(inDir+"LNuJJ_res_MVV","histo",False,leptons,purities,categories,"compTemplate_res","MVV","m_{WV} (GeV)",True)
-    if options.withDC:
-        compCategories(inDir+"LNuJJ_res_2DFromDC","histo",True,leptons,purities,categories,"compTemplate_res","MVV","m_{WV} (GeV)",False)
-        compCategories(inDir+"LNuJJ_res_2DFromDC","histo",True,leptons,purities,categories,"compTemplate_res","MVV","m_{WV} (GeV)",True)
-        compCategories(inDir+"LNuJJ_res_2DFromDC","histo",True,leptons,purities,categories,"compTemplate_res","MJJ","m_{jet} (GeV)")
-        compCategories(inDir+"LNuJJ_norm","res",True,leptons,purities,categories,"compReco_res","MVV","m_{WV} (GeV)",False)
-        compCategories(inDir+"LNuJJ_norm","res",True,leptons,purities,categories,"compReco_res","MVV","m_{WV} (GeV)",True)
-        compCategories(inDir+"LNuJJ_norm","res",True,leptons,purities,categories,"compReco_res","MJJ","m_{jet} (GeV)")
-    #'''
-    #'''
+    compCategories(inDir+"LNuJJ_res_2D","histo",True,leptons,purities,categories,"compTemplate_res","MVV","m_{WV} (GeV)",False)
+    compCategories(inDir+"LNuJJ_res_2D","histo",True,leptons,purities,categories,"compTemplate_res","MVV","m_{WV} (GeV)",True)
+    compCategories(inDir+"LNuJJ_res_2D","histo",True,leptons,purities,categories,"compTemplate_res","MJJ","m_{jet} (GeV)")
+    compCategories(inDir+"LNuJJ_norm","res",True,leptons,purities,categories,"compReco_res","MVV","m_{WV} (GeV)",False)
+    compCategories(inDir+"LNuJJ_norm","res",True,leptons,purities,categories,"compReco_res","MVV","m_{WV} (GeV)",True)
+    compCategories(inDir+"LNuJJ_norm","res",True,leptons,purities,categories,"compReco_res","MJJ","m_{jet} (GeV)")
+
     if COMPYEARS:
-        compYears([inDir16+"LNuJJ_res_2DFromDC",inDir17+"LNuJJ_res_2DFromDC",inDir18+"LNuJJ_res_2DFromDC",inDirR2+"LNuJJ_res_2DFromDC"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_res","MVV","m_{WV} (GeV)",False)
-        compYears([inDir16+"LNuJJ_res_2DFromDC",inDir17+"LNuJJ_res_2DFromDC",inDir18+"LNuJJ_res_2DFromDC",inDirR2+"LNuJJ_res_2DFromDC"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_res","MVV","m_{WV} (GeV)",True)
-        compYears([inDir16+"LNuJJ_res_2DFromDC",inDir17+"LNuJJ_res_2DFromDC",inDir18+"LNuJJ_res_2DFromDC",inDirR2+"LNuJJ_res_2DFromDC"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_res","MJJ","m_{jet} (GeV)")
+        compYears([inDir16+"LNuJJ_res_2D",inDir17+"LNuJJ_res_2D",inDir18+"LNuJJ_res_2D",inDirR2+"LNuJJ_res_2D"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_res","MVV","m_{WV} (GeV)",False)
+        compYears([inDir16+"LNuJJ_res_2D",inDir17+"LNuJJ_res_2D",inDir18+"LNuJJ_res_2D",inDirR2+"LNuJJ_res_2D"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_res","MVV","m_{WV} (GeV)",True)
+        compYears([inDir16+"LNuJJ_res_2D",inDir17+"LNuJJ_res_2D",inDir18+"LNuJJ_res_2D",inDirR2+"LNuJJ_res_2D"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_res","MJJ","m_{jet} (GeV)")
     #'''
+
     #'''
     for c in categories:
         for p in purities:
             for l in leptons:
                 #continue
+                
                 #'''
-                if options.withDC:
-                    os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B}".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c]))
-                #'''
-                #'''
-                if options.withDC:
-                    makeTemplate2D(inDir+"LNuJJ_res_2DFromDC_"+l+"_"+p+"_"+c+".root","histo","template_res_"+l+"_"+p+"_"+c)
-                    makeTemplateVsReco2D(inDir+"LNuJJ_res_2DFromDC_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","res","templateVsReco_res_"+l+"_"+p+"_"+c)
-                makeTemplate2D(inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","res","reco_res_"+l+"_"+p+"_"+c)
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B}".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c]))
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -d 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
                 #'''
 
-            #'''
-            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"MVVScale")
-            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"Diag")
-            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"scaleY")
-            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"resY")
-            makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"fractionY")
-            makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"MVVScale")
-            makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"Diag")
-            makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"scaleY")
-            makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"resY")
-            makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"fractionY")
-            #'''
+                #'''
+                makeTemplate2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","histo","template_res_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_res_"+c+"_COND2D.root","histo","templCond_res_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_res_"+c+"_COND2D.root","histo_coarse","template_resCoarse_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_res_"+c+"_COND2D.root","histo_coarsesmoothed","template_resCoarseSmoothed_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","res","reco_res_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_GEN.root","res","gen_res_"+l+"_"+p+"_"+c)
+                makeTemplateVsReco2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","res","templateVsReco_res_"+l+"_"+p+"_"+c) 
+                #'''
+
+if 'resSys' in plots:
+
+    for c in categories:
+        for p in purities:
+            for l in leptons:
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"MVVScale")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"Diag")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"scaleY")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"resY")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"fractionY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"MVVScale")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"Diag")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"scaleY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"resY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"fractionY")
+
 
 
 if 'resW' in plots:
