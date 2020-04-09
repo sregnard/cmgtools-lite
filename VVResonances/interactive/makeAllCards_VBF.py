@@ -83,7 +83,7 @@ for signal in ['XWW','XWZ','XWH','VBFXWW']:
     os.system('mkdir -p '+dcFolder)
 
     #doCards = 'python ../makeCard_{tag}.py -y Run2 -s {signal} -r {region} 2>&1 | tee log_makeCard_{tag}_{region}_{signal}.txt'.format(tag=options.tag,signal=signal,region=options.region)
-    doCards = 'python ../makeCard.py -y Run2 -s {signal} -r {region} 2>&1 | tee log_makeCard_{region}_{signal}.txt'.format(signal=signal,region=options.region)
+    doCards = 'python ../makeCard_VBF.py -y Run2 -s {signal} -r {region} 2>&1 | tee log_makeCard_{region}_{signal}.txt'.format(signal=signal,region=options.region)
     os.system(doCards)
 
     if options.allcomb:
