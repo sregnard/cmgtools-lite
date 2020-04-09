@@ -63,18 +63,16 @@ ir['nonRes'] = {
     'nIntervalsMJ' : 4,
     'binColorTpt' : [ROOT.kGray+1, ROOT.TColor.GetColor("#88A8E0"), ROOT.TColor.GetColor("#E66FD8"), ROOT.TColor.GetColor("#E68F6F"), ROOT.TColor.GetColor("#9CD663")],
     'binColorReco': [ROOT.kGray+3, ROOT.kBlue+2, ROOT.kMagenta+2, ROOT.kRed+2, ROOT.kGreen+3],
-    'rangeLoMVVCoarseTpt' : [-1,1,7,11,14], ## MJ in [20,70], [70,110], [110,150], [150,210]
+    ## MJ in [20,70], [70,110], [110,150], [150,210]
+    'rangeLoMVV': ([-1,1,6,10,14] if options.mjetbinning == 19 else [-1,1,11,19,27]),
+    'rangeUpMVV': ([-1,5,9,13,19] if options.mjetbinning == 19 else [-1,10,18,26,38]),
+    'rangeLoMVVCoarseTpt' : [-1,1,7,11,14],
     'rangeUpMVVCoarseTpt' : [-1,6,10,13,16],
-    'rangeLoMVVCoarseReco': [-1,1,7,11,14],
-    'rangeUpMVVCoarseReco': [-1,6,10,13,16],
-    'rangeLoMVV': ([-1,1,6,10,14] if options.mjetbinning == 19 ## MJ in [20,70], [70,110], [110,150], [150,210]
-                   else [-1,1,11,19,27]),
-    'rangeUpMVV': ([-1,5,9,13,19] if options.mjetbinning == 19
-                   else [-1,10,18,26,38]),
-    'rangeLoMJ': ([-1,1,3,5,11] if options.mvvbinning == 44 ## MVV in [600,800], [800,1000], [1000,1600], [1600,5000]
-                  else [-1,1,9,17,41]),
-    'rangeUpMJ': ([-1,2,4,10,44] if options.mvvbinning == 44
-                  else [-1,8,16,40,176]),
+    'rangeLoMVVCoarseReco': ([-1,1,6,10,14] if options.mjetbinning == 19 else [-1,1,11,19,27]),
+    'rangeUpMVVCoarseReco': ([-1,5,9,13,19] if options.mjetbinning == 19 else [-1,10,18,26,38]),
+    ## MVV in [600,800], [800,1000], [1000,1600], [1600,5000]
+    'rangeLoMJ': ([-1,1,3,5,11] if options.mvvbinning == 44 else [-1,1,9,17,41]),
+    'rangeUpMJ': ([-1,2,4,10,44] if options.mvvbinning == 44 else [-1,8,16,40,176]),
     'rangeLabelMVV': ['full m_{jet} range', '20 #leq m_{jet} < 70 GeV', '70 #leq m_{jet} < 110 GeV', '110 #leq m_{jet} < 150 GeV', '150 #leq m_{jet} < 210 GeV'],
     'rangeLabelMJ' : ['full m_{WV} range', '0.6 #leq m_{WV} < 0.8 TeV', '0.8 #leq m_{WV} < 1.0 TeV', '1.0 #leq m_{WV} < 1.6 TeV', '1.6 #leq m_{WV} < 5.0 TeV'],
     'multMVV': [1., 1., 1e-1, 5e-2, 1e-2],
@@ -87,14 +85,16 @@ ir['resW'] = {
     'nIntervalsMJ' : 4,
     'binColorTpt' : [ROOT.kGray+1, ROOT.TColor.GetColor("#88A8E0"), ROOT.TColor.GetColor("#E68F6F"), ROOT.TColor.GetColor("#9CD663"), ROOT.kOrange-9, ROOT.kMagenta-9],
     'binColorReco': [ROOT.kGray+3, ROOT.kBlue+2, ROOT.kRed+2, ROOT.kGreen+3, ROOT.kOrange+2, ROOT.kMagenta+2 ],
-    'rangeLoMVV': ([-1,1,6,14] if options.mjetbinning == 19 ## MJ in [20,70], [70,150], [150,210]
-                   else [-1,1,11,27]),
-    'rangeUpMVV': ([-1,5,13,19] if options.mjetbinning == 19
-                   else [-1,10,26,38]),
-    'rangeLoMJ': ([-1,1,3,5,11] if options.mvvbinning == 44 ## MVV in [600,800], [800,1000], [1000,1600], [1600,5000]
-                  else [-1,1,9,17,41]),
-    'rangeUpMJ': ([-1,2,4,10,44] if options.mvvbinning == 44
-                  else [-1,8,16,40,176]),
+    ## MJ in [20,70], [70,150], [150,210]
+    'rangeLoMVV': ([-1,1,6,14] if options.mjetbinning == 19 else [-1,1,11,27]),
+    'rangeUpMVV': ([-1,5,13,19] if options.mjetbinning == 19 else [-1,10,26,38]),
+    'rangeLoMVVCoarseTpt' : [-1,1,7,14],
+    'rangeUpMVVCoarseTpt' : [-1,6,13,16],
+    'rangeLoMVVCoarseReco': ([-1,1,6,14] if options.mjetbinning == 19 else [-1,1,11,27]),
+    'rangeUpMVVCoarseReco': ([-1,5,13,19] if options.mjetbinning == 19 else [-1,10,26,38]),
+    ## MVV in [600,800], [800,1000], [1000,1600], [1600,5000]
+    'rangeLoMJ': ([-1,1,3,5,11] if options.mvvbinning == 44 else [-1,1,9,17,41]),
+    'rangeUpMJ': ([-1,2,4,10,44] if options.mvvbinning == 44 else [-1,8,16,40,176]),
     'rangeLabelMVV': ['full m_{jet} range', '20 #leq m_{jet} < 70 GeV', '70 #leq m_{jet} < 150 GeV', '150 #leq m_{jet} < 210 GeV'],
     'rangeLabelMJ' : ['full m_{WV} range', '0.6 #leq m_{WV} < 0.8 TeV', '0.8 #leq m_{WV} < 1.0 TeV', '1.0 #leq m_{WV} < 1.6 TeV', '1.6 #leq m_{WV} < 5.0 TeV'],
     'multMVV': [1., 1., 1., 1e-2],
@@ -130,8 +130,8 @@ def compareTemplatesVsReco(contrib,l,p,c,var,varDesc,label):
 
     nintervals = ir[contrib]['nIntervalsMVV' if var=="MVV" else 'nIntervalsMJ'] if ININTERVALS else 0
 
-    c=ROOT.TCanvas("c","c",500,500)
-    c.cd()
+    c1=ROOT.TCanvas("c","c",500,500)
+    c1.cd()
 
     if RATIOPLOT:
         pad1 = ROOT.TPad("pad1","",0.0,0.24,1.0,0.95,0)
@@ -150,7 +150,7 @@ def compareTemplatesVsReco(contrib,l,p,c,var,varDesc,label):
 
     LOGY = var=="MVV" and (contrib=='nonRes' or contrib=='resW' or contrib=='resTop' or contrib=='res')
     if LOGY:
-        (pad1 if RATIOPLOT else c).SetLogy()
+        (pad1 if RATIOPLOT else c1).SetLogy()
 
     fRecoName = options.inDir+"/LNuJJ_norm"+INCRin+"_"+cat+".root"
     if not os.path.isfile(fRecoName):
@@ -164,9 +164,11 @@ def compareTemplatesVsReco(contrib,l,p,c,var,varDesc,label):
     h2_Tpt = []
     hTpt = []
     if contrib=='nonRes':
-        fTptName = "LNuJJ_nonRes"+INCRin+"_COND2D_"+cat+".root" if options.coarse else "LNuJJ_nonRes"+INCRin+"_2D_"+cat+".root"
+        #fTptName = "LNuJJ_nonRes"+INCRin+"_COND2D_"+cat+".root" if options.coarse else "LNuJJ_nonRes"+INCRin+"_2D_"+cat+".root"
+        fTptName = "LNuJJ_nonRes"+INCRin+"_"+p+"_"+c+"_COND2D.root" if options.coarse else "LNuJJ_nonRes"+INCRin+"_2D_"+cat+".root"
     elif contrib=='res':
-        fTptName = "LNuJJ_res_2DFromDC_"+cat+".root"
+        #fTptName = "LNuJJ_res_2DFromDC_"+cat+".root"
+        fTptName = "LNuJJ_res_"+p+"_"+c+"_COND2D.root" if options.coarse else "LNuJJ_res_2D_"+cat+".root"
     elif contrib=='resW':
         fTptName = "LNuJJ_resW_2DFromDC_"+cat+".root"
     elif contrib=='resTop':
@@ -277,7 +279,7 @@ def compareTemplatesVsReco(contrib,l,p,c,var,varDesc,label):
     ymin = (0.,1.5e-9)[LOGY]
     hTpt[0][0].GetYaxis().SetRangeUser(ymin,ymax)
 
-    (pad1 if RATIOPLOT else c).Update()
+    (pad1 if RATIOPLOT else c1).Update()
     lgd.Draw()
 
     latex = ROOT.TLatex()
@@ -330,9 +332,9 @@ def compareTemplatesVsReco(contrib,l,p,c,var,varDesc,label):
         pad2.Update()
 
     if options.final:
-        CMSPlotLabel("CMS","Simulation Supplementary",{'':{'lumi':'','energy':'13 TeV'}})(c,'',0)
+        CMSPlotLabel("CMS","Simulation Supplementary",{'':{'lumi':'','energy':'13 TeV'}})(c1,'',0)
 
-    saveCanvas(c,options.outDir+"/"+'templateVsReco'+tag+'_'+INCRout+contrib+("Coarse" if options.coarse else "")+'_'+var+'_'+cat)
+    saveCanvas(c1,options.outDir+"/"+'templateVsReco'+tag+'_'+INCRout+contrib+("Coarse" if options.coarse else "")+'_'+var+'_'+cat)
 
 
 
