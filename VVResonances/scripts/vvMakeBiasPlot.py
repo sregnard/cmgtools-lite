@@ -14,8 +14,8 @@ parser.add_option("-i","--input",dest="input",default='',help="input ROOT file")
 parser.add_option("-o","--output",dest="output",default='biasPlot',help="output plot name")
 parser.add_option("-x","--minX",dest="minX",type=float,help="minimum x",default=1000.0)
 parser.add_option("-X","--maxX",dest="maxX",type=float,help="maximum x",default=4500.0)
-parser.add_option("-y","--minY",dest="minY",type=float,help="minimum y",default=-4.)
-parser.add_option("-Y","--maxY",dest="maxY",type=float,help="maximum y",default=4.)
+parser.add_option("-y","--minY",dest="minY",type=float,help="minimum y",default=-4.5)
+parser.add_option("-Y","--maxY",dest="maxY",type=float,help="maximum y",default=4.5)
 parser.add_option("-t","--titleX",dest="titleX",default='m_{X} (GeV)',help="title of x axis")
 parser.add_option("-T","--titleY",dest="titleY",default='measured x-sec. / uncertainty',help="title of y axis")
 parser.add_option("-l","--log",dest="log",type=int,help="use log scale",default=0)
@@ -52,11 +52,11 @@ data = {}
 for event in limit:
     if float(event.mh)<options.minX or float(event.mh)>options.maxX:
         continue
-    
+
     if not (event.mh in data.keys()):
         data[event.mh]={}
 
-    if withObs and event.iToy==0:            
+    if withObs and event.iToy==0:
         data[event.mh]['obs']=event.limit/event.limitErr
 
 
@@ -81,7 +81,7 @@ lineZero.SetName("zero")
 
 
 N=0
-h = ROOT.TH1D("tmpTH1","",10000,options.minY,options.maxY)
+h = ROOT.TH1D("tmpTH1","",300000,-100,100)
 for mass,info in data.iteritems():
 
     h.Reset()
@@ -118,10 +118,10 @@ for mass,info in data.iteritems():
 lineExp.Sort()
 band68.Sort()
 band95.Sort()
-line_plus1.Sort()    
-line_plus2.Sort()    
-line_minus1.Sort()    
-line_minus2.Sort()    
+line_plus1.Sort()
+line_plus2.Sort()
+line_minus1.Sort()
+line_minus2.Sort()
 if withObs:
     lineObs.Sort()
 lineZero.Sort()
@@ -197,13 +197,11 @@ lgd.SetTextSize(0.04)
 if withObs:
     lgd.AddEntry(lineObs,"Data","lp")
 lgd.AddEntry(lineExp,"Median","l")
-lgd.AddEntry(band68,"#pm 68%","f")
-lgd.AddEntry(band95,"#pm 95%","f")
+lgd.AddEntry(band68,"68%","f")
+lgd.AddEntry(band95,"95%","f")
 lgd.Draw()
 
 c.Update()
 c.RedrawAxis()
 
 saveCanvas(c,options.output)
-
-

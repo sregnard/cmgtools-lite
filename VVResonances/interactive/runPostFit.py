@@ -83,7 +83,7 @@ if s!="":
     mx = "" if options.fixMX is None else '{:,g}'.format(options.fixMX/1000)
     sx = "" if options.dispR is None else '{:,g}'.format(options.dispR)
     if s=="XWW":
-        sigLgd += "G_{Bulk}" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWW" 
+        sigLgd += "G_{Bulk}" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWW"
         sigColor = ROOT.kRed-3
     elif s=="XWZ":
         sigLgd += "W'" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWZ"
@@ -91,16 +91,16 @@ if s!="":
     elif s=="XWH":
         sigLgd += "W'" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWH"
         sigColor = ROOT.kViolet+6
-    sigLabel = "" if options.dispR is None else "#scale[0.9]{(#sigma #times BR = "+sx+" pb)}" 
+    sigLabel = "" if options.dispR is None else "#scale[0.9]{(#sigma #times BR = "+sx+" pb)}"
 
 doMjj = options.variable=='' or options.variable=='mjj'
 doMvv = options.variable=='' or options.variable=='mvv'
 
 
 if doMjj:
-  
-    plotter=RooPlotter(inputDC)    
-  
+
+    plotter=RooPlotter(inputDC)
+
     if options.fixMX is not None:
         plotter.fix("MH",options.fixMX)
     if options.fixR is not None:
@@ -176,8 +176,8 @@ for l in leptons:
             label=(("e","#mu")[l=='mu'])+", "+p+", "+c#+", "+YEAR
 
             if lep!='' and lep!=l: continue
-            if pur!='' and pur!=p: continue 
-            if cat!='' and cat!=c: continue 
+            if pur!='' and pur!=p: continue
+            if cat!='' and cat!=c: continue
 
             if doMvv:
                 pass
@@ -208,7 +208,7 @@ for l in leptons:
                 #plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,0,0,varMJJ+":sig:66:86",minMVV,maxMVV,YmaxMVV)
                 #cmsLabel(plotter2.canvas)
                 #saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVVW_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
-                
+
                 plotter2.frame.GetXaxis().SetRangeUser(1000.,2000.)
                 plotter2.frame.GetYaxis().SetRangeUser(0.,1.1*(plotter2.frame.getHist("datapoints").GetY()[9]+plotter2.frame.getHist("datapoints").GetEYhigh()[9]))
                 plotter2.frame2.GetXaxis().SetRangeUser(1000.,2000.)
@@ -270,11 +270,11 @@ for l in leptons:
                 plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label+", 0.6 #leq m_{WV} < 0.8 TeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,0,0,varMVV+":bin0:600:800",minMJJ,maxMJJ,YmaxMJJ) #,490.)
                 cmsLabel(plotter.canvas)
                 saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_MVV0600to0800_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
-                
+
                 plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label+", 0.8 #leq m_{WV} < 1 TeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,0,0,varMVV+":bin1:800:1000",minMJJ,maxMJJ,YmaxMJJ) #,490.)
                 cmsLabel(plotter.canvas)
                 saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_MVV0800to1000_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
-                
+
                 plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label+", 1 #leq m_{WV} < 1.2 TeV",c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,0,0,varMVV+":bin2:1000:1200",minMJJ,maxMJJ,YmaxMJJ) #,190.)
                 cmsLabel(plotter.canvas)
                 saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_MVV1000to1200_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
@@ -317,11 +317,3 @@ for l in leptons:
                 cmsLabel(plotter.canvas)
                 saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_MVV0800to1200_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 #'''
-
-
-
-
-
-
-
-
