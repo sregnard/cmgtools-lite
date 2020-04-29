@@ -123,8 +123,8 @@ leptons=['e','mu']
 leptonsMerged=['allL']
 
 Vtagger='(lnujj_l2_tau2/lnujj_l2_tau1-(-0.08)*log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt))'
-thrHP='0.55'
-thrLP='0.96'
+thrHP='0.50'
+thrLP='0.80'
 cuts['HP'] = '('+Vtagger+'<'+thrHP+')'
 cuts['LP'] = '('+thrHP+'<='+Vtagger+'&&'+Vtagger+'<'+thrLP+')'
 cuts['allP'] = '('+cuts['HP']+'||'+cuts['LP']+')'
