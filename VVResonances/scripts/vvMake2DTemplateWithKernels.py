@@ -239,7 +239,7 @@ histograms=[
 for plotter in dataPlotters:
     dataset=plotter.makeDataSet('lnujj_l1_pt,lnujj_l2_gen_pt,'+variables[1]+','+variables[0],options.cut,-1)
     reweigh=0
-    if options.output.find("nonRes")!=-1:
+    if options.output.find("nonRes")!=-1 and options.output.find("CR")==-1:
         if options.output.find("_HP_")!=-1 and options.output.find("_nobb_")!=-1:
             reweigh=-2.1e-4;
         elif options.output.find("_HP_")!=-1 and options.output.find("_bb_")!=-1:
