@@ -19,11 +19,13 @@ parser.add_option("-p","--pur",dest="purity",default='allP',help="purity")
 parser.add_option("-c","--cat",dest="category",default='nob',help="category")
 parser.add_option("-r","--inranges",dest="inranges",type=int,default=1,help="also in intervals of the other variable")
 parser.add_option("-f","--final",dest="final",type=int,default=0,help="print CMS label")
-parser.add_option("-d","--coarse",dest="coarse",type=int,default=0,help="debug coarse template")
+parser.add_option("-d","--coarse",dest="coarse",type=int,default=0,help="input is a coarse template")
+parser.add_option("-D","--conditional",dest="conditional",type=int,default=0,help="input is a conditional template")
 (options,args) = parser.parse_args()
 
 
 ININTERVALS = options.inranges
+DOMJJ = 1
 DOMVV = 1
 RATIOPLOT = 1
 
@@ -116,15 +118,27 @@ def refillEvtPerAxisUnit(h1):
     return h1
 
 def refillEvtPerBin(h2Coarse):
+    '''
     for i in range(1,h2Coarse.GetNbinsX()+1):
         for j in range(1,h2Coarse.GetNbinsY()+1):
             h2Coarse.SetBinContent(i,j,h2Coarse.GetBinContent(i,j)*h2Coarse.GetYaxis().GetBinWidth(j))
             h2Coarse.SetBinError(i,j,h2Coarse.GetBinError(i,j)*h2Coarse.GetYaxis().GetBinWidth(j))
+    #'''
     return h2Coarse
 
+def conditional(hist):
+    for i in range(1,hist.GetNbinsY()+1):
+        proj=hist.ProjectionX("q",i,i)
+        integral=proj.Integral()
+        if integral==0.0:
+            print 'Warning in function conditional(): slice with no events in histogram', hist.GetName()
+            continue
+        for j in range(1,hist.GetNbinsX()+1):
+            hist.SetBinContent(j,i,hist.GetBinContent(j,i)/integral)
 
 
-def compareTemplatesVsReco(contrib,l,p,c,var,varDesc,label):
+
+def compareTemplatesVsReco(contrib,l,p,c,var,varDesc):
 
     cat=l+"_"+p+"_"+c
 
@@ -152,23 +166,41 @@ def compareTemplatesVsReco(contrib,l,p,c,var,varDesc,label):
     if LOGY:
         (pad1 if RATIOPLOT else c1).SetLogy()
 
-    fRecoName = options.inDir+"/LNuJJ_norm"+INCRin+"_"+cat+".root"
+    h2RecoName=""
+    label=""
+    if contrib=='nonRes' and var=="MVV" and (options.coarse or options.conditional):
+        fRecoName = options.inDir+"/LNuJJ_norm"+INCRin+"_"+cat+".root"
+        h2RecoName='nonRes_CR_inclLC' if options.inCR else 'nonRes_wgtMVV_inclLC'
+        label=p
+    elif contrib=='nonRes' and var=="MJ" and (not ININTERVALS):
+        fRecoName = options.inDir+"/LNuJJ_norm"+INCRin+"_"+cat+".root"
+        h2RecoName='nonRes'+INCRin+'_wgtMJJ'
+        label=l+", "+p+", "+c
+    elif contrib=='res' and var=="MVV" and (options.coarse or options.conditional):
+        fRecoName = options.inDir+"/LNuJJ_norm"+INCRin+"_"+cat+".root"
+        h2RecoName='res'+INCRin+'_inclLPC'
+    else:
+        fRecoName = options.inDir+"/LNuJJ_norm"+INCRin+"_"+cat+".root"
+        h2RecoName=contrib+INCRin
+        label=l+", "+p+", "+c
     if not os.path.isfile(fRecoName):
         print "Error in compareTemplatesVsReco: file "+fRecoName+" does not exist."
         return
     fReco = ROOT.TFile(fRecoName)
-    h2_Reco = fReco.Get(contrib+INCRin)
+    h2_Reco = fReco.Get(h2RecoName)
+    if options.conditional:
+        conditional(h2_Reco)
     hReco = [None]*(1+nintervals)
 
     fTpt = []
     h2_Tpt = []
     hTpt = []
     if contrib=='nonRes':
-        #fTptName = "LNuJJ_nonRes"+INCRin+"_COND2D_"+cat+".root" if options.coarse else "LNuJJ_nonRes"+INCRin+"_2D_"+cat+".root"
-        fTptName = "LNuJJ_nonRes"+INCRin+"_"+p+"_"+c+"_COND2D.root" if options.coarse else "LNuJJ_nonRes"+INCRin+"_2D_"+cat+".root"
+        #fTptName = "LNuJJ_nonRes"+INCRin+"_COND2D_"+cat+".root" if (options.coarse or options.conditional) else "LNuJJ_nonRes"+INCRin+"_2D_"+cat+".root"
+        fTptName = "LNuJJ_nonRes"+INCRin+"_"+p+"_"+c+"_COND2D.root" if (options.coarse or options.conditional) else "LNuJJ_nonRes"+INCRin+"_2D_"+cat+".root"
     elif contrib=='res':
         #fTptName = "LNuJJ_res_2DFromDC_"+cat+".root"
-        fTptName = "LNuJJ_res_"+p+"_"+c+"_COND2D.root" if options.coarse else "LNuJJ_res_2D_"+cat+".root"
+        fTptName = "LNuJJ_res"+INCRin+"_"+c+"_COND2D.root" if (options.coarse or options.conditional) else "LNuJJ_res"+INCRin+"_2D_"+cat+".root"
     elif contrib=='resW':
         fTptName = "LNuJJ_resW_2DFromDC_"+cat+".root"
     elif contrib=='resTop':
@@ -282,12 +314,13 @@ def compareTemplatesVsReco(contrib,l,p,c,var,varDesc,label):
     (pad1 if RATIOPLOT else c1).Update()
     lgd.Draw()
 
-    latex = ROOT.TLatex()
-    latex.SetNDC()
-    latex.SetTextFont(42)
-    latex.SetTextAlign(13) 
-    latex.SetTextSize((0.036,0.05)[RATIOPLOT]) 
-    latex.DrawLatex(0.18,(0.90,0.93)[RATIOPLOT],label)
+    if label!="":
+        latex = ROOT.TLatex()
+        latex.SetNDC()
+        latex.SetTextFont(42)
+        latex.SetTextAlign(13) 
+        latex.SetTextSize((0.036,0.05)[RATIOPLOT]) 
+        latex.DrawLatex(0.18,(0.90,0.93)[RATIOPLOT],label)
 
     if RATIOPLOT:
         pad1.RedrawAxis()
@@ -309,21 +342,25 @@ def compareTemplatesVsReco(contrib,l,p,c,var,varDesc,label):
         hLine.GetXaxis().SetTitleOffset(0.95)    
         hLine.GetYaxis().SetTitleOffset(0.35)    
         hLine.GetXaxis().SetTitle(varDesc)
-        #hLine.GetYaxis().SetTitle("Reco./templ.")
-        hLine.GetYaxis().SetTitle("#frac{reco. #minus templ.}{#sigma(reco.)}")
+        if (options.conditional or options.coarse):
+            hLine.GetYaxis().SetTitle("Reco./templ.")
+            hLine.GetYaxis().SetRangeUser(0.,1.95)
+        else:
+            hLine.GetYaxis().SetTitle("#frac{reco. #minus templ.}{#sigma(reco.)}")
+            hLine.GetYaxis().SetRangeUser(-6.,3.)
         hLine.GetYaxis().SetNdivisions(206)
-        #hLine.GetYaxis().SetRangeUser(0.,1.95)
-        hLine.GetYaxis().SetRangeUser(-6.,3.)
         hLine.Draw("hist")
 
         hRatio = [None]*(1+nintervals)
         for r in range(1+nintervals):
             hRatio[r] = hReco[r].Clone()
             for i in range(1,hRatio[r].GetNbinsX()):
-                #hRatio[r].SetBinContent(i,hRatio[r].GetBinContent(i)/hTpt[0][r].GetBinContent(i) if hTpt[0][r].GetBinContent(i) else 0.)
-                #hRatio[r].SetBinError(i,hRatio[r].GetBinError(i)/hTpt[0][r].GetBinContent(i) if hTpt[0][r].GetBinContent(i) else 0.)
-                hRatio[r].SetBinContent(i,(hReco[r].GetBinContent(i)-hTpt[0][r].GetBinContent(i))/hReco[r].GetBinError(i) if hRatio[r].GetBinError(i) else 0.)
-                hRatio[r].SetBinError(i,1. if hRatio[r].GetBinError(i) else 0.)
+                if (options.conditional or options.coarse):
+                    hRatio[r].SetBinContent(i,hRatio[r].GetBinContent(i)/hTpt[0][r].GetBinContent(i) if hTpt[0][r].GetBinContent(i) else 0.)
+                    hRatio[r].SetBinError(i,hRatio[r].GetBinError(i)/hTpt[0][r].GetBinContent(i) if hTpt[0][r].GetBinContent(i) else 0.)
+                else:
+                    hRatio[r].SetBinContent(i,(hReco[r].GetBinContent(i)-hTpt[0][r].GetBinContent(i))/hReco[r].GetBinError(i) if hRatio[r].GetBinError(i) else 0.)
+                    hRatio[r].SetBinError(i,1. if hRatio[r].GetBinError(i) else 0.)
             #hRatio[r].Divide(hTpt[0][r])
             hRatio[r].SetMarkerSize(0.4 if var=="MJ" else 0.3)
             hRatio[r].Draw("0Psame")
@@ -334,7 +371,7 @@ def compareTemplatesVsReco(contrib,l,p,c,var,varDesc,label):
     if options.final:
         CMSPlotLabel("CMS","Simulation Supplementary",{'':{'lumi':'','energy':'13 TeV'}})(c1,'',0)
 
-    saveCanvas(c1,options.outDir+"/"+'templateVsReco'+tag+'_'+INCRout+contrib+("Coarse" if options.coarse else "")+'_'+var+'_'+cat)
+    saveCanvas(c1,options.outDir+"/"+'templateVsReco'+tag+'_'+INCRout+contrib+("Coarse" if options.coarse else "")+("Cond" if options.conditional else "")+('_r0' if not ININTERVALS else '')+'_'+var+'_'+cat)
 
 
 
@@ -353,10 +390,8 @@ style.cd()
 l=options.lepton
 p=options.purity
 c=options.category
-          
-label=l+", "+p+", "+c
 
-compareTemplatesVsReco(options.contrib,l,p,c,'MJ',"m_{jet} (GeV)",label)
-        
+if DOMJJ:
+    compareTemplatesVsReco(options.contrib,l,p,c,'MJ',"m_{jet} (GeV)")
 if DOMVV:
-    compareTemplatesVsReco(options.contrib,l,p,c,'MVV',"m_{WV} (GeV)",label)
+    compareTemplatesVsReco(options.contrib,l,p,c,'MVV',"m_{WV} (GeV)")

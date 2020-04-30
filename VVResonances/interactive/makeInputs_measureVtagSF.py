@@ -14,23 +14,23 @@ from DoubleBefficiencies import *
 
 
 
-DONORMMC       = 1
-DONORMDATA     = 1
-DONORMMCASDATA = 1
+DONORMMC       = 0
+DONORMDATA     = 0
+DONORMMCASDATA = 0
 DOSIGNALSHAPES = 1
 DOSIGNALYIELDS = 1
 DOSIGNALCTPL   = 1
-DORESONANT     = 1
-DONONRESONANT  = 1
+DORESONANT     = 0
+DONONRESONANT  = 0
 
-DONORMMCCR     = 0
-DONORMDATACR   = 0
-DORESONANTCR   = 0
-DONONRESONANTCR= 0
+DONORMMCCR     = 1
+DONORMDATACR   = 1
+DORESONANTCR   = 1
+DONONRESONANTCR= 1
 
 DOXWW = 1
-DOXWZ = 1
-DOXWH = 1
+DOXWZ = 0
+DOXWH = 0
 
 
 
@@ -124,7 +124,7 @@ cuts['common'] = cuts['common'] + '*' + cuts['nob'] + '*lnujj_btagWeight'
 cuts['e'] = '(abs(lnujj_l1_l_pdgId)==11)'
 cuts['mu'] = '(abs(lnujj_l1_l_pdgId)==13)'
 cuts['allL'] = '(abs(lnujj_l1_l_pdgId)==11||abs(lnujj_l1_l_pdgId)==13)'
-leptons=['e','mu']
+leptons=['allL'] #['e','mu']
 leptonsMerged=['allL']
 
 Vtagger='(lnujj_l2_tau2/lnujj_l2_tau1-(-0.08)*log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt))'
@@ -140,7 +140,7 @@ bbtag='(lnujj_l2_btagBOOSTED>0.8)'
 cuts['bb'] = bbtag
 cuts['nobb'] = '(!'+bbtag+')'
 cuts['allC'] = '1'
-categories=['bb','nobb']
+categories=['allC'] #['bb','nobb']
 categoriesMerged=['allC']
 
 
