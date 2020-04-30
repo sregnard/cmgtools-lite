@@ -24,6 +24,9 @@ parser.add_option("-C","--CMSlabel",dest="CMSlabel",type=int,default=0,help="0:N
 parser.add_option("-b","--differentBinning",dest="differentBinning",type=int,default=1,help="use other binning for bb category")
 parser.add_option("-S","--splitWTopPeaks",dest="splitWTopPeaks",type=int,default=0,help="separate W and top peak bkgd")
 parser.add_option("-Z","--region",dest="region",default='SR',help="signal region (SR) or control region (CR)")
+parser.add_option("-T","--toysFile",dest="toysFile",default='none',help="Toy MC file to import toys")
+parser.add_option("-N","--nToys",dest="nToys",type=int, default=0,help="Number of Toys to import")
+parser.add_option("-t","--fitToy",dest="fitToy",type=int, default=-1,help="Toy to use , -1 is real data ")
 (options,args) = parser.parse_args()
 
 minMJJ=20.0
@@ -100,14 +103,21 @@ doMvv = options.variable=='' or options.variable=='mvv'
 if doMjj:
   
     plotter=RooPlotter(inputDC)    
-  
+    if options.nToys>0:
+      plotter.load_toys(options.toysFile,options.nToys)
+
+
     if options.fixMX is not None:
         plotter.fix("MH",options.fixMX)
     if options.fixR is not None:
         plotter.fix("r",options.fixR)
 
     if options.fit:
-        plotter.prefit(verbose=VERBOSE)
+      if options.fitToy<0:
+        data="data_obs"
+      else:
+        data="toy_"+str(options.fitToy)
+        plotter.prefit(verbose=VERBOSE,data=data)
 
     if s!="":
         plotter.addContribution(s,True,sigLgd,2,1,sigColor,0,ROOT.kWhite)
@@ -122,6 +132,8 @@ if doMjj:
 if doMvv:
 
     plotter2=RooPlotter(inputDC)
+    if options.nToys>0:
+      plotter2.load_toys(options.toysFile,options.nToys)
 
     if options.fixMX is not None:
         plotter2.fix("MH",options.fixMX)
@@ -129,7 +141,12 @@ if doMvv:
         plotter2.fix("r",options.fixR)
 
     if options.fit:
-        plotter2.prefit(verbose=VERBOSE)
+      if options.fitToy<0:
+        data="data_obs"
+      else:
+        data="toy_"+str(options.fitToy)
+        plotter2.prefit(verbose=VERBOSE,data=data)
+
 
     if s!="":
         plotter2.addContribution(s,True,sigLgd,2,1,sigColor,0,ROOT.kWhite)
@@ -157,6 +174,10 @@ purities = ['allP','LP','HP']
 categories = ['bb','nobb','nobbLP','nobbHP']
 #'''
 
+dataset="data_obs"
+if options.fitToy>0:
+  dataset="toy_"+str(options.fitToy)
+
 
 for l in leptons:
     for p in purities:
@@ -180,20 +201,18 @@ for l in leptons:
             if cat!='' and cat!=c: continue 
 
             if doMvv:
-                pass
-
                 #''' ## blind (high and low-mjj sidebands)
-                plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,varMJJ+":low:20:70",minMVV,maxMVV,YmaxMVV)
+                plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,varMJJ+":low:20:70",minMVV,maxMVV,YmaxMVV,False,-1,"",dataset)
                 cmsLabel(plotter2.canvas)
                 saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVVLo_Blind_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
 
-                plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,varMJJ+":high:150:210",minMVV,maxMVV,YmaxMVV)
+                plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,varMJJ+":high:150:210",minMVV,maxMVV,YmaxMVV,False,-1,"",dataset)
                 cmsLabel(plotter2.canvas)
                 saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVVHi_Blind_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 #'''
 
                 ''' ## unblinded, for paper
-                plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,"",minMVV,maxMVV,YmaxMVV,UNSTACKSIG,sigSF,sigLabel)
+                plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,"",minMVV,maxMVV,YmaxMVV,UNSTACKSIG,sigSF,sigLabel,dataset)
                 cmsLabel(plotter2.canvas)
                 saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVV_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 #'''
@@ -255,7 +274,7 @@ for l in leptons:
                 pass
 
                 #''' ## blind
-                plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[70,150],options.doUncBand,0,0,"",minMJJ,maxMJJ,YmaxMJJ) #[64,106],options.doUncBand,0,0,"",minMJJ,maxMJJ,YmaxMJJ)
+                plotter.drawBinned(varMJJ,"m_{jet} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[70,150],options.doUncBand,0,0,"",minMJJ,maxMJJ,YmaxMJJ,false,-1,"",dataset) #[64,106],options.doUncBand,0,0,"",minMJJ,maxMJJ,YmaxMJJ)
                 cmsLabel(plotter.canvas)
                 saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJBlind_"+sigStr+"_"+c+"_"+l+"_"+p+"_"+YEAR)
                 #'''

@@ -33,29 +33,38 @@ def convertToPoisson(h):
     
     return graph    
 
-
-
 class RooPlotter(object):
 
     def __init__(self,filename):
+        self.fCACHE = ROOT.TFile("cache.root","RECREATE")
         self.fIN=ROOT.TFile(filename)
         self.w=self.fIN.Get("w")
         self.contributions=[]
         self.fitResult=None
-
+        
     def fix(self,var,val):
         self.w.var(var).setVal(val)
         self.w.var(var).setConstant(1)
 
-    def prefit(self,model="s",minos=0,weighted=False,verbose=0):
-        self.fitResult = self.w.pdf("model_"+model).fitTo(self.w.data("data_obs"),ROOT.RooFit.NumCPU(8),ROOT.RooFit.SumW2Error(weighted),ROOT.RooFit.Minos(minos),ROOT.RooFit.Verbose(verbose),ROOT.RooFit.Save(1))
+
+    def load_toys(self,filename,numberOfToys):
+        f=ROOT.TFile(filename)
+        for toy in range(1,numberOfToys+1):
+            dataset = f.Get("toys/toy_"+str(toy))
+            getattr(self.w,'import')(dataset,ROOT.RooFit.Rename('toy_'+str(toy)))
+
+
+
+
+    def prefit(self,model="s",minos=0,weighted=False,verbose=0,data="data_obs"):
+        self.fitResult = self.w.pdf("model_"+model).fitTo(self.w.data(data),ROOT.RooFit.NumCPU(8),ROOT.RooFit.SumW2Error(weighted),ROOT.RooFit.Minos(minos),ROOT.RooFit.Verbose(verbose),ROOT.RooFit.Save(1))
 
         
     def addContribution(self,contrib,signal,description,linewidth,lineStyle,lineColor,fillStyle,fillColor,suffix=""):
         self.contributions.append({'name':contrib,'signal':signal,'description':description,'linewidth':linewidth,'linestyle':lineStyle,'linecolor':lineColor,'fillstyle':fillStyle,'fillcolor':fillColor,'suffix':suffix}) 
 
 
-    def draw(self,var,varDesc,cat,blinded=[],doUncBand = False,log=False):
+    def draw(self,var,varDesc,cat,blinded=[],doUncBand = False,log=False,data="data_obs"):
         self.canvas=ROOT.TCanvas("c")
         self.canvas.cd()
         varMax=self.w.var(var).getMax()
@@ -67,7 +76,7 @@ class RooPlotter(object):
         if log:
             self.frame.GetYaxis().SetRangeUser(1e-2,1e+5)
 
-        dataset=self.w.data("data_obs").reduce("CMS_channel==CMS_channel::"+cat)
+        dataset=self.w.data(data).reduce("CMS_channel==CMS_channel::"+cat)
         dataset.plotOn(self.frame,ROOT.RooFit.Name("datapoints"),ROOT.RooFit.Invisible())
         visError=False
 
@@ -181,7 +190,7 @@ class RooPlotter(object):
 
 
 
-    def fetch2DHistogram(self,var1,var2,cat,component,signal,suffix = ""):
+    def fetch2DHistogram(self,var1,var2,cat,component,signal,suffix = "",data="data_obs"):
         prefix = "Bkg"
         if signal:
             prefix = "Sig"
@@ -191,7 +200,7 @@ class RooPlotter(object):
         #Now get norm
         frame=self.w.var(var1).frame()
         cutStr="CMS_channel==CMS_channel::"+cat
-        dataset=self.w.data("data_obs").reduce(cutStr)
+        dataset=self.w.data(data).reduce(cutStr)
         dataset.plotOn(frame,ROOT.RooFit.Name("datapoints"),ROOT.RooFit.Invisible())
         name = "shape"+prefix+"_"+component+"_"+cat+suffix
         self.w.pdf("model_s").getPdf(cat).plotOn(frame,ROOT.RooFit.Components(name),ROOT.RooFit.Name("tmp"),ROOT.RooFit.Invisible(),ROOT.RooFit.Normalization(1.0,ROOT.RooAbsReal.RelativeExpected))
@@ -207,7 +216,7 @@ class RooPlotter(object):
         
         
 
-    def moneyPlot(self,var1,var2,varDesc,categories,log=False,rebin=0,drawSignal=True):
+    def moneyPlot(self,var1,var2,varDesc,categories,log=False,rebin=0,drawSignal=True,data="data_obs"):
         histo={}
         histoW={}
         histoSB={}
@@ -330,9 +339,9 @@ class RooPlotter(object):
         dataH = ROOT.TH1D("data","data",self.w.var(var1).getBins(),self.w.var(var1).getMin(),self.w.var(var1).getMax())
         dataH.SetLineColor(ROOT.kBlack)
         dataH.Sumw2()
-        for i in range(0,self.w.data("data_obs").numEntries()):
-            line=self.w.data("data_obs").get(i)
-            weight = self.w.data("data_obs").weight()
+        for i in range(0,self.w.data(data).numEntries()):
+            line=self.w.data(data).get(i)
+            weight = self.w.data(data).weight()
             x = line.find(var1).getVal()
             y = line.find(var2).getVal()
             cat = line.find("CMS_channel").getLabel()
@@ -590,8 +599,8 @@ class RooPlotter(object):
         for cat in categories:
             sumdatawold[cat]=0
             sumdatawnew[cat]=0
-        for i in range(0,self.w.data("data_obs").numEntries()): ## Loop over data bins (in 2D * 4 cat)
-            line=self.w.data("data_obs").get(i)
+        for i in range(0,self.w.data(data).numEntries()): ## Loop over data bins (in 2D * 4 cat)
+            line=self.w.data(data).get(i)
             x = line.find(var1).getVal()
             y = line.find(var2).getVal()
             cat = line.find("CMS_channel").getLabel()
@@ -599,7 +608,7 @@ class RooPlotter(object):
                 print 'ERROR, cat', cat, 'not found'
                 continue
 
-            N=int(self.w.data("data_obs").weight())
+            N=int(self.w.data(data).weight())
             sumdatawoldtot+=N
             sumdatawold[cat]+=N
             for e in range(N): ## Fill one event at a time, to get Sumw2 error bars
@@ -800,7 +809,7 @@ class RooPlotter(object):
 
 
     
-    def drawBinned(self,var,varDesc,label,cat,blinded=[],doUncBand=False,log=False,rebin=0,rangeStr="",minX=0.,maxX=10000.,maxY=-1.,unstackSignal=False,scaleSignal=-1.,sigLabel=""):
+    def drawBinned(self,var,varDesc,label,cat,blinded=[],doUncBand=False,log=False,rebin=0,rangeStr="",minX=0.,maxX=10000.,maxY=-1.,unstackSignal=False,scaleSignal=-1.,sigLabel="",data="data_obs"):
 
         setTDRStyle()
         style=gROOT.GetStyle("tdrStyle").Clone()
@@ -841,7 +850,7 @@ class RooPlotter(object):
         ## make the frame
         self.frame=self.w.var(var).frame()
         cutStr="CMS_channel==CMS_channel::"+cat
-        dataset=self.w.data("data_obs").reduce(cutStr)
+        dataset=self.w.data(data).reduce(cutStr)
         
         projRange=[]
         if rangeStr!="":
@@ -1112,7 +1121,7 @@ class RooPlotter(object):
 
 
     
-    def drawOverlay(self,var,varDesc,label,cat,blinded=[],log=False,rebin=0,rangeStr="",minX=0.,maxX=10000.,maxY=-1.):
+    def drawOverlay(self,var,varDesc,label,cat,blinded=[],log=False,rebin=0,rangeStr="",minX=0.,maxX=10000.,maxY=-1.,data="data_obs"):
 
         setTDRStyle()
         style=gROOT.GetStyle("tdrStyle").Clone()
@@ -1135,7 +1144,7 @@ class RooPlotter(object):
         ## make the frame
         self.frame=self.w.var(var).frame()
         cutStr="CMS_channel==CMS_channel::"+cat
-        dataset=self.w.data("data_obs").reduce(cutStr)
+        dataset=self.w.data(data).reduce(cutStr)
         
         projRange=[]
         if rangeStr!="":
