@@ -22,8 +22,8 @@ do
 	#:'
 	mkdir Jobs_Limits
 	cd Jobs_Limits
-	#python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitLimits.py -s 100 -m 1000 -M 4500 -q condor -o "-M Asymptotic --rAbsAcc=0.00001" ../../combined_$card.root
-	python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitLimits.py -s 100 -m 1000 -M 4500 -q condor -o "-M Asymptotic --rAbsAcc=0.00001" ../../combined_$card.root
+	#python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitLimits.py -s 50 -m 1000 -M 4500 -q condor -o "-M Asymptotic --rAbsAcc=0.00001 --rMin=1e-6 --rMax=0.01" ../../combined_$card.root
+	python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitLimits.py -s 100 -m 1000 -M 4500 -q condor -o "-M Asymptotic --rAbsAcc=0.00001 --rMin=1e-6 --rMax=0.01" ../../combined_$card.root
 	cd ..
 	#'
 
@@ -48,11 +48,14 @@ do
 	:'
 	mkdir Jobs_Saturated
 	cd Jobs_Saturated
-	python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitLimits.py -s 100 -m 1000 -M 4500 -q condor -o "-M GoodnessOfFit --algorithm saturated" ../../combined_$card.root
+	python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitLimits.py -s 100 -m 1000 -M 1000 -q condor -o "-M GoodnessOfFit --algorithm saturated" ../../combined_$card.root
 	cd ..
 	mkdir Jobs_Saturated_toys
 	cd Jobs_Saturated_toys
-	python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitLimits.py -s 100 -m 1000 -M 4500 -q condor -o "-M GoodnessOfFit --algorithm saturated -t 100 -s -1" ../../combined_$card.root
+	for n in `seq 1 100`
+        do
+	    python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitLimits.py -s 100 -m 1000 -M 1000 -q condor -o "-M GoodnessOfFit --algorithm saturated -t 10 -s -1" ../../combined_$card.root
+	done
 	cd ..
 	#'
 

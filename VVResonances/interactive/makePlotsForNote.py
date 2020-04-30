@@ -11,7 +11,7 @@ import optparse
 parser = optparse.OptionParser()
 parser.add_option("-y","--year",dest="year",default="Run2",help="2016 or 2017 or 2018 or Run2")
 parser.add_option("-o","--outDir",dest="outDirPrefix",default='PlotsTemplates_',help="where to save the plots")
-parser.add_option("-p","--plots",dest="plots",default='all',help="possible plots: all, signal, nonResTpl, nonResSys, CRNonResTpl, CRNonResSys, resTpl, resSys, resW, resTop, scaleres")
+parser.add_option("-p","--plots",dest="plots",default='all',help="possible plots: all, signal, nonResTpl, nonResSys, CRNonResTpl, CRNonResSys, resTpl, resSys, CRResTpl, CRResSys, resW, resTop, scaleres")
 parser.add_option("-d","--withDC",dest="withDC",type=int,default=1,help="include plots that require datacards")
 parser.add_option("-D","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=True)
 (options,args) = parser.parse_args()
@@ -23,14 +23,14 @@ outDir=options.outDirPrefix+YEAR+'/'
 
 plots = options.plots
 if 'all' in plots:
-    plots = plots + ', signal, nonResTpl, nonResSys, CRNonResTpl, CRNonResSys, resTpl, resSys, scaleres'
+    plots = plots + ', signal, nonResTpl, nonResSys, CRNonResTpl, CRNonResSys, resTpl, resSys, CRResTpl, CRResSys, scaleres'
 
 
 COMPYEARS=0
 inDir16='Inputs_2016/'
 inDir17='Inputs_2017/'
 inDir18='Inputs_2018/'
-inDirR2='../Inputs_45bu/Inputs_Run2/'
+inDirR2='Inputs_Run2/'
 
 DOXWW=1
 DOXWZ=1
@@ -44,7 +44,8 @@ if DOXWH: signals.append('XWH')
 
 leptons = ['mu','e']#['allL']#
 purities = ['LP','HP']#['allP']#
-categories = ['bb','nobb']#['bb','nobbHP','nobbLP']#
+categories = ['bb','nobb']#['allC']#['bb','nobbHP','nobbLP']#
+
 DcFolder = 'Dc_XWW'
 
 minMJJ=20.0
@@ -59,12 +60,14 @@ binsMJJ['nobb']=38
 binsMJJ['nobbHP']=38
 binsMJJ['nobbLP']=38
 binsMJJ['nob']=95
+binsMJJ['allC']=38#95
 binsMVV={}
 binsMVV['bb']=176#44
 binsMVV['nobb']=176
 binsMVV['nobbHP']=176
 binsMVV['nobbLP']=176
 binsMVV['nob']=176
+binsMVV['allC']=176
 
 varMVV = {}
 varMJJ = {}
@@ -651,7 +654,8 @@ def makeTemplateVsReco1D(filenameTpt,histonameTpt,filenameReco,histonameReco,out
     hReco.SetMarkerColor(colorReco)
     hReco.SetMarkerSize(0.3)
     hTpt.SetStats(0)
-    c.SetLogy()
+    if var=="MVV":
+        c.SetLogy()
     lgd=ROOT.TLegend(0.45,0.91-2*0.042,0.9,0.91)
     lgd.SetBorderSize(0)
     lgd.SetFillStyle(0)
@@ -1630,7 +1634,9 @@ if 'nonResTpl' in plots:
                 
                 #'''
                 os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B}".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c]))
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -r 0".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c])) ##without the ranges
                 os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -d 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -D 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c])) ##to test conditional template
                 #'''
 
                 #'''
@@ -1642,8 +1648,10 @@ if 'nonResTpl' in plots:
                 makeTemplate2D(inDir+"LNuJJ_nonRes_"+p+"_"+c+"_COND2D.root","histo_coarse","template_nonResCoarse_"+l+"_"+p+"_"+c)
                 makeTemplate2D(inDir+"LNuJJ_nonRes_"+p+"_"+c+"_COND2D.root","histo_coarsesmoothed","template_nonResCoarseSmoothed_"+l+"_"+p+"_"+c)
                 makeTemplate2D(inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","nonRes","reco_nonRes_"+l+"_"+p+"_"+c)
-                makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_GEN.root","nonRes","gen_nonRes_"+l+"_"+p+"_"+c)
+                #makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_GEN.root","nonRes","gen_nonRes_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_GEN.root","nonRes_"+p+"_"+c,"gen_nonRes_"+l+"_"+p+"_"+c)
                 makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","nonRes","templateVsReco_nonRes_"+l+"_"+p+"_"+c) #,4,(5,0)[binsMJJ[c]==18])
+                makeTemplateVsReco1D(inDir+"LNuJJ_nonRes_MJJ_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","nonRes_wgtMJJ","templateVsReco1D_nonRes_MJ_"+l+"_"+p+"_"+c,"MJJ","m_{jet} (GeV)")
                 #'''
                 ##makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarse",inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","nonRes","templateVsReco_nonResCoarse_"+l+"_"+p+"_"+c)
                 #makeTemplateVsReco1D(inDir+"LNuJJ_nonRes_MVV_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_"+l+"_"+p+"_"+c+".root","nonRes","templateVsReco1D_nonRes_MVV_"+l+"_"+p+"_"+c,"MVV","m_{WV} (GeV)")
@@ -1718,7 +1726,9 @@ if 'CRNonResTpl' in plots:
                 
                 #'''
                 os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -R".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c]))
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -R -r 0".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c])) ##without the ranges
                 os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -R -d 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -R -D 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c])) ##to test conditional template
                 #'''
 
                 #'''
@@ -1726,12 +1736,14 @@ if 'CRNonResTpl' in plots:
                 #makeTemplate2D(inDir+"LNuJJ_nonRes_CR_COND2D_"+l+"_"+p+"_"+c+".root","histo","templCond_CRnonRes_"+l+"_"+p+"_"+c)
                 #makeTemplate2D(inDir+"LNuJJ_nonRes_CR_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarse","template_CRnonResCoarse_"+l+"_"+p+"_"+c)
                 #makeTemplate2D(inDir+"LNuJJ_nonRes_CR_COND2D_"+l+"_"+p+"_"+c+".root","histo_coarsesmoothed","template_CRnonResCoarseSmoothed_"+l+"_"+p+"_"+c)
-                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_"+p+"_"+c+"_COND2D.root","histo","templCond_nonRes_"+l+"_"+p+"_"+c)
-                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_"+p+"_"+c+"_COND2D.root","histo_coarse","template_nonResCoarse_"+l+"_"+p+"_"+c)
-                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_"+p+"_"+c+"_COND2D.root","histo_coarsesmoothed","template_nonResCoarseSmoothed_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_"+p+"_"+c+"_COND2D.root","histo","templCond_CRnonRes_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_"+p+"_"+c+"_COND2D.root","histo_coarse","template_CRnonResCoarse_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_"+p+"_"+c+"_COND2D.root","histo_coarsesmoothed","template_CRnonResCoarseSmoothed_"+l+"_"+p+"_"+c)
                 makeTemplate2D(inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+".root","nonRes_CR","reco_CRnonRes_"+l+"_"+p+"_"+c)
-                makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_GEN.root","nonRes_CR","gen_CRnonRes_"+l+"_"+p+"_"+c)
+                #makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_GEN.root","nonRes_CR","gen_CRnonRes_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_GEN.root","nonRes_CR_"+p+"_"+c,"gen_CRnonRes_"+l+"_"+p+"_"+c)
                 makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+".root","nonRes_CR","templateVsReco_CRnonRes_"+l+"_"+p+"_"+c) #,4,(5,0)[binsMJJ[c]==18])
+                makeTemplateVsReco1D(inDir+"LNuJJ_nonRes_CR_MJJ_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+".root","nonRes_CR_wgtMJJ","templateVsReco1D_CRnonRes_MJ_"+l+"_"+p+"_"+c,"MJJ","m_{jet} (GeV)")
                 #'''
 
 if 'CRNonResSys' in plots:
@@ -1805,7 +1817,9 @@ if 'resTpl' in plots:
                 
                 #'''
                 os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B}".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c]))
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -r 0".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c])) ##without the ranges
                 os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -d 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -D 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c])) ##to test conditional template
                 #'''
 
                 #'''
@@ -1814,8 +1828,10 @@ if 'resTpl' in plots:
                 makeTemplate2D(inDir+"LNuJJ_res_"+c+"_COND2D.root","histo_coarse","template_resCoarse_"+l+"_"+p+"_"+c)
                 makeTemplate2D(inDir+"LNuJJ_res_"+c+"_COND2D.root","histo_coarsesmoothed","template_resCoarseSmoothed_"+l+"_"+p+"_"+c)
                 makeTemplate2D(inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","res","reco_res_"+l+"_"+p+"_"+c)
-                makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_GEN.root","res","gen_res_"+l+"_"+p+"_"+c)
+                #makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_GEN.root","res","gen_res_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_GEN.root","res_"+c,"gen_res_"+l+"_"+p+"_"+c)
                 makeTemplateVsReco2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","res","templateVsReco_res_"+l+"_"+p+"_"+c) 
+                makeTemplateVsReco1D(inDir+"LNuJJ_res_MJJ_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+".root","res","templateVsReco1D_res_MJ_"+l+"_"+p+"_"+c,"MJJ","m_{jet} (GeV)")
                 #'''
 
 if 'resSys' in plots:
@@ -1833,6 +1849,64 @@ if 'resSys' in plots:
                 makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"scaleY")
                 makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"resY")
                 makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"fractionY")
+
+
+if 'CRResTpl' in plots:
+
+    #'''
+    compCategories(inDir+"LNuJJ_res_CR_2D","histo",True,leptons,purities,categories,"compTemplate_CRres","MVV","m_{WV} (GeV)",False)
+    compCategories(inDir+"LNuJJ_res_CR_2D","histo",True,leptons,purities,categories,"compTemplate_CRres","MVV","m_{WV} (GeV)",True)
+    compCategories(inDir+"LNuJJ_res_CR_2D","histo",True,leptons,purities,categories,"compTemplate_CRres","MJJ","m_{jet} (GeV)")
+    compCategories(inDir+"LNuJJ_norm_CR","res_CR",True,leptons,purities,categories,"compReco_CRres","MVV","m_{WV} (GeV)",False)
+    compCategories(inDir+"LNuJJ_norm_CR","res_CR",True,leptons,purities,categories,"compReco_CRres","MVV","m_{WV} (GeV)",True)
+    compCategories(inDir+"LNuJJ_norm_CR","res_CR",True,leptons,purities,categories,"compReco_CRres","MJJ","m_{jet} (GeV)")
+
+    if COMPYEARS:
+        compYears([inDir16+"LNuJJ_res_CR_2D",inDir17+"LNuJJ_res_CR_2D",inDir18+"LNuJJ_res_CR_2D",inDirR2+"LNuJJ_res_CR_2D"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_CRres","MVV","m_{WV} (GeV)",False)
+        compYears([inDir16+"LNuJJ_res_CR_2D",inDir17+"LNuJJ_res_CR_2D",inDir18+"LNuJJ_res_CR_2D",inDirR2+"LNuJJ_res_CR_2D"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_CRres","MVV","m_{WV} (GeV)",True)
+        compYears([inDir16+"LNuJJ_res_CR_2D",inDir17+"LNuJJ_res_CR_2D",inDir18+"LNuJJ_res_CR_2D",inDirR2+"LNuJJ_res_CR_2D"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_CRres","MJJ","m_{jet} (GeV)")
+    #'''
+
+    #'''
+    for c in categories:
+        for p in purities:
+            for l in leptons:
+                #continue
+                
+                #'''
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -R".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c]))
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -R -r 0".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c])) ##without the ranges
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -R -d 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -b {b} -B {B} -R -D 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, b=binsMVV[c], B=binsMJJ[c])) ##to test conditional template
+                #'''
+
+                #'''
+                makeTemplate2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","histo","template_CRres_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_res_CR_"+c+"_COND2D.root","histo","templCond_CRres_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_res_CR_"+c+"_COND2D.root","histo_coarse","template_CRresCoarse_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_res_CR_"+c+"_COND2D.root","histo_coarsesmoothed","template_CRresCoarseSmoothed_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+".root","res_CR","reco_CRres_"+l+"_"+p+"_"+c)
+                #makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_GEN.root","res","gen_CRres_"+l+"_"+p+"_"+c)
+                makeTemplate2D(inDir+"LNuJJ_GEN.root","res_"+c,"gen_CRres_"+l+"_"+p+"_"+c)
+                makeTemplateVsReco2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+".root","res_CR","templateVsReco_CRres_"+l+"_"+p+"_"+c) 
+                makeTemplateVsReco1D(inDir+"LNuJJ_res_CR_MJJ_"+l+"_"+p+"_"+c+".root","histo",inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+".root","res_CR","templateVsReco1D_CRres_MJ_"+l+"_"+p+"_"+c,"MJJ","m_{jet} (GeV)")
+                #'''
+
+if 'CRResSys' in plots:
+
+    for c in categories:
+        for p in purities:
+            for l in leptons:
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"MVVScale")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"Diag")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"scaleY")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"resY")
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"fractionY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"MVVScale")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"Diag")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"scaleY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"resY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"fractionY")
 
 
 
@@ -2106,8 +2180,13 @@ if 'scaleres' in plots:
     makeKernelScaleResolution(inDir+"LNuJJ_nonRes_detectorResponse.root","resxHisto","nonRes_")
     makeKernelScaleResolution(inDir+"LNuJJ_nonRes_detectorResponse.root","resyHisto","nonRes_")
 
-    makeKernelScaleResolution(inDir+"LNuJJ_resW_detectorResponse.root","scalexHisto","resW_")
-    makeKernelScaleResolution(inDir+"LNuJJ_resW_detectorResponse.root","scaleyHisto","resW_")
-    makeKernelScaleResolution(inDir+"LNuJJ_resW_detectorResponse.root","resxHisto","resW_")
-    makeKernelScaleResolution(inDir+"LNuJJ_resW_detectorResponse.root","resyHisto","resW_")
+    #makeKernelScaleResolution(inDir+"LNuJJ_resW_detectorResponse.root","scalexHisto","resW_")
+    #makeKernelScaleResolution(inDir+"LNuJJ_resW_detectorResponse.root","scaleyHisto","resW_")
+    #makeKernelScaleResolution(inDir+"LNuJJ_resW_detectorResponse.root","resxHisto","resW_")
+    #makeKernelScaleResolution(inDir+"LNuJJ_resW_detectorResponse.root","resyHisto","resW_")
+
+    makeKernelScaleResolution(inDir+"LNuJJ_res_detectorResponse.root","scalexHisto","res_")
+    makeKernelScaleResolution(inDir+"LNuJJ_res_detectorResponse.root","scaleyHisto","res_")
+    makeKernelScaleResolution(inDir+"LNuJJ_res_detectorResponse.root","resxHisto","res_")
+    makeKernelScaleResolution(inDir+"LNuJJ_res_detectorResponse.root","resyHisto","res_")
 
