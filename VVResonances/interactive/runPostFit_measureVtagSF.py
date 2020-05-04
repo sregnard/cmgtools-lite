@@ -146,16 +146,9 @@ lep = options.lepton
 pur = options.purity
 cat = options.category
 
-#'''
 leptons = ['allL'] #['mu','e']
-purities = ['LP','HP']
+purities = ['HP','LP','NP'] #['LP','HP']
 categories = ['allC'] #['bb','nobb']
-#'''
-'''
-leptons = ['allL','mu','e']
-purities = ['allP','LP','HP']
-categories = ['bb','nobb','nobbLP','nobbHP']
-#'''
 
 
 for l in leptons:
