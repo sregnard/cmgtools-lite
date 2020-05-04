@@ -64,7 +64,7 @@ unc_S1_WPeak   = 2.09443e-01
 
 
 for lepton in ['allL']: #['e','mu']:
-    for purity in ['HP','LP']:
+    for purity in ['HP','LP','NP']:
         for category in ['allC']: #['bb','nobb']:
 
             card=DataCardMaker(lepton,purity,YEAR,intlumi,category)
@@ -143,9 +143,20 @@ for lepton in ['allL']: #['e','mu']:
                 card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'XWW':1-nobbunc,'XWZ':1-nobbunc,'XWH':1-nobbunc})
 
             ## background normalization
-            card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+YEAR,"lnN",{'nonRes':1.25})            
+            card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+purity+"_"+YEAR,"lnN",{'nonRes':1.25})
             card.addSystematic("CMS_VV_LNuJ_res_norm_"+YEAR,"lnN",{'res':1.15})
+
+            # if we uncorrelate:
             card.addSystematic("CMS_VV_LNuJ_res_norm_"+purity+"_"+YEAR,"lnN",{'res':1.15})
+
+            '''# if we anticorrelate:
+            if purity=='HP':
+                card.addSystematic("CMS_VV_LNuJ_res_norm_anticorr_"+YEAR,"lnN",{'res':X.XX})
+            elif purity=='LP':
+                card.addSystematic("CMS_VV_LNuJ_res_norm_anticorr_"+YEAR,"lnN",{'res':X.XX})
+            elif purity=='NP':
+                card.addSystematic("CMS_VV_LNuJ_res_norm_anticorr_"+YEAR,"lnN",{'res':X.XX})
+            #'''
 
             ## shapes
             card.addSystematic("CMS_scale_j_"+YEAR,"param",[0.0,0.02])

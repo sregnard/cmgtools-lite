@@ -51,6 +51,9 @@ ntuples='ntuples'
 tau21SF={ ## TBU 
     'HP' : '( (year==2016)*1.00 + (year==2017)*1.00 + (year==2018)*1.00 )',
     'LP' : '( (year==2016)*1.00 + (year==2017)*1.00 + (year==2018)*1.00 )',
+    'allP' : '1',
+    'NP' : '1',
+    'fullP' : '1',
     }
 
 bbSFWW_2016 = DoubleBsf_M2_B_80X
@@ -133,7 +136,9 @@ thrLP='0.80'
 cuts['HP'] = '('+Vtagger+'<'+thrHP+')'
 cuts['LP'] = '('+thrHP+'<='+Vtagger+'&&'+Vtagger+'<'+thrLP+')'
 cuts['allP'] = '('+cuts['HP']+'||'+cuts['LP']+')'
-purities=['HP','LP']
+cuts['NP'] = '('+thrLP+'<='+Vtagger+')'
+cuts['fullP'] = '('+cuts['HP']+'||'+cuts['LP']+'||'+cuts['NP']+')'
+purities=['HP','LP','NP'] #,'allP','fullP']
 puritiesMerged=['allP']
 
 bbtag='(lnujj_l2_btagBOOSTED>0.8)'
@@ -294,7 +299,7 @@ def makeSignalShapesMVV(filename,template):
                 os.system(cmd)
 
 
-def makeSignalYields(filename,template,branchingFraction,sfP={'HP':'1','LP':'1'},sfC={'bb':'1','nobb':'1','allC':'1'}):
+def makeSignalYields(filename,template,branchingFraction,sfP={'HP':'1','LP':'1','allP':'1','NP':'1','fullP':'1'},sfC={'bb':'1','nobb':'1','allC':'1'}):
     for l in leptons:
         for p in purities:
             for c in categories:
@@ -401,7 +406,7 @@ def makeBackgroundShapesMJJFits(name,filename,template,addCut="1"):
         for p in purities:
             for c in categories:
                 expo=0
-                if p=='LP':
+                if p=='LP' or p=='NP':
                     expo=1
                 cut='*'.join([cuts['CR' if inCR else 'common'],cuts[l],cuts[p],cuts[c],addCut,cuts['acceptanceGENMJJ'],cuts['acceptanceMVV']])
                 rootFile=outDir+filename+"_"+name+"_MJJ_"+l+"_"+p+"_"+c+".root"            
