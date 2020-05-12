@@ -16,16 +16,16 @@ from DoubleBefficiencies import *
 
 DONORMMC       = 1
 DONORMDATA     = 1
-DONORMMCASDATA = 0
+DONORMMCASDATA = 1
 DOSIGNALSHAPES = 1
 DOSIGNALYIELDS = 1
-DOSIGNALCTPL   = 0
+DOSIGNALCTPL   = 1
 DORESONANT     = 1
 DONONRESONANT  = 1
 
-DONORMMCCR     = 0
-DONORMDATACR   = 0
-DONONRESONANTCR= 0
+DONORMMCCR     = 1
+DONORMDATACR   = 1
+DONONRESONANTCR= 1
 
 DOXWW = 1
 DOXWZ = 1
@@ -125,8 +125,8 @@ leptons=['e','mu']
 leptonsMerged=['allL']
 
 Vtagger='(lnujj_l2_tau2/lnujj_l2_tau1-(-0.08)*log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt))'
-thrHP='0.55'
-thrLP='0.96'
+thrHP='0.50'
+thrLP='0.80'
 cuts['HP'] = '('+Vtagger+'<'+thrHP+')'
 cuts['LP'] = '('+thrHP+'<='+Vtagger+'&&'+Vtagger+'<'+thrLP+')'
 cuts['allP'] = '('+cuts['HP']+'||'+cuts['LP']+')'
