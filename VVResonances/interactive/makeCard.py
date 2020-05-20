@@ -7,7 +7,7 @@ cmd='combineCards.py '
 import optparse
 parser = optparse.OptionParser()
 parser.add_option("-y","--year",dest="year",default="Run2",help="2016 or 2017 or 2018 or Run2")
-parser.add_option("-s","--signalType",dest="signalType",default='XWW',help="XWW or XWZ or XWH")
+parser.add_option("-s","--signalType",dest="signalType",default='XWW',help="XWW or XWZ or XWH or VBFXWW")
 parser.add_option("-b","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=True)
 parser.add_option("-r","--region",dest="region",default='SR',help="signal region (SR) or control region (CR)")
 (options,args) = parser.parse_args()
@@ -35,35 +35,21 @@ elif YEAR=="Run2":
 HPunc = 0.14
 LPunc = 0.33
 
-## TBU
-bbunc = 0.07
-nobbunc = 0.07
-
 
 inCR = options.region=="CR"
 sfx_rgn = "_CR" if inCR else ""
 
 
 sig=options.signalType
-if sig not in ['XWW','XWZ','XWH']:
+if sig not in ['XWW','XWZ','XWH','VBFXWW']:
     sys.exit('Error: unrecognized signal')
-
-
-
-#''' ## initial values and uncertainties for SR taken from post-fit values and uncertainties in CR
-
-unc_S0_TopPeak = 2.08713e-01 
-unc_S0_WPeak   = 2.09594e-01 
-unc_S1_TopPeak = 2.08674e-01
-unc_S1_WPeak   = 2.09443e-01 
-#'''
 
 
 
 
 for lepton in ['e','mu']:
     for purity in ['HP','LP']:
-        for category in ['bb','nobb']:
+        for category in ['bb','nobb','vbf']:
 
             card=DataCardMaker(lepton,purity,YEAR,intlumi,category)
             cat='_'.join([category,lepton,purity,YEAR])
@@ -72,7 +58,7 @@ for lepton in ['e','mu']:
 
             varMVV = "MLNuJ"
             varMJJ = "MJ"
-            if options.differentBinning and category=='bb':
+            if options.differentBinning and category in ['bb','vbf']:
                 varMVV = "MLNuJ_coarse"
                 varMJJ = "MJ_coarse"
 
@@ -100,14 +86,14 @@ for lepton in ['e','mu']:
             ## Non-resonant bkgd
             rootFile=inputDir+"LNuJJ_nonRes"+sfx_rgn+"_2D_"+LPCtag+".root"
             card.addHistoShapeFromFile("nonRes",[varMVV,varMJJ],rootFile,"histo",['MVVScale:CMS_VV_LNuJ_nonRes_MVVScale_'+LPCYtag,'Diag:CMS_VV_LNuJ_nonRes_Diag_'+LPCYtag,'logWeight:CMS_VV_LNuJ_nonRes_logWeight_'+LPCYtag,'MJJScale:CMS_VV_LNuJ_nonRes_MJJScale_'+LPCYtag],False,0)
-            
+
             card.addFixedYieldFromFile("nonRes",1,inputDir+"LNuJJ_norm"+sfx_rgn+"_"+LPCtag+".root","nonRes"+sfx_rgn)
 
 
             ##resonant bkgd
             rootFile=inputDir+"LNuJJ_res"+sfx_rgn+"_2D_"+LPCtag+".root"
             card.addHistoShapeFromFile("res",[varMVV,varMJJ],rootFile,"histo",['MVVScale:CMS_VV_LNuJ_res_MVVScale_'+LPCYtag,'Diag:CMS_VV_LNuJ_res_Diag_'+LPCYtag,'scaleY:CMS_scale_prunedj_resAndSig_'+PYtag,'resY:CMS_res_prunedj_resAndSig_'+PYtag,'fractionY:CMS_VV_LNuJ_res_fractionY_'+LPCYtag],False,0)
-            
+
             card.addFixedYieldFromFile("res",1,inputDir+"LNuJJ_norm"+sfx_rgn+"_"+LPCtag+".root","res"+sfx_rgn)
 
             #DATA
@@ -117,28 +103,28 @@ for lepton in ['e','mu']:
             ## SYSTEMATICS
 
             ## luminosity
-            card.addSystematic("CMS_lumi_"+YEAR,"lnN",{'XWW':1.018,'XWZ':1.018,'XWH':1.018})
+            card.addSystematic("CMS_lumi_"+YEAR,"lnN",{'XWW':1.018,'XWZ':1.018,'XWH':1.018,'VBFXWW':1.018})
 
             ## PDF
-            card.addSystematic("CMS_pdf","lnN",{'XWW':1.01,'XWZ':1.01,'XWH':1.01})
+            card.addSystematic("CMS_pdf","lnN",{'XWW':1.01,'XWZ':1.01,'XWH':1.01,'VBFXWW':1.01})
 
             ## lepton efficiency
-            card.addSystematic("CMS_eff_"+lepton+"_"+YEAR,"lnN",{'XWW':1.05,'XWZ':1.05,'XWH':1.05})
+            card.addSystematic("CMS_eff_"+lepton+"_"+YEAR,"lnN",{'XWW':1.05,'XWZ':1.05,'XWH':1.05,'VBFXWW':1.05})
 
             ## b tagging fake rate
-            card.addSystematic("CMS_btag_fake_"+YEAR,"lnN",{'XWW':1+0.02,'XWZ':1+0.02,'XWH':1+0.02})
+            card.addSystematic("CMS_btag_fake_"+YEAR,"lnN",{'XWW':1+0.02,'XWZ':1+0.02,'XWH':1+0.02,'VBFXWW':1+0.02})
 
             ## V tagging
             if purity=='HP':
-                card.addSystematic("CMS_VV_LNuJ_Vtag_eff_"+YEAR,"lnN",{'XWW':1+HPunc,'XWZ':1+HPunc,'XWH':1+HPunc})
+                card.addSystematic("CMS_VV_LNuJ_Vtag_eff_"+YEAR,"lnN",{'XWW':1+HPunc,'XWZ':1+HPunc,'XWH':1+HPunc,'VBFXWW':1+HPunc})
             if purity=='LP':
-                card.addSystematic("CMS_VV_LNuJ_Vtag_eff_"+YEAR,"lnN",{'XWW':1-LPunc,'XWZ':1-LPunc,'XWH':1-LPunc})
+                card.addSystematic("CMS_VV_LNuJ_Vtag_eff_"+YEAR,"lnN",{'XWW':1-LPunc,'XWZ':1-LPunc,'XWH':1-LPunc,'VBFXWW':1-LPunc})
 
-            ## bb tagging 
+            ## bb tagging
             if category=='bb':
-                card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'XWW':1+bbunc,'XWZ':1+bbunc,'XWH':1+bbunc})
+                card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'XWW':1+0.09,'XWZ':1+0.09,'XWH':1+0.06,'VBFXWW':1+0.09})
             if category=='nobb':
-                card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'XWW':1-nobbunc,'XWZ':1-nobbunc,'XWH':1-nobbunc})
+                card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'XWW':1-0.004,'XWZ':1-0.015,'XWH':1-0.02,'VBFXWW':1-0.004})
 
             ## background normalization
 
@@ -150,7 +136,7 @@ for lepton in ['e','mu']:
 #            card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+purity+"_"+YEAR,"lnN",{'nonRes':1.15})
 #            card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+category+"_"+YEAR,"lnN",{'nonRes':1.15})
 
-            
+
 #            card.addSystematic("CMS_VV_LNuJ_res_norm_"+lepton+"_"+purity+"_"+category+"_"+YEAR,"lnN",{'res':1.25})
             card.addSystematic("CMS_VV_LNuJ_res_norm_"+purity+"_"+category+"_"+YEAR,"lnN",{'res':1.25})
 #            card.addSystematic("CMS_VV_LNuJ_res_norm_"+lepton+"_"+YEAR,"lnN",{'res':1.05})
@@ -180,10 +166,9 @@ for lepton in ['e','mu']:
             card.addSystematic("CMS_VV_LNuJ_res_fractionY_"+LPCYtag,"param",[0.0,0.333])
 
             card.addSystematic("CMS_scale_prunedj_resAndSig_"+PYtag,"param",[0.0,0.067])
-            card.addSystematic("CMS_res_prunedj_resAndSig_"+PYtag,"param",[0.0,0.333]) 
+            card.addSystematic("CMS_res_prunedj_resAndSig_"+PYtag,"param",[0.0,0.333])
             card.makeCard()
 
 
 ##make combined cards
 print cmd
-            
