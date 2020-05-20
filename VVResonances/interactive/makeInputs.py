@@ -580,6 +580,20 @@ if DOSIGNALSHAPES:
     if DOXWH: makeSignalShapesMVV("LNuJJ_XWH",WHTemplate)
     if DOVBFXWW: makeSignalShapesMVV("LNuJJ_VBFXWW",VBFWWTemplate)
 
+    ## For the VBFXWW signal in categories other than vbf, we take the XWW signal shapes:
+    for p in purities:
+        for c in ['bb','nobb']: ## but not for 'vbf', obviously
+            os.system( '\cp -p '+outDir+'LNuJJ_XWW_MJJ_'+p+'_'+c+'.json '+outDir+'LNuJJ_VBFXWW_MJJ_'+p+'_'+c+'.json' )
+            os.system( '\cp -p '+outDir+'LNuJJ_XWW_MVV_'+p+'_'+c+'.json '+outDir+'LNuJJ_VBFXWW_MVV_'+p+'_'+c+'.json' )
+
+            ## In the case of MJJ, we rescale the mean parameter to the average mean found with VBFXWW:
+            renormMeanMJJ = {
+                'HP': { 'nobb': 0.986, 'bb': 0.984 },
+                'LP': { 'nobb': 0.977, 'bb': 0.988 },
+                }
+            os.system( '''sed -i 's/mean": "0+/mean": "'''+str(renormMeanMJJ[p][c])+"*(0+/g' "+outDir+'LNuJJ_VBFXWW_MJJ_'+p+'_'+c+'.json' )
+            os.system( '''sed -i 's/MH"}/MH)"}/g' '''+outDir+'LNuJJ_VBFXWW_MJJ_'+p+'_'+c+'.json' )
+
 if DOSIGNALYIELDS:
     if DOXWW: makeSignalYields("LNuJJ_XWW",WWTemplate,BRWW,tau21SF,bbWgtWW)
     if DOXWZ: makeSignalYields("LNuJJ_XWZ",WZTemplate,BRWZ,tau21SF,bbWgtWZ)
