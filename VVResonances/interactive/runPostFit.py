@@ -117,7 +117,7 @@ if doMjj:
         data="data_obs"
       else:
         data="toy_"+str(options.fitToy)
-        plotter.prefit(verbose=VERBOSE,data=data)
+      plotter.prefit(verbose=VERBOSE,data=data)
 
     if s!="":
         plotter.addContribution(s,True,sigLgd,2,1,sigColor,0,ROOT.kWhite)
@@ -145,7 +145,7 @@ if doMvv:
         data="data_obs"
       else:
         data="toy_"+str(options.fitToy)
-        plotter2.prefit(verbose=VERBOSE,data=data)
+      plotter2.prefit(verbose=VERBOSE,data=data)
 
 
     if s!="":
@@ -166,7 +166,7 @@ cat = options.category
 #'''
 leptons = ['mu','e']
 purities = ['LP','HP']
-categories = ['bb','nobb']
+categories = ['bb','nobb','vbf']
 #'''
 '''
 leptons = ['allL','mu','e']
@@ -186,7 +186,7 @@ for l in leptons:
 
             varMVV = "MLNuJ"
             varMJJ = "MJ"
-            if options.differentBinning and c == 'bb':
+            if options.differentBinning and c in ['bb','vbf']:
                 varMVV = "MLNuJ_coarse"
                 varMJJ = "MJ_coarse"
 
@@ -201,6 +201,8 @@ for l in leptons:
             if cat!='' and cat!=c: continue 
 
             if doMvv:
+                pass
+
                 #''' ## blind (high and low-mjj sidebands)
                 plotter2.drawBinned(varMVV,"m_{WV} (GeV)",label,c+"_"+l+"_"+p+"_"+YEAR,[0,0],options.doUncBand,1,0,varMJJ+":low:20:70",minMVV,maxMVV,YmaxMVV,False,-1,"",dataset)
                 cmsLabel(plotter2.canvas)
