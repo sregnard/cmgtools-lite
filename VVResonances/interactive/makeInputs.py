@@ -31,6 +31,7 @@ DONONRESONANTCR= 0
 DOXWW = 1
 DOXWZ = 1
 DOXWH = 1
+DOVBFXWW = 1
 
 
 
@@ -56,36 +57,93 @@ tau21SF={ ## TBU
 bbSFWW_2016 = DoubleBsf_M2_B_80X
 bbSFWZ_2016 = DoubleBsf_M2_B_80X
 bbSFWH_2016 = DoubleBsf_M2_S_80X
+#bbSFupWW_2016 = DoubleBsf_M2_B_80X_up
+#bbSFupWZ_2016 = DoubleBsf_M2_B_80X_up
+#bbSFupWH_2016 = DoubleBsf_M2_S_80X_up
+#bbSFdnWW_2016 = DoubleBsf_M2_B_80X_dn
+#bbSFdnWZ_2016 = DoubleBsf_M2_B_80X_dn
+#bbSFdnWH_2016 = DoubleBsf_M2_S_80X_dn
 bbEffWW_2016 = EffMC_M2_XWW_2016
 bbEffWZ_2016 = EffMC_M2_XWZ_2016
 bbEffWH_2016 = EffMC_M2_XWH_2016
 bbSFWW_2017 = DoubleBsf_M2_B_94X
 bbSFWZ_2017 = DoubleBsf_M2_B_94X
 bbSFWH_2017 = DoubleBsf_M2_S_94X
+#bbSFupWW_2017 = DoubleBsf_M2_B_94X_up
+#bbSFupWZ_2017 = DoubleBsf_M2_B_94X_up
+#bbSFupWH_2017 = DoubleBsf_M2_S_94X_up
+#bbSFdnWW_2017 = DoubleBsf_M2_B_94X_dn
+#bbSFdnWZ_2017 = DoubleBsf_M2_B_94X_dn
+#bbSFdnWH_2017 = DoubleBsf_M2_S_94X_dn
 bbEffWW_2017 = EffMC_M2_XWW_2017
 bbEffWZ_2017 = EffMC_M2_XWZ_2017
 bbEffWH_2017 = EffMC_M2_XWH_2017
 bbSFWW_2018 = DoubleBsf_M2_B_102X
 bbSFWZ_2018 = DoubleBsf_M2_B_102X
 bbSFWH_2018 = DoubleBsf_M2_S_102X
+#bbSFupWW_2018 = DoubleBsf_M2_B_102X_up
+#bbSFupWZ_2018 = DoubleBsf_M2_B_102X_up
+#bbSFupWH_2018 = DoubleBsf_M2_S_102X_up
+#bbSFdnWW_2018 = DoubleBsf_M2_B_102X_dn
+#bbSFdnWZ_2018 = DoubleBsf_M2_B_102X_dn
+#bbSFdnWH_2018 = DoubleBsf_M2_S_102X_dn
 bbEffWW_2018 = EffMC_M2_XWW_2018
 bbEffWZ_2018 = EffMC_M2_XWZ_2018
 bbEffWH_2018 = EffMC_M2_XWH_2018
 bbWgtWW={
     'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWW_2018))+'))',
     'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2016[ptcut])+')/(1-'+str(bbEffWW_2016[ptcut])+'))') for ptcut,sf in bbSFWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2017[ptcut])+')/(1-'+str(bbEffWW_2017[ptcut])+'))') for ptcut,sf in bbSFWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2018[ptcut])+')/(1-'+str(bbEffWW_2018[ptcut])+'))') for ptcut,sf in bbSFWW_2018))+'))',
+    'vbf' : '1',
     'allC': '1',
     }
 bbWgtWZ={
     'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWZ_2018))+'))',
     'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2016[ptcut])+')/(1-'+str(bbEffWZ_2016[ptcut])+'))') for ptcut,sf in bbSFWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2017[ptcut])+')/(1-'+str(bbEffWZ_2017[ptcut])+'))') for ptcut,sf in bbSFWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2018[ptcut])+')/(1-'+str(bbEffWZ_2018[ptcut])+'))') for ptcut,sf in bbSFWZ_2018))+'))',
+    'vbf' : '1',
     'allC': '1',
     }
 bbWgtWH={
     'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWH_2018))+'))',
     'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2016[ptcut])+')/(1-'+str(bbEffWH_2016[ptcut])+'))') for ptcut,sf in bbSFWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2017[ptcut])+')/(1-'+str(bbEffWH_2017[ptcut])+'))') for ptcut,sf in bbSFWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2018[ptcut])+')/(1-'+str(bbEffWH_2018[ptcut])+'))') for ptcut,sf in bbSFWH_2018))+'))',
+    'vbf' : '1', 
     'allC': '1',
     }
+#bbWgtWW_up={
+#    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWW_2018))+'))',
+#    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2016[ptcut])+')/(1-'+str(bbEffWW_2016[ptcut])+'))') for ptcut,sf in bbSFupWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2017[ptcut])+')/(1-'+str(bbEffWW_2017[ptcut])+'))') for ptcut,sf in bbSFupWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2018[ptcut])+')/(1-'+str(bbEffWW_2018[ptcut])+'))') for ptcut,sf in bbSFupWW_2018))+'))',
+#    'vbf': '1',
+#    'allC': '1',
+#    }
+#bbWgtWZ_up={
+#    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWZ_2018))+'))',
+#    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2016[ptcut])+')/(1-'+str(bbEffWZ_2016[ptcut])+'))') for ptcut,sf in bbSFupWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2017[ptcut])+')/(1-'+str(bbEffWZ_2017[ptcut])+'))') for ptcut,sf in bbSFupWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2018[ptcut])+')/(1-'+str(bbEffWZ_2018[ptcut])+'))') for ptcut,sf in bbSFupWZ_2018))+'))',
+#    'vbf': '1',
+#    'allC': '1',
+#    }
+#bbWgtWH_up={
+#    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWH_2018))+'))',
+#    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2016[ptcut])+')/(1-'+str(bbEffWH_2016[ptcut])+'))') for ptcut,sf in bbSFupWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2017[ptcut])+')/(1-'+str(bbEffWH_2017[ptcut])+'))') for ptcut,sf in bbSFupWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2018[ptcut])+')/(1-'+str(bbEffWH_2018[ptcut])+'))') for ptcut,sf in bbSFupWH_2018))+'))',
+#    'vbf': '1',
+#    'allC': '1',
+#    }
+#bbWgtWW_dn={
+#    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWW_2018))+'))',
+#    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2016[ptcut])+')/(1-'+str(bbEffWW_2016[ptcut])+'))') for ptcut,sf in bbSFdnWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2017[ptcut])+')/(1-'+str(bbEffWW_2017[ptcut])+'))') for ptcut,sf in bbSFdnWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2018[ptcut])+')/(1-'+str(bbEffWW_2018[ptcut])+'))') for ptcut,sf in bbSFdnWW_2018))+'))',
+#    'vbf': '1',
+#    'allC': '1',
+#    }
+#bbWgtWZ_dn={
+#    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWZ_2018))+'))',
+#    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2016[ptcut])+')/(1-'+str(bbEffWZ_2016[ptcut])+'))') for ptcut,sf in bbSFdnWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2017[ptcut])+')/(1-'+str(bbEffWZ_2017[ptcut])+'))') for ptcut,sf in bbSFdnWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2018[ptcut])+')/(1-'+str(bbEffWZ_2018[ptcut])+'))') for ptcut,sf in bbSFdnWZ_2018))+'))',
+#    'vbf': '1',
+#    'allC': '1',
+#    }
+#bbWgtWH_dn={
+#    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWH_2018))+'))',
+#    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2016[ptcut])+')/(1-'+str(bbEffWH_2016[ptcut])+'))') for ptcut,sf in bbSFdnWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2017[ptcut])+')/(1-'+str(bbEffWH_2017[ptcut])+'))') for ptcut,sf in bbSFdnWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2018[ptcut])+')/(1-'+str(bbEffWH_2018[ptcut])+'))') for ptcut,sf in bbSFdnWH_2018))+'))',
+#    'vbf': '1',
+#    'allC': '1',
+#    }
 print bbWgtWW['bb']
 print bbWgtWW['nobb']
 
@@ -111,8 +169,6 @@ cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalTightHalo2016
 cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&abs(lnujj_l1_l_pdgId)==11&&(-1.55<lnujj_l1_l_phi)&&(lnujj_l1_l_phi<-0.9)&&(-2.5<lnujj_l1_l_eta)&&(lnujj_l1_l_eta<-1.479)))'
 ## new cut on pT/M:
 cuts['common'] = cuts['common'] + '*(lnujj_l1_pt/lnujj_LV_mass>0.4&&lnujj_l2_pt/lnujj_LV_mass>0.4)'
-## ensure orthogonality with VBF analysis:
-cuts['common'] = cuts['common'] + '*(!(lnujj_nJets>=2&&lnujj_vbfDEta>4.0&&lnujj_vbfMass>500))'
 ## lumi-based reweighting for MC:
 cuts['common'] = cuts['common'] + '*( (run>500) + (run<500)*((year==2016)*'+lumiWeight2016+'+(year==2017)*'+lumiWeight2017+'+(year==2018)*'+lumiWeight2018+') )'
 
@@ -137,10 +193,11 @@ purities=['HP','LP']
 puritiesMerged=['allP']
 
 bbtag='(lnujj_l2_btagBOOSTED>0.8)'
-cuts['bb'] = bbtag
-cuts['nobb'] = '(!'+bbtag+')'
+cuts['bb'] = bbtag+'*(!(lnujj_nJets>=2&&lnujj_vbfDEta>4.0&&lnujj_vbfMass>500))'
+cuts['nobb'] = '(!'+bbtag+')'+'*(!(lnujj_nJets>=2&&lnujj_vbfDEta>4.0&&lnujj_vbfMass>500))'
 cuts['allC'] = '1'
-categories=['bb','nobb']
+cuts['vbf'] = '(lnujj_nJets>=2&&lnujj_vbfDEta>4.0&&lnujj_vbfMass>500)'
+categories=['bb','nobb','vbf']
 categoriesMerged=['allC']
 
 
@@ -161,19 +218,19 @@ renormWJetsRun2='0.760376974966'
 ## get resonant yield from CR:
 renormRes = {
 'mu': {
-        'HP':{'nobb':0.96,'bb':0.96},
-        'LP':{'nobb':0.88,'bb':0.79},
+        'HP':{'nobb':0.96,'bb':0.96,'vbf':0.96},
+        'LP':{'nobb':0.88,'bb':0.79,'vbf':0.88},
       },
 'e': {
-        'HP':{'nobb':0.96,'bb':0.96},
-        'LP':{'nobb':0.88,'bb':0.81},
+        'HP':{'nobb':0.96,'bb':0.96,'vbf':0.96},
+        'LP':{'nobb':0.88,'bb':0.81,'vbf':0.88},
       },
 }
 
 ## get non-resonant MVV slope from CR (also hardcoded in vvMake2DTemplateWithKernels.py):
 renormNonResMvvSlope = {
-    'HP':{'nobb':-2.1e-4, 'bb':-2.65e-4},
-    'LP':{'nobb':-2.57e-4,'bb':-2.61e-4},
+    'HP':{'nobb':-2.1e-4, 'bb':-2.65e-4,'vbf':-2.1e-4 },
+    'LP':{'nobb':-2.57e-4,'bb':-2.61e-4,'vbf':-2.57e-4},
 }
 
 
@@ -187,6 +244,9 @@ BRWZ=0.327*0.6991
 
 WHTemplate="ntuples2016/WprimeToWHToWlepHinc_narrow,ntuples2017/WprimeToWHToWlepHinc_narrow,ntuples2018/WprimeToWHToWlepHinc_narrow"
 BRWH=0.327
+
+VBFWWTemplate='ntuples2016/VBF_RadionToWW_narrow,ntuples2017/VBF_RadionToWW_narrow,ntuples2018/VBF_RadionToWW_narrow'
+BRVBFWW=1.0
 
 resTemplate = "ntuples2016/TT_pow,ntuples2017/TTHad_pow,ntuples2017/TTLep_pow,ntuples2017/TTSemi_pow,ntuples2018/TTHad_pow,ntuples2018/TTLep_pow,ntuples2018/TTSemi_pow,ntuples2016/WWToLNuQQ,ntuples2017/WWToLNuQQ,ntuples2018/WWToLNuQQ,ntuples2016/WZTo1L1Nu2Q,ntuples2017/WZTo1L1Nu2Q,ntuples2018/WZTo1L1Nu2Q,ntuples2016/ZZTo2L2Q,ntuples2017/ZZTo2L2Q,ntuples2018/ZZTo2L2Q,ntuples2016/T_tW,ntuples2017/T_tW,ntuples2018/T_tW,ntuples2016/TBar_tW,ntuples2017/TBar_tW,ntuples2018/TBar_tW"
 #resWTemplate = resTemplate
@@ -211,21 +271,25 @@ maxMVV=5000.0
 binsMJJ={}
 binsMJJ['bb']=19
 binsMJJ['nobb']=38
+binsMJJ['vbf']=19
 binsMJJ['allC']=38 #95
 binsMVV={}
 binsMVV['bb']=176
 binsMVV['nobb']=176
+binsMVV['vbf']=176
 binsMVV['allC']=176
 
 
 fspline={}
 fspline['bb']=2
 fspline['nobb']=2
+fspline['vbf']=2
 fspline['allC']=2 #10
 
 limitTailFit2D={}
 limitTailFit2D['bb']=1200
 limitTailFit2D['nobb']=1600
+limitTailFit2D['vbf']=1200
 limitTailFit2D['allC']=1600
 
 
@@ -296,7 +360,7 @@ def makeSignalShapesMVV(filename,template):
                 os.system(cmd)
 
 
-def makeSignalYields(filename,template,branchingFraction,sfP={'HP':'1','LP':'1'},sfC={'bb':'1','nobb':'1','allC':'1'}):
+def makeSignalYields(filename,template,branchingFraction,sfP={'HP':'1','LP':'1'},sfC={'bb':'1','nobb':'1','vbf':'1','allC':'1'}):
     for l in leptons:
         for p in purities:
             for c in categories:
@@ -509,15 +573,40 @@ if DOSIGNALSHAPES:
     if DOXWW: makeSignalShapesMJJ("LNuJJ_XWW",WWTemplate)
     if DOXWZ: makeSignalShapesMJJ("LNuJJ_XWZ",WZTemplate)
     if DOXWH: makeSignalShapesMJJ("LNuJJ_XWH",WHTemplate)
+    if DOVBFXWW: makeSignalShapesMJJ("LNuJJ_VBFXWW",VBFWWTemplate)
 
     if DOXWW: makeSignalShapesMVV("LNuJJ_XWW",WWTemplate)
     if DOXWZ: makeSignalShapesMVV("LNuJJ_XWZ",WZTemplate)
     if DOXWH: makeSignalShapesMVV("LNuJJ_XWH",WHTemplate)
+    if DOVBFXWW: makeSignalShapesMVV("LNuJJ_VBFXWW",VBFWWTemplate)
+
+    ## For the VBFXWW signal in categories other than vbf, we take the XWW signal shapes:
+    for p in purities:
+        for c in ['bb','nobb']: ## but not for 'vbf', obviously
+            os.system( '\cp -p '+outDir+'LNuJJ_XWW_MJJ_'+p+'_'+c+'.json '+outDir+'LNuJJ_VBFXWW_MJJ_'+p+'_'+c+'.json' )
+            os.system( '\cp -p '+outDir+'LNuJJ_XWW_MVV_'+p+'_'+c+'.json '+outDir+'LNuJJ_VBFXWW_MVV_'+p+'_'+c+'.json' )
+
+            ## In the case of MJJ, we rescale the mean parameter to the average mean found with VBFXWW:
+            renormMeanMJJ = {
+                'HP': { 'nobb': 0.986, 'bb': 0.984 },
+                'LP': { 'nobb': 0.977, 'bb': 0.988 },
+                }
+            os.system( '''sed -i 's/mean": "0+/mean": "'''+str(renormMeanMJJ[p][c])+"*(0+/g' "+outDir+'LNuJJ_VBFXWW_MJJ_'+p+'_'+c+'.json' )
+            os.system( '''sed -i 's/MH"}/MH)"}/g' '''+outDir+'LNuJJ_VBFXWW_MJJ_'+p+'_'+c+'.json' )
 
 if DOSIGNALYIELDS:
     if DOXWW: makeSignalYields("LNuJJ_XWW",WWTemplate,BRWW,tau21SF,bbWgtWW)
     if DOXWZ: makeSignalYields("LNuJJ_XWZ",WZTemplate,BRWZ,tau21SF,bbWgtWZ)
     if DOXWH: makeSignalYields("LNuJJ_XWH",WHTemplate,BRWH,tau21SF,bbWgtWH)
+    if DOVBFXWW: makeSignalYields("LNuJJ_VBFXWW",VBFWWTemplate,BRVBFWW,tau21SF,bbWgtWW)
+    #if DOXWW: makeSignalYields("LNuJJ_XWW_bbSFup",WWTemplate,BRWW,tau21SF,bbWgtWW_up)
+    #if DOXWZ: makeSignalYields("LNuJJ_XWZ_bbSFup",WZTemplate,BRWZ,tau21SF,bbWgtWZ_up)
+    #if DOXWH: makeSignalYields("LNuJJ_XWH_bbSFup",WHTemplate,BRWH,tau21SF,bbWgtWH_up)
+    #if DOVBFXWW: makeSignalYields("LNuJJ_VBFXWW_bbSFup",VBFWWTemplate,BRVBFWW,tau21SF,bbWgtWW_up)
+    #if DOXWW: makeSignalYields("LNuJJ_XWW_bbSFdn",WWTemplate,BRWW,tau21SF,bbWgtWW_dn)
+    #if DOXWZ: makeSignalYields("LNuJJ_XWZ_bbSFdn",WZTemplate,BRWZ,tau21SF,bbWgtWZ_dn)
+    #if DOXWH: makeSignalYields("LNuJJ_XWH_bbSFdn",WHTemplate,BRWH,tau21SF,bbWgtWH_dn)
+    #if DOVBFXWW: makeSignalYields("LNuJJ_VBFXWW_bbSFdn",VBFWWTemplate,BRVBFWW,tau21SF,bbWgtWW_dn)
 
 if DOSIGNALCTPL:
     #for mx in [600,800,1000,1200,1400,1600,1800,2000,2500,3000,3500,4000,4500]:
