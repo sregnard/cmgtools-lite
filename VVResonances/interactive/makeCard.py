@@ -14,7 +14,7 @@ parser.add_option("-r","--region",dest="region",default='SR',help="signal region
 
 
 YEAR=options.year
-inputDir='Inputs_'+YEAR+'/'
+inputDir='Inputs_Run2/'
 intlumi=0.
 if YEAR=="2016":
   intlumi = 35920
@@ -39,6 +39,7 @@ LPunc = 0.33
 inCR = options.region=="CR"
 sfx_rgn = "_CR" if inCR else ""
 
+sfx_year = "_"+YEAR if YEAR!="Run2" else ""
 
 sig=options.signalType
 if sig not in ['XWW','XWZ','XWH','VBFXWW']:
@@ -97,7 +98,7 @@ for lepton in ['e','mu']:
             card.addFixedYieldFromFile("res",1,inputDir+"LNuJJ_norm"+sfx_rgn+"_"+LPCtag+".root","res"+sfx_rgn)
 
             #DATA
-            card.importBinnedData(inputDir+"LNuJJ_norm"+sfx_rgn+"_"+LPCtag+".root","data"+sfx_rgn,[varMVV,varMJJ])
+            card.importBinnedData(inputDir+"LNuJJ_norm"+sfx_rgn+"_"+LPCtag+".root","data"+sfx_rgn+sfx_year,[varMVV,varMJJ])
 
 
             ## SYSTEMATICS
