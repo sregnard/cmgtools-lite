@@ -179,7 +179,7 @@ for lepton in ['e','mu']:
             card.addSystematic("CMS_VV_LNuJ_res_Diag_"+LPCYtag,"param",[0.0,0.333])
             card.addSystematic("CMS_VV_LNuJ_res_fractionY_"+LPCYtag,"param",[0.0,0.333])
 
-            card.addSystematic("CMS_scale_prunedj_resAndSig_"+PYtag,"param",[0.0,0.333])
+            card.addSystematic("CMS_scale_prunedj_resAndSig_"+PYtag,"param",[0.0,0.067])
             card.addSystematic("CMS_res_prunedj_resAndSig_"+PYtag,"param",[0.0,0.333]) 
             card.makeCard()
 
