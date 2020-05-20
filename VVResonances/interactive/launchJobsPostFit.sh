@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for signal in XWH #XWW XWZ XWH
+for signal in XWH #XWW XWZ XWH VBFXWW
 
 do
 
@@ -31,7 +31,7 @@ do
 	cd ..
 	#'
 
-        #:'  ## post-fit, signal+background (mX=1000)
+        :'  ## post-fit, signal+background (mX=1000)
 	mkdir Jobs_PostFit_${signal}1000
 	cd Jobs_PostFit_${signal}1000
 	python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitPostFit.py ../../combined.root -o "-y ${year} -s ${signal} -m 1000"

@@ -16,7 +16,7 @@ parser.add_option("-o","--options",dest="options",help="Options for runPostFit.p
 #'''
 leptons = ['mu','e']
 purities = ['LP','HP']
-categories = ['bb','nobb']
+categories = ['bb','nobb','vbf']
 #'''
 '''
 leptons = ['allL','mu','e']

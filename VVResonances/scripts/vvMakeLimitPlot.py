@@ -21,7 +21,7 @@ parser.add_option("-b","--blind",dest="blind",type=int,help="don't draw the obse
 parser.add_option("-l","--log",dest="log",type=int,help="use log scale",default=1)
 parser.add_option("-C","--CMSlabel",dest="CMSlabel",type=int,default=0,help="0:None 1:CMS 2:CMS Preliminary 3:CMS Supplementary")
 parser.add_option("-p","--period",dest="period",default='Run2',help="run period, to set the luminosity: 2016, 2017, 2018, or Run2")
-parser.add_option("-s","--signal",dest="signal",default='generic',help="which signal theoretical cross section to draw if any: XWW, XWZ or XWH")
+parser.add_option("-s","--signal",dest="signal",default='generic',help="which signal: XWW, XWZ, XWH, or VBFXWW")
 (options,args) = parser.parse_args()
 
 
@@ -136,6 +136,13 @@ plots['XWH']  = {
     'titleX':"m_{W'} (GeV)",
     'titleY':"#sigma #times #bf{#it{#Beta}}(W'#rightarrowWH) (pb)",
     'thl':1,
+}
+plots['VBFXWW']  = { 
+    'lgdL':0.47, 'lgdR':0.92, 'lgdD':0.64, 'lgdU':0.88, 
+    'blind':0, 'grid':0,
+    'titleX':"m_{radion} (GeV)",
+    'titleY':"#sigma #times #bf{#it{#Beta}}(VBF radion#rightarrowWW) (pb)",
+    'thl':0,
 }
 
 
@@ -312,15 +319,16 @@ if drawTheo:
     M=0
     if sig=="XWW":
         for mass,xsec,brww,full,pdf,scale in sigxsec[sig]['theo']:
-            print 'Theoretical sigma x BR',mass,xsec*brww
-            bandTh.SetPoint(M,mass,xsec*brww)
-            absunc=xsec*brww*math.sqrt(pdf*pdf+scale*scale)
+            xsecbr=xsec*brww
+            print 'Mass',mass,' xsec_theo',xsec,' BR',brww,' Product',xsecbr
+            bandTh.SetPoint(M,mass,xsecbr)
+            absunc=xsecbr*math.sqrt(pdf*pdf+scale*scale)
             bandTh.SetPointError(M,0.0,0.0,absunc,absunc)
             M=M+1
     elif sig=="XWZ":
         for mass,brwz,brwh,xsec0,xsecplus,xsecminus,pdf,scale in sigxsec[sig]['theo']:
             xsecbr=(xsecplus+xsecminus)*brwz
-            print 'Theoretical sigma x BR',mass,xsecbr
+            print 'Mass',mass,' xsec_theo',(xsecplus+xsecminus),' BR',brwz,' Product',xsecbr
             bandTh.SetPoint(M,mass,xsecbr)
             absunc=xsecbr*math.sqrt(pdf*pdf+scale*scale)
             bandTh.SetPointError(M,0.0,0.0,absunc,absunc)
@@ -328,7 +336,7 @@ if drawTheo:
     elif sig=="XWH":
         for mass,brwz,brwh,xsec0,xsecplus,xsecminus,pdf,scale in sigxsec[sig]['theo']:
             xsecbr=(xsecplus+xsecminus)*brwh
-            print 'Theoretical sigma x BR',mass,xsecbr
+            print 'Mass',mass,' xsec_theo',(xsecplus+xsecminus),' BR',brwh,' Product',xsecbr
             bandTh.SetPoint(M,mass,xsecbr)
             absunc=xsecbr*math.sqrt(pdf*pdf+scale*scale)
             bandTh.SetPointError(M,0.0,0.0,absunc,absunc)
