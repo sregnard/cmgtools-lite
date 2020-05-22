@@ -49,9 +49,9 @@ os.system('mkdir -p '+outDir)
 ntuples='ntuples'
 
 
-tau21SF={ ## TBU
-    'HP' : '( (year==2016)*1.00 + (year==2017)*1.00 + (year==2018)*1.00 )',
-    'LP' : '( (year==2016)*1.00 + (year==2017)*1.00 + (year==2018)*1.00 )',
+tau21SF={ ## Run2 values
+    'HP' : '0.93',
+    'LP' : '1.05',
     }
 
 bbSFWW_2016 = DoubleBsf_M2_B_80X
@@ -482,7 +482,7 @@ def mergeBackgroundShapesRes(name,filename):
                 inputy=outDir+filename+"_"+name+"_MJJ_"+l+"_"+p+"_"+c+".root"
                 inputx=outDir+filename+"_"+name+"_"+c+"_COND2D.root"
                 rootFile=outDir+filename+"_"+name+"_2D_"+l+"_"+p+"_"+c+".root"
-                cmd='vvMergeHistosToPDF2D.py -i "{inputx}" -I "{inputy}" -o "{rootFile}" -s "MVVScale:MVVScale,Diag:Diag" -S "scale:scaleY,res:resY,f:fractionY" '.format(rootFile=rootFile,inputx=inputx,inputy=inputy)
+                cmd='vvMergeHistosToPDF2D.py -i "{inputx}" -I "{inputy}" -o "{rootFile}" -s "MVVScale:MVVScale,Diag:Diag" -S "scaleW:scaleWY,scaleTop:scaleTopY,resW:resWY,resTop:resTopY,f:fractionY" '.format(rootFile=rootFile,inputx=inputx,inputy=inputy)
                 os.system(cmd)
 
 

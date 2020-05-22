@@ -7,11 +7,13 @@ import math
 import numpy as np
 from CMGTools.VVResonances.plotting.CMS_lumi import *
 from CMGTools.VVResonances.plotting.tdrstyle import *
+from CMGTools.VVResonances.plotting.rToInjectForBiasTest import *
 
 import optparse
 parser = optparse.OptionParser()
 parser.add_option("-i","--input",dest="input",default='',help="input ROOT file")
 parser.add_option("-o","--output",dest="output",default='biasPlot',help="output plot name")
+parser.add_option("-I","--injectedSignal",dest="injectedSignal",help="which signal was injected if any",default="")
 parser.add_option("-x","--minX",dest="minX",type=float,help="minimum x",default=1000.0)
 parser.add_option("-X","--maxX",dest="maxX",type=float,help="maximum x",default=4500.0)
 parser.add_option("-y","--minY",dest="minY",type=float,help="minimum y",default=-4.5)
@@ -23,6 +25,7 @@ parser.add_option("-l","--log",dest="log",type=int,help="use log scale",default=
 
 
 withObs = 0
+withBands = 0
 
 
 
@@ -82,11 +85,16 @@ lineZero.SetName("zero")
 
 N=0
 h = ROOT.TH1D("tmpTH1","",300000,-100,100)
+#h = ROOT.TH1D("tmpTH1","",300000,-3,3)
 for mass,info in data.iteritems():
 
     h.Reset()
 
-    limit.Draw("limit/limitErr>>tmpTH1","mh=="+str(mass)+"&&quantileExpected==-1&&limitErr!=0&&limitErr<100")
+    if options.injectedSignal == "":
+      limit.Draw("limit/limitErr>>tmpTH1","mh=="+str(mass)+"&&quantileExpected==-1&&limitErr!=0&&limitErr<100")
+    else:
+      limit.Draw("(limit-"+str(rToInject[options.injectedSignal][mass])+")/limitErr>>tmpTH1","mh=="+str(mass)+"&&quantileExpected==-1&&limitErr!=0&&limitErr<100")
+
 
     prob=np.array([0.025,0.16,0.5,0.84,0.975])
     q=np.array([0.,0.,0.,0.,0.])
@@ -140,8 +148,8 @@ line_minus1.SetLineWidth(1)
 line_minus1.SetLineColor(color1)
 line_minus2.SetLineWidth(1)
 line_minus2.SetLineColor(color2)
-lineExp.SetLineWidth(2)
-lineExp.SetLineColor(ROOT.kBlue)
+lineExp.SetLineWidth(2 if withBands else 3)
+lineExp.SetLineColor(ROOT.kBlue if withBands else ROOT.kRed)
 lineExp.SetLineStyle(7)
 lineExp.SetMarkerStyle(0)
 if withObs:
@@ -151,7 +159,7 @@ if withObs:
     lineObs.SetMarkerStyle(20)
     lineObs.SetMarkerColor(ROOT.kBlack)
 lineZero.SetLineWidth(2)
-lineZero.SetLineColor(ROOT.kBlack)
+lineZero.SetLineColor(ROOT.kBlack if withBands else ROOT.kGray)
 lineZero.SetMarkerStyle(0)
 
 
@@ -171,13 +179,14 @@ frame.Draw()
 c.Draw()
 c.SetLogy(options.log)
 
-band95.Draw("3same")
-band68.Draw("3same")
-#band68.Draw("XLsame")
-#line_plus1.Draw("Lsame")
-#line_plus2.Draw("Lsame")
-#line_minus1.Draw("Lsame")
-#line_minus2.Draw("Lsame")
+if withBands:
+  band95.Draw("3same")
+  band68.Draw("3same")
+  #band68.Draw("XLsame")
+  #line_plus1.Draw("Lsame")
+  #line_plus2.Draw("Lsame")
+  #line_minus1.Draw("Lsame")
+  #line_minus2.Draw("Lsame")
 
 c.Update()
 c.RedrawAxis("g")
@@ -195,10 +204,11 @@ lgd.SetBorderSize(0)
 lgd.SetTextFont(42)
 lgd.SetTextSize(0.04)
 if withObs:
-    lgd.AddEntry(lineObs,"Data","lp")
+  lgd.AddEntry(lineObs,"Data","lp")
 lgd.AddEntry(lineExp,"Median","l")
-lgd.AddEntry(band68,"68%","f")
-lgd.AddEntry(band95,"95%","f")
+if withBands:
+  lgd.AddEntry(band68,"68%","f")
+  lgd.AddEntry(band95,"95%","f")
 lgd.Draw()
 
 c.Update()

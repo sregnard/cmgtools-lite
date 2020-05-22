@@ -3,7 +3,7 @@
 import ROOT
 import os, sys, re, optparse,pickle,shutil,json,random
 
-
+from CMGTools.VVResonances.plotting.rToInjectForBiasTest import *
 
 
 parser = optparse.OptionParser()
@@ -11,6 +11,7 @@ parser = optparse.OptionParser()
 parser.add_option("-s","--step",dest="step",type=float,help="step for mass points",default=1000.0)
 parser.add_option("-m","--min",dest="min",type=float,help="minimum Mass point",default=1000.0)
 parser.add_option("-M","--max",dest="max",type=float,help="maximum Mass point",default=5000.0)
+parser.add_option("-I","--injectSignal",dest="injectSignal",help="which signal to inject if any",default="")
 parser.add_option("-o","--options",dest="options",help="Combine Options",default='-M Asymptotic')
 parser.add_option("-q","--queue",dest="queue",help="Batch Queue",default='8nh')
 parser.add_option("-r","--randomSeeds",dest="randomize",type=int,help="randomize seeds",default=0)
@@ -34,6 +35,9 @@ for i,m in enumerate(massPoints):
         suffixOpts=" -s {rndm}".format(rndm = int(random.random()*950000))
     else:
         suffixOpts=" "
+
+    if options.injectSignal != "":
+        suffixOpts += " --expectSignal={r}".format(r=rToInject[options.injectSignal][m])
 
 
     f=open("submit_{i}.sh".format(i=i),'w')
