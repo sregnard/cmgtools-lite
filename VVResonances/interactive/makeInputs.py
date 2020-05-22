@@ -49,9 +49,9 @@ os.system('mkdir -p '+outDir)
 ntuples='ntuples'
 
 
-tau21SF={ ## TBU
-    'HP' : '( (year==2016)*1.00 + (year==2017)*1.00 + (year==2018)*1.00 )',
-    'LP' : '( (year==2016)*1.00 + (year==2017)*1.00 + (year==2018)*1.00 )',
+tau21SF={ ## Run2 values
+    'HP' : '0.93',
+    'LP' : '1.05',
     }
 
 bbSFWW_2016 = DoubleBsf_M2_B_80X

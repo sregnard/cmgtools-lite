@@ -25,16 +25,8 @@ elif YEAR=="2018":
 elif YEAR=="Run2":
   intlumi=35920+41530+59740
 
-#if YEAR=="2016": ## TBU with new WP
-#  HPunc = 0.14
-#  LPunc = 0.33
-#elif YEAR=="2017" or YEAR=="2018": ## TBU for 2018
-#  HPunc = 0.06
-#  LPunc = 0.29
-#elif YEAR=="Run2": ## TBU with an uncertainty for the 3 years together
-HPunc = 0.14
-LPunc = 0.33
-
+HPunc = 0.03
+LPunc = 0.03
 
 inCR = options.region=="CR"
 sfx_rgn = "_CR" if inCR else ""
@@ -79,9 +71,9 @@ for lepton in ['e','mu']:
             card.product(sig,sig+"_MJJ",sig+"_MVV")
 
             if purity=='HP':
-                card.addParametricYieldWithUncertainty(sig,0,inputDir+"LNuJJ_"+sig+"_"+LPCtag+"_yield.json",1,'CMS_tau21_PtDependence_'+YEAR,'log(MH/600)',0.041)
+                card.addParametricYieldWithUncertainty(sig,0,inputDir+"LNuJJ_"+sig+"_"+LPCtag+"_yield.json",1,'CMS_Vtag_PtDependence_'+YEAR,'(4.95e-5*(MH-650))',1.)
             else:
-                card.addParametricYieldWithUncertainty(sig,0,inputDir+"LNuJJ_"+sig+"_"+LPCtag+"_yield.json",1,'CMS_tau21_PtDependence_'+YEAR,'((0.054/0.041)*(-log(MH/600)))',0.041)
+                card.addParametricYieldWithUncertainty(sig,0,inputDir+"LNuJJ_"+sig+"_"+LPCtag+"_yield.json",1,'CMS_Vtag_PtDependence_'+YEAR,'(-3.54e-5*(MH-650))',1.)
 
 
             ## Non-resonant bkgd
