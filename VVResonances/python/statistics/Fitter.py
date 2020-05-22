@@ -393,14 +393,14 @@ class Fitter(object):
     def jetDoublePeak(self,name = 'model',poi='x'):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
         
-        self.w.factory("meanW[80,75,85]")
+        self.w.factory("meanW[80,70,100]")
         self.w.factory("sigmaW[10,7.5,20]")
         self.w.factory("alphaW[1,0.1,10]")
         self.w.factory("alphaW2[1,0.1,10]")
         self.w.factory("n1[5,1,20]")
         self.w.factory("n2[5,1,20]")
 
-        self.w.factory("meanTop[160,140,190]")
+        self.w.factory("meanTop[160,130,200]")
         self.w.factory("sigmaTop[30,12,100]")
         self.w.factory("alphaTop[3,0.1,10]")
         self.w.factory("alphaTop2[3,0.1,10]")
