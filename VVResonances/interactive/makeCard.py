@@ -104,6 +104,9 @@ for lepton in ['e','mu']:
             ## lepton efficiency
             card.addSystematic("CMS_eff_"+lepton+"_"+YEAR,"lnN",{'XWW':1.05,'XWZ':1.05,'XWH':1.05,'VBFXWW':1.05})
 
+            ## efficiency of the pt/m cut
+            card.addSystematic("CMS_eff_ptom_"+YEAR,"lnN",{'XWW':1.025,'XWZ':1.025,'XWH':1.025,'VBFXWW':1.05})
+
             ## b tagging fake rate
             card.addSystematic("CMS_btag_fake_"+YEAR,"lnN",{'XWW':1+0.02,'XWZ':1+0.02,'XWH':1+0.02,'VBFXWW':1+0.02})
 
