@@ -165,8 +165,10 @@ cuts['common'] = cuts['common'] + '*(lnujj_nOtherLeptons==0&&lnujj_l2_softDrop_m
 cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&(Flag_eeBadScFilter*(run>500)+(run<500))&&Flag_badMuonFilter)'
 #cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalSuperTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&(Flag_eeBadScFilter*(run>500)+(run<500))&&Flag_BadPFMuonFilter)' ## 2 new flags are missing in some ntuples
 
-## excluding the problematic HEM15/16 region:
+## exclude 2018 events where the selected electron is in the problematic HEM15/16 region:
 cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&abs(lnujj_l1_l_pdgId)==11&&(-1.55<lnujj_l1_l_phi)&&(lnujj_l1_l_phi<-0.9)&&(-2.5<lnujj_l1_l_eta)&&(lnujj_l1_l_eta<-1.479)))'
+## exclude 2018 events where the selected V jet is in the problematic HEM15/16 region:
+cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&(-1.55<lnujj_l2_phi)&&(lnujj_l2_phi<-0.9)&&(-2.5<lnujj_l2_eta)&&(lnujj_l2_eta<-1.479)))'
 ## new cut on pT/M:
 cuts['common'] = cuts['common'] + '*(lnujj_l1_pt/lnujj_LV_mass>0.4&&lnujj_l2_pt/lnujj_LV_mass>0.4)'
 ## lumi-based reweighting for MC:

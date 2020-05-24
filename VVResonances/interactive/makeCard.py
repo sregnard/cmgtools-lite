@@ -101,8 +101,14 @@ for lepton in ['e','mu']:
             ## PDF
             card.addSystematic("CMS_pdf","lnN",{'XWW':1.01,'XWZ':1.01,'XWH':1.01,'VBFXWW':1.01})
 
+            ## pileup reweighting (from shifting the min-bias cross section)
+            card.addSystematic("CMS_puWeight_"+YEAR,"lnN",{'XWW':1.015,'XWZ':1.015,'XWH':1.015,'VBFXWW':1.015})
+
             ## lepton efficiency
             card.addSystematic("CMS_eff_"+lepton+"_"+YEAR,"lnN",{'XWW':1.05,'XWZ':1.05,'XWH':1.05,'VBFXWW':1.05})
+
+            ## efficiency of the pt/m cut
+            card.addSystematic("CMS_eff_ptom_"+YEAR,"lnN",{'XWW':1.025,'XWZ':1.025,'XWH':1.025,'VBFXWW':1.05})
 
             ## b tagging fake rate
             card.addSystematic("CMS_btag_fake_"+YEAR,"lnN",{'XWW':1+0.02,'XWZ':1+0.02,'XWH':1+0.02,'VBFXWW':1+0.02})
