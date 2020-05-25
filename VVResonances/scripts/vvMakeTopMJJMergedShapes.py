@@ -61,7 +61,6 @@ def runFits(data,options):
     
     scaleW = fitter.w.var('meanW').getVal()
     scaleTop = fitter.w.var('meanTop').getVal()
-
     sigmaW = fitter.w.var('sigmaW').getVal()
     sigmaTop = fitter.w.var('sigmaTop').getVal()
     fraction = fitter.w.var('f').getVal()
@@ -73,20 +72,51 @@ def runFits(data,options):
     h = fitter.w.pdf("model").createHistogram("M",options.binsx)
     h.Write("histo")
 
-    fitter.w.var('meanW').setVal(scaleW*1.15)
-    fitter.w.var('meanTop').setVal(scaleTop*1.15)
+    '''
+    fitter.w.var('meanW').setVal(scaleW*1.05)
+    fitter.w.var('meanTop').setVal(scaleTop*1.05)
     fitter.w.var('sigmaW').setVal(sigmaW)
     fitter.w.var('sigmaTop').setVal(sigmaTop)
     h = fitter.w.pdf("model").createHistogram("M",options.binsx)
     h.Write("histo_scaleUp")
 
-    fitter.w.var('meanW').setVal(scaleW*0.85)
-    fitter.w.var('meanTop').setVal(scaleTop*0.85)
+    fitter.w.var('meanW').setVal(scaleW*0.95)
+    fitter.w.var('meanTop').setVal(scaleTop*0.95)
     fitter.w.var('sigmaW').setVal(sigmaW)
     fitter.w.var('sigmaTop').setVal(sigmaTop)
     h = fitter.w.pdf("model").createHistogram("M",options.binsx)
     h.Write("histo_scaleDown")
+    #'''
 
+    fitter.w.var('meanW').setVal(scaleW*1.05)
+    fitter.w.var('meanTop').setVal(scaleTop)
+    fitter.w.var('sigmaW').setVal(sigmaW)
+    fitter.w.var('sigmaTop').setVal(sigmaTop)
+    h = fitter.w.pdf("model").createHistogram("M",options.binsx)
+    h.Write("histo_scaleWUp")
+
+    fitter.w.var('meanW').setVal(scaleW*0.95)
+    fitter.w.var('meanTop').setVal(scaleTop)
+    fitter.w.var('sigmaW').setVal(sigmaW)
+    fitter.w.var('sigmaTop').setVal(sigmaTop)
+    h = fitter.w.pdf("model").createHistogram("M",options.binsx)
+    h.Write("histo_scaleWDown")
+
+    fitter.w.var('meanW').setVal(scaleW)
+    fitter.w.var('meanTop').setVal(scaleTop*1.05)
+    fitter.w.var('sigmaW').setVal(sigmaW)
+    fitter.w.var('sigmaTop').setVal(sigmaTop)
+    h = fitter.w.pdf("model").createHistogram("M",options.binsx)
+    h.Write("histo_scaleTopUp")
+
+    fitter.w.var('meanW').setVal(scaleW)
+    fitter.w.var('meanTop').setVal(scaleTop*0.95)
+    fitter.w.var('sigmaW').setVal(sigmaW)
+    fitter.w.var('sigmaTop').setVal(sigmaTop)
+    h = fitter.w.pdf("model").createHistogram("M",options.binsx)
+    h.Write("histo_scaleTopDown")
+
+    '''
     fitter.w.var('meanW').setVal(scaleW)
     fitter.w.var('meanTop').setVal(scaleTop)
     fitter.w.var('sigmaW').setVal(sigmaW*1.25)
@@ -100,15 +130,44 @@ def runFits(data,options):
     fitter.w.var('sigmaTop').setVal(sigmaTop*0.75)
     h = fitter.w.pdf("model").createHistogram("M",options.binsx)
     h.Write("histo_resDown")
+    #'''
+
+    fitter.w.var('meanW').setVal(scaleW)
+    fitter.w.var('meanTop').setVal(scaleTop)
+    fitter.w.var('sigmaW').setVal(sigmaW*1.25)
+    fitter.w.var('sigmaTop').setVal(sigmaTop)
+    h = fitter.w.pdf("model").createHistogram("M",options.binsx)
+    h.Write("histo_resWUp")
+    
+    fitter.w.var('meanW').setVal(scaleW)
+    fitter.w.var('meanTop').setVal(scaleTop)
+    fitter.w.var('sigmaW').setVal(sigmaW*0.75)
+    fitter.w.var('sigmaTop').setVal(sigmaTop)
+    h = fitter.w.pdf("model").createHistogram("M",options.binsx)
+    h.Write("histo_resWDown")
+
+    fitter.w.var('meanW').setVal(scaleW)
+    fitter.w.var('meanTop').setVal(scaleTop)
+    fitter.w.var('sigmaW').setVal(sigmaW)
+    fitter.w.var('sigmaTop').setVal(sigmaTop*1.25)
+    h = fitter.w.pdf("model").createHistogram("M",options.binsx)
+    h.Write("histo_resTopUp")
+    
+    fitter.w.var('meanW').setVal(scaleW)
+    fitter.w.var('meanTop').setVal(scaleTop)
+    fitter.w.var('sigmaW').setVal(sigmaW)
+    fitter.w.var('sigmaTop').setVal(sigmaTop*0.75)
+    h = fitter.w.pdf("model").createHistogram("M",options.binsx)
+    h.Write("histo_resTopDown")
 
     fitter.w.var('meanW').setVal(scaleW)
     fitter.w.var('meanTop').setVal(scaleTop)
     fitter.w.var('sigmaW').setVal(sigmaW)
     fitter.w.var('sigmaTop').setVal(sigmaTop)
     fitter.w.var('f').setVal(fraction*1.40)
-
     h = fitter.w.pdf("model").createHistogram("M",options.binsx)
     h.Write("histo_fUp")
+
     fitter.w.var('meanW').setVal(scaleW)
     fitter.w.var('meanTop').setVal(scaleTop)
     fitter.w.var('sigmaW').setVal(sigmaW)
