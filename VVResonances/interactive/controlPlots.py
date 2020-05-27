@@ -145,29 +145,18 @@ def compare(p1,p2,var,cut1,cut2,bins,mini,maxi,title,unit,leg1,leg2):
 
 
 
-minMJJ=20.0
-maxMJJ=210.0
-binsMJJ=95
-
-minMVV=600.0
-maxMVV=5000.0
-binsMVV=176
-
-
 
 cuts={}
 
 cuts['common'] = '1'
-cuts['common'] = cuts['common'] + '*(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET120)*((run>500) + (run<500)*lnujj_sfWV)'
+cuts['common'] = cuts['common'] + '*(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET120)*((run>500) + (run<500)*lnujj_sfWV)' ## changed from lnujj_sf to lnujj_sfWV for 2016
 cuts['common'] = cuts['common'] + '*(lnujj_nOtherLeptons==0&&lnujj_l2_softDrop_mass>0&&lnujj_LV_mass>0)'
 cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&(Flag_eeBadScFilter*(run>500)+(run<500))&&Flag_badMuonFilter)'
 ## excluding the problematic HEM15/16 region:
 cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&abs(lnujj_l1_l_pdgId)==11&&(-1.55<lnujj_l1_l_phi)&&(lnujj_l1_l_phi<-0.9)&&(-2.5<lnujj_l1_l_eta)&&(lnujj_l1_l_eta<-1.479)))'
 ## new cut on pT/M:
 cuts['common'] = cuts['common'] + '*(lnujj_l1_pt/lnujj_LV_mass>0.4&&lnujj_l2_pt/lnujj_LV_mass>0.4)'
-## ensure orthogonality with VBF analysis:
-cuts['common'] = cuts['common'] + '*(!(lnujj_nJets>=2&&lnujj_vbfDEta>4.0&&lnujj_vbfMass>500))'
-## lumi-based reweighting for MC
+## lumi-based reweighting for MC:
 if YEAR=="Run2":
     cuts['common'] = cuts['common'] + '*( (run>500) + (run<500)*((year==2016)*'+lumiWeight2016+'+(year==2017)*'+lumiWeight2017+'+(year==2018)*'+lumiWeight2018+') )'
 
@@ -182,8 +171,8 @@ leptons=['e','mu']
 leptonsMerged=['allL']
 
 Vtagger='(lnujj_l2_tau2/lnujj_l2_tau1-(-0.08)*log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt))'
-thrHP='0.55'
-thrLP='0.96'
+thrHP='0.50'
+thrLP='0.80'
 cuts['HP'] = '('+Vtagger+'<'+thrHP+')'
 cuts['LP'] = '('+thrHP+'<='+Vtagger+'&&'+Vtagger+'<'+thrLP+')'
 cuts['allP'] = '('+cuts['HP']+'||'+cuts['LP']+')'
@@ -192,18 +181,25 @@ puritiesMerged=['allP']
 
 bbtagger='lnujj_l2_btagBOOSTED'
 bbtag='(lnujj_l2_btagBOOSTED>0.8)'
-cuts['bb'] = bbtag
-cuts['nobb'] = '(!'+bbtag+')'
+cuts['bb'] = bbtag+'*(!(lnujj_nJets>=2&&lnujj_vbfDEta>4.0&&lnujj_vbfMass>500))'
+cuts['nobb'] = '(!'+bbtag+')'+'*(!(lnujj_nJets>=2&&lnujj_vbfDEta>4.0&&lnujj_vbfMass>500))'
 cuts['allC'] = '1'
-categories=['bb','nobb']
+cuts['vbf'] = '(lnujj_nJets>=2&&lnujj_vbfDEta>4.0&&lnujj_vbfMass>500)'
+categories=['bb','nobb','vbf']
 categoriesMerged=['allC']
 
 
-
 cuts['nonres']='(lnujj_l2_mergedVTruth==0)'
-cuts['res']  ='(lnujj_l2_mergedVTruth==1)'
-cuts['resW']  ='(lnujj_l2_mergedVTruth==1&&!(lnujj_l2_nearestBDRTruth<0.8&&lnujj_l2_gen_b_pt/(lnujj_l2_gen_qq_pt+lnujj_l2_gen_b_pt)>0.1&&lnujj_l2_gen_softDrop_mass>100))'
-cuts['resTop']='(lnujj_l2_mergedVTruth==1&&(lnujj_l2_nearestBDRTruth<0.8&&lnujj_l2_gen_b_pt/(lnujj_l2_gen_qq_pt+lnujj_l2_gen_b_pt)>0.1&&lnujj_l2_gen_softDrop_mass>100))'
+cuts['res']   ='(lnujj_l2_mergedVTruth==1)'
+#cuts['resW']  ='(lnujj_l2_mergedVTruth==1&&!(lnujj_l2_nearestBDRTruth<0.8&&lnujj_l2_gen_b_pt/(lnujj_l2_gen_qq_pt+lnujj_l2_gen_b_pt)>0.1&&lnujj_l2_gen_softDrop_mass>100))'
+#cuts['resTop']='(lnujj_l2_mergedVTruth==1&&(lnujj_l2_nearestBDRTruth<0.8&&lnujj_l2_gen_b_pt/(lnujj_l2_gen_qq_pt+lnujj_l2_gen_b_pt)>0.1&&lnujj_l2_gen_softDrop_mass>100))'
+
+
+minMJJ=20.0
+maxMJJ=210.0
+
+minMVV=600.0
+maxMVV=5000.0
 
 
 
@@ -255,10 +251,10 @@ nonResPlotters = getPlotters(ttbar+','+singletop+",WJetsToLNu_HT,DYJetsToLL_M50_
 nonRes = MergedPlotter(nonResPlotters)
 resPlotters = getPlotters(ttbar+','+diboson+','+singletop,ntuplesMC,False,cuts['res'])
 res = MergedPlotter(resPlotters)
-resWPlotters = getPlotters(ttbar+','+diboson+','+singletop,ntuplesMC,False,cuts['resW'])
-resW = MergedPlotter(resWPlotters)
-resTopPlotters = getPlotters(ttbar+','+diboson+','+singletop,ntuplesMC,False,cuts['resTop'])
-resTop = MergedPlotter(resTopPlotters)
+#resWPlotters = getPlotters(ttbar+','+diboson+','+singletop,ntuplesMC,False,cuts['resW'])
+#resW = MergedPlotter(resWPlotters)
+#resTopPlotters = getPlotters(ttbar+','+diboson+','+singletop,ntuplesMC,False,cuts['resTop'])
+#resTop = MergedPlotter(resTopPlotters)
 
 
 #SigPlotters = getPlotters('BulkGravToWWToWlepWhad_narrow_1400',ntuplesMC,False)
@@ -282,9 +278,9 @@ VV.setFillProperties(1001,ROOT.kOrange-2)
 #topVVVH.setFillProperties(1001,ROOT.kSpring+5)
 
 nonRes.setFillProperties(1001,ROOT.TColor.GetColor("#A5D2FF"))#ROOT.kBlue+1)#ROOT.kAzure-9)
-#resW.setFillProperties(1001,ROOT.TColor.GetColor("#60B037"))#ROOT.kGreen+1)#ROOT.kSpring-5)
-resW.setFillProperties(1001,ROOT.TColor.GetColor("#37B04D"))#ROOT.kGreen+1)#ROOT.kSpring-5)
-resTop.setFillProperties(1001,ROOT.TColor.GetColor("#C3D631"))#ROOT.kGreen+1)#ROOT.kSpring-5)
+res.setFillProperties(1001,ROOT.TColor.GetColor("#60B037"))#ROOT.kGreen+1)#ROOT.kSpring-5)
+#resW.setFillProperties(1001,ROOT.TColor.GetColor("#37B04D"))#ROOT.kGreen+1)#ROOT.kSpring-5)
+#resTop.setFillProperties(1001,ROOT.TColor.GetColor("#C3D631"))#ROOT.kGreen+1)#ROOT.kSpring-5)
 
 #sig.setFillProperties(1001,ROOT.kRed+1)
 
@@ -295,9 +291,9 @@ lnujjStack = StackPlotter()
 
 if LIKETEMPLATES:
     lnujjStack.addPlotter(nonRes,"nonRes","W+jets","background")
-    #lnujjStack.addPlotter(resW,"resW","W+V/t","background")
-    lnujjStack.addPlotter(resW,"resW","W peak","background")
-    lnujjStack.addPlotter(resTop,"resTop","top peak","background")
+    lnujjStack.addPlotter(res,"res","W+V/t","background")
+    #lnujjStack.addPlotter(resW,"resW","W peak","background")
+    #lnujjStack.addPlotter(resTop,"resTop","top peak","background")
 else:
     lnujjStack.addPlotter(QCD,"QCD","QCD multijet","background")
     #lnujjStack.addPlotter(VH,"VH","VH","background")
@@ -356,8 +352,8 @@ plots = [
   #( "lnujj_l2_minpts1pts2overpts1pluspts2", "min(lnujj_l2_softDrop_s1_pt,lnujj_l2_softDrop_s2_pt)/(lnujj_l2_softDrop_s1_pt+lnujj_l2_softDrop_s2_pt)", 50,  0.,  1.,    "SD min(p_{T,s1}, p_{T,s2}) / (p_{T,s1} + p_{T,s2})",""    ),
   #( "lnujj_l2_gen_pt",        "lnujj_l2_gen_pt",             100, 0.,  1000., "gen jet p_{T}",      "GeV" ),
   #( "lnujj_l2_gen_eta",       "lnujj_l2_gen_eta",            60,  -3., 3.,    "gen jet #eta",       ""    ),
-  #( "run",                    "run",                      120,270000.,330000.,"run number",         ""    ),
-  ( "run",                    "run",                      200,290000.,310000.,"run number",         ""    ),
+  #( "run",                    "run",                         120,270000.,330000.,"run number",      ""    ),
+  ( "run",                    "run",                         200,290000.,310000.,"run number",      ""    ),
 ]
 
 
