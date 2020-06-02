@@ -105,7 +105,7 @@ def getPlotters(samples,sampleDir,isData=False,corr="1"):
                     plotters[-1].addCorrectionFactor('genWeight','tree')
                     plotters[-1].addCorrectionFactor('puWeight','tree')
                     plotters[-1].addCorrectionFactor('truth_genTop_weight','branch')
-                    plotters[-1].addCorrectionFactor(corr,'flat')                    
+                    plotters[-1].addCorrectionFactor(corr,'flat')
     return plotters
 
 
@@ -137,7 +137,7 @@ def compare(p1,p2,var,cut1,cut2,bins,mini,maxi,title,unit,leg1,leg2):
     pt.SetFillStyle(0)
     pt.SetTextFont(42)
     pt.SetTextSize(0.03)
-    pt.Draw()   
+    pt.Draw()
 
     return canvas,h1,h2,legend,pt
 
@@ -354,6 +354,9 @@ plots = [
   #( "lnujj_l2_gen_eta",       "lnujj_l2_gen_eta",            60,  -3., 3.,    "gen jet #eta",       ""    ),
   #( "run",                    "run",                         120,270000.,330000.,"run number",      ""    ),
   ( "run",                    "run",                         200,290000.,310000.,"run number",      ""    ),
+  ( "lnujj_vbfDEta",          "lnujj_vbfDEta",               100,0.,6.,       "#Delta#eta_{dijet}", ""    ),
+  ( "lnujj_vbfMass",          "lnujj_vbfMass",               100,0.,1500.,    "m_{dijet}",          "GeV" ),
+  ( "lnujj_nJets",            "lnujj_nJets",                 13,0.,12.,       "N_{jets}",           ""    ),
 ]
 
 
@@ -364,7 +367,7 @@ if RENORMFROMLOWMASSSB:
     pl_ = plots[11]
     stack_ = lnujjStack.drawStackWithRatio(pl_[1],cutsLMSB,lumiValue,pl_[2],pl_[3],pl_[4],pl_[5],pl_[6])
     renormFactorLMSB = stack_['ratio']
-    print "Renormalization factor for W+jets in the signal region, computed as the data/bkgd ratio in the [30, 50 GeV] mjet sideband: ", renormFactorLMSB 
+    print "Renormalization factor for W+jets in the signal region, computed as the data/bkgd ratio in the [30, 50 GeV] mjet sideband: ", renormFactorLMSB
 
 #for r in ['0','AccMVV','CR','SB','SR']:
 #for r in ['CR','SR']:
