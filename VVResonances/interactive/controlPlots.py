@@ -35,7 +35,7 @@ os.system('mkdir -p '+outDir)
 if YEAR=="Run2":
     ntuples='ntuples'
 else:
-    ntuples='ntuples/ntuples'+YEAR
+    ntuples='ntuples'+YEAR
 ntuplesMC=ntuples
 ntuplesData=ntuples
 
@@ -380,7 +380,7 @@ for r in ['CR','SB']: ## uncomment this one for the plots of analysis note
 #for r in ['SB']:
 #for r in ['SRMVV']:
 #for r in ['SR']:
-  for l in leptonsMerged: #leptonsMerged:
+  for l in leptons: #leptonsMerged:
     for p in puritiesMerged: #purities:
       for c in categoriesMerged: #categories:
 
@@ -394,8 +394,7 @@ for r in ['CR','SB']: ## uncomment this one for the plots of analysis note
 
             for i,pl in enumerate(plots):
 
-                #if not(i in [0,1,2,4,6,7,8,9,11,12,16,20]): continue ## uncomment this one for the plots of analysis note
-                if not(i in [27,28,29]): continue ## uncomment this one for the plots of analysis note
+                if not(i in [0,1,2,4,6,7,8,9,11,12,16,20]): continue ## uncomment this one for the plots of analysis note
                 #if i!=0: continue
                 #if i!=11: continue
                 #if i!=26: continue
