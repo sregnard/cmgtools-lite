@@ -20,7 +20,8 @@ parser.add_option("-C","--CMSlabel",dest="CMSlabel",type=int,default=0,help="0:N
 LIKETEMPLATES = 0 ## classifies the backgrounds as nonRes/resW/resTop like in templates
 prs = "b1" if not LIKETEMPLATES else "b2"
 
-RENORMFROMLOWMASSSB = 1
+NOBKGDKFAC = 1 ## remove the background k-factors
+RENORMFROMLOWMASSSB = 0 ## no longer used if we remove the background k-factors 
 
 
 
@@ -106,6 +107,15 @@ def getPlotters(samples,sampleDir,isData=False,corr="1"):
                     plotters[-1].addCorrectionFactor('puWeight','tree')
                     plotters[-1].addCorrectionFactor('truth_genTop_weight','branch')
                     plotters[-1].addCorrectionFactor(corr,'flat')
+                    if NOBKGDKFAC:
+                        if fname.find("WJetsToLNu_HT")!=-1:
+                            wjetsAntiKfactor=1./1.21
+                            plotters[-1].addCorrectionFactor(wjetsAntiKfactor,'flat')
+                            print 'reweighting '+fname+' '+str(wjetsAntiKfactor)
+                        elif fname.find("DYJetsToLL_M50_HT")!=-1:
+                            dyAntiKfactor=1./1.23
+                            plotters[-1].addCorrectionFactor(dyAntiKfactor,'flat')
+                            print 'reweighting '+fname+' '+str(dyAntiKfactor)
     return plotters
 
 
@@ -357,6 +367,7 @@ plots = [
   ( "lnujj_vbfDEta",          "lnujj_vbfDEta",               100,0.,6.,       "#Delta#eta_{dijet}", ""    ),
   ( "lnujj_vbfMass",          "lnujj_vbfMass",               100,0.,1500.,    "m_{dijet}",          "GeV" ),
   ( "lnujj_nJets",            "lnujj_nJets",                 13,0.,12.,       "N_{jets}",           ""    ),
+  ( "lnujj_vbf_j1_pt",        "lnujj_vbf_j1_pt",             100, 0.,  1000., "VBF jet 1 p_{T}",    "GeV" ),
 ]
 
 
@@ -380,52 +391,56 @@ for r in ['CR','SB']: ## uncomment this one for the plots of analysis note
 #for r in ['SB']:
 #for r in ['SRMVV']:
 #for r in ['SR']:
-  for l in leptons: #leptonsMerged:
+  #for l in leptons: #leptonsMerged:
     for p in puritiesMerged: #purities:
-      for c in categoriesMerged: #categories:
-
-            cat=l+"_"+p+"_"+c
-
-            #if ('all' in cat) and (cat!="allL_allP_allC"): continue
-            #if cat!="allL_allP_allC": continue
-            #if not(r=='SB' and l=='e'): continue
-
-            cut='*'.join([cuts['common'],cuts[r],cuts[l],cuts[p],cuts[c]])
+        for c in categoriesMerged: #categories:
 
             for i,pl in enumerate(plots):
 
-                if not(i in [0,1,2,4,6,7,8,9,11,12,16,20]): continue ## uncomment this one for the plots of analysis note
-                #if i!=0: continue
+                if not(i in [1,2,4,6,7,8,9,11,12,16,20,27,28,29]): continue ## uncomment this one for the plots of the analysis note
                 #if i!=11: continue
-                #if i!=26: continue
-                #if not(i in [0,11]): continue
                 #if not(i in [2,3,5]): continue
                 #if not(i in [1,4,8]): continue
-                #if not(i in [23,24,25]): continue
+                #if not(i in [27,28,29]): continue
+                #if i!=30: continue
+
+                leps = leptonsMerged
+                if ("l1" in pl[1]) or ("met" in pl[1]) or ("LV" in pl[1]):
+                    leps = leptons
+
+                for l in leps:
+
+                    cat=l+"_"+p+"_"+c
+
+                    #if ('all' in cat) and (cat!="allL_allP_allC"): continue
+                    #if cat!="allL_allP_allC": continue
+
+                    cut='*'.join([cuts['common'],cuts[r],cuts[l],cuts[p],cuts[c]])
 
 
-                myLumi = lumiValue
 
-                if RENORMFROMLOWMASSSB and (r in ['SBL','SB','SR']):
-                    myLumi = lumiValue+'*'+str(renormFactorLMSB)
-                    print "Renormalizing the expected yield in the signal region with the data/bkgd ratio of the low-mjet sideband: ", renormFactorLMSB
+                    myLumi = lumiValue
 
-
-                #'''
-                res = lnujjStack.drawStackWithRatio(pl[1],cut,myLumi,pl[2],pl[3],pl[4],pl[5],pl[6])
-                cmsLabel(res['canvas'])
-                saveCanvas(res['canvas'],outDir+'/'+r+'_'+prs+'_'+cat+'_'+YEAR+'_'+pl[0])
-                #'''
-                '''
-                res = lnujjStack.drawStack(pl[1],cut,myLumi,pl[2],pl[3],pl[4],pl[5],pl[6])
-                cmsLabel(res['canvas'])
-                res['legend'].Clear()
-                saveCanvas(res['canvas'],outDir+'/'+r+'_'+prs+'_'+cat+'_'+YEAR+'_'+pl[0])
-                #'''
+                    if RENORMFROMLOWMASSSB and (r in ['SBL','SB','SR']):
+                        myLumi = lumiValue+'*'+str(renormFactorLMSB)
+                        print "Renormalizing the expected yield in the signal region with the data/bkgd ratio of the low-mjet sideband: ", renormFactorLMSB
 
 
-                '''
-                if (r in ['CR']):
-                    renormFactorCR = res['ratio']
-                    print "Data/bkgd ratio in the top enriched control region: ", renormFactorCR
-                #'''
+                    #'''
+                    res = lnujjStack.drawStackWithRatio(pl[1],cut,myLumi,pl[2],pl[3],pl[4],pl[5],pl[6])
+                    cmsLabel(res['canvas'])
+                    saveCanvas(res['canvas'],outDir+'/'+r+'_'+prs+'_'+cat+'_'+YEAR+'_'+pl[0])
+                    #'''
+                    '''
+                    res = lnujjStack.drawStack(pl[1],cut,myLumi,pl[2],pl[3],pl[4],pl[5],pl[6])
+                    cmsLabel(res['canvas'])
+                    res['legend'].Clear()
+                    saveCanvas(res['canvas'],outDir+'/'+r+'_'+prs+'_'+cat+'_'+YEAR+'_'+pl[0])
+                    #'''
+
+
+                    '''
+                    if (r in ['CR']):
+                        renormFactorCR = res['ratio']
+                        print "Data/bkgd ratio in the top enriched control region: ", renormFactorCR
+                    #'''
