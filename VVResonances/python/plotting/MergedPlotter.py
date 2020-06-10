@@ -5,10 +5,11 @@ import pickle
 from CMGTools.VVResonances.plotting.PlotterBase import PlotterBase
 class MergedPlotter(PlotterBase):
 
-    def __init__(self,plotters):
+    def __init__(self,plotters,pcuts=[]):
         super(MergedPlotter,self).__init__()
         self.plotters=plotters
         self.corrFactors=plotters[0].corrFactors
+        self.pcuts=pcuts if pcuts else ["1"]*len(plotters) 
 
     def applySmoothing(self):
         for plotter in self.plotters:
@@ -23,11 +24,11 @@ class MergedPlotter(PlotterBase):
 
     def drawTH1(self,var,cuts,lumi,bins,min,max,titlex = "",units = "",drawStyle = "HIST"):
         h=None
-        for plotter in self.plotters:
+        for plotter,pcut in zip(self.plotters,self.pcuts):
             if h is None:
-                h=plotter.drawTH1(var,cuts,lumi,bins,min,max,titlex,units,drawStyle)
+                h=plotter.drawTH1(var,cuts+'*'+pcut,lumi,bins,min,max,titlex,units,drawStyle)
             else:
-                h.Add(plotter.drawTH1(var,cuts,lumi,bins,min,max,titlex,units,drawStyle))
+                h.Add(plotter.drawTH1(var,cuts+'*'+pcut,lumi,bins,min,max,titlex,units,drawStyle))
         h.SetLineColor(self.linecolor)
         h.SetLineWidth(self.linewidth)
         h.SetFillStyle(self.fillstyle)
@@ -38,11 +39,11 @@ class MergedPlotter(PlotterBase):
 
     def drawTH2(self,var,cuts,lumi,binsx,minx,maxx,binsy,miny,maxy,titlex = "",unitsx = "",titley = "",unitsy = "",drawStyle = "COLZ"):
         h=None
-        for plotter in self.plotters:
+        for plotter,pcut in zip(self.plotters,self.pcuts):
             if h is None:
-                h=plotter.drawTH2(var,cuts,lumi,binsx,minx,maxx,binsy,miny,maxy,titlex,unitsx,titley,unitsy,drawStyle)
+                h=plotter.drawTH2(var,cuts+'*'+pcut,lumi,binsx,minx,maxx,binsy,miny,maxy,titlex,unitsx,titley,unitsy,drawStyle)
             else:
-                h.Add(plotter.drawTH2(var,cuts,lumi,binsx,minx,maxx,binsy,miny,maxy,titlex,unitsx,titley,unitsy,drawStyle))
+                h.Add(plotter.drawTH2(var,cuts+'*'+pcut,lumi,binsx,minx,maxx,binsy,miny,maxy,titlex,unitsx,titley,unitsy,drawStyle))
 
 #        h.SetLineStyle(self.linestyle)
 #        h.SetLineColor(self.linecolor)
@@ -57,11 +58,11 @@ class MergedPlotter(PlotterBase):
 
     def drawProfile(self,var,cuts,lumi,binsx,minx,maxx,miny,maxy,titlex = "",unitsx = "",titley = "",unitsy = "",drawStyle = "COLZ"):
         h=None
-        for plotter in self.plotters:
+        for plotter,pcut in zip(self.plotters,self.pcuts):
             if h is None:
-                h=plotter.drawProfile(var,cuts,lumi,binsx,minx,maxx,miny,maxy,titlex,unitsx,titley,unitsy,drawStyle)
+                h=plotter.drawProfile(var,cuts+'*'+pcut,lumi,binsx,minx,maxx,miny,maxy,titlex,unitsx,titley,unitsy,drawStyle)
             else:
-                h.Add(plotter.drawProfile(var,cuts,lumi,binsx,minx,maxx,miny,maxy,titlex,unitsx,titley,unitsy,drawStyle))
+                h.Add(plotter.drawProfile(var,cuts+'*'+pcut,lumi,binsx,minx,maxx,miny,maxy,titlex,unitsx,titley,unitsy,drawStyle))
 
 #        h.SetLineStyle(self.linestyle)
 #        h.SetLineColor(self.linecolor)
@@ -76,11 +77,11 @@ class MergedPlotter(PlotterBase):
 
     def drawTH3(self,var,cuts,lumi,binsx,minx,maxx,binsy,miny,maxy,binsz,minz,maxz,titlex = "",unitsx = "",titley = "",unitsy = "",drawStyle = "COLZ"):
         h=None
-        for plotter in self.plotters:
+        for plotter,pcut in zip(self.plotters,self.pcuts):
             if h is None:
-                h=plotter.drawTH3(var,cuts,lumi,binsx,minx,maxx,binsy,miny,maxy,binsz,minz,maxz,titlex,unitsx,titley,unitsy,drawStyle)
+                h=plotter.drawTH3(var,cuts+'*'+pcut,lumi,binsx,minx,maxx,binsy,miny,maxy,binsz,minz,maxz,titlex,unitsx,titley,unitsy,drawStyle)
             else:
-                h.Add(plotter.drawTH3(var,cuts,lumi,binsx,minx,maxx,binsy,miny,maxy,binsz,minz,maxz,titlex,unitsx,titley,unitsy,drawStyle))
+                h.Add(plotter.drawTH3(var,cuts+'*'+pcut,lumi,binsx,minx,maxx,binsy,miny,maxy,binsz,minz,maxz,titlex,unitsx,titley,unitsy,drawStyle))
 
         h.SetFillStyle(self.fillstyle)
         h.SetFillColor(self.fillcolor)
@@ -92,11 +93,11 @@ class MergedPlotter(PlotterBase):
 
     def drawTH2Binned(self,var,cuts,lumi,binningx,binningy,titlex = "",unitsx = "",titley = "",unitsy = "",drawStyle = "COLZ"):
         h=None
-        for plotter in self.plotters:
+        for plotter,pcut in zip(self.plotters,self.pcuts):
             if h is None:
-                h=plotter.drawTH2Binned(var,cuts,lumi,binningx,binningy,titlex,unitsx,titley,unitsy,drawStyle)
+                h=plotter.drawTH2Binned(var,cuts+'*'+pcut,lumi,binningx,binningy,titlex,unitsx,titley,unitsy,drawStyle)
             else:
-                h.Add(plotter.drawTH2Binned(var,cuts,lumi,binningx,binningy,titlex,unitsx,titley,unitsy,drawStyle))
+                h.Add(plotter.drawTH2Binned(var,cuts+'*'+pcut,lumi,binningx,binningy,titlex,unitsx,titley,unitsy,drawStyle))
 
 #        h.SetLineStyle(self.linestyle)
 #        h.SetLineColor(self.linecolor)
@@ -111,11 +112,11 @@ class MergedPlotter(PlotterBase):
 
     def drawTH3Binned(self,var,cuts,lumi,binningx,binningy,binningz,titlex = "",unitsx = "",titley = "",unitsy = "",titlez="",unitsz="",drawStyle = "COLZ"):
         h=None
-        for plotter in self.plotters:
+        for plotter,pcut in zip(self.plotters,self.pcuts):
             if h is None:
-                h=plotter.drawTH3Binned(var,cuts,lumi,binningx,binningy,binningz,titlex,unitsx,titley,unitsy,titlez,unitsz,drawStyle)
+                h=plotter.drawTH3Binned(var,cuts+'*'+pcut,lumi,binningx,binningy,binningz,titlex,unitsx,titley,unitsy,titlez,unitsz,drawStyle)
             else:
-                h.Add(plotter.drawTH3Binned(var,cuts,lumi,binningx,binningy,binningz,titlex,unitsx,titley,unitsy,titlez,unitsz,drawStyle))
+                h.Add(plotter.drawTH3Binned(var,cuts+'*'+pcut,lumi,binningx,binningy,binningz,titlex,unitsx,titley,unitsy,titlez,unitsz,drawStyle))
 
 #        h.SetLineStyle(self.linestyle)
 #        h.SetLineColor(self.linecolor)
@@ -131,11 +132,11 @@ class MergedPlotter(PlotterBase):
     
     def drawTH1Binned(self,var,cuts,lumi,binningx,titlex = "",unitsx = "",drawStyle = "COLZ"):
         h=None
-        for plotter in self.plotters:
+        for plotter,pcut in zip(self.plotters,self.pcuts):
             if h is None:
-                h=plotter.drawTH1Binned(var,cuts,lumi,binningx,titlex,unitsx,drawStyle)
+                h=plotter.drawTH1Binned(var,cuts+'*'+pcut,lumi,binningx,titlex,unitsx,drawStyle)
             else:
-                h.Add(plotter.drawTH1Binned(var,cuts,lumi,binningx,titlex,unitsx,drawStyle))
+                h.Add(plotter.drawTH1Binned(var,cuts+'*'+pcut,lumi,binningx,titlex,unitsx,drawStyle))
         h.SetFillStyle(self.fillstyle)
         h.SetFillColor(self.fillcolor)
         h.SetMarkerStyle(self.markerstyle)
@@ -143,8 +144,8 @@ class MergedPlotter(PlotterBase):
         return h
 
     def makeDataSet(self,var,cut,maxN):
-        data=self.plotters[0].makeDataSet(var,cut,maxN)
+        data=self.plotters[0].makeDataSet(var,cut+'*'+self.pcuts[0],maxN)
         for i in range(1,len(self.plotters)):
-            data.append(self.plotters[i].makeDataSet(var,cut,maxN))
+            data.append(self.plotters[i].makeDataSet(var,cut+'*'+self.pcuts[i],maxN))
         return data
     
