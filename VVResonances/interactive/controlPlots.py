@@ -85,11 +85,14 @@ def cmsLabel(canvas):
 def getPlotters(samples,sampleDir,isData=False,corr="1"):
     sampleTypes=samples.split(',')
     plotters=[]
+    pcuts=[]
     filelist=[]
+
     if sampleDir=='ntuples':
         filelist = [g for flist in [[(path+'/'+f) for f in os.listdir(sampleDir+'/'+path)] for path in os.listdir(sampleDir)] for g in flist]
     else:
         filelist = os.listdir(sampleDir)
+
     for filename in filelist:
         for sampleType in sampleTypes:
             if filename.find(sampleType)!=-1:
@@ -98,15 +101,26 @@ def getPlotters(samples,sampleDir,isData=False,corr="1"):
                 ext=fnameParts[1]
                 if ext.find("root") ==-1:
                     continue
-                print 'Adding file',fname
+                print 'Adding file', fname
+
                 plotters.append(TreePlotter(sampleDir+'/'+fname+'.root','tree'))
+
+                ## Temporary fix for HLT flags and MET flags:
+                if YEAR=="2016" or ("ntuples2016" in fname):
+                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*Flag_BadMuonFilter*Flag_globalSuperTightHalo2016Filter')
+                else:
+                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET120)*Flag_BadPFMuonFilter*Flag_globalTightHalo2016Filter')
+
                 if not isData:
                     plotters[-1].setupFromFile(sampleDir+'/'+fname+'.pck')
                     plotters[-1].addCorrectionFactor('xsec','tree')
                     plotters[-1].addCorrectionFactor('genWeight','tree')
                     plotters[-1].addCorrectionFactor('puWeight','tree')
                     plotters[-1].addCorrectionFactor('truth_genTop_weight','branch')
+                    ##plotters[-1].addCorrectionFactor('lnujj_sfWV','branch')
+                    ##plotters[-1].addCorrectionFactor('lnujj_btagWeight','branch')
                     plotters[-1].addCorrectionFactor(corr,'flat')
+
                     if NOBKGDKFAC:
                         if fname.find("WJetsToLNu_HT")!=-1:
                             wjetsAntiKfactor=1./1.21
@@ -116,7 +130,8 @@ def getPlotters(samples,sampleDir,isData=False,corr="1"):
                             dyAntiKfactor=1./1.23
                             plotters[-1].addCorrectionFactor(dyAntiKfactor,'flat')
                             print 'reweighting '+fname+' '+str(dyAntiKfactor)
-    return plotters
+
+    return MergedPlotter(plotters,pcuts)
 
 
 def compare(p1,p2,var,cut1,cut2,bins,mini,maxi,title,unit,leg1,leg2):
@@ -159,11 +174,16 @@ def compare(p1,p2,var,cut1,cut2,bins,mini,maxi,title,unit,leg1,leg2):
 cuts={}
 
 cuts['common'] = '1'
-cuts['common'] = cuts['common'] + '*(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET120)*((run>500) + (run<500)*lnujj_sfWV)' ## changed from lnujj_sf to lnujj_sfWV for 2016
+#cuts['common'] = cuts['common'] + '*(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)' ## FIXME: HLT flags are temporarily handled via pcuts
+cuts['common'] = cuts['common'] + '*((run>500) + (run<500)*lnujj_sfWV)'
 cuts['common'] = cuts['common'] + '*(lnujj_nOtherLeptons==0&&lnujj_l2_softDrop_mass>0&&lnujj_LV_mass>0)'
-cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&(Flag_eeBadScFilter*(run>500)+(run<500))&&Flag_badMuonFilter)'
-## excluding the problematic HEM15/16 region:
+cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&(Flag_eeBadScFilter*(run>500)+(run<500)))' ## FIXME: some flags are temporarily handled via pcuts
+#cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalSuperTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&(Flag_eeBadScFilter*(run>500)+(run<500))&&(Flag_BadMuonFilter*(year==2016)+Flag_BadPFMuonFilter*(year!=2016)))' ## FIXME: future version, still need to add ecalBadCalibReducedMINIAODFilter for 2017 and 2018
+
+## exclude 2018 events where the selected electron is in the problematic HEM15/16 region:
 cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&abs(lnujj_l1_l_pdgId)==11&&(-1.55<lnujj_l1_l_phi)&&(lnujj_l1_l_phi<-0.9)&&(-2.5<lnujj_l1_l_eta)&&(lnujj_l1_l_eta<-1.479)))'
+## exclude 2018 events where the selected V jet is in the problematic HEM15/16 region:
+cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&(-1.55<lnujj_l2_phi)&&(lnujj_l2_phi<-0.9)&&(-2.5<lnujj_l2_eta)&&(lnujj_l2_eta<-1.479)))'
 ## new cut on pT/M:
 cuts['common'] = cuts['common'] + '*(lnujj_l1_pt/lnujj_LV_mass>0.4&&lnujj_l2_pt/lnujj_LV_mass>0.4)'
 ## lumi-based reweighting for MC:
@@ -172,7 +192,7 @@ if YEAR=="Run2":
 
 cuts['nob'] = '(lnujj_nMediumBTags==0)*lnujj_btagWeight'
 cuts['b'] = '(lnujj_nMediumBTags>0)*lnujj_btagWeight'
-## Caution: the b-tag veto is not in 'common' here
+## Caution: unlike in makeInputs, the b-tag veto is not in 'common' here
 
 cuts['e'] = '(abs(lnujj_l1_l_pdgId)==11)'
 cuts['mu'] = '(abs(lnujj_l1_l_pdgId)==13)'
@@ -231,48 +251,33 @@ cuts['SR'] = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],cuts['allP'],cuts['
 
 
 
-ttbar='TT_pow,TTHad_pow,TTLep_pow,TTSemi_pow'
+ttbar='TT_pow_pythia,TTHad_pow,TTLep_pow,TTSemi_pow'
 singletop='T_tW,TBar_tW'
 diboson='WWToLNuQQ,WZTo1L1Nu2Q,ZZTo2L2Q'
 vhiggs='WminusLNuHBB,WplusLNuHBB,WminusH_HToBB_WToLNu,WplusH_HToBB_WToLNu,ZH_HToBB_ZToLL'
-electronPD='SingleElectron_,EGamma_'
 
 
 ## 1) backgrounds classified by physics process
-QCDPlotters = getPlotters('QCD_HT',ntuplesMC,False)
-QCD = MergedPlotter(QCDPlotters)
-VJetsPlotters = getPlotters('DYJetsToLL_M50_HT,WJetsToLNu_HT',ntuplesMC,False)
-VJets = MergedPlotter(VJetsPlotters)
-TopPlotters = getPlotters(ttbar+','+singletop,ntuplesMC,False)
-top = MergedPlotter(TopPlotters)
-TTPlotters = getPlotters(ttbar,ntuplesMC,False)
-TT = MergedPlotter(TTPlotters)
-STPlotters = getPlotters(singletop,ntuplesMC,False)
-ST = MergedPlotter(STPlotters)
-VVPlotters = getPlotters(diboson,ntuplesMC,False)
-VV = MergedPlotter(VVPlotters)
-#VHPlotters = getPlotters(vhiggs,ntuplesMC,False)
-#VH = MergedPlotter(VHPlotters)
-#TopVVVHPlotters = getPlotters(ttbar+','+singletop+','+diboson+','+vhiggs,ntuplesMC,False)
-#topVVVH = MergedPlotter(TopVVVHPlotters)
+QCD   = getPlotters('QCD_HT',ntuplesMC,False)
+VJets = getPlotters('DYJetsToLL_M50_HT,WJetsToLNu_HT',ntuplesMC,False)
+Top   = getPlotters(ttbar+','+singletop,ntuplesMC,False)
+TT    = getPlotters(ttbar,ntuplesMC,False)
+ST    = getPlotters(singletop,ntuplesMC,False)
+VV    = getPlotters(diboson,ntuplesMC,False)
+#VH   = getPlotters(vhiggs,ntuplesMC,False)
+#TopVVVH = getPlotters(ttbar+','+singletop+','+diboson+','+vhiggs,ntuplesMC,False)
 
 ## 2) backgrounds classified by non-resonant / resonant contributions, like in makeInputs
-nonResPlotters = getPlotters(ttbar+','+singletop+",WJetsToLNu_HT,DYJetsToLL_M50_HT",ntuplesMC,False,cuts['nonres'])
-nonRes = MergedPlotter(nonResPlotters)
-resPlotters = getPlotters(ttbar+','+diboson+','+singletop,ntuplesMC,False,cuts['res'])
-res = MergedPlotter(resPlotters)
-#resWPlotters = getPlotters(ttbar+','+diboson+','+singletop,ntuplesMC,False,cuts['resW'])
-#resW = MergedPlotter(resWPlotters)
-#resTopPlotters = getPlotters(ttbar+','+diboson+','+singletop,ntuplesMC,False,cuts['resTop'])
-#resTop = MergedPlotter(resTopPlotters)
+nonRes = getPlotters(ttbar+','+singletop+",WJetsToLNu_HT,DYJetsToLL_M50_HT",ntuplesMC,False,cuts['nonres'])
+res    = getPlotters(ttbar+','+diboson+','+singletop,ntuplesMC,False,cuts['res'])
+#resW   = getPlotters(ttbar+','+diboson+','+singletop,ntuplesMC,False,cuts['resW'])
+#resTop = getPlotters(ttbar+','+diboson+','+singletop,ntuplesMC,False,cuts['resTop'])
 
 
-#SigPlotters = getPlotters('BulkGravToWWToWlepWhad_narrow_1400',ntuplesMC,False)
-#sig = MergedPlotter(SigPlotters)
+#Sig = getPlotters('BulkGravToWWToWlepWhad_narrow_1400',ntuplesMC,False)
 
 
-DATAPlotters = getPlotters(electronPD+',SingleMuon_,MET_',ntuplesData,True)
-data = MergedPlotter(DATAPlotters)
+DATA = getPlotters('SingleElectron_,EGamma_,SingleMuon_,MET_,SinglePhoton_',ntuplesData,True)
 
 
 
@@ -280,19 +285,19 @@ data = MergedPlotter(DATAPlotters)
 
 QCD.setFillProperties(1001,ROOT.kGray)
 VJets.setFillProperties(1001,ROOT.kAzure-9)
-top.setFillProperties(1001,ROOT.kSpring-5)
+Top.setFillProperties(1001,ROOT.kSpring-5)
 TT.setFillProperties(1001,ROOT.kSpring-5)
 ST.setFillProperties(1001,ROOT.kSpring+2)
 VV.setFillProperties(1001,ROOT.kOrange-2)
 #VH.setFillProperties(1001,ROOT.kRed-9)
-#topVVVH.setFillProperties(1001,ROOT.kSpring+5)
+#TopVVVH.setFillProperties(1001,ROOT.kSpring+5)
 
 nonRes.setFillProperties(1001,ROOT.TColor.GetColor("#A5D2FF"))#ROOT.kBlue+1)#ROOT.kAzure-9)
 res.setFillProperties(1001,ROOT.TColor.GetColor("#60B037"))#ROOT.kGreen+1)#ROOT.kSpring-5)
 #resW.setFillProperties(1001,ROOT.TColor.GetColor("#37B04D"))#ROOT.kGreen+1)#ROOT.kSpring-5)
 #resTop.setFillProperties(1001,ROOT.TColor.GetColor("#C3D631"))#ROOT.kGreen+1)#ROOT.kSpring-5)
 
-#sig.setFillProperties(1001,ROOT.kRed+1)
+#Sig.setFillProperties(1001,ROOT.kRed+1)
 
 
 
@@ -309,14 +314,14 @@ else:
     #lnujjStack.addPlotter(VH,"VH","VH","background")
     lnujjStack.addPlotter(VV,"VV","VV","background")
     lnujjStack.addPlotter(VJets,"WJets","V+Jets","background")
-    #lnujjStack.addPlotter(top,"top","top","background")
+    #lnujjStack.addPlotter(Top,"top","top","background")
     lnujjStack.addPlotter(ST,"ST","single top","background")
     lnujjStack.addPlotter(TT,"TT","t#bar{t}","background")
-    #lnujjStack.addPlotter(topVVVH,"topVVVH","top, VV, VH","background")
+    #lnujjStack.addPlotter(TopVVVH,"topVVVH","top, VV, VH","background")
 
-#lnujjStack.addPlotter(sig,"WWsig","G_{Bulk}#rightarrowWW, m = 1.4 TeV","signal")
+#lnujjStack.addPlotter(Sig,"WWsig","G_{Bulk}#rightarrowWW, m = 1.4 TeV","signal")
 
-lnujjStack.addPlotter(data,"data_obs","Data","data")
+lnujjStack.addPlotter(DATA,"data_obs","Data","data")
 
 
 '''

@@ -11,6 +11,7 @@ setTDRStyle()
 from CMGTools.VVResonances.plotting.TreePlotter import TreePlotter
 from CMGTools.VVResonances.plotting.MergedPlotter import MergedPlotter
 ROOT.gSystem.Load("libCMGToolsVVResonances")
+from loadSamples import *
 
 parser = optparse.OptionParser()
 parser.add_option("-o","--output",dest="output",help="Output",default='')
@@ -23,7 +24,6 @@ parser.add_option("-b","--bins",dest="binsx",type=int,help="bins",default=1)
 parser.add_option("-x","--minx",dest="minx",type=float,help="bins",default=0)
 parser.add_option("-X","--maxx",dest="maxx",type=float,help="conditional bins split by comma",default=1)
 parser.add_option("-f","--factor",dest="factor",type=int,help="factor to reduce stats",default=1)
-parser.add_option("-W","--wgtwjets",dest="wgtwjets",help="weights for W+jets sample for each year",default="1.,1.,1.")
 (options,args) = parser.parse_args()
 
 
@@ -75,40 +75,8 @@ def expandHisto(histo,histogram):
 
 random=ROOT.TRandom3(101082)
 
-sampleTypes=options.samples.split(',')
-dataPlotters=[]
-dataPlottersNW=[]
 
-filelist = []
-if args[0]=='ntuples':
-    filelist = [g for flist in [[(path+'/'+f) for f in os.listdir(args[0]+'/'+path)] for path in os.listdir(args[0])] for g in flist]
-else:
-    filelist = os.listdir(args[0])
-
-for filename in filelist:
-    for sampleType in sampleTypes:
-        if filename.find(sampleType)!=-1:
-            fnameParts=filename.split('.')
-            fname=fnameParts[0]
-            ext=fnameParts[1]
-            if ext.find("root") ==-1:
-                continue
-            dataPlotters.append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
-            dataPlotters[-1].setupFromFile(args[0]+'/'+fname+'.pck')
-            dataPlotters[-1].addCorrectionFactor('xsec','tree')
-            dataPlotters[-1].addCorrectionFactor('genWeight','tree')
-            dataPlotters[-1].addCorrectionFactor('puWeight','tree')
-            dataPlotters[-1].addCorrectionFactor('truth_genTop_weight','branch')
-            ##dataPlotters[-1].addCorrectionFactor('lnujj_sf','branch')
-            ##dataPlotters[-1].addCorrectionFactor('lnujj_btagWeight','branch')
-            if fname.find("WJetsToLNu_HT")!=-1:
-                factors=options.wgtwjets.split(',')
-                wjetsfactor=factors[0] if fname.find("2016")!=-1 else factors[1] if fname.find("2017")!=-1 else factors[2] if fname.find("2018")!=-1 else "1."
-                dataPlotters[-1].addCorrectionFactor(float(wjetsfactor),'flat')
-                print 'reweighting '+fname+' '+wjetsfactor
-            dataPlotters[-1].filename=fname
-
-data=MergedPlotter(dataPlotters)
+data=loadSamples(options.samples,args[0])
 
 
 uncWeights=options.uncweight.split(',')
