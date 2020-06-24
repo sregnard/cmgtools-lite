@@ -32,11 +32,13 @@ def loadNtuples(samples,sampleDir,isData=False):
 
                 plotters.append(TreePlotter(sampleDir+'/'+fname+'.root','tree'))
 
-                ## Temporary fix for HLT flags and MET flags:
-                if "ntuples2016" in fname:
-                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*Flag_BadMuonFilter*Flag_globalSuperTightHalo2016Filter')
-                else:
-                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET120)*Flag_BadPFMuonFilter*Flag_globalTightHalo2016Filter')
+                ## Fix for cuts and weights for which the branches differ between years:
+                if YEAR=="2016" or ("ntuples2016" in fname):
+                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*L1PrefireWeight')
+                elif YEAR=="2017" or ("ntuples2017" in fname):
+                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*Flag_rerunEcalBadCalibFilter*L1PrefireWeight')
+                elif YEAR=="2018" or ("ntuples2018" in fname):
+                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET)*Flag_rerunEcalBadCalibFilter')
 
                 if not isData:
                     plotters[-1].setupFromFile(sampleDir+'/'+fname+'.pck')
@@ -47,7 +49,7 @@ def loadNtuples(samples,sampleDir,isData=False):
                     #plotters[-1].addCorrectionFactor('lnujj_sfWV','branch')
                     #plotters[-1].addCorrectionFactor('lnujj_btagWeight','branch')
 
-                    #''' ## rescale the W+jets yield from low-mjet sideband:
+                    ''' ## rescale the W+jets yield from low-mjet sideband (the weights should be recomputed):
                     if fname.find("WJetsToLNu_HT")!=-1: 
                         renormWJets2016=0.8727054353
                         renormWJets2017=0.699592444047
@@ -57,8 +59,8 @@ def loadNtuples(samples,sampleDir,isData=False):
                         plotters[-1].addCorrectionFactor(wjetsfactor,'flat')
                         if wjetsfactor!=1.:
                             print 'reweighting '+fname+' '+str(wjetsfactor)
-                    #'''
-                    ''' ## alternatively, remove the background k-factors (still to be tested with the templates and statistical analysis):
+                    '''
+                    #''' ## alternatively, remove the background k-factors
                     if fname.find("WJetsToLNu_HT")!=-1:
                         wjetsAntiKfactor=1./1.21
                         plotters[-1].addCorrectionFactor(wjetsAntiKfactor,'flat')
