@@ -1001,11 +1001,39 @@ class RooPlotter(object):
         binWidth=(varMax-varMin)/newNBins
         self.frame.SetYTitle("Events / "+str(int(binWidth))+" GeV")
 
+        hist=self.frame.getHist("datapoints")
+        hist.SetMarkerStyle(20)
+        hist.SetMarkerSize(0.5)
+        if var.startswith("MLNuJ"):
+            hist.SetMarkerSize(0.4)
+        #hist.SetLineWidth(2)
+        x=ROOT.Double(0.0)
+        y=ROOT.Double(0.0)
+        graph = hist.Clone()
+        graph.SetName('tmpGRAPH')
+        while hist.GetN()>0:
+            hist.RemovePoint(0)
+        N=0
+        maxErr=0
+        for i in range(0,graph.GetN()):
+            graph.GetPoint(i,x,y)
+            if len(blinded)==2 and x>blinded[0] and x<blinded[1]:
+                continue
+            if y==0: continue ## removing the "grass"
+            hist.SetPoint(N,x,y)
+            #hist.SetPointError(N,graph.GetErrorXlow(i),graph.GetErrorXhigh(i),graph.GetErrorYlow(i),graph.GetErrorYhigh(i))
+            hist.SetPointError(N,0,0,graph.GetErrorYlow(i),graph.GetErrorYhigh(i))
+            maxErr=max(maxErr,y+graph.GetErrorYhigh(i))
+            N=N+1
+        hist.Draw("Psame")
+
         ## axis range customization
         self.frame.GetXaxis().SetRangeUser(minX,maxX)
-        if var.startswith("MLNuJ"):
-            if log and maxY>0:
-                self.frame.GetYaxis().SetRangeUser(0.3,maxY)
+        if var.startswith("MLNuJ") and maxErr!=0:
+            #if log and maxY>0:
+            #    self.frame.GetYaxis().SetRangeUser(0.3,maxY)
+            if log:
+                self.frame.GetYaxis().SetRangeUser(0.15 if maxErr>10. else 0.015, maxY if maxY>0 else 2.*maxErr)
         if var.startswith("MJ"):
             if not log and maxY>0:
                 self.frame.GetYaxis().SetRangeUser(0.,maxY)
@@ -1013,31 +1041,6 @@ class RooPlotter(object):
         if visError:
             self.histoSum.Draw("E2,same")
 
-        hist=self.frame.getHist("datapoints")
-        hist.SetMarkerStyle(20)
-        hist.SetMarkerSize(0.5)
-        if var.startswith("MLNuJ"):
-            hist.SetMarkerSize(0.4)
-        #hist.SetLineWidth(2)
-        if len(blinded)==0:
-            hist.Draw("Psame")
-        elif len(blinded)==2:    
-            x=ROOT.Double(0.0)
-            y=ROOT.Double(0.0)
-            graph = hist.Clone()
-            graph.SetName('tmpGRAPH')
-            while hist.GetN()>0:
-                hist.RemovePoint(0)
-            N=0
-            for i in range(0,graph.GetN()):
-                graph.GetPoint(i,x,y)
-                if x>blinded[0] and x< blinded[1]:
-                    continue
-                hist.SetPoint(N,x,y)
-                #hist.SetPointError(N,graph.GetErrorXlow(i),graph.GetErrorXhigh(i),graph.GetErrorYlow(i),graph.GetErrorYhigh(i))
-                hist.SetPointError(N,0,0,graph.GetErrorYlow(i),graph.GetErrorYhigh(i))
-                N=N+1
-            hist.Draw("Psame")
 
         self.legend.Draw()
 

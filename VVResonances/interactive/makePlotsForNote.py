@@ -1517,7 +1517,8 @@ if 'nonResSys' in plots:
                 makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"SD")
                 #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"PTY")
                 #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"OPTY")
-
+                #'''
+                '''
                 makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"MVVScale")
                 makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"Diag")
                 makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+".root","systs_nonRes_"+l+"_"+p+"_"+c,"logWeight")
@@ -1607,7 +1608,8 @@ if 'CRNonResSys' in plots:
                 makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"SD")
                 #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"PTY")
                 #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"OPTY")
-
+                #'''
+                '''
                 makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"MVVScale")
                 makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"Diag")
                 makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRnonRes_"+l+"_"+p+"_"+c,"logWeight")
@@ -1665,6 +1667,7 @@ if 'resSys' in plots:
     for c in categories:
         for p in purities:
             for l in leptons:
+                #'''
                 makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"MVVScale")
                 makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"Diag")
                 #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"scaleY")
@@ -1674,6 +1677,8 @@ if 'resSys' in plots:
                 makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"scaleTopY")
                 makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"resTopY")
                 makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"fractionY")
+                #'''
+                '''
                 makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"MVVScale")
                 makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"Diag")
                 #makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"scaleY")
@@ -1683,6 +1688,7 @@ if 'resSys' in plots:
                 makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"scaleTopY")
                 makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"resTopY")
                 makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+".root","systs_res_"+l+"_"+p+"_"+c,"fractionY")
+                #'''
 
 
 if 'CRResTpl' in plots:
@@ -1731,6 +1737,7 @@ if 'CRResSys' in plots:
     for c in categories:
         for p in purities:
             for l in leptons:
+                #'''
                 makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"MVVScale")
                 makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"Diag")
                 #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"scaleY")
@@ -1740,6 +1747,8 @@ if 'CRResSys' in plots:
                 makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"scaleTopY")
                 makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"resTopY")
                 makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"fractionY")
+                #'''
+                '''
                 makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"MVVScale")
                 makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"Diag")
                 #makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"scaleY")
@@ -1749,6 +1758,7 @@ if 'CRResSys' in plots:
                 makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"scaleTopY")
                 makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"resTopY")
                 makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+".root","systs_CRres_"+l+"_"+p+"_"+c,"fractionY")
+                #'''
 
 
 
