@@ -5,7 +5,7 @@ from CMGTools.VVResonances.plotting.MergedPlotter import MergedPlotter
 
 
 
-def loadSamples(samples,sampleDir,isData=False):
+def loadNtuples(samples,sampleDir,isData=False):
 
     sampleTypes=samples.split(',')
     plotters=[]
@@ -76,7 +76,7 @@ def loadSamples(samples,sampleDir,isData=False):
 
 
 
-def loadSignalSamples(samples,sampleDir,minMX,maxMX,corr=1.):
+def loadSignalNtuples(samples,sampleDir,minMX,maxMX,corr=1.):
 
     sampleTypes=samples.split(',')
     plotters={}

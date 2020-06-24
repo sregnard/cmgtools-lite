@@ -9,7 +9,7 @@ from math import log
 import os, sys, re, optparse,pickle,shutil,json
 ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
 import copy
-from loadSamples import *
+from loadNtuples import *
 
 
 parser = optparse.OptionParser()
@@ -179,7 +179,7 @@ def runFits(data,options):
 
 
     
-data=loadSamples(options.samples,args[0])
+data=loadNtuples(options.samples,args[0])
 
 runFits(data,options)
     

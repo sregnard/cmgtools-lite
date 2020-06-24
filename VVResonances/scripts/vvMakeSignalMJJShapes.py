@@ -8,7 +8,7 @@ from CMGTools.VVResonances.plotting.StackPlotter import StackPlotter
 from CMGTools.VVResonances.statistics.Fitter import Fitter
 from math import log
 import os, sys, re, optparse,pickle,shutil,json
-from loadSamples import *
+from loadNtuples import *
 
 parser = optparse.OptionParser()
 parser.add_option("-s","--samples",dest="samples",default='',help="Type of sample")
@@ -46,7 +46,7 @@ graphs={
 
 
 ## Load the samples for all signal mass values
-plotter = loadSignalSamples(options.samples,args[0],options.minMX,options.maxMX)
+plotter = loadSignalNtuples(options.samples,args[0],options.minMX,options.maxMX)
 
 
 ## Sort the masses and run the fits
