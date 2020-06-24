@@ -9,7 +9,7 @@ from CMGTools.VVResonances.plotting.tdrstyle import *
 setTDRStyle()
 from CMGTools.VVResonances.plotting.TreePlotter import TreePlotter
 from CMGTools.VVResonances.plotting.MergedPlotter import MergedPlotter
-from loadSamples import *
+from loadNtuples import *
 
 parser = optparse.OptionParser()
 parser.add_option("-o","--output",dest="output",help="Output",default='')
@@ -21,7 +21,7 @@ parser.add_option("-g","--genVars",dest="genVars",help="variable for gen",defaul
 (options,args) = parser.parse_args()
 
 
-data=loadSamples(options.samples,args[0])
+data=loadNtuples(options.samples,args[0])
 
 
 binsxStr=options.binsx.split(',')
