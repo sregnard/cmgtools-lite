@@ -11,7 +11,7 @@ setTDRStyle()
 from CMGTools.VVResonances.plotting.TreePlotter import TreePlotter
 from CMGTools.VVResonances.plotting.MergedPlotter import MergedPlotter
 ROOT.gSystem.Load("libCMGToolsVVResonances")
-from loadSamples import *
+from loadNtuples import *
 
 parser = optparse.OptionParser()
 parser.add_option("-o","--output",dest="output",help="Output",default='')
@@ -76,7 +76,7 @@ def expandHisto(histo,histogram):
 random=ROOT.TRandom3(101082)
 
 
-data=loadSamples(options.samples,args[0])
+data=loadNtuples(options.samples,args[0])
 
 
 uncWeights=options.uncweight.split(',')

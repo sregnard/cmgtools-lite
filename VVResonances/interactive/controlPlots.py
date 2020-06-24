@@ -7,7 +7,7 @@ from CMGTools.VVResonances.plotting.MergedPlotter import MergedPlotter
 from CMGTools.VVResonances.plotting.StackPlotter import StackPlotter
 from CMGTools.VVResonances.plotting.tdrstyle import *
 setTDRStyle()
-from  CMGTools.VVResonances.plotting.CMS_lumi import *
+from CMGTools.VVResonances.plotting.CMS_lumi import *
 
 import optparse
 parser = optparse.OptionParser()
@@ -105,11 +105,13 @@ def getPlotters(samples,sampleDir,isData=False,corr="1"):
 
                 plotters.append(TreePlotter(sampleDir+'/'+fname+'.root','tree'))
 
-                ## Temporary fix for HLT flags and MET flags:
+                ## Fix for cuts and weights for which the branches differ between years:
                 if YEAR=="2016" or ("ntuples2016" in fname):
-                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*Flag_BadMuonFilter*Flag_globalSuperTightHalo2016Filter')
-                else:
-                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET120)*Flag_BadPFMuonFilter*Flag_globalTightHalo2016Filter')
+                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*L1PrefireWeight')
+                elif YEAR=="2017" or ("ntuples2017" in fname):
+                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*Flag_rerunEcalBadCalibFilter*L1PrefireWeight')
+                elif YEAR=="2018" or ("ntuples2018" in fname):
+                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET)*Flag_rerunEcalBadCalibFilter')
 
                 if not isData:
                     plotters[-1].setupFromFile(sampleDir+'/'+fname+'.pck')
@@ -176,9 +178,8 @@ cuts={}
 cuts['common'] = '1'
 #cuts['common'] = cuts['common'] + '*(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)' ## FIXME: HLT flags are temporarily handled via pcuts
 cuts['common'] = cuts['common'] + '*((run>500) + (run<500)*lnujj_sfWV)'
-cuts['common'] = cuts['common'] + '*(lnujj_nOtherLeptons==0&&lnujj_l2_softDrop_mass>0&&lnujj_LV_mass>0)'
-cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&(Flag_eeBadScFilter*(run>500)+(run<500)))' ## FIXME: some flags are temporarily handled via pcuts
-#cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalSuperTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&(Flag_eeBadScFilter*(run>500)+(run<500))&&(Flag_BadMuonFilter*(year==2016)+Flag_BadPFMuonFilter*(year!=2016)))' ## FIXME: future version, still need to add ecalBadCalibReducedMINIAODFilter for 2017 and 2018
+cuts['common'] = cuts['common'] + '*(lnujj_nOtherLeptons==0&&nlljj==0&&lnujj_l2_softDrop_mass>0&&lnujj_LV_mass>0)'
+cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalSuperTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&(Flag_eeBadScFilter*(run>500)+(run<500))&&(Flag_BadMuonFilter*(year==2016)+Flag_BadPFMuonFilter*(year!=2016)))'
 
 ## exclude 2018 events where the selected electron is in the problematic HEM15/16 region:
 cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&abs(lnujj_l1_l_pdgId)==11&&(-1.55<lnujj_l1_l_phi)&&(lnujj_l1_l_phi<-0.9)&&(-2.5<lnujj_l1_l_eta)&&(lnujj_l1_l_eta<-1.479)))'
@@ -252,7 +253,7 @@ cuts['SR'] = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],cuts['allP'],cuts['
 
 
 ttbar='TT_pow_pythia,TTHad_pow,TTLep_pow,TTSemi_pow'
-singletop='T_tW,TBar_tW'
+singletop='T_tW,TBar_tW,T_tch,TBar_tch'
 diboson='WWToLNuQQ,WZTo1L1Nu2Q,ZZTo2L2Q'
 vhiggs='WminusLNuHBB,WplusLNuHBB,WminusH_HToBB_WToLNu,WplusH_HToBB_WToLNu,ZH_HToBB_ZToLL'
 
@@ -373,6 +374,7 @@ plots = [
   ( "lnujj_vbfMass",          "lnujj_vbfMass",               100,0.,1500.,    "m_{dijet}",          "GeV" ),
   ( "lnujj_nJets",            "lnujj_nJets",                 13,0.,12.,       "N_{jets}",           ""    ),
   ( "lnujj_vbf_j1_pt",        "lnujj_vbf_j1_pt",             100, 0.,  1000., "VBF jet 1 p_{T}",    "GeV" ),
+  ( "mjet",                   "lnujj_l2_softDrop_mass",      100, -5.,  20.,  "m_{jet}",            "GeV" ),
 ]
 
 
@@ -402,7 +404,8 @@ for r in ['CR','SB']: ## uncomment this one for the plots of analysis note
 
             for i,pl in enumerate(plots):
 
-                if not(i in [1,2,4,6,7,8,9,11,12,16,20,27,28,29]): continue ## uncomment this one for the plots of the analysis note
+                if not(i in [0,1,2,4,6,7,8,9,11,12,16,20,27,28,29]): continue ## uncomment this one for the plots of the analysis note
+                #if i!=8: continue
                 #if i!=11: continue
                 #if not(i in [2,3,5]): continue
                 #if not(i in [1,4,8]): continue

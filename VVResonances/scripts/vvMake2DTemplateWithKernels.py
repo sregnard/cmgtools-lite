@@ -11,7 +11,7 @@ setTDRStyle()
 from CMGTools.VVResonances.plotting.TreePlotter import TreePlotter
 from CMGTools.VVResonances.plotting.MergedPlotter import MergedPlotter
 ROOT.gSystem.Load("libCMGToolsVVResonances")
-from loadSamples import *
+from loadNtuples import *
 
 parser = optparse.OptionParser()
 parser.add_option("-o","--output",dest="output",help="Output",default='')
@@ -138,7 +138,7 @@ def smoothTail_4LowestBinsIndep(hist):
 
 
 
-data=loadSamples(options.samples,args[0])
+data=loadNtuples(options.samples,args[0])
 
 
 fcorr=ROOT.TFile(options.res)

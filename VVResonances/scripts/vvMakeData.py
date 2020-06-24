@@ -6,7 +6,7 @@ from CMGTools.VVResonances.plotting.TreePlotter import TreePlotter
 from CMGTools.VVResonances.plotting.MergedPlotter import MergedPlotter
 from math import log
 import os, sys, re, optparse,pickle,shutil,json
-from loadSamples import *
+from loadNtuples import *
 
 
 parser = optparse.OptionParser()
@@ -28,7 +28,7 @@ parser.add_option("-n","--name",dest="name",help="name",default="histo")
 #define output dictionary
 
 
-data=loadSamples(options.samples,args[0],options.data)
+data=loadNtuples(options.samples,args[0],options.data)
 
 
 pvars=options.vars.split(',')
