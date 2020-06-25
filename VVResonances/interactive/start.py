@@ -17,8 +17,9 @@ parser.add_option("-C","--CMSlabel",dest="CMSlabel",type=int,default=0,help="0:N
 
 
 
-LIKETEMPLATES = 0 ## classifies the backgrounds as nonRes/resW/resTop like in templates
-NOBKGDKFAC = 1 ## remove the background k-factors
+LIKETEMPLATES = 0 ## classify the backgrounds as nonRes and res, like in templates
+REMOVEBKGDKFAC = 0 ## remove the Madgraph background NLO k-factors
+RESCALEWJETS = 1 ## rescale the W+jets yields
 
 
 
@@ -112,20 +113,23 @@ def getPlotters(samples,sampleDir,isData=False,corr="1"):
                 ext=fnameParts[1]
                 if ext.find("root") ==-1:
                     continue
-                print 'Adding file', fname
+                fpath=sampleDir+'/'+fname
+                print 'Adding file', fpath
 
-                plotters.append(TreePlotter(sampleDir+'/'+fname+'.root','tree'))
+                plotters.append(TreePlotter(fpath+'.root','tree'))
 
                 ## Fix for cuts and weights for which the branches differ between years:
-                if YEAR=="2016" or ("ntuples2016" in fname):
+                if "ntuples2016" in fpath:
                     pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*L1PrefireWeight')
-                elif YEAR=="2017" or ("ntuples2017" in fname):
+                elif "ntuples2017" in fpath:
                     pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*Flag_rerunEcalBadCalibFilter*L1PrefireWeight')
-                elif YEAR=="2018" or ("ntuples2018" in fname):
+                elif "ntuples2018" in fpath:
                     pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET)*Flag_rerunEcalBadCalibFilter')
+                else:
+                    sys.exit("Year not found, aborting.")
 
                 if not isData:
-                    plotters[-1].setupFromFile(sampleDir+'/'+fname+'.pck')
+                    plotters[-1].setupFromFile(fpath+'.pck')
                     plotters[-1].addCorrectionFactor('xsec','tree')
                     plotters[-1].addCorrectionFactor('genWeight','tree')
                     plotters[-1].addCorrectionFactor('puWeight','tree')
@@ -134,15 +138,28 @@ def getPlotters(samples,sampleDir,isData=False,corr="1"):
                     ##plotters[-1].addCorrectionFactor('lnujj_btagWeight','branch')
                     plotters[-1].addCorrectionFactor(corr,'flat')
 
-                    if NOBKGDKFAC:
+                    #''' ## remove the Madgraph background NLO k-factors
+                    if REMOVEBKGDKFAC:
                         if fname.find("WJetsToLNu_HT")!=-1:
-                            wjetsAntiKfactor=1./1.21
-                            plotters[-1].addCorrectionFactor(wjetsAntiKfactor,'flat')
-                            print 'reweighting '+fname+' '+str(wjetsAntiKfactor)
+                            wjetsAntiKFactor = 1./1.21
+                            plotters[-1].addCorrectionFactor(wjetsAntiKFactor,'flat')
+                            print '  reweighting '+fpath+' '+str(wjetsAntiKFactor)
                         elif fname.find("DYJetsToLL_M50_HT")!=-1:
-                            dyAntiKfactor=1./1.23
-                            plotters[-1].addCorrectionFactor(dyAntiKfactor,'flat')
-                            print 'reweighting '+fname+' '+str(dyAntiKfactor)
+                            dyAntiKFactor = 1./1.23
+                            plotters[-1].addCorrectionFactor(dyAntiKFactor,'flat')
+                            print '  reweighting '+fpath+' '+str(dyAntiKFactor)
+                    #'''
+
+                    #''' ## rescale the W+jets yields (the current factors were computed from 30 < mjet < 50 GeV, on top of the NLO k-factors)
+                    if RESCALEWJETS:
+                        if fname.find("WJetsToLNu_HT")!=-1: 
+                            wjetsFactor=1.
+                            if   "ntuples2016" in fpath:  wjetsFactor = 0.96
+                            elif "ntuples2017" in fpath:  wjetsFactor = 0.86
+                            elif "ntuples2018" in fpath:  wjetsFactor = 0.79
+                            plotters[-1].addCorrectionFactor(wjetsFactor,'flat')
+                            print '  reweighting '+fpath+' '+str(wjetsFactor)
+                    #'''
 
     return MergedPlotter(plotters,pcuts)
 
