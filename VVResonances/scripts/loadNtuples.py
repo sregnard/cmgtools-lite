@@ -28,20 +28,23 @@ def loadNtuples(samples,sampleDir,isData=False):
                 ext=fnameParts[1]
                 if ext.find("root") ==-1:
                     continue
-                #print 'Adding file', fname
+                fpath=sampleDir+'/'+fname
+                #print 'Adding file', fpath
 
-                plotters.append(TreePlotter(sampleDir+'/'+fname+'.root','tree'))
+                plotters.append(TreePlotter(fpath+'.root','tree'))
 
                 ## Fix for cuts and weights for which the branches differ between years:
-                if YEAR=="2016" or ("ntuples2016" in fname):
+                if "ntuples2016" in fpath:
                     pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*L1PrefireWeight')
-                elif YEAR=="2017" or ("ntuples2017" in fname):
+                elif "ntuples2017" in fpath:
                     pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*Flag_rerunEcalBadCalibFilter*L1PrefireWeight')
-                elif YEAR=="2018" or ("ntuples2018" in fname):
+                elif "ntuples2018" in fpath:
                     pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET)*Flag_rerunEcalBadCalibFilter')
+                else:
+                    sys.exit("Year not found, aborting.")
 
                 if not isData:
-                    plotters[-1].setupFromFile(sampleDir+'/'+fname+'.pck')
+                    plotters[-1].setupFromFile(fpath+'.pck')
                     plotters[-1].addCorrectionFactor('xsec','tree')
                     plotters[-1].addCorrectionFactor('genWeight','tree')
                     plotters[-1].addCorrectionFactor('puWeight','tree')
@@ -49,28 +52,26 @@ def loadNtuples(samples,sampleDir,isData=False):
                     #plotters[-1].addCorrectionFactor('lnujj_sfWV','branch')
                     #plotters[-1].addCorrectionFactor('lnujj_btagWeight','branch')
 
-                    ''' ## rescale the W+jets yield from low-mjet sideband (the weights should be recomputed):
-                    if fname.find("WJetsToLNu_HT")!=-1: 
-                        renormWJets2016=0.8727054353
-                        renormWJets2017=0.699592444047
-                        renormWJets2018=0.728005348312
-                        renormWJetsRun2=0.760376974966
-                        wjetsfactor=renormWJets2016 if fname.find("2016")!=-1 else renormWJets2017 if fname.find("2017")!=-1 else renormWJets2018 if fname.find("2018")!=-1 else 1.
-                        plotters[-1].addCorrectionFactor(wjetsfactor,'flat')
-                        if wjetsfactor!=1.:
-                            print 'reweighting '+fname+' '+str(wjetsfactor)
-                    '''
-                    #''' ## alternatively, remove the background k-factors
+                    ''' ## remove the Madgraph background NLO k-factors
                     if fname.find("WJetsToLNu_HT")!=-1:
-                        wjetsAntiKfactor=1./1.21
-                        plotters[-1].addCorrectionFactor(wjetsAntiKfactor,'flat')
-                        print 'reweighting '+fname+' '+str(wjetsAntiKfactor)
+                        wjetsAntiKFactor = 1./1.21
+                        plotters[-1].addCorrectionFactor(wjetsAntiKFactor,'flat')
+                        print '  reweighting '+fpath+' '+str(wjetsAntiKFactor)
                     elif fname.find("DYJetsToLL_M50_HT")!=-1:
-                        dyAntiKfactor=1./1.23
-                        plotters[-1].addCorrectionFactor(dyAntiKfactor,'flat')
-                        print 'reweighting '+fname+' '+str(dyAntiKfactor)
+                        dyAntiKFactor = 1./1.23
+                        plotters[-1].addCorrectionFactor(dyAntiKFactor,'flat')
+                        print '  reweighting '+fpath+' '+str(dyAntiKFactor)
                     #'''
 
+                    #''' ## rescale the W+jets yields (the current factors were computed from 30 < mjet < 50 GeV, on top of the NLO k-factors)
+                    if fname.find("WJetsToLNu_HT")!=-1: 
+                        wjetsFactor=1.
+                        if   "ntuples2016" in fpath:  wjetsFactor = 0.96
+                        elif "ntuples2017" in fpath:  wjetsFactor = 0.86
+                        elif "ntuples2018" in fpath:  wjetsFactor = 0.79
+                        plotters[-1].addCorrectionFactor(wjetsFactor,'flat')
+                        print '  reweighting '+fpath+' '+str(wjetsFactor)
+                    #'''
 
     return MergedPlotter(plotters,pcuts)
 
@@ -98,6 +99,7 @@ def loadSignalNtuples(samples,sampleDir,minMX,maxMX,corr=1.):
                 ext=fnameParts[1]
                 if ext.find("root") ==-1:
                     continue
+                fpath=sampleDir+'/'+fname
 
                 mass = float(fname.split('_')[-1])
 
@@ -108,15 +110,19 @@ def loadSignalNtuples(samples,sampleDir,minMX,maxMX,corr=1.):
                     plotters[mass] = []
                     pcuts[mass] = []
 
-                plotters[mass].append(TreePlotter(sampleDir+'/'+fname+'.root','tree'))
+                plotters[mass].append(TreePlotter(fpath+'.root','tree'))
 
-                ## Temporary fix for HLT flags and MET flags:
-                if "ntuples2016" in fname:
-                    pcuts[mass].append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*Flag_BadMuonFilter*Flag_globalSuperTightHalo2016Filter')
+                ## Fix for cuts and weights for which the branches differ between years:
+                if "ntuples2016" in fpath:
+                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*L1PrefireWeight')
+                elif "ntuples2017" in fpath:
+                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*Flag_rerunEcalBadCalibFilter*L1PrefireWeight')
+                elif "ntuples2018" in fpath:
+                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET)*Flag_rerunEcalBadCalibFilter')
                 else:
-                    pcuts[mass].append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET120)*Flag_BadPFMuonFilter*Flag_globalTightHalo2016Filter')
+                    sys.exit("Year not found, aborting.")
 
-                plotters[mass][-1].setupFromFile(sampleDir+'/'+fname+'.pck')
+                plotters[mass][-1].setupFromFile(fpath+'.pck')
                 plotters[mass][-1].addCorrectionFactor('xsec','tree')
                 plotters[mass][-1].addCorrectionFactor('genWeight','tree')
                 plotters[mass][-1].addCorrectionFactor('puWeight','tree')
@@ -125,7 +131,7 @@ def loadSignalNtuples(samples,sampleDir,minMX,maxMX,corr=1.):
                 plotters[mass][-1].addCorrectionFactor(corr,'flat')
                 plotters[mass][-1].filename=fname
 
-                print 'found',filename,'mass',str(mass)
+                print 'found', fpath, 'mass', str(mass)
 
 
     mergedplotters = {}

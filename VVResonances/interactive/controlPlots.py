@@ -17,11 +17,12 @@ parser.add_option("-C","--CMSlabel",dest="CMSlabel",type=int,default=0,help="0:N
 
 
 
-LIKETEMPLATES = 0 ## classifies the backgrounds as nonRes/resW/resTop like in templates
-prs = "b1" if not LIKETEMPLATES else "b2"
+LIKETEMPLATES = 0 ## classify the backgrounds as nonRes and res, like in templates
 
-NOBKGDKFAC = 1 ## remove the background k-factors
-RENORMFROMLOWMASSSB = 0 ## no longer used if we remove the background k-factors 
+REMOVEBKGDKFAC = 0 ## remove the Madgraph background NLO k-factors
+RESCALEWJETS = 1 ## rescale the W+jets yields
+
+COMPUTEWJETSSF = 0 ## run the computation of scale factors for W+jets yields
 
 
 
@@ -101,20 +102,23 @@ def getPlotters(samples,sampleDir,isData=False,corr="1"):
                 ext=fnameParts[1]
                 if ext.find("root") ==-1:
                     continue
-                print 'Adding file', fname
+                fpath=sampleDir+'/'+fname
+                print 'Adding file', fpath
 
-                plotters.append(TreePlotter(sampleDir+'/'+fname+'.root','tree'))
+                plotters.append(TreePlotter(fpath+'.root','tree'))
 
                 ## Fix for cuts and weights for which the branches differ between years:
-                if YEAR=="2016" or ("ntuples2016" in fname):
+                if "ntuples2016" in fpath:
                     pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*L1PrefireWeight')
-                elif YEAR=="2017" or ("ntuples2017" in fname):
+                elif "ntuples2017" in fpath:
                     pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*Flag_rerunEcalBadCalibFilter*L1PrefireWeight')
-                elif YEAR=="2018" or ("ntuples2018" in fname):
+                elif "ntuples2018" in fpath:
                     pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET)*Flag_rerunEcalBadCalibFilter')
+                else:
+                    sys.exit("Year not found, aborting.")
 
                 if not isData:
-                    plotters[-1].setupFromFile(sampleDir+'/'+fname+'.pck')
+                    plotters[-1].setupFromFile(fpath+'.pck')
                     plotters[-1].addCorrectionFactor('xsec','tree')
                     plotters[-1].addCorrectionFactor('genWeight','tree')
                     plotters[-1].addCorrectionFactor('puWeight','tree')
@@ -123,15 +127,28 @@ def getPlotters(samples,sampleDir,isData=False,corr="1"):
                     ##plotters[-1].addCorrectionFactor('lnujj_btagWeight','branch')
                     plotters[-1].addCorrectionFactor(corr,'flat')
 
-                    if NOBKGDKFAC:
+                    #''' ## remove the Madgraph background NLO k-factors
+                    if REMOVEBKGDKFAC:
                         if fname.find("WJetsToLNu_HT")!=-1:
-                            wjetsAntiKfactor=1./1.21
-                            plotters[-1].addCorrectionFactor(wjetsAntiKfactor,'flat')
-                            print 'reweighting '+fname+' '+str(wjetsAntiKfactor)
+                            wjetsAntiKFactor = 1./1.21
+                            plotters[-1].addCorrectionFactor(wjetsAntiKFactor,'flat')
+                            print '  reweighting '+fpath+' '+str(wjetsAntiKFactor)
                         elif fname.find("DYJetsToLL_M50_HT")!=-1:
-                            dyAntiKfactor=1./1.23
-                            plotters[-1].addCorrectionFactor(dyAntiKfactor,'flat')
-                            print 'reweighting '+fname+' '+str(dyAntiKfactor)
+                            dyAntiKFactor = 1./1.23
+                            plotters[-1].addCorrectionFactor(dyAntiKFactor,'flat')
+                            print '  reweighting '+fpath+' '+str(dyAntiKFactor)
+                    #'''
+
+                    #''' ## rescale the W+jets yields (the current factors were computed from 30 < mjet < 50 GeV, on top of the NLO k-factors)
+                    if RESCALEWJETS:
+                        if fname.find("WJetsToLNu_HT")!=-1: 
+                            wjetsFactor=1.
+                            if   "ntuples2016" in fpath:  wjetsFactor = 0.96
+                            elif "ntuples2017" in fpath:  wjetsFactor = 0.86
+                            elif "ntuples2018" in fpath:  wjetsFactor = 0.79
+                            plotters[-1].addCorrectionFactor(wjetsFactor,'flat')
+                            print '  reweighting '+fpath+' '+str(wjetsFactor)
+                    #'''
 
     return MergedPlotter(plotters,pcuts)
 
@@ -378,18 +395,20 @@ plots = [
 ]
 
 
+
 #'''
 renormFactorLMSB = 1.
-if RENORMFROMLOWMASSSB:
+if COMPUTEWJETSSF:
     cutsLMSB = '*'.join([cuts['common'],cuts['SR'],"(lnujj_l2_softDrop_mass>30&&lnujj_l2_softDrop_mass<50)"])
     pl_ = plots[11]
     stack_ = lnujjStack.drawStackWithRatio(pl_[1],cutsLMSB,lumiValue,pl_[2],pl_[3],pl_[4],pl_[5],pl_[6])
     renormFactorLMSB = stack_['ratio']
     print "Renormalization factor for W+jets in the signal region, computed as the data/bkgd ratio in the [30, 50 GeV] mjet sideband: ", renormFactorLMSB
+#'''
+
+
 
 #for r in ['0','AccMVV','CR','SB','SR']:
-#for r in ['CR','SR']:
-for r in ['CR','SB']: ## uncomment this one for the plots of analysis note
 #for r in ['0']:
 #for r in ['AccMVV']:
 #for r in ['Acc']:
@@ -398,8 +417,10 @@ for r in ['CR','SB']: ## uncomment this one for the plots of analysis note
 #for r in ['SB']:
 #for r in ['SRMVV']:
 #for r in ['SR']:
-  #for l in leptons: #leptonsMerged:
+for r in ['CR','SB']: ## uncomment this one for the plots of the analysis note, and use REMOVEBKGDKFAC=0 and RESCALEWJETS=1
+
     for p in puritiesMerged: #purities:
+
         for c in categoriesMerged: #categories:
 
             for i,pl in enumerate(plots):
@@ -407,6 +428,7 @@ for r in ['CR','SB']: ## uncomment this one for the plots of analysis note
                 if not(i in [0,1,2,4,6,7,8,9,11,12,16,20,27,28,29]): continue ## uncomment this one for the plots of the analysis note
                 #if i!=8: continue
                 #if i!=11: continue
+                #if not(i in [7,11]): continue
                 #if not(i in [2,3,5]): continue
                 #if not(i in [1,4,8]): continue
                 #if not(i in [27,28,29]): continue
@@ -418,20 +440,16 @@ for r in ['CR','SB']: ## uncomment this one for the plots of analysis note
 
                 for l in leps:
 
-                    cat=l+"_"+p+"_"+c
+                    prs = "b1" if not LIKETEMPLATES else "b2"
+                    cat = l+"_"+p+"_"+c
 
                     #if ('all' in cat) and (cat!="allL_allP_allC"): continue
                     #if cat!="allL_allP_allC": continue
 
-                    cut='*'.join([cuts['common'],cuts[r],cuts[l],cuts[p],cuts[c]])
-
+                    cut = '*'.join([cuts['common'],cuts[r],cuts[l],cuts[p],cuts[c]])
 
 
                     myLumi = lumiValue
-
-                    if RENORMFROMLOWMASSSB and (r in ['SBL','SB','SR']):
-                        myLumi = lumiValue+'*'+str(renormFactorLMSB)
-                        print "Renormalizing the expected yield in the signal region with the data/bkgd ratio of the low-mjet sideband: ", renormFactorLMSB
 
 
                     #'''
@@ -439,6 +457,7 @@ for r in ['CR','SB']: ## uncomment this one for the plots of analysis note
                     cmsLabel(res['canvas'])
                     saveCanvas(res['canvas'],outDir+'/'+r+'_'+prs+'_'+cat+'_'+YEAR+'_'+pl[0])
                     #'''
+
                     '''
                     res = lnujjStack.drawStack(pl[1],cut,myLumi,pl[2],pl[3],pl[4],pl[5],pl[6])
                     cmsLabel(res['canvas'])
