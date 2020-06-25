@@ -114,11 +114,11 @@ def loadSignalNtuples(samples,sampleDir,minMX,maxMX,corr=1.):
 
                 ## Fix for cuts and weights for which the branches differ between years:
                 if "ntuples2016" in fpath:
-                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*L1PrefireWeight')
+                    pcuts[mass].append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*L1PrefireWeight')
                 elif "ntuples2017" in fpath:
-                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*Flag_rerunEcalBadCalibFilter*L1PrefireWeight')
+                    pcuts[mass].append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*Flag_rerunEcalBadCalibFilter*L1PrefireWeight')
                 elif "ntuples2018" in fpath:
-                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET)*Flag_rerunEcalBadCalibFilter')
+                    pcuts[mass].append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET)*Flag_rerunEcalBadCalibFilter')
                 else:
                     sys.exit("Year not found, aborting.")
 
