@@ -251,7 +251,7 @@ nonResTemplate = "ntuples2016/TT_pow_pythia,ntuples2017/TTHad_pow,ntuples2017/TT
 allMCTemplate = "ntuples2016/TT_pow_pythia,ntuples2017/TTHad_pow,ntuples2017/TTLep_pow,ntuples2017/TTSemi_pow,ntuples2018/TTHad_pow,ntuples2018/TTLep_pow,ntuples2018/TTSemi_pow,ntuples2016/WWToLNuQQ,ntuples2017/WWToLNuQQ,ntuples2018/WWToLNuQQ,ntuples2016/WZTo1L1Nu2Q,ntuples2017/WZTo1L1Nu2Q,ntuples2018/WZTo1L1Nu2Q,ntuples2016/ZZTo2L2Q,ntuples2017/ZZTo2L2Q,ntuples2018/ZZTo2L2Q,ntuples2016/T_tW,ntuples2017/T_tW,ntuples2018/T_tW,ntuples2016/TBar_tW,ntuples2017/TBar_tW,ntuples2018/TBar_tW,ntuples2016/WJetsToLNu_HT,ntuples2017/WJetsToLNu_HT,ntuples2018/WJetsToLNu_HT,ntuples2016/DYJetsToLL_M50_HT,ntuples2017/DYJetsToLL_M50_HT,ntuples2018/DYJetsToLL_M50_HT"
 
 data2016Template = "ntuples2016/SingleElectron,ntuples2016/SingleMuon,ntuples2016/MET,ntuples2016/SinglePhoton"
-data2017Template = "ntuples2017/SingleElectron,ntuples2017/SingleMuon,ntuples2017/MET"
+data2017Template = "ntuples2017/SingleElectron,ntuples2017/SingleMuon,ntuples2017/MET,ntuples2017/SinglePhoton"
 data2018Template = "ntuples2018/EGamma,ntuples2018/SingleMuon,ntuples2018/MET"
 dataTemplate = data2016Template + "," + data2017Template + "," + data2018Template
 

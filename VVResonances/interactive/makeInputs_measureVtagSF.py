@@ -237,7 +237,7 @@ dataTemplate={}
 
 
 dataTemplate['2016'] = "ntuples2016/SingleElectron,ntuples2016/SingleMuon,ntuples2016/MET,ntuples2016/SinglePhoton"
-dataTemplate['2017'] = "ntuples2017/SingleElectron,ntuples2017/SingleMuon,ntuples2017/MET"
+dataTemplate['2017'] = "ntuples2017/SingleElectron,ntuples2017/SingleMuon,ntuples2017/MET,ntuples2017/SinglePhoton"
 dataTemplate['2018'] = "ntuples2018/EGamma,ntuples2018/SingleMuon,ntuples2018/MET"
 dataTemplate['Run2'] = dataTemplate['2016'] + "," + dataTemplate['2017'] + "," + dataTemplate['2018']
 
