@@ -52,44 +52,59 @@ lumiWeight2018="("+str(lumi18)+"/"+str(lumiTotal)+")"
 
 
 def efficiency1D(plotter,var,bins,denom,num):    
-    h1 = plotter.drawTH1Binned(var,denom,"1",bins)
-    h2 = plotter.drawTH1Binned(var,denom+"*"+num,"1",bins)
-    
-#    graph=ROOT.TGraphAsymmErrors()
-#    graph.Divide(h2,h1)
-    h2.Divide(h1)
-    return h2
+    hD = plotter.drawTH1Binned(var,denom,"1",bins)
+    hN = plotter.drawTH1Binned(var,denom+"*"+num,"1",bins)
+    hR = hN.Clone()
+    hR.Divide(hD)
+    return hR,hN,hD
 
 
 def efficiency2D(plotter,var,binsx,binsy,denom,num):
-    h1 = plotter.drawTH2Binned(var,denom,"1",binsx,binsy)
-    h2 = plotter.drawTH2Binned(var,denom+"*"+num,"1",binsx,binsy)
-    h2.Divide(h1)
-    return h2
+    hD = plotter.drawTH2Binned(var,denom,"1",binsx,binsy)
+    hN = plotter.drawTH2Binned(var,denom+"*"+num,"1",binsx,binsy)
+    hR = hN.Clone()
+    hR.Divide(hD)
+    return hR,hN,hD
 
 
 def makeEff():
-    f=ROOT.TFile("trigger.root","RECREATE")
+    f=ROOT.TFile("trigger_eff_"+YEAR+".root","RECREATE")
     f.cd()
-    g=efficiency1D(VJets,"lnujj_l1_met_pt",[50,80,100,150,200,250,300,500,1000],"*".join([cuts['common'],cuts['e'],'HLT_ELE']),'HLT_MET120')
-    g.Write("MET_ELE_MC")
-    g=efficiency1D(data,"lnujj_l1_met_pt",[50,80,100,150,200,250,300,500,1000],"*".join([cuts['common'],cuts['e'],'HLT_ELE']),'HLT_MET120')
-    g.Write("MET_ELE_DATA")
-    g=efficiency1D(VJets,"lnujj_l1_met_pt",[50,80,100,150,200,250,300,500,1000],"*".join([cuts['common'],cuts['mu'],'HLT_MU']),'HLT_MET120')
-    g.Write("MET_MU_MC")
-    g=efficiency1D(data,"lnujj_l1_met_pt",[50,80,100,150,200,250,300,500,1000],"*".join([cuts['common'],cuts['mu'],'HLT_MU']),'HLT_MET120')
-    g.Write("MET_MU_DATA")
+    
+    if not( YEAR in ["2016","2017","2018"]):
+        sys.exit("The year in the trigger efficiency measurement must be 2016, 2017, or 2018. Exiting.")
+        
+    elePaths = '(HLT_ELE||HLT_ISOELE)' if YEAR=="2018" else '(HLT_ELE||HLT_ISOELE||HLT_PHOTON)'
+    muPaths = '(HLT_MU||HLT_ISOMU)'
+    metPaths = 'HLT_MET'
+
+    g=efficiency1D(VJets,"lnujj_l1_met_pt",[50,80,100,150,200,250,300,500,1000],"*".join([cuts['common'],cuts['e'],elePaths]),metPaths)
+    g[0].Write("MET_ELE_MC")
+    g=efficiency1D(DATA, "lnujj_l1_met_pt",[50,80,100,150,200,250,300,500,1000],"*".join([cuts['common'],cuts['e'],elePaths]),metPaths)
+    g[0].Write("MET_ELE_DATA")
+    g=efficiency1D(VJets,"lnujj_l1_met_pt",[50,80,100,150,200,250,300,500,1000],"*".join([cuts['common'],cuts['mu'],muPaths]),metPaths)
+    g[0].Write("MET_MU_MC")
+    g=efficiency1D(DATA, "lnujj_l1_met_pt",[50,80,100,150,200,250,300,500,1000],"*".join([cuts['common'],cuts['mu'],muPaths]),metPaths)
+    g[0].Write("MET_MU_DATA")
 
 
-    g=efficiency2D(VJets,"lnujj_l1_l_eta:lnujj_l1_l_pt",[30,50,70,80,100,120,150,200,250,300,500,1000],[-2.5,-1.7,-0.9,0.9,1.7,2.5],"*".join([cuts['common'],cuts['e'],'HLT_MET120']),'HLT_ELE')
-    g.Write("ELE_MC")
-    g=efficiency2D(data,"lnujj_l1_l_eta:lnujj_l1_l_pt",[30,50,70,80,100,120,150,200,250,300,500,1000],[-2.5,-1.7,-0.9,0.9,1.7,2.5],"*".join([cuts['common'],cuts['e'],'HLT_MET120']),'HLT_ELE')
-    g.Write("ELE_DATA")
+    g=efficiency2D(VJets,"lnujj_l1_l_eta:lnujj_l1_l_pt",[30,50,70,80,100,120,150,200,250,300,500,1000],[-2.5,-1.7,-0.9,0.9,1.7,2.5],"*".join([cuts['common'],cuts['e'],metPaths]),elePaths)
+    g[0].Write("ELE_MC")
+    #g[1].Write("ELE_MC_numerator")
+    #g[2].Write("ELE_MC_denominator")
+    g=efficiency2D(DATA, "lnujj_l1_l_eta:lnujj_l1_l_pt",[30,50,70,80,100,120,150,200,250,300,500,1000],[-2.5,-1.7,-0.9,0.9,1.7,2.5],"*".join([cuts['common'],cuts['e'],metPaths]),elePaths)
+    g[0].Write("ELE_DATA")
+    #g[1].Write("ELE_DATA_numerator")
+    #g[2].Write("ELE_DATA_denominator")
 
-    g=efficiency2D(VJets,"lnujj_l1_l_eta:lnujj_l1_l_pt",[30,50,70,80,100,120,150,200,250,300,500,1000],[-2.5,-1.7,-0.9,0.9,1.7,2.5],"*".join([cuts['common'],cuts['mu'],'HLT_MET120']),'HLT_MU')
-    g.Write("MU_MC")
-    g=efficiency2D(data,"lnujj_l1_l_eta:lnujj_l1_l_pt",[50,50,70,80,100,120,150,200,250,300,500,1000],[-2.5,-1.7,-0.9,0.9,1.7,2.5],"*".join([cuts['common'],cuts['mu'],'HLT_MET120']),'HLT_MU')
-    g.Write("MU_DATA")
+    g=efficiency2D(VJets,"lnujj_l1_l_eta:lnujj_l1_l_pt",[30,50,70,80,100,120,150,200,250,300,500,1000],[-2.5,-1.7,-0.9,0.9,1.7,2.5],"*".join([cuts['common'],cuts['mu'],metPaths]),muPaths)
+    g[0].Write("MU_MC")
+    #g[1].Write("MU_MC_numerator")
+    #g[2].Write("MU_MC_denominator")
+    g=efficiency2D(DATA, "lnujj_l1_l_eta:lnujj_l1_l_pt",[30,50,70,80,100,120,150,200,250,300,500,1000],[-2.5,-1.7,-0.9,0.9,1.7,2.5],"*".join([cuts['common'],cuts['mu'],metPaths]),muPaths)
+    g[0].Write("MU_DATA")
+    #g[1].Write("Mu_DATA_numerator")
+    #g[2].Write("Mu_DATA_denominator")
     
     f.Close()
 
