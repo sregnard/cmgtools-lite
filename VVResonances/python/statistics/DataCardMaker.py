@@ -999,6 +999,32 @@ class DataCardMaker:
         events=histogram.Integral()*self.luminosity*constant
         self.contributions.append({'name':name,'pdf':pdfName,'ID':ID,'yield':events})
 
+    def addVTagSFCustomYield(self,name,ID,fileHP,fileLP,fileNP,purity):
+        pdfName="_".join([name,self.tag])
+        fHP=ROOT.TFile(fileHP)
+        NHP = fHP.Get("W").Integral()*self.luminosity
+        fHP.Close()
+        fLP=ROOT.TFile(fileLP)
+        NLP = fLP.Get("W").Integral()*self.luminosity
+        fLP.Close()
+        fNP=ROOT.TFile(fileNP)
+        NNP = fNP.Get("W").Integral()*self.luminosity
+        fNP.Close()
+        
+        self.w.factory("sfHP[1.0,0.5,1.5]")
+        self.w.factory("sfLP[1.0,0.5,1.5]")
+        if purity=="HP":
+            print("expr::"+pdfName+"_norm('"+str(NHP)+"*sfHP',sfHP)")
+            self.w.factory("expr::"+pdfName+"_norm('"+str(NHP)+"*sfHP',sfHP)")
+        if purity=="LP":
+            print("expr::"+pdfName+"_norm('"+str(NLP)+"*sfLP',sfLP)")
+            self.w.factory("expr::"+pdfName+"_norm('"+str(NLP)+"*sfLP',sfLP)")
+        if purity=="NP":
+
+            self.w.factory("expr::"+pdfName+"_norm('"+str(NLP+NHP+NNP)+"-sfHP*"+str(NHP)+ "-sfLP*"+str(NLP)+"',sfHP,sfLP)")
+
+        self.contributions.append({'name':name,'pdf':pdfName,'ID':ID,'yield':1})
+
 
     
         
