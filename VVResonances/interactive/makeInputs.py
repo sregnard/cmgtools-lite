@@ -29,10 +29,16 @@ DONORMDATACR   = 0
 DORESONANTCR   = 0
 DONONRESONANTCR= 0
 
-DOXWW = 1
-DOXWZ = 1
-DOXWH = 1
-DOVBFXWW = 1
+DOGbuToWW = 1
+DORadToWW = 1
+DOZprToWW = 1
+DOWprToWZ = 1
+DOWprToWH = 1
+DOVBFGbuToWW = 1
+DOVBFRadToWW = 1
+DOVBFZprToWW = 1
+DOVBFWprToWZ = 1
+
 
 
 
@@ -232,17 +238,24 @@ renormNonResMvvSlope = {
 
 
 
-WWTemplate="ntuples2016/BulkGravToWWToWlepWhad_narrow,ntuples2017/BulkGravToWWToWlepWhad_narrow,ntuples2018/BulkGravToWWToWlepWhad_narrow"
-BRWW=2.*0.327*0.6760
-
-WZTemplate="ntuples2016/WprimeToWZToWlepZhad_narrow,ntuples2017/WprimeToWZToWlepZhad_narrow,ntuples2018/WprimeToWZToWlepZhad_narrow"
-BRWZ=0.327*0.6991
-
-WHTemplate="ntuples2016/WprimeToWHToWlepHinc_narrow,ntuples2017/WprimeToWHToWlepHinc_narrow,ntuples2018/WprimeToWHToWlepHinc_narrow"
-BRWH=0.327
-
-VBFWWTemplate='ntuples2016/VBF_RadionToWW_narrow,ntuples2017/VBF_RadionToWW_narrow,ntuples2018/VBF_RadionToWW_narrow'
-BRVBFWW=1.0
+GbuToWWTemplate="ntuples2016/BulkGravToWWToWlepWhad_narrow,ntuples2017/BulkGravToWWToWlepWhad_narrow,ntuples2018/BulkGravToWWToWlepWhad_narrow"
+BR_GbuToWW=2.*0.327*0.6760
+RadToWWTemplate="ntuples2016/RadionToWW_narrow,ntuples2017/RadionToWW_narrow,ntuples2018/RadionToWW_narrow"
+BR_RadToWW=1.0
+ZprToWWTemplate="ntuples2016/ZprimeToWW_narrow,ntuples2017/ZprimeToWW_narrow,ntuples2018/ZprimeToWW_narrow"
+BR_ZprToWW=1.0
+WprToWZTemplate="ntuples2016/WprimeToWZToWlepZhad_narrow,ntuples2017/WprimeToWZToWlepZhad_narrow,ntuples2018/WprimeToWZToWlepZhad_narrow"
+BR_WprToWZ=0.327*0.6991
+WprToWHTemplate="ntuples2016/WprimeToWHToWlepHinc_narrow,ntuples2017/WprimeToWHToWlepHinc_narrow,ntuples2018/WprimeToWHToWlepHinc_narrow"
+BR_WprToWH=0.327
+VBFGbuToWWTemplate="ntuples2016/VBF_BulkGravToWWinclusive_narrow,ntuples2017/VBF_BulkGravToWW_narrow,ntuples2018/VBF_BulkGravToWW_narrow"
+BR_VBFGbuToWW=1.0
+VBFRadToWWTemplate='ntuples2016/VBF_RadionToWW_narrow,ntuples2017/VBF_RadionToWW_narrow,ntuples2018/VBF_RadionToWW_narrow'
+BR_VBFRadToWW=1.0
+VBFZprToWWTemplate="ntuples2016/VBF_ZprimeToWWinclusive_narrow,ntuples2017/VBF_ZprimeToWW_narrow,ntuples2018/VBF_ZprimeToWW_narrow"
+BR_VBFZprToWW=1.0
+VBFWprToWZTemplate="ntuples2016/VBF_WprimeToWZinclusive_narrow,ntuples2017/VBF_WprimeToWZ_narrow,ntuples2018/VBF_WprimeToWZ_narrow"
+BR_VBFWprToWZ=1.0
 
 resTemplate = "ntuples2016/TT_pow_pythia,ntuples2017/TTHad_pow,ntuples2017/TTLep_pow,ntuples2017/TTSemi_pow,ntuples2018/TTHad_pow,ntuples2018/TTLep_pow,ntuples2018/TTSemi_pow,ntuples2016/WWToLNuQQ,ntuples2017/WWToLNuQQ,ntuples2018/WWToLNuQQ,ntuples2016/WZTo1L1Nu2Q,ntuples2017/WZTo1L1Nu2Q,ntuples2018/WZTo1L1Nu2Q,ntuples2016/ZZTo2L2Q,ntuples2017/ZZTo2L2Q,ntuples2018/ZZTo2L2Q,ntuples2016/T_tW,ntuples2017/T_tW,ntuples2018/T_tW,ntuples2016/TBar_tW,ntuples2017/TBar_tW,ntuples2018/TBar_tW"
 #resWTemplate = resTemplate
@@ -331,10 +344,7 @@ def makeSignalShapesMJJ(filename,template,forceHP="",forceLP=""):
                 jsonFile=outDir+filename+"_MJJ_"+p+"_"+c+".json"
                 debugFile=outDir+"debugSignalShape_"+filename+"_MJJ_"+p+"_"+c+".root"
                 print 'Making JSON ', jsonFile
-                if p=='HP' or p=='NP':
-                    cmd='vvMakeJSON.py -o "{jsonFile}" -d "{debugFile}" -g "mean:pol5,sigma:pol4,alpha:pol0,n:pol0,alpha2:pol0,n2:pol0,slope:pol0,f:pol0" -m {minMX} -M {maxMX} {rootFile}'.format(jsonFile=jsonFile,debugFile=debugFile,minMX=minMXSigShapeParam,maxMX=maxMXSigShapeParam,rootFile=rootFile)
-                else:
-                    cmd='vvMakeJSON.py -o "{jsonFile}" -d "{debugFile}" -g "mean:pol5,sigma:pol4,alpha:pol0,n:pol0,alpha2:pol0,n2:pol0,slope:pol4,f:pol4" -m {minMX} -M {maxMX} {rootFile}'.format(jsonFile=jsonFile,debugFile=debugFile,minMX=minMXSigShapeParam,maxMX=maxMXSigShapeParam,rootFile=rootFile)
+                cmd='vvMakeJSON.py -o "{jsonFile}" -d "{debugFile}" -g "mean:pol5,sigma:pol4,alpha:pol0,n:pol0,alpha2:pol0,n2:pol0,slope:{slope},f:{f}" -m {minMX} -M {maxMX} {rootFile}'.format(jsonFile=jsonFile,debugFile=debugFile,slope=('pol0','pol1')[p=='LP' and c=='nobb'],f=('pol0','pol4')[p=='LP'],minMX=minMXSigShapeParam,maxMX=maxMXSigShapeParam,rootFile=rootFile)
                 os.system(cmd)
 
 
@@ -352,7 +362,7 @@ def makeSignalShapesMVV(filename,template):
                 jsonFile=outDir+filename+"_MVV_"+p+"_"+c+".json"
                 debugFile=outDir+"debugSignalShape_"+filename+"_MVV_"+p+"_"+c+".root"
                 print 'Making JSON ', jsonFile
-                cmd='vvMakeJSON.py -o "{jsonFile}" -d "{debugFile}" -g "MEAN:pol1,SIGMA:pol1,ALPHA1:pol4,N1:pol0,ALPHA2:pol3,N2:pol0" -m {minMX} -M {maxMX} {rootFile}'.format(jsonFile=jsonFile,debugFile=debugFile,minMX=minMXSigShapeParam,maxMX=maxMXSigShapeParam,rootFile=rootFile)
+                cmd='vvMakeJSON.py -o "{jsonFile}" -d "{debugFile}" -g "MEAN:pol1,SIGMA:pol1,ALPHA1:pol3,N1:pol0,ALPHA2:{alpha2},N2:pol0" -m {minMX} -M {maxMX} {rootFile}'.format(jsonFile=jsonFile,debugFile=debugFile,alpha2=('pol0','pol3')[c=='nobb'],minMX=minMXSigShapeParam,maxMX=maxMXSigShapeParam,rootFile=rootFile)
                 os.system(cmd)
 
 
@@ -566,56 +576,94 @@ if DONORMDATACR:
 
 ## Signal templates
 if DOSIGNALSHAPES:
-    if DOXWW: makeSignalShapesMJJ("LNuJJ_XWW",WWTemplate)
-    if DOXWZ: makeSignalShapesMJJ("LNuJJ_XWZ",WZTemplate)
-    if DOXWH: makeSignalShapesMJJ("LNuJJ_XWH",WHTemplate)
-    if DOVBFXWW: makeSignalShapesMJJ("LNuJJ_VBFXWW",VBFWWTemplate)
+    if DOGbuToWW: makeSignalShapesMJJ("LNuJJ_GbuToWW",GbuToWWTemplate)
+    if DORadToWW: makeSignalShapesMJJ("LNuJJ_RadToWW",RadToWWTemplate)
+    if DOZprToWW: makeSignalShapesMJJ("LNuJJ_ZprToWW",ZprToWWTemplate)
+    if DOWprToWZ: makeSignalShapesMJJ("LNuJJ_WprToWZ",WprToWZTemplate)
+    if DOWprToWH: makeSignalShapesMJJ("LNuJJ_WprToWH",WprToWHTemplate)
+    if DOVBFGbuToWW: makeSignalShapesMJJ("LNuJJ_VBFGbuToWW",VBFGbuToWWTemplate)
+    if DOVBFRadToWW: makeSignalShapesMJJ("LNuJJ_VBFRadToWW",VBFRadToWWTemplate)
+    if DOVBFZprToWW: makeSignalShapesMJJ("LNuJJ_VBFZprToWW",VBFZprToWWTemplate)
+    if DOVBFWprToWZ: makeSignalShapesMJJ("LNuJJ_VBFWprToWZ",VBFWprToWZTemplate)
 
-    if DOXWW: makeSignalShapesMVV("LNuJJ_XWW",WWTemplate)
-    if DOXWZ: makeSignalShapesMVV("LNuJJ_XWZ",WZTemplate)
-    if DOXWH: makeSignalShapesMVV("LNuJJ_XWH",WHTemplate)
-    if DOVBFXWW: makeSignalShapesMVV("LNuJJ_VBFXWW",VBFWWTemplate)
+    if DOGbuToWW: makeSignalShapesMVV("LNuJJ_GbuToWW",GbuToWWTemplate)
+    if DORadToWW: makeSignalShapesMVV("LNuJJ_RadToWW",RadToWWTemplate)
+    if DOZprToWW: makeSignalShapesMVV("LNuJJ_ZprToWW",ZprToWWTemplate)
+    if DOWprToWZ: makeSignalShapesMVV("LNuJJ_WprToWZ",WprToWZTemplate)
+    if DOWprToWH: makeSignalShapesMVV("LNuJJ_WprToWH",WprToWHTemplate)
+    if DOVBFGbuToWW: makeSignalShapesMVV("LNuJJ_VBFGbuToWW",VBFGbuToWWTemplate)
+    if DOVBFRadToWW: makeSignalShapesMVV("LNuJJ_VBFRadToWW",VBFRadToWWTemplate)
+    if DOVBFZprToWW: makeSignalShapesMVV("LNuJJ_VBFZprToWW",VBFZprToWWTemplate)
+    if DOVBFWprToWZ: makeSignalShapesMVV("LNuJJ_VBFWprToWZ",VBFWprToWZTemplate)
 
-    ## For the VBFXWW signal in categories other than vbf, we take the XWW signal shapes:
+    ## Use some non-VBF signal shapes for VBF, and vice versa:
     for p in purities:
-        for c in ['bb','nobb']: ## but not for 'vbf', obviously
-            os.system( '\cp -p '+outDir+'LNuJJ_XWW_MJJ_'+p+'_'+c+'.json '+outDir+'LNuJJ_VBFXWW_MJJ_'+p+'_'+c+'.json' )
-            os.system( '\cp -p '+outDir+'LNuJJ_XWW_MVV_'+p+'_'+c+'.json '+outDir+'LNuJJ_VBFXWW_MVV_'+p+'_'+c+'.json' )
-
-            ## In the case of MJJ, we rescale the mean parameter to the average mean found with VBFXWW:
-            renormMeanMJJ = {
-                'HP': { 'nobb': 0.986, 'bb': 0.984 },
-                'LP': { 'nobb': 0.977, 'bb': 0.988 },
-                }
-            os.system( '''sed -i 's/mean": "0+/mean": "'''+str(renormMeanMJJ[p][c])+"*(0+/g' "+outDir+'LNuJJ_VBFXWW_MJJ_'+p+'_'+c+'.json' )
-            os.system( '''sed -i 's/MH"}/MH)"}/g' '''+outDir+'LNuJJ_VBFXWW_MJJ_'+p+'_'+c+'.json' )
+        os.system( '\cp '+outDir+'LNuJJ_VBFZprToWW_MJJ_'+p+'_vbf.json '+outDir+'LNuJJ_ZprToWW_MJJ_'+p+'_vbf.json' )
+        os.system( '\cp '+outDir+'LNuJJ_VBFZprToWW_MVV_'+p+'_vbf.json '+outDir+'LNuJJ_ZprToWW_MVV_'+p+'_vbf.json' )
+        os.system( '\cp '+outDir+'LNuJJ_VBFWprToWZ_MJJ_'+p+'_vbf.json '+outDir+'LNuJJ_WprToWZ_MJJ_'+p+'_vbf.json' )
+        os.system( '\cp '+outDir+'LNuJJ_VBFWprToWZ_MVV_'+p+'_vbf.json '+outDir+'LNuJJ_WprToWZ_MVV_'+p+'_vbf.json' )
+        os.system( '\cp '+outDir+'LNuJJ_GbuToWW_MJJ_'+p+'_bb.json '+outDir+'LNuJJ_VBFGbuToWW_MJJ_'+p+'_bb.json' )
+        os.system( '\cp '+outDir+'LNuJJ_GbuToWW_MVV_'+p+'_bb.json '+outDir+'LNuJJ_VBFGbuToWW_MVV_'+p+'_bb.json' )
+        os.system( '\cp '+outDir+'LNuJJ_ZprToWW_MJJ_'+p+'_bb.json '+outDir+'LNuJJ_VBFZprToWW_MJJ_'+p+'_bb.json' )
+        os.system( '\cp '+outDir+'LNuJJ_ZprToWW_MVV_'+p+'_bb.json '+outDir+'LNuJJ_VBFZprToWW_MVV_'+p+'_bb.json' )
+        os.system( '\cp '+outDir+'LNuJJ_WprToWZ_MJJ_'+p+'_bb.json '+outDir+'LNuJJ_VBFWprToWZ_MJJ_'+p+'_bb.json' )
+        os.system( '\cp '+outDir+'LNuJJ_WprToWZ_MVV_'+p+'_bb.json '+outDir+'LNuJJ_VBFWprToWZ_MVV_'+p+'_bb.json' )
+        os.system( '\cp '+outDir+'LNuJJ_WprToWZ_MJJ_'+p+'_nobb.json '+outDir+'LNuJJ_VBFWprToWZ_MJJ_'+p+'_nobb.json' )
+        os.system( '\cp '+outDir+'LNuJJ_WprToWZ_MVV_'+p+'_nobb.json '+outDir+'LNuJJ_VBFWprToWZ_MVV_'+p+'_nobb.json' )
+    os.system( '\cp '+outDir+'LNuJJ_RadToWW_MJJ_LP_bb.json '+outDir+'LNuJJ_VBFRadToWW_MJJ_LP_bb.json' )
+    os.system( '\cp '+outDir+'LNuJJ_RadToWW_MVV_LP_bb.json '+outDir+'LNuJJ_VBFRadToWW_MVV_LP_bb.json' )
 
 if DOSIGNALYIELDS:
-    if DOXWW: makeSignalYields("LNuJJ_XWW",WWTemplate,BRWW,tau21SF,bbWgtWW)
-    if DOXWZ: makeSignalYields("LNuJJ_XWZ",WZTemplate,BRWZ,tau21SF,bbWgtWZ)
-    if DOXWH: makeSignalYields("LNuJJ_XWH",WHTemplate,BRWH,tau21SF,bbWgtWH)
-    if DOVBFXWW: makeSignalYields("LNuJJ_VBFXWW",VBFWWTemplate,BRVBFWW,tau21SF,bbWgtWW)
-    #if DOXWW: makeSignalYields("LNuJJ_XWW_bbSFup",WWTemplate,BRWW,tau21SF,bbWgtWW_up)
-    #if DOXWZ: makeSignalYields("LNuJJ_XWZ_bbSFup",WZTemplate,BRWZ,tau21SF,bbWgtWZ_up)
-    #if DOXWH: makeSignalYields("LNuJJ_XWH_bbSFup",WHTemplate,BRWH,tau21SF,bbWgtWH_up)
-    #if DOVBFXWW: makeSignalYields("LNuJJ_VBFXWW_bbSFup",VBFWWTemplate,BRVBFWW,tau21SF,bbWgtWW_up)
-    #if DOXWW: makeSignalYields("LNuJJ_XWW_bbSFdn",WWTemplate,BRWW,tau21SF,bbWgtWW_dn)
-    #if DOXWZ: makeSignalYields("LNuJJ_XWZ_bbSFdn",WZTemplate,BRWZ,tau21SF,bbWgtWZ_dn)
-    #if DOXWH: makeSignalYields("LNuJJ_XWH_bbSFdn",WHTemplate,BRWH,tau21SF,bbWgtWH_dn)
-    #if DOVBFXWW: makeSignalYields("LNuJJ_VBFXWW_bbSFdn",VBFWWTemplate,BRVBFWW,tau21SF,bbWgtWW_dn)
+    if DOGbuToWW: makeSignalYields("LNuJJ_GbuToWW",GbuToWWTemplate,BR_GbuToWW,tau21SF,bbWgtWW)
+    if DORadToWW: makeSignalYields("LNuJJ_RadToWW",RadToWWTemplate,BR_RadToWW,tau21SF,bbWgtWW)
+    if DOZprToWW: makeSignalYields("LNuJJ_ZprToWW",ZprToWWTemplate,BR_ZprToWW,tau21SF,bbWgtWW)
+    if DOWprToWZ: makeSignalYields("LNuJJ_WprToWZ",WprToWZTemplate,BR_WprToWZ,tau21SF,bbWgtWZ)
+    if DOWprToWH: makeSignalYields("LNuJJ_WprToWH",WprToWHTemplate,BR_WprToWH,tau21SF,bbWgtWH)
+    if DOVBFGbuToWW: makeSignalYields("LNuJJ_VBFGbuToWW",VBFGbuToWWTemplate,BR_VBFGbuToWW,tau21SF,bbWgtWW)
+    if DOVBFRadToWW: makeSignalYields("LNuJJ_VBFRadToWW",VBFRadToWWTemplate,BR_VBFRadToWW,tau21SF,bbWgtWW)
+    if DOVBFZprToWW: makeSignalYields("LNuJJ_VBFZprToWW",VBFZprToWWTemplate,BR_VBFZprToWW,tau21SF,bbWgtWW)
+    if DOVBFWprToWZ: makeSignalYields("LNuJJ_VBFWprToWZ",VBFWprToWZTemplate,BR_VBFWprToWZ,tau21SF,bbWgtWZ)
+    #if DOGbuToWW: makeSignalYields("LNuJJ_GbuToWW_bbSFup",GbuToWWTemplate,BR_GbuToWW,tau21SF,bbWgtWW_up)
+    #if DORadToWW: makeSignalYields("LNuJJ_RadToWW_bbSFup",RadToWWTemplate,BR_RadToWW,tau21SF,bbWgtWW_up)
+    #if DOZprToWW: makeSignalYields("LNuJJ_ZprToWW_bbSFup",ZprToWWTemplate,BR_ZprToWW,tau21SF,bbWgtWW_up)
+    #if DOWprToWZ: makeSignalYields("LNuJJ_WprToWZ_bbSFup",WprToWZTemplate,BR_WprToWZ,tau21SF,bbWgtWZ_up)
+    #if DOWprToWH: makeSignalYields("LNuJJ_WprToWH_bbSFup",WprToWHTemplate,BR_WprToWH,tau21SF,bbWgtWH_up)
+    #if DOVBFGbuToWW: makeSignalYields("LNuJJ_VBFGbuToWW_bbSFup",VBFGbuToWWTemplate,BR_VBFGbuToWW,tau21SF,bbWgtWW_up)
+    #if DOVBFRadToWW: makeSignalYields("LNuJJ_VBFRadToWW_bbSFup",VBFRadToWWTemplate,BR_VBFRadToWW,tau21SF,bbWgtWW_up)
+    #if DOVBFZprToWW: makeSignalYields("LNuJJ_VBFZprToWW_bbSFup",VBFZprToWWTemplate,BR_VBFZprToWW,tau21SF,bbWgtWW_up)
+    #if DOVBFWprToWZ: makeSignalYields("LNuJJ_VBFWprToWZ_bbSFup",VBFWprToWZTemplate,BR_VBFWprToWZ,tau21SF,bbWgtWZ_up)
+    #if DOGbuToWW: makeSignalYields("LNuJJ_GbuToWW_bbSFdn",GbuToWWTemplate,BR_GbuToWW,tau21SF,bbWgtWW_dn)
+    #if DORadToWW: makeSignalYields("LNuJJ_RadToWW_bbSFdn",RadToWWTemplate,BR_RadToWW,tau21SF,bbWgtWW_dn)
+    #if DOZprToWW: makeSignalYields("LNuJJ_ZprToWW_bbSFdn",ZprToWWTemplate,BR_ZprToWW,tau21SF,bbWgtWW_dn)
+    #if DOWprToWZ: makeSignalYields("LNuJJ_WprToWZ_bbSFdn",WprToWZTemplate,BR_WprToWZ,tau21SF,bbWgtWZ_dn)
+    #if DOWprToWH: makeSignalYields("LNuJJ_WprToWH_bbSFdn",WprToWHTemplate,BR_WprToWH,tau21SF,bbWgtWH_dn)
+    #if DOVBFGbuToWW: makeSignalYields("LNuJJ_VBFGbuToWW_bbSFdn",VBFGbuToWWTemplate,BR_VBFGbuToWW,tau21SF,bbWgtWW_dn)
+    #if DOVBFRadToWW: makeSignalYields("LNuJJ_VBFRadToWW_bbSFdn",VBFRadToWWTemplate,BR_VBFRadToWW,tau21SF,bbWgtWW_dn)
+    #if DOVBFZprToWW: makeSignalYields("LNuJJ_VBFZprToWW_bbSFdn",VBFZprToWWTemplate,BR_VBFZprToWW,tau21SF,bbWgtWW_dn)
+    #if DOVBFWprToWZ: makeSignalYields("LNuJJ_VBFWprToWZ_bbSFdn",VBFWprToWZTemplate,BR_VBFWprToWZ,tau21SF,bbWgtWZ_dn)
 
 if DOSIGNALCTPL:
     #for mx in [600,800,1000,1200,1400,1600,1800,2000,2500,3000,3500,4000,4500]:
     for mx in [1000,2000,3000,4000]:
-        if DOXWW: makeNormalizations("XWW"+str(mx).zfill(4),"LNuJJ_norm",WWTemplate+"_"+str(mx),0,'1',BRWW)
-        #if mx!=4000:
-        if DOXWZ: makeNormalizations("XWZ"+str(mx).zfill(4),"LNuJJ_norm",WZTemplate+"_"+str(mx),0,'1',BRWZ)
-        #if mx!=1200:
-        if DOXWH: makeNormalizations("XWH"+str(mx).zfill(4),"LNuJJ_norm",WHTemplate+"_"+str(mx),0,'1',BRWH)
+        if DOGbuToWW: makeNormalizations("GbuToWW"+str(mx).zfill(4),"LNuJJ_norm",GbuToWWTemplate+"_"+str(mx),0,'1',BR_GbuToWW)
+        if DORadToWW: makeNormalizations("RadToWW"+str(mx).zfill(4),"LNuJJ_norm",RadToWWTemplate+"_"+str(mx),0,'1',BR_RadToWW)
+        if DOZprToWW: makeNormalizations("ZprToWW"+str(mx).zfill(4),"LNuJJ_norm",ZprToWWTemplate+"_"+str(mx),0,'1',BR_ZprToWW)
+        if DOWprToWZ: makeNormalizations("WprToWZ"+str(mx).zfill(4),"LNuJJ_norm",WprToWZTemplate+"_"+str(mx),0,'1',BR_WprToWZ)
+        if DOWprToWH: makeNormalizations("WprToWH"+str(mx).zfill(4),"LNuJJ_norm",WprToWHTemplate+"_"+str(mx),0,'1',BR_WprToWH)
+        if DOVBFGbuToWW: makeNormalizations("VBFGbuToWW"+str(mx).zfill(4),"LNuJJ_norm",VBFGbuToWWTemplate+"_"+str(mx),0,'1',BR_VBFGbuToWW)
+        if DOVBFRadToWW: makeNormalizations("VBFRadToWW"+str(mx).zfill(4),"LNuJJ_norm",VBFRadToWWTemplate+"_"+str(mx),0,'1',BR_VBFRadToWW)
+        if DOVBFZprToWW: makeNormalizations("VBFZprToWW"+str(mx).zfill(4),"LNuJJ_norm",VBFZprToWWTemplate+"_"+str(mx),0,'1',BR_VBFZprToWW)
+        if DOVBFWprToWZ: makeNormalizations("VBFWprToWZ"+str(mx).zfill(4),"LNuJJ_norm",VBFWprToWZTemplate+"_"+str(mx),0,'1',BR_VBFWprToWZ)
 
-    if DOXWW: makeNormalizations("XWWall","LNuJJ_norm",WWTemplate,0,'1',BRWW)
-    if DOXWZ: makeNormalizations("XWZall","LNuJJ_norm",WZTemplate,0,'1',BRWZ)
-    if DOXWH: makeNormalizations("XWHall","LNuJJ_norm",WHTemplate,0,'1',BRWH)
+    if DOGbuToWW: makeNormalizations("GbuToWWall","LNuJJ_norm",GbuToWWTemplate,0,'1',BR_GbuToWW)
+    if DORadToWW: makeNormalizations("RadToWWall","LNuJJ_norm",RadToWWTemplate,0,'1',BR_RadToWW)
+    if DOZprToWW: makeNormalizations("ZprToWWall","LNuJJ_norm",ZprToWWTemplate,0,'1',BR_ZprToWW)
+    if DOWprToWZ: makeNormalizations("WprToWZall","LNuJJ_norm",WprToWZTemplate,0,'1',BR_WprToWZ)
+    if DOWprToWH: makeNormalizations("WprToWHall","LNuJJ_norm",WprToWHTemplate,0,'1',BR_WprToWH)
+    if DOVBFGbuToWW: makeNormalizations("VBFGbuToWWall","LNuJJ_norm",VBFGbuToWWTemplate,0,'1',BR_VBFGbuToWW)
+    if DOVBFRadToWW: makeNormalizations("VBFRadToWWall","LNuJJ_norm",VBFRadToWWTemplate,0,'1',BR_VBFRadToWW)
+    if DOVBFZprToWW: makeNormalizations("VBFZprToWWall","LNuJJ_norm",VBFZprToWWTemplate,0,'1',BR_VBFZprToWW)
+    if DOVBFWprToWZ: makeNormalizations("VBFWprToWZall","LNuJJ_norm",VBFWprToWZTemplate,0,'1',BR_VBFWprToWZ)
 
 
 ## Resonant background templates (W+V/t)

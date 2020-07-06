@@ -28,9 +28,9 @@ parser.add_option("-f","--fix",dest="fixPars",help="Fixed parameters",default=""
 
 ## color of control plots
 color = 0
-if 'XWW' in options.output: color = ROOT.kOrange+2
-elif 'XWZ' in options.output: color = ROOT.kViolet-8
-elif 'XWH' in options.output: color = ROOT.kTeal-6
+if 'WW' in options.output: color = ROOT.kOrange+2
+elif 'WZ' in options.output: color = ROOT.kViolet-8
+elif 'WH' in options.output: color = ROOT.kTeal-6
 
 ## Define output dictionary
 graphs={

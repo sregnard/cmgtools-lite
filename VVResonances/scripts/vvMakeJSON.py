@@ -60,6 +60,14 @@ for string in graphStr:
         func=ROOT.TF1(comps[1],st,1,13000)
         for i in range(0,order):
             func.SetParameter(i,0)
+
+    ## hardcoded fix for pathological slopes:
+    if comps[0]=="slope":
+        N=graph.GetN()
+        Y=graph.GetY()
+        for i in range(N):
+            if Y[i]>0 or Y[i]<-0.08:
+                graph.RemovePoint(i)
     
     graph.Fit(func,"","",options.min,options.max)
     parameterization[comps[0]]=returnString(func)
