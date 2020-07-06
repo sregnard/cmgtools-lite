@@ -1,6 +1,7 @@
 #!/bin/bash
 
-for signal in XWH #XWW XWZ XWH VBFXWW
+for signal in WprToWH 
+#for signal in GbuToWW RadToWW ZprToWW WprToWZ WprToWH VBFGbuToWW VBFRadToWW VBFZprToWW VBFWprToWZ
 
 do
 

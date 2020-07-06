@@ -77,7 +77,17 @@ text2workspace.py combined_LP.txt -o combined_LP.root
 '''
 
 
-for signal in ['XWW','XWZ','XWH','VBFXWW']:
+for signal in [
+        'GbuToWW',
+        'RadToWW',
+        'ZprToWW',
+        'WprToWZ',
+        'WprToWH',
+        'VBFGbuToWW',
+        'VBFRadToWW',
+        'VBFZprToWW',
+        'VBFWprToWZ',
+]:
 
     dcFolder = 'Dc'+(('_'+options.region) if options.region!="SR" else '')+'_'+signal+'/'
     os.system('mkdir -p '+dcFolder)

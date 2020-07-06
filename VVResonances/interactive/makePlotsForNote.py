@@ -32,41 +32,72 @@ inDir17='Inputs_2017/'
 inDir18='Inputs_2018/'
 inDirR2='Inputs_Run2/'
 
-DOXWW=1
-DOXWZ=1
-DOXWH=1
-DOVBFXWW=1
+DOGbuToWW = 1
+DORadToWW = 1
+DOZprToWW = 1
+DOWprToWZ = 1
+DOWprToWH = 1
+DOVBFGbuToWW = 1
+DOVBFRadToWW = 1
+DOVBFZprToWW = 1
+DOVBFWprToWZ = 1
 
-#signals = ['XWW','XWZ','XWH','VBFXWW']
-signals = []
-if DOXWW: signals.append('XWW')
-if DOXWZ: signals.append('XWZ')
-if DOXWH: signals.append('XWH')
-if DOVBFXWW: signals.append('VBFXWW')
+signalsNonVBF = []
+if DOGbuToWW: signalsNonVBF.append('GbuToWW')
+if DORadToWW: signalsNonVBF.append('RadToWW')
+if DOZprToWW: signalsNonVBF.append('ZprToWW')
+if DOWprToWZ: signalsNonVBF.append('WprToWZ')
+if DOWprToWH: signalsNonVBF.append('WprToWH')
+signalsVBF = []
+if DOVBFGbuToWW: signalsVBF.append('VBFGbuToWW')
+if DOVBFRadToWW: signalsVBF.append('VBFRadToWW')
+if DOVBFZprToWW: signalsVBF.append('VBFZprToWW')
+if DOVBFWprToWZ: signalsVBF.append('VBFWprToWZ')
+signals = signalsNonVBF + signalsVBF
 
 colorSignal = { 
-    'XWW':    ROOT.kOrange+2,
-    'XWZ':    ROOT.kViolet-8,
-    'XWH':    ROOT.kTeal-6,
-    'VBFXWW': ROOT.kBlue-7,
+    'GbuToWW':    ROOT.kOrange+1,
+    'RadToWW':    ROOT.kOrange+2,
+    'ZprToWW':    ROOT.kOrange+3,
+    'WprToWZ':    ROOT.kViolet-8,
+    'WprToWH':    ROOT.kTeal-6,
+    'VBFGbuToWW': ROOT.kBlue-9,
+    'VBFRadToWW': ROOT.kBlue-7,
+    'VBFZprToWW': ROOT.kBlue-4,
+    'VBFWprToWZ': ROOT.kCyan+2,
 }
 colorGradientSignal = {
-    'XWW':    ["#8B4D00","#A15900","#B16200","#C36B01","#D97700","#ED8200","#FF8D00","#FF9410","#FF9B1F","#FFA22F","#FFAA40"],
-    'XWZ':    ["#57008E","#62009F","#6E00B2","#7900C4","#8500D8","#9200ED","#9E00FF","#A410FF","#AB24FF","#B235FF","#B844FF"],
-    'XWH':    ["#005036","#015F41","#016C4A","#007C55","#008B5F","#009E6C","#00AE77","#00BF83","#00D08E","#00E19A","#00F7A9"],
-    'VBFXWW': ["#001950","#00226B","#002A86","#0033A0","#003EC3","#0047E1","#0051FF","#3072FF","#2268FF","#3072FF","#407DFF"],
+    'GbuToWW':    ["#8B4D00","#A15900","#B16200","#C36B01","#D97700","#ED8200","#FF8D00","#FF9410","#FF9B1F","#FFA22F","#FFAA40"],
+    'RadToWW':    ["#8B4D00","#A15900","#B16200","#C36B01","#D97700","#ED8200","#FF8D00","#FF9410","#FF9B1F","#FFA22F","#FFAA40"],
+    'ZprToWW':    ["#8B4D00","#A15900","#B16200","#C36B01","#D97700","#ED8200","#FF8D00","#FF9410","#FF9B1F","#FFA22F","#FFAA40"],
+    'WprToWZ':    ["#57008E","#62009F","#6E00B2","#7900C4","#8500D8","#9200ED","#9E00FF","#A410FF","#AB24FF","#B235FF","#B844FF"],
+    'WprToWH':    ["#005036","#015F41","#016C4A","#007C55","#008B5F","#009E6C","#00AE77","#00BF83","#00D08E","#00E19A","#00F7A9"],
+    'VBFGbuToWW': ["#001950","#00226B","#002A86","#0033A0","#003EC3","#0047E1","#0051FF","#3072FF","#2268FF","#3072FF","#407DFF"],
+    'VBFRadToWW': ["#001950","#00226B","#002A86","#0033A0","#003EC3","#0047E1","#0051FF","#3072FF","#2268FF","#3072FF","#407DFF"],
+    'VBFZprToWW': ["#001950","#00226B","#002A86","#0033A0","#003EC3","#0047E1","#0051FF","#3072FF","#2268FF","#3072FF","#407DFF"],
+    'VBFWprToWZ': ["#001950","#00226B","#002A86","#0033A0","#003EC3","#0047E1","#0051FF","#3072FF","#2268FF","#3072FF","#407DFF"],
 }
 markerSignal = { 
-    'XWW':    20,
-    'XWZ':    21,
-    'XWH':    22,
-    'VBFXWW': 20,
+    'GbuToWW':    20,
+    'RadToWW':    20,
+    'ZprToWW':    20,
+    'WprToWZ':    21,
+    'WprToWH':    22,
+    'VBFGbuToWW': 20,
+    'VBFRadToWW': 20,
+    'VBFZprToWW': 20,
+    'VBFWprToWZ': 21,
 }
 legendSignal = { 
-    'XWW':    "X #rightarrow WW",
-    'XWZ':    "X #rightarrow WZ",
-    'XWH':    "X #rightarrow WH",
-    'VBFXWW': "VBF X #rightarrow WW",
+    'GbuToWW': "G_{bulk} #rightarrow WW",
+    'RadToWW': "Rad #rightarrow WW",
+    'ZprToWW': "Z' #rightarrow WW",
+    'WprToWZ': "W' #rightarrow WZ",
+    'WprToWH': "W' #rightarrow WH",
+    'VBFGbuToWW': "VBF G_{bulk} #rightarrow WW",
+    'VBFRadToWW': "VBF Rad #rightarrow WW",
+    'VBFZprToWW': "VBF Z' #rightarrow WW",
+    'VBFWprToWZ': "VBF W' #rightarrow WZ",
 }
 
 colorUp=ROOT.kRed
@@ -76,7 +107,7 @@ leptons = ['mu','e']#['allL']#
 purities = ['LP','HP']#['allP']#
 categories = ['bb','nobb','vbf']   #['allC']#['bb','nobbHP','nobbLP']#
 
-DcFolder = 'Dc_XWW'
+DcFolder = 'Dc_GbuToWW'
 
 minMJJ=20.0
 maxMJJ=210.0
@@ -984,7 +1015,7 @@ def makeSignalShapeParam(files,sigs,var,region,outputPrefix):
             func[j].SetLineColor(colorSignal[sigs[j]])
             func[j].Draw("lsame")
             l.AddEntry(g[j],legendSignal[sigs[j]],"p")
-            if name=="mean" and "XWW" in sigs[j]:
+            if name=="mean" and "GbuToWW" in sigs[j]:
                 N=g[j].GetN()
                 Y=g[j].GetY()
                 Y.SetSize(N); 
@@ -1770,12 +1801,18 @@ if 'signal' in plots:
             #'''
             makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MJJ_"+p+"_"+c+".root" for s in signals],signals,'MJJ',p+"_"+c,"paramSignalShape_allSig_")
             makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MVV_"+p+"_"+c+".root" for s in signals],signals,'MVV',p+"_"+c,"paramSignalShape_allSig_")
+            makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MJJ_"+p+"_"+c+".root" for s in signalsNonVBF],signalsNonVBF,'MJJ',p+"_"+c,"paramNonVBFSignalShape_allSig_")
+            makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MVV_"+p+"_"+c+".root" for s in signalsNonVBF],signalsNonVBF,'MVV',p+"_"+c,"paramNonVBFSignalShape_allSig_")
+            makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MJJ_"+p+"_"+c+".root" for s in signalsVBF],signalsVBF,'MJJ',p+"_"+c,"paramVBFSignalShape_allSig_")
+            makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MVV_"+p+"_"+c+".root" for s in signalsVBF],signalsVBF,'MVV',p+"_"+c,"paramVBFSignalShape_allSig_")
             #'''
 
             for l in leptons:#['e']:#
                 pass
                 #'''
                 makeSignalYieldParam([inDir+"LNuJJ_"+s+"_"+l+"_"+p+"_"+c+"_yield.root" for s in signals],signals,"paramSignalYield_allSig_"+l+"_"+p+"_"+c)
+                makeSignalYieldParam([inDir+"LNuJJ_"+s+"_"+l+"_"+p+"_"+c+"_yield.root" for s in signalsNonVBF],signalsNonVBF,"paramNonVBFSignalYield_allSig_"+l+"_"+p+"_"+c)
+                makeSignalYieldParam([inDir+"LNuJJ_"+s+"_"+l+"_"+p+"_"+c+"_yield.root" for s in signalsVBF],signalsVBF,"paramVBFSignalYield_allSig_"+l+"_"+p+"_"+c)
                 #'''
 
                 for signal in signals:
@@ -1826,14 +1863,14 @@ if 'bbtagunc' in plots:
     for c in categories:#['nobb']:#
         for p in purities:#['HP']:#
             for l in leptons:#['e']:#
-                makeSignalYieldParam_unc(inDir+"LNuJJ_XWW_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_XWW_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_XWW_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalYieldbbSFunc_XWW_"+l+"_"+p+"_"+c,0)
-                makeSignalYieldParam_unc(inDir+"LNuJJ_XWZ_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_XWZ_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_XWZ_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalYieldbbSFunc_XWZ_"+l+"_"+p+"_"+c,0)
-                makeSignalYieldParam_unc(inDir+"LNuJJ_XWH_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_XWH_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_XWH_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalYieldbbSFunc_XWH_"+l+"_"+p+"_"+c,0)
-                makeSignalYieldParam_unc(inDir+"LNuJJ_VBFXWW_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_VBFXWW_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_VBFXWW_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalYield_VBFXWW_bbSFunc_"+l+"_"+p+"_"+c,0)
-                makeSignalYieldParam_unc(inDir+"LNuJJ_XWW_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_XWW_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_XWW_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalbbSFunc_XWW_"+l+"_"+p+"_"+c,1)
-                makeSignalYieldParam_unc(inDir+"LNuJJ_XWZ_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_XWZ_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_XWZ_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalbbSFunc_XWZ_"+l+"_"+p+"_"+c,1)
-                makeSignalYieldParam_unc(inDir+"LNuJJ_XWH_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_XWH_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_XWH_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalbbSFunc_XWH_"+l+"_"+p+"_"+c,1)
-                makeSignalYieldParam_unc(inDir+"LNuJJ_VBFXWW_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_VBFXWW_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_VBFXWW_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalbbSFunc_VBFXWW_"+l+"_"+p+"_"+c,1)
+                makeSignalYieldParam_unc(inDir+"LNuJJ_GbuToWW_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_GbuToWW_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_GbuToWW_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalYieldbbSFunc_GbuToWW_"+l+"_"+p+"_"+c,0)
+                makeSignalYieldParam_unc(inDir+"LNuJJ_WprToWZ_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_WprToWZ_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_WprToWZ_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalYieldbbSFunc_WprToWZ_"+l+"_"+p+"_"+c,0)
+                makeSignalYieldParam_unc(inDir+"LNuJJ_WprToWH_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_WprToWH_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_WprToWH_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalYieldbbSFunc_WprToWH_"+l+"_"+p+"_"+c,0)
+                makeSignalYieldParam_unc(inDir+"LNuJJ_VBFRadToWW_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_VBFRadToWW_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_VBFRadToWW_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalYield_VBFRadToWW_bbSFunc_"+l+"_"+p+"_"+c,0)
+                makeSignalYieldParam_unc(inDir+"LNuJJ_GbuToWW_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_GbuToWW_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_GbuToWW_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalbbSFunc_GbuToWW_"+l+"_"+p+"_"+c,1)
+                makeSignalYieldParam_unc(inDir+"LNuJJ_WprToWZ_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_WprToWZ_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_WprToWZ_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalbbSFunc_WprToWZ_"+l+"_"+p+"_"+c,1)
+                makeSignalYieldParam_unc(inDir+"LNuJJ_WprToWH_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_WprToWH_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_WprToWH_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalbbSFunc_WprToWH_"+l+"_"+p+"_"+c,1)
+                makeSignalYieldParam_unc(inDir+"LNuJJ_VBFRadToWW_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_VBFRadToWW_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_VBFRadToWW_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalbbSFunc_VBFRadToWW_"+l+"_"+p+"_"+c,1)
 
 
 

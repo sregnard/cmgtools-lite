@@ -7,7 +7,7 @@ cmd='combineCards.py '
 import optparse
 parser = optparse.OptionParser()
 parser.add_option("-y","--year",dest="year",default="Run2",help="2016 or 2017 or 2018 or Run2")
-parser.add_option("-s","--signalType",dest="signalType",default='XWW',help="XWW or XWZ or XWH or VBFXWW")
+parser.add_option("-s","--signalType",dest="signalType",default='GbuToWW',help="signal type")
 parser.add_option("-b","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=True)
 parser.add_option("-r","--region",dest="region",default='SR',help="signal region (SR) or control region (CR)")
 (options,args) = parser.parse_args()
@@ -34,7 +34,7 @@ sfx_rgn = "_CR" if inCR else ""
 sfx_year = "_"+YEAR if YEAR!="Run2" else ""
 
 sig=options.signalType
-if sig not in ['XWW','XWZ','XWH','VBFXWW']:
+if sig not in ['GbuToWW','RadToWW','ZprToWW','WprToWZ','WprToWH','VBFGbuToWW','VBFRadToWW','VBFZprToWW','VBFWprToWZ']:
     sys.exit('Error: unrecognized signal')
 
 
