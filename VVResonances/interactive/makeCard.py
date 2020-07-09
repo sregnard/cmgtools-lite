@@ -25,8 +25,14 @@ elif YEAR=="2018":
 elif YEAR=="Run2":
   intlumi=35920+41530+59740
 
-HPunc = 0.03
-LPunc = 0.03
+HPunc = 0.04
+LPunc = 0.04
+bbuncWW = 0.09
+bbuncWZ = 0.09
+bbuncWH = 0.06
+nobbuncWW = 0.004
+nobbuncWZ = 0.015
+nobbuncWH = 0.02
 
 inCR = options.region=="CR"
 sfx_rgn = "_CR" if inCR else ""
@@ -96,34 +102,34 @@ for lepton in ['e','mu']:
             ## SYSTEMATICS
 
             ## luminosity
-            card.addSystematic("CMS_lumi_"+YEAR,"lnN",{'XWW':1.018,'XWZ':1.018,'XWH':1.018,'VBFXWW':1.018})
+            card.addSystematic("CMS_lumi_"+YEAR,"lnN",{'GbuToWW':1.018,'RadToWW':1.018,'ZprToWW':1.018,'WprToWZ':1.018,'WprToWH':1.018,'VBFGbuToWW':1.018,'VBFRadToWW':1.018,'VBFZprToWW':1.018,'VBFWprToWZ':1.018})
 
             ## PDF
-            card.addSystematic("CMS_pdf","lnN",{'XWW':1.01,'XWZ':1.01,'XWH':1.01,'VBFXWW':1.01})
+            card.addSystematic("CMS_pdf","lnN",{'GbuToWW':1.01,'RadToWW':1.01,'ZprToWW':1.01,'WprToWZ':1.01,'WprToWH':1.01,'VBFGbuToWW':1.01,'VBFRadToWW':1.01,'VBFZprToWW':1.01,'VBFWprToWZ':1.01})
 
             ## pileup reweighting (from shifting the min-bias cross section)
-            card.addSystematic("CMS_puWeight_"+YEAR,"lnN",{'XWW':1.015,'XWZ':1.015,'XWH':1.015,'VBFXWW':1.015})
+            card.addSystematic("CMS_puWeight_"+YEAR,"lnN",{'GbuToWW':1.015,'RadToWW':1.015,'ZprToWW':1.015,'WprToWZ':1.015,'WprToWH':1.015,'VBFGbuToWW':1.015,'VBFRadToWW':1.015,'VBFZprToWW':1.015,'VBFWprToWZ':1.015})
 
             ## lepton efficiency
-            card.addSystematic("CMS_eff_"+lepton+"_"+YEAR,"lnN",{'XWW':1.05,'XWZ':1.05,'XWH':1.05,'VBFXWW':1.05})
+            card.addSystematic("CMS_eff_"+lepton+"_"+YEAR,"lnN",{'GbuToWW':1.05,'RadToWW':1.05,'ZprToWW':1.05,'WprToWZ':1.05,'WprToWH':1.05,'VBFGbuToWW':1.05,'VBFRadToWW':1.05,'VBFZprToWW':1.05,'VBFWprToWZ':1.05})
 
             ## efficiency of the pt/m cut
-            card.addSystematic("CMS_eff_ptom_"+YEAR,"lnN",{'XWW':1.025,'XWZ':1.025,'XWH':1.025,'VBFXWW':1.05})
+            card.addSystematic("CMS_eff_ptom_"+YEAR,"lnN",{'GbuToWW':1.025,'RadToWW':1.025,'ZprToWW':1.025,'WprToWZ':1.025,'WprToWH':1.025,'VBFGbuToWW':1.05,'VBFRadToWW':1.05,'VBFZprToWW':1.05,'VBFWprToWZ':1.05})
 
             ## b tagging fake rate
-            card.addSystematic("CMS_btag_fake_"+YEAR,"lnN",{'XWW':1+0.02,'XWZ':1+0.02,'XWH':1+0.02,'VBFXWW':1+0.02})
+            card.addSystematic("CMS_btag_fake_"+YEAR,"lnN",{'GbuToWW':1.02,'RadToWW':1.02,'ZprToWW':1.02,'WprToWZ':1.02,'WprToWH':1.02,'VBFGbuToWW':1.02,'VBFRadToWW':1.02,'VBFZprToWW':1.02,'VBFWprToWZ':1.02})
 
             ## V tagging
             if purity=='HP':
-                card.addSystematic("CMS_VV_LNuJ_Vtag_eff_"+YEAR,"lnN",{'XWW':1+HPunc,'XWZ':1+HPunc,'XWH':1+HPunc,'VBFXWW':1+HPunc})
+                card.addSystematic("CMS_VV_LNuJ_Vtag_eff_"+YEAR,"lnN",{'GbuToWW':1+HPunc,'RadToWW':1+HPunc,'ZprToWW':1+HPunc,'WprToWZ':1+HPunc,'WprToWH':1+HPunc,'VBFGbuToWW':1+HPunc,'VBFRadToWW':1+HPunc,'VBFZprToWW':1+HPunc,'VBFWprToWZ':1+HPunc})
             if purity=='LP':
-                card.addSystematic("CMS_VV_LNuJ_Vtag_eff_"+YEAR,"lnN",{'XWW':1-LPunc,'XWZ':1-LPunc,'XWH':1-LPunc,'VBFXWW':1-LPunc})
+                card.addSystematic("CMS_VV_LNuJ_Vtag_eff_"+YEAR,"lnN",{'GbuToWW':1-LPunc,'RadToWW':1-LPunc,'ZprToWW':1-LPunc,'WprToWZ':1-LPunc,'WprToWH':1-LPunc,'VBFGbuToWW':1-LPunc,'VBFRadToWW':1-LPunc,'VBFZprToWW':1-LPunc,'VBFWprToWZ':1-LPunc})
 
             ## bb tagging
             if category=='bb':
-                card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'XWW':1+0.09,'XWZ':1+0.09,'XWH':1+0.06,'VBFXWW':1+0.09})
+                card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'GbuToWW':1+bbuncWW,'RadToWW':1+bbuncWW,'ZprToWW':1+bbuncWW,'WprToWZ':1+bbuncWZ,'WprToWH':1+bbuncWH,'VBFGbuToWW':1+bbuncWW,'VBFRadToWW':1+bbuncWW,'VBFZprToWW':1+bbuncWW,'VBFWprToWZ':1+bbuncWZ})
             if category=='nobb':
-                card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'XWW':1-0.004,'XWZ':1-0.015,'XWH':1-0.02,'VBFXWW':1-0.004})
+                card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'GbuToWW':1-nobbuncWW,'RadToWW':1-nobbuncWW,'ZprToWW':1-nobbuncWW,'WprToWZ':1-nobbuncWZ,'WprToWH':1-nobbuncWH,'VBFGbuToWW':1-nobbuncWW,'VBFRadToWW':1-nobbuncWW,'VBFZprToWW':1-nobbuncWW,'VBFWprToWZ':1-nobbuncWZ})
 
             ## background normalization
 
