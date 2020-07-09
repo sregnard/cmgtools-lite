@@ -18,11 +18,12 @@ DONORMMC       = 1
 DONORMDATA     = 1
 DOSIGNALSHAPES = 1
 DOSIGNALYIELDS = 1
-DOSIGNALCTPL   = 1
 DORESONANT     = 1
 DONONRESONANT  = 1
 
 DONORMMCASDATA = 0
+DOSIGNALCTPL   = 0
+DOSIGNALYIELDSBBUNC = 0
 
 DONORMMCCR     = 0
 DONORMDATACR   = 0
@@ -64,36 +65,36 @@ tau21SF={ ## Run2 values
 bbSFWW_2016 = DoubleBsf_M2_B_80X
 bbSFWZ_2016 = DoubleBsf_M2_B_80X
 bbSFWH_2016 = DoubleBsf_M2_S_80X
-#bbSFupWW_2016 = DoubleBsf_M2_B_80X_up
-#bbSFupWZ_2016 = DoubleBsf_M2_B_80X_up
-#bbSFupWH_2016 = DoubleBsf_M2_S_80X_up
-#bbSFdnWW_2016 = DoubleBsf_M2_B_80X_dn
-#bbSFdnWZ_2016 = DoubleBsf_M2_B_80X_dn
-#bbSFdnWH_2016 = DoubleBsf_M2_S_80X_dn
+bbSFupWW_2016 = DoubleBsf_M2_B_80X_up
+bbSFupWZ_2016 = DoubleBsf_M2_B_80X_up
+bbSFupWH_2016 = DoubleBsf_M2_S_80X_up
+bbSFdnWW_2016 = DoubleBsf_M2_B_80X_dn
+bbSFdnWZ_2016 = DoubleBsf_M2_B_80X_dn
+bbSFdnWH_2016 = DoubleBsf_M2_S_80X_dn
 bbEffWW_2016 = EffMC_M2_XWW_2016
 bbEffWZ_2016 = EffMC_M2_XWZ_2016
 bbEffWH_2016 = EffMC_M2_XWH_2016
 bbSFWW_2017 = DoubleBsf_M2_B_94X
 bbSFWZ_2017 = DoubleBsf_M2_B_94X
 bbSFWH_2017 = DoubleBsf_M2_S_94X
-#bbSFupWW_2017 = DoubleBsf_M2_B_94X_up
-#bbSFupWZ_2017 = DoubleBsf_M2_B_94X_up
-#bbSFupWH_2017 = DoubleBsf_M2_S_94X_up
-#bbSFdnWW_2017 = DoubleBsf_M2_B_94X_dn
-#bbSFdnWZ_2017 = DoubleBsf_M2_B_94X_dn
-#bbSFdnWH_2017 = DoubleBsf_M2_S_94X_dn
+bbSFupWW_2017 = DoubleBsf_M2_B_94X_up
+bbSFupWZ_2017 = DoubleBsf_M2_B_94X_up
+bbSFupWH_2017 = DoubleBsf_M2_S_94X_up
+bbSFdnWW_2017 = DoubleBsf_M2_B_94X_dn
+bbSFdnWZ_2017 = DoubleBsf_M2_B_94X_dn
+bbSFdnWH_2017 = DoubleBsf_M2_S_94X_dn
 bbEffWW_2017 = EffMC_M2_XWW_2017
 bbEffWZ_2017 = EffMC_M2_XWZ_2017
 bbEffWH_2017 = EffMC_M2_XWH_2017
 bbSFWW_2018 = DoubleBsf_M2_B_102X
 bbSFWZ_2018 = DoubleBsf_M2_B_102X
 bbSFWH_2018 = DoubleBsf_M2_S_102X
-#bbSFupWW_2018 = DoubleBsf_M2_B_102X_up
-#bbSFupWZ_2018 = DoubleBsf_M2_B_102X_up
-#bbSFupWH_2018 = DoubleBsf_M2_S_102X_up
-#bbSFdnWW_2018 = DoubleBsf_M2_B_102X_dn
-#bbSFdnWZ_2018 = DoubleBsf_M2_B_102X_dn
-#bbSFdnWH_2018 = DoubleBsf_M2_S_102X_dn
+bbSFupWW_2018 = DoubleBsf_M2_B_102X_up
+bbSFupWZ_2018 = DoubleBsf_M2_B_102X_up
+bbSFupWH_2018 = DoubleBsf_M2_S_102X_up
+bbSFdnWW_2018 = DoubleBsf_M2_B_102X_dn
+bbSFdnWZ_2018 = DoubleBsf_M2_B_102X_dn
+bbSFdnWH_2018 = DoubleBsf_M2_S_102X_dn
 bbEffWW_2018 = EffMC_M2_XWW_2018
 bbEffWZ_2018 = EffMC_M2_XWZ_2018
 bbEffWH_2018 = EffMC_M2_XWH_2018
@@ -115,42 +116,42 @@ bbWgtWH={
     'vbf' : '1', 
     'allC': '1',
     }
-#bbWgtWW_up={
-#    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWW_2018))+'))',
-#    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2016[ptcut])+')/(1-'+str(bbEffWW_2016[ptcut])+'))') for ptcut,sf in bbSFupWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2017[ptcut])+')/(1-'+str(bbEffWW_2017[ptcut])+'))') for ptcut,sf in bbSFupWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2018[ptcut])+')/(1-'+str(bbEffWW_2018[ptcut])+'))') for ptcut,sf in bbSFupWW_2018))+'))',
-#    'vbf': '1',
-#    'allC': '1',
-#    }
-#bbWgtWZ_up={
-#    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWZ_2018))+'))',
-#    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2016[ptcut])+')/(1-'+str(bbEffWZ_2016[ptcut])+'))') for ptcut,sf in bbSFupWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2017[ptcut])+')/(1-'+str(bbEffWZ_2017[ptcut])+'))') for ptcut,sf in bbSFupWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2018[ptcut])+')/(1-'+str(bbEffWZ_2018[ptcut])+'))') for ptcut,sf in bbSFupWZ_2018))+'))',
-#    'vbf': '1',
-#    'allC': '1',
-#    }
-#bbWgtWH_up={
-#    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWH_2018))+'))',
-#    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2016[ptcut])+')/(1-'+str(bbEffWH_2016[ptcut])+'))') for ptcut,sf in bbSFupWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2017[ptcut])+')/(1-'+str(bbEffWH_2017[ptcut])+'))') for ptcut,sf in bbSFupWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2018[ptcut])+')/(1-'+str(bbEffWH_2018[ptcut])+'))') for ptcut,sf in bbSFupWH_2018))+'))',
-#    'vbf': '1',
-#    'allC': '1',
-#    }
-#bbWgtWW_dn={
-#    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWW_2018))+'))',
-#    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2016[ptcut])+')/(1-'+str(bbEffWW_2016[ptcut])+'))') for ptcut,sf in bbSFdnWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2017[ptcut])+')/(1-'+str(bbEffWW_2017[ptcut])+'))') for ptcut,sf in bbSFdnWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2018[ptcut])+')/(1-'+str(bbEffWW_2018[ptcut])+'))') for ptcut,sf in bbSFdnWW_2018))+'))',
-#    'vbf': '1',
-#    'allC': '1',
-#    }
-#bbWgtWZ_dn={
-#    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWZ_2018))+'))',
-#    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2016[ptcut])+')/(1-'+str(bbEffWZ_2016[ptcut])+'))') for ptcut,sf in bbSFdnWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2017[ptcut])+')/(1-'+str(bbEffWZ_2017[ptcut])+'))') for ptcut,sf in bbSFdnWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2018[ptcut])+')/(1-'+str(bbEffWZ_2018[ptcut])+'))') for ptcut,sf in bbSFdnWZ_2018))+'))',
-#    'vbf': '1',
-#    'allC': '1',
-#    }
-#bbWgtWH_dn={
-#    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWH_2018))+'))',
-#    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2016[ptcut])+')/(1-'+str(bbEffWH_2016[ptcut])+'))') for ptcut,sf in bbSFdnWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2017[ptcut])+')/(1-'+str(bbEffWH_2017[ptcut])+'))') for ptcut,sf in bbSFdnWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2018[ptcut])+')/(1-'+str(bbEffWH_2018[ptcut])+'))') for ptcut,sf in bbSFdnWH_2018))+'))',
-#    'vbf': '1',
-#    'allC': '1',
-#    }
+bbWgtWW_up={
+    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWW_2018))+'))',
+    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2016[ptcut])+')/(1-'+str(bbEffWW_2016[ptcut])+'))') for ptcut,sf in bbSFupWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2017[ptcut])+')/(1-'+str(bbEffWW_2017[ptcut])+'))') for ptcut,sf in bbSFupWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2018[ptcut])+')/(1-'+str(bbEffWW_2018[ptcut])+'))') for ptcut,sf in bbSFupWW_2018))+'))',
+    'vbf': '1',
+    'allC': '1',
+    }
+bbWgtWZ_up={
+    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWZ_2018))+'))',
+    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2016[ptcut])+')/(1-'+str(bbEffWZ_2016[ptcut])+'))') for ptcut,sf in bbSFupWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2017[ptcut])+')/(1-'+str(bbEffWZ_2017[ptcut])+'))') for ptcut,sf in bbSFupWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2018[ptcut])+')/(1-'+str(bbEffWZ_2018[ptcut])+'))') for ptcut,sf in bbSFupWZ_2018))+'))',
+    'vbf': '1',
+    'allC': '1',
+    }
+bbWgtWH_up={
+    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFupWH_2018))+'))',
+    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2016[ptcut])+')/(1-'+str(bbEffWH_2016[ptcut])+'))') for ptcut,sf in bbSFupWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2017[ptcut])+')/(1-'+str(bbEffWH_2017[ptcut])+'))') for ptcut,sf in bbSFupWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2018[ptcut])+')/(1-'+str(bbEffWH_2018[ptcut])+'))') for ptcut,sf in bbSFupWH_2018))+'))',
+    'vbf': '1',
+    'allC': '1',
+    }
+bbWgtWW_dn={
+    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWW_2018))+'))',
+    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2016[ptcut])+')/(1-'+str(bbEffWW_2016[ptcut])+'))') for ptcut,sf in bbSFdnWW_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2017[ptcut])+')/(1-'+str(bbEffWW_2017[ptcut])+'))') for ptcut,sf in bbSFdnWW_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWW_2018[ptcut])+')/(1-'+str(bbEffWW_2018[ptcut])+'))') for ptcut,sf in bbSFdnWW_2018))+'))',
+    'vbf': '1',
+    'allC': '1',
+    }
+bbWgtWZ_dn={
+    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWZ_2018))+'))',
+    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2016[ptcut])+')/(1-'+str(bbEffWZ_2016[ptcut])+'))') for ptcut,sf in bbSFdnWZ_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2017[ptcut])+')/(1-'+str(bbEffWZ_2017[ptcut])+'))') for ptcut,sf in bbSFdnWZ_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWZ_2018[ptcut])+')/(1-'+str(bbEffWZ_2018[ptcut])+'))') for ptcut,sf in bbSFdnWZ_2018))+'))',
+    'vbf': '1',
+    'allC': '1',
+    }
+bbWgtWH_dn={
+    'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFdnWH_2018))+'))',
+    'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2016[ptcut])+')/(1-'+str(bbEffWH_2016[ptcut])+'))') for ptcut,sf in bbSFdnWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2017[ptcut])+')/(1-'+str(bbEffWH_2017[ptcut])+'))') for ptcut,sf in bbSFdnWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2018[ptcut])+')/(1-'+str(bbEffWH_2018[ptcut])+'))') for ptcut,sf in bbSFdnWH_2018))+'))',
+    'vbf': '1',
+    'allC': '1',
+    }
 #print bbWgtWW['bb']
 #print bbWgtWW['nobb']
 
@@ -623,24 +624,26 @@ if DOSIGNALYIELDS:
     if DOVBFRadToWW: makeSignalYields("LNuJJ_VBFRadToWW",VBFRadToWWTemplate,BR_VBFRadToWW,tau21SF,bbWgtWW)
     if DOVBFZprToWW: makeSignalYields("LNuJJ_VBFZprToWW",VBFZprToWWTemplate,BR_VBFZprToWW,tau21SF,bbWgtWW)
     if DOVBFWprToWZ: makeSignalYields("LNuJJ_VBFWprToWZ",VBFWprToWZTemplate,BR_VBFWprToWZ,tau21SF,bbWgtWZ)
-    #if DOGbuToWW: makeSignalYields("LNuJJ_GbuToWW_bbSFup",GbuToWWTemplate,BR_GbuToWW,tau21SF,bbWgtWW_up)
-    #if DORadToWW: makeSignalYields("LNuJJ_RadToWW_bbSFup",RadToWWTemplate,BR_RadToWW,tau21SF,bbWgtWW_up)
-    #if DOZprToWW: makeSignalYields("LNuJJ_ZprToWW_bbSFup",ZprToWWTemplate,BR_ZprToWW,tau21SF,bbWgtWW_up)
-    #if DOWprToWZ: makeSignalYields("LNuJJ_WprToWZ_bbSFup",WprToWZTemplate,BR_WprToWZ,tau21SF,bbWgtWZ_up)
-    #if DOWprToWH: makeSignalYields("LNuJJ_WprToWH_bbSFup",WprToWHTemplate,BR_WprToWH,tau21SF,bbWgtWH_up)
-    #if DOVBFGbuToWW: makeSignalYields("LNuJJ_VBFGbuToWW_bbSFup",VBFGbuToWWTemplate,BR_VBFGbuToWW,tau21SF,bbWgtWW_up)
-    #if DOVBFRadToWW: makeSignalYields("LNuJJ_VBFRadToWW_bbSFup",VBFRadToWWTemplate,BR_VBFRadToWW,tau21SF,bbWgtWW_up)
-    #if DOVBFZprToWW: makeSignalYields("LNuJJ_VBFZprToWW_bbSFup",VBFZprToWWTemplate,BR_VBFZprToWW,tau21SF,bbWgtWW_up)
-    #if DOVBFWprToWZ: makeSignalYields("LNuJJ_VBFWprToWZ_bbSFup",VBFWprToWZTemplate,BR_VBFWprToWZ,tau21SF,bbWgtWZ_up)
-    #if DOGbuToWW: makeSignalYields("LNuJJ_GbuToWW_bbSFdn",GbuToWWTemplate,BR_GbuToWW,tau21SF,bbWgtWW_dn)
-    #if DORadToWW: makeSignalYields("LNuJJ_RadToWW_bbSFdn",RadToWWTemplate,BR_RadToWW,tau21SF,bbWgtWW_dn)
-    #if DOZprToWW: makeSignalYields("LNuJJ_ZprToWW_bbSFdn",ZprToWWTemplate,BR_ZprToWW,tau21SF,bbWgtWW_dn)
-    #if DOWprToWZ: makeSignalYields("LNuJJ_WprToWZ_bbSFdn",WprToWZTemplate,BR_WprToWZ,tau21SF,bbWgtWZ_dn)
-    #if DOWprToWH: makeSignalYields("LNuJJ_WprToWH_bbSFdn",WprToWHTemplate,BR_WprToWH,tau21SF,bbWgtWH_dn)
-    #if DOVBFGbuToWW: makeSignalYields("LNuJJ_VBFGbuToWW_bbSFdn",VBFGbuToWWTemplate,BR_VBFGbuToWW,tau21SF,bbWgtWW_dn)
-    #if DOVBFRadToWW: makeSignalYields("LNuJJ_VBFRadToWW_bbSFdn",VBFRadToWWTemplate,BR_VBFRadToWW,tau21SF,bbWgtWW_dn)
-    #if DOVBFZprToWW: makeSignalYields("LNuJJ_VBFZprToWW_bbSFdn",VBFZprToWWTemplate,BR_VBFZprToWW,tau21SF,bbWgtWW_dn)
-    #if DOVBFWprToWZ: makeSignalYields("LNuJJ_VBFWprToWZ_bbSFdn",VBFWprToWZTemplate,BR_VBFWprToWZ,tau21SF,bbWgtWZ_dn)
+
+if DOSIGNALYIELDSBBUNC:
+    if DOGbuToWW: makeSignalYields("LNuJJ_GbuToWW_bbSFup",GbuToWWTemplate,BR_GbuToWW,tau21SF,bbWgtWW_up)
+    if DORadToWW: makeSignalYields("LNuJJ_RadToWW_bbSFup",RadToWWTemplate,BR_RadToWW,tau21SF,bbWgtWW_up)
+    if DOZprToWW: makeSignalYields("LNuJJ_ZprToWW_bbSFup",ZprToWWTemplate,BR_ZprToWW,tau21SF,bbWgtWW_up)
+    if DOWprToWZ: makeSignalYields("LNuJJ_WprToWZ_bbSFup",WprToWZTemplate,BR_WprToWZ,tau21SF,bbWgtWZ_up)
+    if DOWprToWH: makeSignalYields("LNuJJ_WprToWH_bbSFup",WprToWHTemplate,BR_WprToWH,tau21SF,bbWgtWH_up)
+    if DOVBFGbuToWW: makeSignalYields("LNuJJ_VBFGbuToWW_bbSFup",VBFGbuToWWTemplate,BR_VBFGbuToWW,tau21SF,bbWgtWW_up)
+    if DOVBFRadToWW: makeSignalYields("LNuJJ_VBFRadToWW_bbSFup",VBFRadToWWTemplate,BR_VBFRadToWW,tau21SF,bbWgtWW_up)
+    if DOVBFZprToWW: makeSignalYields("LNuJJ_VBFZprToWW_bbSFup",VBFZprToWWTemplate,BR_VBFZprToWW,tau21SF,bbWgtWW_up)
+    if DOVBFWprToWZ: makeSignalYields("LNuJJ_VBFWprToWZ_bbSFup",VBFWprToWZTemplate,BR_VBFWprToWZ,tau21SF,bbWgtWZ_up)
+    if DOGbuToWW: makeSignalYields("LNuJJ_GbuToWW_bbSFdn",GbuToWWTemplate,BR_GbuToWW,tau21SF,bbWgtWW_dn)
+    if DORadToWW: makeSignalYields("LNuJJ_RadToWW_bbSFdn",RadToWWTemplate,BR_RadToWW,tau21SF,bbWgtWW_dn)
+    if DOZprToWW: makeSignalYields("LNuJJ_ZprToWW_bbSFdn",ZprToWWTemplate,BR_ZprToWW,tau21SF,bbWgtWW_dn)
+    if DOWprToWZ: makeSignalYields("LNuJJ_WprToWZ_bbSFdn",WprToWZTemplate,BR_WprToWZ,tau21SF,bbWgtWZ_dn)
+    if DOWprToWH: makeSignalYields("LNuJJ_WprToWH_bbSFdn",WprToWHTemplate,BR_WprToWH,tau21SF,bbWgtWH_dn)
+    if DOVBFGbuToWW: makeSignalYields("LNuJJ_VBFGbuToWW_bbSFdn",VBFGbuToWWTemplate,BR_VBFGbuToWW,tau21SF,bbWgtWW_dn)
+    if DOVBFRadToWW: makeSignalYields("LNuJJ_VBFRadToWW_bbSFdn",VBFRadToWWTemplate,BR_VBFRadToWW,tau21SF,bbWgtWW_dn)
+    if DOVBFZprToWW: makeSignalYields("LNuJJ_VBFZprToWW_bbSFdn",VBFZprToWWTemplate,BR_VBFZprToWW,tau21SF,bbWgtWW_dn)
+    if DOVBFWprToWZ: makeSignalYields("LNuJJ_VBFWprToWZ_bbSFdn",VBFWprToWZTemplate,BR_VBFWprToWZ,tau21SF,bbWgtWZ_dn)
 
 if DOSIGNALCTPL:
     #for mx in [600,800,1000,1200,1400,1600,1800,2000,2500,3000,3500,4000,4500]:

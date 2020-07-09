@@ -11,7 +11,7 @@ import optparse
 parser = optparse.OptionParser()
 parser.add_option("-y","--year",dest="year",default="Run2",help="2016 or 2017 or 2018 or Run2")
 parser.add_option("-o","--outDir",dest="outDirPrefix",default='PlotsTemplates_',help="where to save the plots")
-parser.add_option("-p","--plots",dest="plots",default='all',help="possible plots: all, signal, nonResTpl, nonResSys, CRNonResTpl, CRNonResSys, resTpl, resSys, CRResTpl, CRResSys, resW, resTop, scaleres")
+parser.add_option("-p","--plots",dest="plots",default='all',help="possible plots: all, signal, nonResTpl, nonResSys, CRNonResTpl, CRNonResSys, resTpl, resSys, CRResTpl, CRResSys, resW, resTop, scaleres, bbtagunc")
 parser.add_option("-d","--withDC",dest="withDC",type=int,default=1,help="include plots that require datacards")
 parser.add_option("-D","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=True)
 (options,args) = parser.parse_args()
@@ -62,9 +62,9 @@ colorSignal = {
     'WprToWZ':    ROOT.kViolet-8,
     'WprToWH':    ROOT.kTeal-6,
     'VBFGbuToWW': ROOT.kBlue-9,
-    'VBFRadToWW': ROOT.kBlue-7,
-    'VBFZprToWW': ROOT.kBlue-4,
-    'VBFWprToWZ': ROOT.kCyan+2,
+    'VBFRadToWW': ROOT.kBlue-4,
+    'VBFZprToWW': ROOT.kBlue+3,
+    'VBFWprToWZ': ROOT.kPink+6,
 }
 colorGradientSignal = {
     'GbuToWW':    ["#8B4D00","#A15900","#B16200","#C36B01","#D97700","#ED8200","#FF8D00","#FF9410","#FF9B1F","#FFA22F","#FFAA40"],
@@ -72,28 +72,28 @@ colorGradientSignal = {
     'ZprToWW':    ["#8B4D00","#A15900","#B16200","#C36B01","#D97700","#ED8200","#FF8D00","#FF9410","#FF9B1F","#FFA22F","#FFAA40"],
     'WprToWZ':    ["#57008E","#62009F","#6E00B2","#7900C4","#8500D8","#9200ED","#9E00FF","#A410FF","#AB24FF","#B235FF","#B844FF"],
     'WprToWH':    ["#005036","#015F41","#016C4A","#007C55","#008B5F","#009E6C","#00AE77","#00BF83","#00D08E","#00E19A","#00F7A9"],
-    'VBFGbuToWW': ["#001950","#00226B","#002A86","#0033A0","#003EC3","#0047E1","#0051FF","#3072FF","#2268FF","#3072FF","#407DFF"],
-    'VBFRadToWW': ["#001950","#00226B","#002A86","#0033A0","#003EC3","#0047E1","#0051FF","#3072FF","#2268FF","#3072FF","#407DFF"],
-    'VBFZprToWW': ["#001950","#00226B","#002A86","#0033A0","#003EC3","#0047E1","#0051FF","#3072FF","#2268FF","#3072FF","#407DFF"],
-    'VBFWprToWZ': ["#001950","#00226B","#002A86","#0033A0","#003EC3","#0047E1","#0051FF","#3072FF","#2268FF","#3072FF","#407DFF"],
+    'VBFGbuToWW': ["#001950","#00226B","#002A86","#0033A0","#003EC3","#0047E1","#0051FF","#1862FF","#2268FF","#3072FF","#407DFF"],
+    'VBFRadToWW': ["#001950","#00226B","#002A86","#0033A0","#003EC3","#0047E1","#0051FF","#1862FF","#2268FF","#3072FF","#407DFF"],
+    'VBFZprToWW': ["#001950","#00226B","#002A86","#0033A0","#003EC3","#0047E1","#0051FF","#1862FF","#2268FF","#3072FF","#407DFF"],
+    'VBFWprToWZ': ["#500048","#6B0061","#89007B","#A10091","#C300AF","#E100CB","#FF00E6","#FF17E9","#FF22EA","#FF30EB","#FF41ED"],
 }
 markerSignal = { 
     'GbuToWW':    20,
-    'RadToWW':    20,
-    'ZprToWW':    20,
-    'WprToWZ':    21,
-    'WprToWH':    22,
-    'VBFGbuToWW': 20,
-    'VBFRadToWW': 20,
-    'VBFZprToWW': 20,
-    'VBFWprToWZ': 21,
+    'RadToWW':    21,
+    'ZprToWW':    22,
+    'WprToWZ':    23,
+    'WprToWH':    29,
+    'VBFGbuToWW': 24,
+    'VBFRadToWW': 25,
+    'VBFZprToWW': 26,
+    'VBFWprToWZ': 32,
 }
 legendSignal = { 
-    'GbuToWW': "G_{bulk} #rightarrow WW",
-    'RadToWW': "Rad #rightarrow WW",
-    'ZprToWW': "Z' #rightarrow WW",
-    'WprToWZ': "W' #rightarrow WZ",
-    'WprToWH': "W' #rightarrow WH",
+    'GbuToWW': "ggF G_{bulk} #rightarrow WW",
+    'RadToWW': "ggF Rad #rightarrow WW",
+    'ZprToWW': "DY Z' #rightarrow WW",
+    'WprToWZ': "DY W' #rightarrow WZ",
+    'WprToWH': "DY W' #rightarrow WH",
     'VBFGbuToWW': "VBF G_{bulk} #rightarrow WW",
     'VBFRadToWW': "VBF Rad #rightarrow WW",
     'VBFZprToWW': "VBF Z' #rightarrow WW",
@@ -960,7 +960,7 @@ def makeSignalShapeParam(files,sigs,var,region,outputPrefix):
     func=[None]*n    
     for j in range(n):
         if not os.path.isfile(files[j]):
-            print "Error in makeSignalYieldParam: file "+files[j]+" does not exist."
+            print "Error in makeSignalShapeParam: file "+files[j]+" does not exist."
             return
         f[j] = ROOT.TFile(files[j])
 
@@ -998,7 +998,7 @@ def makeSignalShapeParam(files,sigs,var,region,outputPrefix):
         frame=c.DrawFrame(minmx,params[i][2],maxmx,params[i][3])
         frame.GetXaxis().SetTitle("m_{X} (GeV)")
         frame.GetYaxis().SetTitle(params[i][1])
-        l=ROOT.TLegend(0.6,0.2,0.9,0.34)
+        l=ROOT.TLegend(0.65,0.2,0.9,0.55)
         l.SetBorderSize(0)
         l.SetFillStyle(0)
 
@@ -1023,7 +1023,7 @@ def makeSignalShapeParam(files,sigs,var,region,outputPrefix):
                 print region, sigs[j], np.mean(Y)
 
         l.Draw()
-        cmslabel_sim(c,YEAR,11)
+        #cmslabel_sim(c,YEAR,11)
         saveCanvas(c,outDir+"/"+outputPrefix+var+"_"+region+"_"+name)
 
 
@@ -1036,7 +1036,7 @@ def makeSignalYieldParam(files,sigs,outputname):
 
     c=ROOT.TCanvas("c")
     c.cd()
-    l=ROOT.TLegend(0.6,0.2,0.9,0.34)
+    l=ROOT.TLegend(0.22,0.7,0.5,0.9)
     l.SetBorderSize(0)
     l.SetFillStyle(0)
 
@@ -1068,20 +1068,20 @@ def makeSignalYieldParam(files,sigs,outputname):
     g[0].GetXaxis().SetRangeUser(minmx,maxmx)
     g[0].GetYaxis().SetRangeUser(0.,1.3*maxy)
     l.Draw()
-    cmslabel_sim(c,YEAR,11)
+    #cmslabel_sim(c,YEAR,11)
     saveCanvas(c,outDir+'/'+outputname)
 
 
 def makeSignalYieldParam_unc(fileNo,fileUp,fileDn,outputname,ratio=1):
 
     if not os.path.isfile(fileNo):
-        print "Error in makeSignalYieldParam: file "+fileNo+" does not exist."
+        print "Error in makeSignalYieldParam_unc: file "+fileNo+" does not exist."
         return
     if not os.path.isfile(fileUp):
-        print "Error in makeSignalYieldParam: file "+fileUp+" does not exist."
+        print "Error in makeSignalYieldParam_unc: file "+fileUp+" does not exist."
         return
     if not os.path.isfile(fileDn):
-        print "Error in makeSignalYieldParam: file "+fileDn+" does not exist."
+        print "Error in makeSignalYieldParam_unc: file "+fileDn+" does not exist."
         return
 
     contribs = []
@@ -1150,7 +1150,7 @@ def makeSignalYieldParam_unc(fileNo,fileUp,fileDn,outputname,ratio=1):
         g[0].GetYaxis().SetRangeUser(0.,1.3*maxy)
 
     l.Draw()
-    cmslabel_sim(c,YEAR,11)
+    #cmslabel_sim(c,YEAR,11)
     saveCanvas(c,outDir+'/'+outputname)
 
 
@@ -1801,18 +1801,18 @@ if 'signal' in plots:
             #'''
             makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MJJ_"+p+"_"+c+".root" for s in signals],signals,'MJJ',p+"_"+c,"paramSignalShape_allSig_")
             makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MVV_"+p+"_"+c+".root" for s in signals],signals,'MVV',p+"_"+c,"paramSignalShape_allSig_")
-            makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MJJ_"+p+"_"+c+".root" for s in signalsNonVBF],signalsNonVBF,'MJJ',p+"_"+c,"paramNonVBFSignalShape_allSig_")
-            makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MVV_"+p+"_"+c+".root" for s in signalsNonVBF],signalsNonVBF,'MVV',p+"_"+c,"paramNonVBFSignalShape_allSig_")
-            makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MJJ_"+p+"_"+c+".root" for s in signalsVBF],signalsVBF,'MJJ',p+"_"+c,"paramVBFSignalShape_allSig_")
-            makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MVV_"+p+"_"+c+".root" for s in signalsVBF],signalsVBF,'MVV',p+"_"+c,"paramVBFSignalShape_allSig_")
+            #makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MJJ_"+p+"_"+c+".root" for s in signalsNonVBF],signalsNonVBF,'MJJ',p+"_"+c,"paramSignalShape_NonVBFSig_")
+            #makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MVV_"+p+"_"+c+".root" for s in signalsNonVBF],signalsNonVBF,'MVV',p+"_"+c,"paramSignalShape_NonVBFSig_")
+            #makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MJJ_"+p+"_"+c+".root" for s in signalsVBF],signalsVBF,'MJJ',p+"_"+c,"paramSignalShape_VBFSig_")
+            #makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MVV_"+p+"_"+c+".root" for s in signalsVBF],signalsVBF,'MVV',p+"_"+c,"paramSignalShape_VBFSig_")
             #'''
 
             for l in leptons:#['e']:#
                 pass
                 #'''
-                makeSignalYieldParam([inDir+"LNuJJ_"+s+"_"+l+"_"+p+"_"+c+"_yield.root" for s in signals],signals,"paramSignalYield_allSig_"+l+"_"+p+"_"+c)
-                makeSignalYieldParam([inDir+"LNuJJ_"+s+"_"+l+"_"+p+"_"+c+"_yield.root" for s in signalsNonVBF],signalsNonVBF,"paramNonVBFSignalYield_allSig_"+l+"_"+p+"_"+c)
-                makeSignalYieldParam([inDir+"LNuJJ_"+s+"_"+l+"_"+p+"_"+c+"_yield.root" for s in signalsVBF],signalsVBF,"paramVBFSignalYield_allSig_"+l+"_"+p+"_"+c)
+                #makeSignalYieldParam([inDir+"LNuJJ_"+s+"_"+l+"_"+p+"_"+c+"_yield.root" for s in signals],signals,"paramSignalYield_allSig_"+l+"_"+p+"_"+c)
+                makeSignalYieldParam([inDir+"LNuJJ_"+s+"_"+l+"_"+p+"_"+c+"_yield.root" for s in signalsNonVBF],signalsNonVBF,"paramSignalYield_NonVBFSig_"+l+"_"+p+"_"+c)
+                makeSignalYieldParam([inDir+"LNuJJ_"+s+"_"+l+"_"+p+"_"+c+"_yield.root" for s in signalsVBF],signalsVBF,"paramSignalYield_VBFSig_"+l+"_"+p+"_"+c)
                 #'''
 
                 for signal in signals:
@@ -1860,17 +1860,12 @@ if 'signal' in plots:
 
 
 if 'bbtagunc' in plots:
-    for c in categories:#['nobb']:#
-        for p in purities:#['HP']:#
-            for l in leptons:#['e']:#
-                makeSignalYieldParam_unc(inDir+"LNuJJ_GbuToWW_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_GbuToWW_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_GbuToWW_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalYieldbbSFunc_GbuToWW_"+l+"_"+p+"_"+c,0)
-                makeSignalYieldParam_unc(inDir+"LNuJJ_WprToWZ_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_WprToWZ_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_WprToWZ_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalYieldbbSFunc_WprToWZ_"+l+"_"+p+"_"+c,0)
-                makeSignalYieldParam_unc(inDir+"LNuJJ_WprToWH_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_WprToWH_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_WprToWH_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalYieldbbSFunc_WprToWH_"+l+"_"+p+"_"+c,0)
-                makeSignalYieldParam_unc(inDir+"LNuJJ_VBFRadToWW_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_VBFRadToWW_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_VBFRadToWW_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalYield_VBFRadToWW_bbSFunc_"+l+"_"+p+"_"+c,0)
-                makeSignalYieldParam_unc(inDir+"LNuJJ_GbuToWW_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_GbuToWW_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_GbuToWW_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalbbSFunc_GbuToWW_"+l+"_"+p+"_"+c,1)
-                makeSignalYieldParam_unc(inDir+"LNuJJ_WprToWZ_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_WprToWZ_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_WprToWZ_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalbbSFunc_WprToWZ_"+l+"_"+p+"_"+c,1)
-                makeSignalYieldParam_unc(inDir+"LNuJJ_WprToWH_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_WprToWH_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_WprToWH_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalbbSFunc_WprToWH_"+l+"_"+p+"_"+c,1)
-                makeSignalYieldParam_unc(inDir+"LNuJJ_VBFRadToWW_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_VBFRadToWW_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_VBFRadToWW_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalbbSFunc_VBFRadToWW_"+l+"_"+p+"_"+c,1)
+    for signal in signals:
+        for c in categories:#['nobb']:#
+            for p in purities:#['HP']:#
+                for l in leptons:#['e']:#
+                    makeSignalYieldParam_unc(inDir+"LNuJJ_"+signal+"_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_"+signal+"_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_"+signal+"_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalYieldbbSFunc_"+signal+"_"+l+"_"+p+"_"+c,0)
+                    makeSignalYieldParam_unc(inDir+"LNuJJ_"+signal+"_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_"+signal+"_bbSFup_"+l+"_"+p+"_"+c+"_yield.root",inDir+"LNuJJ_"+signal+"_bbSFdn_"+l+"_"+p+"_"+c+"_yield.root","paramSignalbbSFunc_"+signal+"_"+l+"_"+p+"_"+c,1)
 
 
 
