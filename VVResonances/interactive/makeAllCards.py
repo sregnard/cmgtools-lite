@@ -10,70 +10,70 @@ parser.add_option("-r","--region",dest="region",default='SR',help="signal region
 
 
 doAllComb='''
-text2workspace.py datacard_bb_e_HP_Run2.txt -o combined_bb_e_HP.root
-text2workspace.py datacard_bb_e_LP_Run2.txt -o combined_bb_e_LP.root
-text2workspace.py datacard_bb_mu_HP_Run2.txt -o combined_bb_mu_HP.root
-text2workspace.py datacard_bb_mu_LP_Run2.txt -o combined_bb_mu_LP.root
-text2workspace.py datacard_nobb_e_HP_Run2.txt -o combined_nobb_e_HP.root
-text2workspace.py datacard_nobb_e_LP_Run2.txt -o combined_nobb_e_LP.root
-text2workspace.py datacard_nobb_mu_HP_Run2.txt -o combined_nobb_mu_HP.root
-text2workspace.py datacard_nobb_mu_LP_Run2.txt -o combined_nobb_mu_LP.root
-text2workspace.py datacard_vbf_e_HP_Run2.txt -o combined_vbf_e_HP.root
-text2workspace.py datacard_vbf_e_LP_Run2.txt -o combined_vbf_e_LP.root
-text2workspace.py datacard_vbf_mu_HP_Run2.txt -o combined_vbf_mu_HP.root
-text2workspace.py datacard_vbf_mu_LP_Run2.txt -o combined_vbf_mu_LP.root
+text2workspace.py datacard_e_HP_bb_DEtaLo_Run2.txt -o combined_e_HP_bb_DEtaLo.root
+text2workspace.py datacard_e_LP_bb_DEtaLo_Run2.txt -o combined_e_LP_bb_DEtaLo.root
+text2workspace.py datacard_mu_HP_bb_DEtaLo_Run2.txt -o combined_mu_HP_bb_DEtaLo.root
+text2workspace.py datacard_mu_LP_bb_DEtaLo_Run2.txt -o combined_mu_LP_bb_DEtaLo.root
+text2workspace.py datacard_e_HP_nobb_DEtaLo_Run2.txt -o combined_e_HP_nobb_DEtaLo.root
+text2workspace.py datacard_e_LP_nobb_DEtaLo_Run2.txt -o combined_e_LP_nobb_DEtaLo.root
+text2workspace.py datacard_mu_HP_nobb_DEtaLo_Run2.txt -o combined_mu_HP_nobb_DEtaLo.root
+text2workspace.py datacard_mu_LP_nobb_DEtaLo_Run2.txt -o combined_mu_LP_nobb_DEtaLo.root
+text2workspace.py datacard_e_HP_vbf_DEtaLo_Run2.txt -o combined_e_HP_vbf_DEtaLo.root
+text2workspace.py datacard_e_LP_vbf_DEtaLo_Run2.txt -o combined_e_LP_vbf_DEtaLo.root
+text2workspace.py datacard_mu_HP_vbf_DEtaLo_Run2.txt -o combined_mu_HP_vbf_DEtaLo.root
+text2workspace.py datacard_mu_LP_vbf_DEtaLo_Run2.txt -o combined_mu_LP_vbf_DEtaLo.root
 
-combineCards.py  bb_e_HP_Run2=datacard_bb_e_HP_Run2.txt  bb_e_LP_Run2=datacard_bb_e_LP_Run2.txt > combined_bb_e.txt
-text2workspace.py combined_bb_e.txt -o combined_bb_e.root
-combineCards.py  nobb_e_HP_Run2=datacard_nobb_e_HP_Run2.txt  nobb_e_LP_Run2=datacard_nobb_e_LP_Run2.txt > combined_nobb_e.txt
-text2workspace.py combined_nobb_e.txt -o combined_nobb_e.root
-combineCards.py  vbf_e_HP_Run2=datacard_vbf_e_HP_Run2.txt  vbf_e_LP_Run2=datacard_vbf_e_LP_Run2.txt > combined_vbf_e.txt
-text2workspace.py combined_vbf_e.txt -o combined_vbf_e.root
-combineCards.py  bb_mu_HP_Run2=datacard_bb_mu_HP_Run2.txt  bb_mu_LP_Run2=datacard_bb_mu_LP_Run2.txt > combined_bb_mu.txt
-text2workspace.py combined_bb_mu.txt -o combined_bb_mu.root
-combineCards.py  nobb_mu_HP_Run2=datacard_nobb_mu_HP_Run2.txt  nobb_mu_LP_Run2=datacard_nobb_mu_LP_Run2.txt > combined_nobb_mu.txt
-text2workspace.py combined_nobb_mu.txt -o combined_nobb_mu.root
-combineCards.py  vbf_mu_HP_Run2=datacard_vbf_mu_HP_Run2.txt  vbf_mu_LP_Run2=datacard_vbf_mu_LP_Run2.txt > combined_vbf_mu.txt
-text2workspace.py combined_vbf_mu.txt -o combined_vbf_mu.root
+combineCards.py  e_HP_bb_DEtaLo_Run2=datacard_e_HP_bb_DEtaLo_Run2.txt  e_LP_bb_DEtaLo_Run2=datacard_e_LP_bb_DEtaLo_Run2.txt > combined_e_bb_DEtaLo.txt
+text2workspace.py combined_e_bb_DEtaLo.txt -o combined_e_bb_DEtaLo.root
+combineCards.py  e_HP_nobb_DEtaLo_Run2=datacard_e_HP_nobb_DEtaLo_Run2.txt  e_LP_nobb_DEtaLo_Run2=datacard_e_LP_nobb_DEtaLo_Run2.txt > combined_e_nobb_DEtaLo.txt
+text2workspace.py combined_e_nobb_DEtaLo.txt -o combined_e_nobb_DEtaLo.root
+combineCards.py  e_HP_vbf_DEtaLo_Run2=datacard_e_HP_vbf_DEtaLo_Run2.txt  e_LP_vbf_DEtaLo_Run2=datacard_e_LP_vbf_DEtaLo_Run2.txt > combined_e_vbf_DEtaLo.txt
+text2workspace.py combined_e_vbf_DEtaLo.txt -o combined_e_vbf_DEtaLo.root
+combineCards.py  mu_HP_bb_DEtaLo_Run2=datacard_mu_HP_bb_DEtaLo_Run2.txt  mu_LP_bb_DEtaLo_Run2=datacard_mu_LP_bb_DEtaLo_Run2.txt > combined_mu_bb_DEtaLo.txt
+text2workspace.py combined_mu_bb_DEtaLo.txt -o combined_mu_bb_DEtaLo.root
+combineCards.py  mu_HP_nobb_DEtaLo_Run2=datacard_mu_HP_nobb_DEtaLo_Run2.txt  mu_LP_nobb_DEtaLo_Run2=datacard_mu_LP_nobb_DEtaLo_Run2.txt > combined_mu_nobb_DEtaLo.txt
+text2workspace.py combined_mu_nobb_DEtaLo.txt -o combined_mu_nobb_DEtaLo.root
+combineCards.py  mu_HP_vbf_DEtaLo_Run2=datacard_mu_HP_vbf_DEtaLo_Run2.txt  mu_LP_vbf_DEtaLo_Run2=datacard_mu_LP_vbf_DEtaLo_Run2.txt > combined_mu_vbf_DEtaLo.txt
+text2workspace.py combined_mu_vbf_DEtaLo.txt -o combined_mu_vbf_DEtaLo.root
 
-combineCards.py  bb_e_HP_Run2=datacard_bb_e_HP_Run2.txt  bb_mu_HP_Run2=datacard_bb_mu_HP_Run2.txt > combined_bb_HP.txt
-text2workspace.py combined_bb_HP.txt -o combined_bb_HP.root
-combineCards.py  bb_e_LP_Run2=datacard_bb_e_LP_Run2.txt  bb_mu_LP_Run2=datacard_bb_mu_LP_Run2.txt > combined_bb_LP.txt
-text2workspace.py combined_bb_LP.txt -o combined_bb_LP.root
-combineCards.py  nobb_e_HP_Run2=datacard_nobb_e_HP_Run2.txt  nobb_mu_HP_Run2=datacard_nobb_mu_HP_Run2.txt > combined_nobb_HP.txt
-text2workspace.py combined_nobb_HP.txt -o combined_nobb_HP.root
-combineCards.py  nobb_e_LP_Run2=datacard_nobb_e_LP_Run2.txt  nobb_mu_LP_Run2=datacard_nobb_mu_LP_Run2.txt > combined_nobb_LP.txt
-text2workspace.py combined_nobb_LP.txt -o combined_nobb_LP.root
-combineCards.py  vbf_e_HP_Run2=datacard_vbf_e_HP_Run2.txt  vbf_mu_HP_Run2=datacard_vbf_mu_HP_Run2.txt > combined_vbf_HP.txt
-text2workspace.py combined_vbf_HP.txt -o combined_vbf_HP.root
-combineCards.py  vbf_e_LP_Run2=datacard_vbf_e_LP_Run2.txt  vbf_mu_LP_Run2=datacard_vbf_mu_LP_Run2.txt > combined_vbf_LP.txt
-text2workspace.py combined_vbf_LP.txt -o combined_vbf_LP.root
+combineCards.py  e_HP_bb_DEtaLo_Run2=datacard_e_HP_bb_DEtaLo_Run2.txt  mu_HP_bb_DEtaLo_Run2=datacard_mu_HP_bb_DEtaLo_Run2.txt > combined_HP_bb_DEtaLo.txt
+text2workspace.py combined_HP_bb_DEtaLo.txt -o combined_HP_bb_DEtaLo.root
+combineCards.py  e_LP_bb_DEtaLo_Run2=datacard_e_LP_bb_DEtaLo_Run2.txt  mu_LP_bb_DEtaLo_Run2=datacard_mu_LP_bb_DEtaLo_Run2.txt > combined_LP_bb_DEtaLo.txt
+text2workspace.py combined_LP_bb_DEtaLo.txt -o combined_LP_bb_DEtaLo.root
+combineCards.py  e_HP_nobb_DEtaLo_Run2=datacard_e_HP_nobb_DEtaLo_Run2.txt  mu_HP_nobb_DEtaLo_Run2=datacard_mu_HP_nobb_DEtaLo_Run2.txt > combined_HP_nobb_DEtaLo.txt
+text2workspace.py combined_HP_nobb_DEtaLo.txt -o combined_HP_nobb_DEtaLo.root
+combineCards.py  e_LP_nobb_DEtaLo_Run2=datacard_e_LP_nobb_DEtaLo_Run2.txt  mu_LP_nobb_DEtaLo_Run2=datacard_mu_LP_nobb_DEtaLo_Run2.txt > combined_LP_nobb_DEtaLo.txt
+text2workspace.py combined_LP_nobb_DEtaLo.txt -o combined_LP_nobb_DEtaLo.root
+combineCards.py  e_HP_vbf_DEtaLo_Run2=datacard_e_HP_vbf_DEtaLo_Run2.txt  mu_HP_vbf_DEtaLo_Run2=datacard_mu_HP_vbf_DEtaLo_Run2.txt > combined_HP_vbf_DEtaLo.txt
+text2workspace.py combined_HP_vbf_DEtaLo.txt -o combined_HP_vbf_DEtaLo.root
+combineCards.py  e_LP_vbf_DEtaLo_Run2=datacard_e_LP_vbf_DEtaLo_Run2.txt  mu_LP_vbf_DEtaLo_Run2=datacard_mu_LP_vbf_DEtaLo_Run2.txt > combined_LP_vbf_DEtaLo.txt
+text2workspace.py combined_LP_vbf_DEtaLo.txt -o combined_LP_vbf_DEtaLo.root
 
-combineCards.py  bb_e_HP_Run2=datacard_bb_e_HP_Run2.txt  nobb_e_HP_Run2=datacard_nobb_e_HP_Run2.txt  vbf_e_HP_Run2=datacard_vbf_e_HP_Run2.txt > combined_e_HP.txt
-text2workspace.py combined_e_HP.txt -o combined_e_HP.root
-combineCards.py  bb_e_LP_Run2=datacard_bb_e_LP_Run2.txt  nobb_e_LP_Run2=datacard_nobb_e_LP_Run2.txt  vbf_e_LP_Run2=datacard_vbf_e_LP_Run2.txt > combined_e_LP.txt
-text2workspace.py combined_e_LP.txt -o combined_e_LP.root
-combineCards.py  bb_mu_HP_Run2=datacard_bb_mu_HP_Run2.txt  nobb_mu_HP_Run2=datacard_nobb_mu_HP_Run2.txt  vbf_mu_HP_Run2=datacard_vbf_mu_HP_Run2.txt > combined_mu_HP.txt
-text2workspace.py combined_mu_HP.txt -o combined_mu_HP.root
-combineCards.py  bb_mu_LP_Run2=datacard_bb_mu_LP_Run2.txt  nobb_mu_LP_Run2=datacard_nobb_mu_LP_Run2.txt  vbf_mu_LP_Run2=datacard_vbf_mu_LP_Run2.txt > combined_mu_LP.txt
-text2workspace.py combined_mu_LP.txt -o combined_mu_LP.root
+combineCards.py  e_HP_bb_DEtaLo_Run2=datacard_e_HP_bb_DEtaLo_Run2.txt  e_HP_nobb_DEtaLo_Run2=datacard_e_HP_nobb_DEtaLo_Run2.txt  e_HP_vbf_DEtaLo_Run2=datacard_e_HP_vbf_DEtaLo_Run2.txt > combined_e_HP_DEtaLo.txt
+text2workspace.py combined_e_HP_DEtaLo.txt -o combined_e_HP_DEtaLo.root
+combineCards.py  e_LP_bb_DEtaLo_Run2=datacard_e_LP_bb_DEtaLo_Run2.txt  e_LP_nobb_DEtaLo_Run2=datacard_e_LP_nobb_DEtaLo_Run2.txt  e_LP_vbf_DEtaLo_Run2=datacard_e_LP_vbf_DEtaLo_Run2.txt > combined_e_LP_DEtaLo.txt
+text2workspace.py combined_e_LP_DEtaLo.txt -o combined_e_LP_DEtaLo.root
+combineCards.py  mu_HP_bb_DEtaLo_Run2=datacard_mu_HP_bb_DEtaLo_Run2.txt  mu_HP_nobb_DEtaLo_Run2=datacard_mu_HP_nobb_DEtaLo_Run2.txt  mu_HP_vbf_DEtaLo_Run2=datacard_mu_HP_vbf_DEtaLo_Run2.txt > combined_mu_HP_DEtaLo.txt
+text2workspace.py combined_mu_HP_DEtaLo.txt -o combined_mu_HP_DEtaLo.root
+combineCards.py  mu_LP_bb_DEtaLo_Run2=datacard_mu_LP_bb_DEtaLo_Run2.txt  mu_LP_nobb_DEtaLo_Run2=datacard_mu_LP_nobb_DEtaLo_Run2.txt  mu_LP_vbf_DEtaLo_Run2=datacard_mu_LP_vbf_DEtaLo_Run2.txt > combined_mu_LP_DEtaLo.txt
+text2workspace.py combined_mu_LP_DEtaLo.txt -o combined_mu_LP_DEtaLo.root
 
-combineCards.py  bb_e_HP_Run2=datacard_bb_e_HP_Run2.txt  bb_mu_HP_Run2=datacard_bb_mu_HP_Run2.txt  bb_e_LP_Run2=datacard_bb_e_LP_Run2.txt  bb_mu_LP_Run2=datacard_bb_mu_LP_Run2.txt > combined_bb.txt
-text2workspace.py combined_bb.txt -o combined_bb.root
-combineCards.py  nobb_e_HP_Run2=datacard_nobb_e_HP_Run2.txt  nobb_mu_HP_Run2=datacard_nobb_mu_HP_Run2.txt  nobb_e_LP_Run2=datacard_nobb_e_LP_Run2.txt  nobb_mu_LP_Run2=datacard_nobb_mu_LP_Run2.txt > combined_nobb.txt
-text2workspace.py combined_nobb.txt -o combined_nobb.root
-combineCards.py  vbf_e_HP_Run2=datacard_vbf_e_HP_Run2.txt  vbf_mu_HP_Run2=datacard_vbf_mu_HP_Run2.txt  vbf_e_LP_Run2=datacard_vbf_e_LP_Run2.txt  vbf_mu_LP_Run2=datacard_vbf_mu_LP_Run2.txt > combined_vbf.txt
-text2workspace.py combined_vbf.txt -o combined_vbf.root
+combineCards.py  e_HP_bb_DEtaLo_Run2=datacard_e_HP_bb_DEtaLo_Run2.txt  mu_HP_bb_DEtaLo_Run2=datacard_mu_HP_bb_DEtaLo_Run2.txt  e_LP_bb_DEtaLo_Run2=datacard_e_LP_bb_DEtaLo_Run2.txt  mu_LP_bb_DEtaLo_Run2=datacard_mu_LP_bb_DEtaLo_Run2.txt > combined_bb_DEtaLo.txt
+text2workspace.py combined_bb_DEtaLo.txt -o combined_bb_DEtaLo.root
+combineCards.py  e_HP_nobb_DEtaLo_Run2=datacard_e_HP_nobb_DEtaLo_Run2.txt  mu_HP_nobb_DEtaLo_Run2=datacard_mu_HP_nobb_DEtaLo_Run2.txt  e_LP_nobb_DEtaLo_Run2=datacard_e_LP_nobb_DEtaLo_Run2.txt  mu_LP_nobb_DEtaLo_Run2=datacard_mu_LP_nobb_DEtaLo_Run2.txt > combined_nobb_DEtaLo.txt
+text2workspace.py combined_nobb_DEtaLo.txt -o combined_nobb_DEtaLo.root
+combineCards.py  e_HP_vbf_DEtaLo_Run2=datacard_e_HP_vbf_DEtaLo_Run2.txt  mu_HP_vbf_DEtaLo_Run2=datacard_mu_HP_vbf_DEtaLo_Run2.txt  e_LP_vbf_DEtaLo_Run2=datacard_e_LP_vbf_DEtaLo_Run2.txt  mu_LP_vbf_DEtaLo_Run2=datacard_mu_LP_vbf_DEtaLo_Run2.txt > combined_vbf_DEtaLo.txt
+text2workspace.py combined_vbf_DEtaLo.txt -o combined_vbf_DEtaLo.root
 
-combineCards.py  bb_e_HP_Run2=datacard_bb_e_HP_Run2.txt  bb_e_LP_Run2=datacard_bb_e_LP_Run2.txt  nobb_e_HP_Run2=datacard_nobb_e_HP_Run2.txt  nobb_e_LP_Run2=datacard_nobb_e_LP_Run2.txt  vbf_e_HP_Run2=datacard_vbf_e_HP_Run2.txt  vbf_e_LP_Run2=datacard_vbf_e_LP_Run2.txt > combined_e.txt
-text2workspace.py combined_e.txt -o combined_e.root
-combineCards.py  bb_mu_HP_Run2=datacard_bb_mu_HP_Run2.txt  bb_mu_LP_Run2=datacard_bb_mu_LP_Run2.txt  nobb_mu_HP_Run2=datacard_nobb_mu_HP_Run2.txt  nobb_mu_LP_Run2=datacard_nobb_mu_LP_Run2.txt  vbf_mu_HP_Run2=datacard_vbf_mu_HP_Run2.txt  vbf_mu_LP_Run2=datacard_vbf_mu_LP_Run2.txt > combined_mu.txt
-text2workspace.py combined_mu.txt -o combined_mu.root
+combineCards.py  e_HP_bb_DEtaLo_Run2=datacard_e_HP_bb_DEtaLo_Run2.txt  e_LP_bb_DEtaLo_Run2=datacard_e_LP_bb_DEtaLo_Run2.txt  e_HP_nobb_DEtaLo_Run2=datacard_e_HP_nobb_DEtaLo_Run2.txt  e_LP_nobb_DEtaLo_Run2=datacard_e_LP_nobb_DEtaLo_Run2.txt  e_HP_vbf_DEtaLo_Run2=datacard_e_HP_vbf_DEtaLo_Run2.txt  e_LP_vbf_DEtaLo_Run2=datacard_e_LP_vbf_DEtaLo_Run2.txt > combined_e_DEtaLo.txt
+text2workspace.py combined_e_DEtaLo.txt -o combined_e_DEtaLo.root
+combineCards.py  mu_HP_bb_DEtaLo_Run2=datacard_mu_HP_bb_DEtaLo_Run2.txt  mu_LP_bb_DEtaLo_Run2=datacard_mu_LP_bb_DEtaLo_Run2.txt  mu_HP_nobb_DEtaLo_Run2=datacard_mu_HP_nobb_DEtaLo_Run2.txt  mu_LP_nobb_DEtaLo_Run2=datacard_mu_LP_nobb_DEtaLo_Run2.txt  mu_HP_vbf_DEtaLo_Run2=datacard_mu_HP_vbf_DEtaLo_Run2.txt  mu_LP_vbf_DEtaLo_Run2=datacard_mu_LP_vbf_DEtaLo_Run2.txt > combined_mu_DEtaLo.txt
+text2workspace.py combined_mu_DEtaLo.txt -o combined_mu_DEtaLo.root
 
-combineCards.py  bb_e_HP_Run2=datacard_bb_e_HP_Run2.txt  bb_mu_HP_Run2=datacard_bb_mu_HP_Run2.txt  nobb_e_HP_Run2=datacard_nobb_e_HP_Run2.txt  nobb_mu_HP_Run2=datacard_nobb_mu_HP_Run2.txt  vbf_e_HP_Run2=datacard_vbf_e_HP_Run2.txt  vbf_mu_HP_Run2=datacard_vbf_mu_HP_Run2.txt > combined_HP.txt
-text2workspace.py combined_HP.txt -o combined_HP.root
-combineCards.py  bb_e_LP_Run2=datacard_bb_e_LP_Run2.txt  bb_mu_LP_Run2=datacard_bb_mu_LP_Run2.txt  nobb_e_LP_Run2=datacard_nobb_e_LP_Run2.txt  nobb_mu_LP_Run2=datacard_nobb_mu_LP_Run2.txt  vbf_e_LP_Run2=datacard_vbf_e_LP_Run2.txt  vbf_mu_LP_Run2=datacard_vbf_mu_LP_Run2.txt > combined_LP.txt
-text2workspace.py combined_LP.txt -o combined_LP.root
+combineCards.py  e_HP_bb_DEtaLo_Run2=datacard_e_HP_bb_DEtaLo_Run2.txt  mu_HP_bb_DEtaLo_Run2=datacard_mu_HP_bb_DEtaLo_Run2.txt  e_HP_nobb_DEtaLo_Run2=datacard_e_HP_nobb_DEtaLo_Run2.txt  mu_HP_nobb_DEtaLo_Run2=datacard_mu_HP_nobb_DEtaLo_Run2.txt  e_HP_vbf_DEtaLo_Run2=datacard_e_HP_vbf_DEtaLo_Run2.txt  mu_HP_vbf_DEtaLo_Run2=datacard_mu_HP_vbf_DEtaLo_Run2.txt > combined_HP_DEtaLo.txt
+text2workspace.py combined_HP_DEtaLo.txt -o combined_HP_DEtaLo.root
+combineCards.py  e_LP_bb_DEtaLo_Run2=datacard_e_LP_bb_DEtaLo_Run2.txt  mu_LP_bb_DEtaLo_Run2=datacard_mu_LP_bb_DEtaLo_Run2.txt  e_LP_nobb_DEtaLo_Run2=datacard_e_LP_nobb_DEtaLo_Run2.txt  mu_LP_nobb_DEtaLo_Run2=datacard_mu_LP_nobb_DEtaLo_Run2.txt  e_LP_vbf_DEtaLo_Run2=datacard_e_LP_vbf_DEtaLo_Run2.txt  mu_LP_vbf_DEtaLo_Run2=datacard_mu_LP_vbf_DEtaLo_Run2.txt > combined_LP_DEtaLo.txt
+text2workspace.py combined_LP_DEtaLo.txt -o combined_LP_DEtaLo.root
 '''
 
 
@@ -98,11 +98,11 @@ for signal in [
     if options.allcomb:
         os.system(doAllComb)
 
-    os.system('combineCards.py  bb_e_HP_Run2=datacard_bb_e_HP_Run2.txt  bb_mu_HP_Run2=datacard_bb_mu_HP_Run2.txt  bb_e_LP_Run2=datacard_bb_e_LP_Run2.txt  bb_mu_LP_Run2=datacard_bb_mu_LP_Run2.txt  nobb_e_HP_Run2=datacard_nobb_e_HP_Run2.txt  nobb_mu_HP_Run2=datacard_nobb_mu_HP_Run2.txt  nobb_e_LP_Run2=datacard_nobb_e_LP_Run2.txt  nobb_mu_LP_Run2=datacard_nobb_mu_LP_Run2.txt  vbf_e_HP_Run2=datacard_vbf_e_HP_Run2.txt  vbf_mu_HP_Run2=datacard_vbf_mu_HP_Run2.txt  vbf_e_LP_Run2=datacard_vbf_e_LP_Run2.txt  vbf_mu_LP_Run2=datacard_vbf_mu_LP_Run2.txt > combined.txt')
+    os.system('combineCards.py   e_HP_bb_DEtaLo_Run2=datacard_e_HP_bb_DEtaLo_Run2.txt  mu_HP_bb_DEtaLo_Run2=datacard_mu_HP_bb_DEtaLo_Run2.txt  e_LP_bb_DEtaLo_Run2=datacard_e_LP_bb_DEtaLo_Run2.txt  mu_LP_bb_DEtaLo_Run2=datacard_mu_LP_bb_DEtaLo_Run2.txt  e_HP_nobb_DEtaLo_Run2=datacard_e_HP_nobb_DEtaLo_Run2.txt  mu_HP_nobb_DEtaLo_Run2=datacard_mu_HP_nobb_DEtaLo_Run2.txt  e_LP_nobb_DEtaLo_Run2=datacard_e_LP_nobb_DEtaLo_Run2.txt  mu_LP_nobb_DEtaLo_Run2=datacard_mu_LP_nobb_DEtaLo_Run2.txt  e_HP_vbf_DEtaLo_Run2=datacard_e_HP_vbf_DEtaLo_Run2.txt  mu_HP_vbf_DEtaLo_Run2=datacard_mu_HP_vbf_DEtaLo_Run2.txt  e_LP_vbf_DEtaLo_Run2=datacard_e_LP_vbf_DEtaLo_Run2.txt  mu_LP_vbf_DEtaLo_Run2=datacard_mu_LP_vbf_DEtaLo_Run2.txt    e_HP_bb_DEtaMi_Run2=datacard_e_HP_bb_DEtaMi_Run2.txt  mu_HP_bb_DEtaMi_Run2=datacard_mu_HP_bb_DEtaMi_Run2.txt  e_LP_bb_DEtaMi_Run2=datacard_e_LP_bb_DEtaMi_Run2.txt  mu_LP_bb_DEtaMi_Run2=datacard_mu_LP_bb_DEtaMi_Run2.txt  e_HP_nobb_DEtaMi_Run2=datacard_e_HP_nobb_DEtaMi_Run2.txt  mu_HP_nobb_DEtaMi_Run2=datacard_mu_HP_nobb_DEtaMi_Run2.txt  e_LP_nobb_DEtaMi_Run2=datacard_e_LP_nobb_DEtaMi_Run2.txt  mu_LP_nobb_DEtaMi_Run2=datacard_mu_LP_nobb_DEtaMi_Run2.txt  e_HP_vbf_DEtaMi_Run2=datacard_e_HP_vbf_DEtaMi_Run2.txt  mu_HP_vbf_DEtaMi_Run2=datacard_mu_HP_vbf_DEtaMi_Run2.txt  e_LP_vbf_DEtaMi_Run2=datacard_e_LP_vbf_DEtaMi_Run2.txt  mu_LP_vbf_DEtaMi_Run2=datacard_mu_LP_vbf_DEtaMi_Run2.txt    e_HP_bb_DEtaHi_Run2=datacard_e_HP_bb_DEtaHi_Run2.txt  mu_HP_bb_DEtaHi_Run2=datacard_mu_HP_bb_DEtaHi_Run2.txt  e_LP_bb_DEtaHi_Run2=datacard_e_LP_bb_DEtaHi_Run2.txt  mu_LP_bb_DEtaHi_Run2=datacard_mu_LP_bb_DEtaHi_Run2.txt  e_HP_nobb_DEtaHi_Run2=datacard_e_HP_nobb_DEtaHi_Run2.txt  mu_HP_nobb_DEtaHi_Run2=datacard_mu_HP_nobb_DEtaHi_Run2.txt  e_LP_nobb_DEtaHi_Run2=datacard_e_LP_nobb_DEtaHi_Run2.txt  mu_LP_nobb_DEtaHi_Run2=datacard_mu_LP_nobb_DEtaHi_Run2.txt  e_HP_vbf_DEtaHi_Run2=datacard_e_HP_vbf_DEtaHi_Run2.txt  mu_HP_vbf_DEtaHi_Run2=datacard_mu_HP_vbf_DEtaHi_Run2.txt  e_LP_vbf_DEtaHi_Run2=datacard_e_LP_vbf_DEtaHi_Run2.txt  mu_LP_vbf_DEtaHi_Run2=datacard_mu_LP_vbf_DEtaHi_Run2.txt   > combined.txt')
     os.system('text2workspace.py combined.txt -o combined.root')
 
     os.system('cp combined.root combined_full.root')
-    os.system('cp combined.root combined_Run2.root')
+    os.system('mv combined.root combined_Run2.root')
 
     os.system('\mv datacard* '+dcFolder)
     os.system('\mv comb* '+dcFolder)
