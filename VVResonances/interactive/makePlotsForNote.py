@@ -1843,17 +1843,17 @@ if 'signal' in plots:
                         os.system("rm "+inDir+"/LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+e+".root")
                         for mx in [1000,1500,2000,2500,3000,3500,4000,4500]:
                             print mx
-                            extractSignalTemplateFromDC("Dc_"+signal+"/combined_"+YEAR+".root","shapeSig_"+signal+"_"+c+"_"+e+"_"+l+"_"+p+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+e,c)
-                            #extractSignalTemplateFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MVV_"+c+"_"+e+"_"+l+"_"+p+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_MVVGivenMJJFromDC_"+l+"_"+p+"_"+c+"_"+e,c)
-                            #extractSignalMjjPdfFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MJJ_"+c+"_"+e+"_"+l+"_"+p+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_MJJFromDC_"+l+"_"+p+"_"+c+"_"+e,c) ## just for a check
+                            extractSignalTemplateFromDC("Dc_"+signal+"/combined_"+YEAR+".root","shapeSig_"+signal+"_"+l+"_"+p+"_"+c+"_"+e+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+e,c)
+                            #extractSignalTemplateFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MVV_"+l+"_"+p+"_"+c+"_"+e+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_MVVGivenMJJFromDC_"+l+"_"+p+"_"+c+"_"+e,c)
+                            #extractSignalMjjPdfFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MJJ_"+l+"_"+p+"_"+c+"_"+e+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_MJJFromDC_"+l+"_"+p+"_"+c+"_"+e,c) ## just for a check
                         #'''
                         '''
                         makeSignalParamFromHisto(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+e+".root","templateSignalVsMX_fromHisto_"+signal+"_MVV_"+l+"_"+p+"_"+c+"_"+e,"MVV",signal,"1000,1500,2000,2500,3000,3500,4000,4500")
                         makeSignalParamFromHisto(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+e+".root","templateSignalVsMX_fromHisto_"+signal+"_MJJ_"+l+"_"+p+"_"+c+"_"+e,"MJJ",signal,"1000,1500,2000,2500,3000,3500,4000,4500")
                         #'''
                         #'''
-                        makeSignalParamFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MVV_"+c+"_"+e+"_"+l+"_"+p+"_"+YEAR,"templateSignalVsMX_fromDC_"+signal+"_MVV_"+l+"_"+p+"_"+c+"_"+e,signal,"1000,1500,2000,2500,3000,3500,4000,4500",varMVV[c],"m_{WV} (GeV)")
-                        makeSignalParamFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MJJ_"+c+"_"+e+"_"+l+"_"+p+"_"+YEAR,"templateSignalVsMX_fromDC_"+signal+"_MJJ_"+l+"_"+p+"_"+c+"_"+e,signal,"1000,1500,2000,2500,3000,3500,4000,4500",varMJJ[c],"m_{jet} (GeV)")
+                        makeSignalParamFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MVV_"+l+"_"+p+"_"+c+"_"+e+"_"+YEAR,"templateSignalVsMX_fromDC_"+signal+"_MVV_"+l+"_"+p+"_"+c+"_"+e,signal,"1000,1500,2000,2500,3000,3500,4000,4500",varMVV[c],"m_{WV} (GeV)")
+                        makeSignalParamFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MJJ_"+l+"_"+p+"_"+c+"_"+e+"_"+YEAR,"templateSignalVsMX_fromDC_"+signal+"_MJJ_"+l+"_"+p+"_"+c+"_"+e,signal,"1000,1500,2000,2500,3000,3500,4000,4500",varMJJ[c],"m_{jet} (GeV)")
                         #''' 
                         '''
                         for mx in [2000]:

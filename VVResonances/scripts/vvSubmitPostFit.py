@@ -13,16 +13,10 @@ parser.add_option("-o","--options",dest="options",help="Options for runPostFit.p
 
 
 
-#'''
 leptons = ['mu','e']
 purities = ['LP','HP']
 categories = ['bb','nobb','vbf']
-#'''
-'''
-leptons = ['allL','mu','e']
-purities = ['allP','LP','HP']
-categories = ['bb','nobb','nobbLP','nobbHP']
-#'''
+deltaetas = ['DEtaLo','DEtaMi','DEtaHi']
 
 
 
@@ -30,14 +24,15 @@ for v in ['mjj','mvv']:
     for l in leptons:
         for p in purities:
             for c in categories:
+              for e in deltaetas:
 
-                scriptname="submit_runPostFit_{v}_{l}_{p}_{c}".format(v=v,l=l,p=p,c=c)
+                scriptname="submit_runPostFit_{v}_{l}_{p}_{c}_{e}".format(v=v,l=l,p=p,c=c,e=e)
 
                 f=open('{script}.sh'.format(script=scriptname),'w')
                 execScript = '#!/bin/sh \n'
                 execScript += 'cd {cwd} \n'.format(cwd=os.getcwd())
                 execScript += 'eval `scramv1 runtime -sh` \n\n'
-                execScript += "python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/runPostFit.py {options} -i {input} -v {v} -l {l} -p {p} -c {c} 2>&1 | tee log_runPostFit_{v}_{l}_{p}_{c}.txt\n".format(options=options.options,input=args[0],v=v,l=l,p=p,c=c)
+                execScript += "python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/runPostFit.py {options} -i {input} -v {v} -l {l} -p {p} -c {c} -e {e} 2>&1 | tee log_runPostFit_{v}_{l}_{p}_{c}_{e}.txt\n".format(options=options.options,input=args[0],v=v,l=l,p=p,c=c,e=e)
                 execScript += 'cp *.C {cwd}\n cp *.eps {cwd}\n cp *.pdf {cwd}\n cp *.png {cwd}\n cp *.root {cwd}\n'.format(cwd=os.getcwd())
 
                 f.write(execScript)
