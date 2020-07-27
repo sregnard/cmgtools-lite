@@ -64,17 +64,18 @@ for lepton in ['e','mu']:
 
 
                 PCEtag = "_".join([purity,category,deta])
-                PEYtag = "_".join([purity,deta,YEAR])
                 LPCEtag = "_".join([lepton,purity,category,deta])
+                LYtag = "_".join([lepton,YEAR])
+                PYtag = "_".join([purity,YEAR])
                 PCEYtag = "_".join([purity,category,deta,YEAR])
                 LPCEYtag = "_".join([lepton,purity,category,deta,YEAR])
 
                 ## Signal
-                card.addMVVSignalParametricShape(sig+"_MVV",varMVV,inputDir+"LNuJJ_"+sig+"_MVV_"+PCEtag+".json",{'CMS_scale_j_'+YEAR:1,'CMS_scale_MET_'+YEAR:1.0,'CMS_scale_'+lepton+'_'+YEAR:1.0},{'CMS_res_j_'+YEAR:1.0,'CMS_res_MET_'+YEAR:1.0})
+                card.addMVVSignalParametricShape(sig+"_MVV",varMVV,inputDir+"LNuJJ_"+sig+"_MVV_"+PCEtag+".json",{'CMS_scale_j_'+YEAR:1,'CMS_scale_MET_'+YEAR:1.0,'CMS_scale_'+LYtag:1.0},{'CMS_res_j_'+YEAR:1.0,'CMS_res_MET_'+YEAR:1.0})
                 if purity=='LP':
-                    card.addMJJSignalParametricShape(sig+"_MJJ",varMJJ,inputDir+"LNuJJ_"+sig+"_MJJ_"+PCEtag+".json",{'CMS_scale_prunedj_WPeak_'+PEYtag:'0.05'},{'CMS_res_prunedj_WPeak_'+PEYtag:'0.25'})
+                    card.addMJJSignalParametricShape(sig+"_MJJ",varMJJ,inputDir+"LNuJJ_"+sig+"_MJJ_"+PCEtag+".json",{'CMS_scale_prunedj_WPeak_'+PYtag:'0.05'},{'CMS_res_prunedj_WPeak_'+PYtag:'0.25'})
                 else:
-                    card.addMJJSignalParametricShapeNOEXP(sig+"_MJJ",varMJJ,inputDir+"LNuJJ_"+sig+"_MJJ_"+PCEtag+".json",{'CMS_scale_prunedj_WPeak_'+PEYtag:'0.05'},{'CMS_res_prunedj_WPeak_'+PEYtag:'0.25'})
+                    card.addMJJSignalParametricShapeNOEXP(sig+"_MJJ",varMJJ,inputDir+"LNuJJ_"+sig+"_MJJ_"+PCEtag+".json",{'CMS_scale_prunedj_WPeak_'+PYtag:'0.05'},{'CMS_res_prunedj_WPeak_'+PYtag:'0.25'})
                 card.product(sig,sig+"_MJJ",sig+"_MVV")
 
                 if purity=='HP':
@@ -92,7 +93,7 @@ for lepton in ['e','mu']:
 
                 ## Resonant bkgd
                 rootFile=inputDir+"LNuJJ_res"+sfx_rgn+"_2D_"+LPCEtag+".root"
-                card.addHistoShapeFromFile("res",[varMVV,varMJJ],rootFile,"histo",['MVVScale:CMS_VV_LNuJ_res_MVVScale_'+LPCEYtag,'Diag:CMS_VV_LNuJ_res_Diag_'+LPCEYtag,'scaleWY:CMS_scale_prunedj_WPeak_'+PEYtag,'resWY:CMS_res_prunedj_WPeak_'+PEYtag,'scaleTopY:CMS_scale_prunedj_TopPeak_'+PEYtag,'resTopY:CMS_res_prunedj_TopPeak_'+PEYtag,'fractionY:CMS_VV_LNuJ_res_fractionY_'+LPCEYtag],False,0)
+                card.addHistoShapeFromFile("res",[varMVV,varMJJ],rootFile,"histo",['MVVScale:CMS_VV_LNuJ_res_MVVScale_'+LPCEYtag,'Diag:CMS_VV_LNuJ_res_Diag_'+LPCEYtag,'scaleWY:CMS_scale_prunedj_WPeak_'+PYtag,'resWY:CMS_res_prunedj_WPeak_'+PYtag,'scaleTopY:CMS_scale_prunedj_TopPeak_'+PYtag,'resTopY:CMS_res_prunedj_TopPeak_'+PYtag,'fractionY:CMS_VV_LNuJ_res_fractionY_'+LPCEYtag],False,0)
 
                 card.addFixedYieldFromFile("res",1,inputDir+"LNuJJ_norm"+sfx_rgn+"_"+LPCEtag+".root","res"+sfx_rgn)
 
@@ -112,7 +113,7 @@ for lepton in ['e','mu']:
                 card.addSystematic("CMS_puWeight_"+YEAR,"lnN",{'GbuToWW':1.015,'RadToWW':1.015,'ZprToWW':1.015,'WprToWZ':1.015,'WprToWH':1.015,'VBFGbuToWW':1.015,'VBFRadToWW':1.015,'VBFZprToWW':1.015,'VBFWprToWZ':1.015})
 
                 ## lepton efficiency
-                card.addSystematic("CMS_eff_"+lepton+"_"+YEAR,"lnN",{'GbuToWW':1.05,'RadToWW':1.05,'ZprToWW':1.05,'WprToWZ':1.05,'WprToWH':1.05,'VBFGbuToWW':1.05,'VBFRadToWW':1.05,'VBFZprToWW':1.05,'VBFWprToWZ':1.05})
+                card.addSystematic("CMS_eff_"+LYtag,"lnN",{'GbuToWW':1.05,'RadToWW':1.05,'ZprToWW':1.05,'WprToWZ':1.05,'WprToWH':1.05,'VBFGbuToWW':1.05,'VBFRadToWW':1.05,'VBFZprToWW':1.05,'VBFWprToWZ':1.05})
 
                 ## efficiency of the pt/m cut
                 card.addSystematic("CMS_eff_ptom_"+YEAR,"lnN",{'GbuToWW':1.025,'RadToWW':1.025,'ZprToWW':1.025,'WprToWZ':1.025,'WprToWH':1.025,'VBFGbuToWW':1.05,'VBFRadToWW':1.05,'VBFZprToWW':1.05,'VBFWprToWZ':1.05})
@@ -133,21 +134,11 @@ for lepton in ['e','mu']:
                     card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'GbuToWW':1-nobbuncWW,'RadToWW':1-nobbuncWW,'ZprToWW':1-nobbuncWW,'WprToWZ':1-nobbuncWZ,'WprToWH':1-nobbuncWH,'VBFGbuToWW':1-nobbuncWW,'VBFRadToWW':1-nobbuncWW,'VBFZprToWW':1-nobbuncWW,'VBFWprToWZ':1-nobbuncWZ})
 
                 ## background normalization
-
-                #card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+lepton+"_"+purity+"_"+category+"_"+YEAR,"lnN",{'nonRes':1.25})
-
-                card.addSystematic("CMS_VV_LNuJ_bkg_norm_"+lepton+"_"+YEAR,"lnN",{'nonRes':1.05,'res':1.05})
-                card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+purity+"_"+category+"_"+YEAR,"lnN",{'nonRes':1.25})
-
-                #card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+purity+"_"+YEAR,"lnN",{'nonRes':1.15})
-                #card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+category+"_"+YEAR,"lnN",{'nonRes':1.15})
-
-
-                #card.addSystematic("CMS_VV_LNuJ_res_norm_"+lepton+"_"+purity+"_"+category+"_"+YEAR,"lnN",{'res':1.25})
-                card.addSystematic("CMS_VV_LNuJ_res_norm_"+purity+"_"+category+"_"+YEAR,"lnN",{'res':1.25})
-                #card.addSystematic("CMS_VV_LNuJ_res_norm_"+lepton+"_"+YEAR,"lnN",{'res':1.05})
-                #card.addSystematic("CMS_VV_LNuJ_res_norm_"+purity+"_"+YEAR,"lnN",{'res':1.15})
-                #card.addSystematic("CMS_VV_LNuJ_res_norm_"+category+"_"+YEAR,"lnN",{'res':1.15})
+                #card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+LPCEYtag,"lnN",{'nonRes':1.25})
+                #card.addSystematic("CMS_VV_LNuJ_res_norm_"+LPCEYtag,"lnN",{'res':1.25})
+                card.addSystematic("CMS_VV_LNuJ_bkg_norm_"+LYtag,"lnN",{'nonRes':1.05,'res':1.05})
+                card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+PCEYtag,"lnN",{'nonRes':1.25})
+                card.addSystematic("CMS_VV_LNuJ_res_norm_"+PCEYtag,"lnN",{'res':1.25})
 
                 ## shapes
                 card.addSystematic("CMS_scale_j_"+YEAR,"param",[0.0,0.02])
@@ -171,10 +162,10 @@ for lepton in ['e','mu']:
                 card.addSystematic("CMS_VV_LNuJ_res_Diag_"+LPCEYtag,"param",[0.0,0.333])
                 card.addSystematic("CMS_VV_LNuJ_res_fractionY_"+LPCEYtag,"param",[0.0,0.333])
 
-                card.addSystematic("CMS_scale_prunedj_WPeak_"+PEYtag,"param",[-0.22,0.2]) ## central value: -1.1%, uncertainty: +-1%
-                card.addSystematic("CMS_res_prunedj_WPeak_"+PEYtag,"param",[0.32,0.32]) ## central value: +8%, uncertainty: +-8%
-                card.addSystematic("CMS_scale_prunedj_TopPeak_"+PEYtag,"param",[0.0,0.2]) ## central value not rescaled, uncertainty: +-1%
-                card.addSystematic("CMS_res_prunedj_TopPeak_"+PEYtag,"param",[0.0,0.32]) ## central value not rescaled, uncertainty: +-8%
+                card.addSystematic("CMS_scale_prunedj_WPeak_"+PYtag,"param",[-0.22,0.2]) ## central value: -1.1%, uncertainty: +-1%
+                card.addSystematic("CMS_res_prunedj_WPeak_"+PYtag,"param",[0.32,0.32]) ## central value: +8%, uncertainty: +-8%
+                card.addSystematic("CMS_scale_prunedj_TopPeak_"+PYtag,"param",[0.0,0.2]) ## central value not rescaled, uncertainty: +-1%
+                card.addSystematic("CMS_res_prunedj_TopPeak_"+PYtag,"param",[0.0,0.32]) ## central value not rescaled, uncertainty: +-8%
                 card.makeCard()
 
 
