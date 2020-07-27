@@ -429,7 +429,7 @@ def makeBackgroundShapesMJJSpline(name,filename,template,addCut="1"):
         for p in purities:
             for c in categories:
                 for e in etas:
-                    cut='*'.join([cuts['CR' if inCR else 'common'],cuts[l],cuts[p],cuts[c],cuts[e],addCut,cuts['acceptanceMVV'],'(1+0.17*exp(-0.5*(TMath::Log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt)+0.44)^2))'])
+                    cut='*'.join([cuts['CR' if inCR else 'common'],cuts[l],cuts[p],cuts[c],cuts[e],addCut,cuts['acceptanceMVV']]) #,'(1+0.17*exp(-0.5*(TMath::Log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt)+0.44)^2))'])
                     rootFile=outDir+filename+"_"+name+"_MJJ_"+l+"_"+p+"_"+c+"_"+e+".root"
                     cmd='vvMake1DTemplateSpline.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_l2_softDrop_mass" -V "lnujj_l2_softDrop_mass_high,lnujj_l2_softDrop_mass_low" -u "(exp(-0.5*(TMath::Log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt)+0.44)^2)),(0.05*lnujj_l2_softDrop_mass)" -b {binsMJJ} -x {minMJJ} -X {maxMJJ} -f {fspline} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,fspline=fspline[c],ntuples=ntuples)
                     os.system(cmd)
@@ -538,7 +538,7 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',factor=1):
                     elif name=='nonRes_CR_inclLC':
                         cut="*".join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],cuts['allC'],cuts[e],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
                     elif name=='nonRes_wgtMJJ'or name=='nonRes_CR_wgtMJJ':
-                        cut="*".join([cuts['CR' if inCR else 'common'],cuts[l],cuts[p],cuts[c],cuts[e],addCut,cuts['acceptanceMVV'],'(1+0.17*exp(-0.5*(TMath::Log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt)+0.44)^2))'])
+                        cut="*".join([cuts['CR' if inCR else 'common'],cuts[l],cuts[p],cuts[c],cuts[e],addCut,cuts['acceptanceMVV']]) #,'(1+0.17*exp(-0.5*(TMath::Log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt)+0.44)^2))'])
                     elif name=='res_inclLPC' or name=='res_CR_inclLPC':
                         cut="*".join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts['allP'],cuts['allC'],cuts[e],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
 
