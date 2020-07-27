@@ -107,7 +107,7 @@ colorDn=ROOT.kAzure+1
 leptons = ['mu','e']#['allL']#
 purities = ['LP','HP']#['allP']#
 categories = ['bb','nobb','vbf']   #['allC']#['bb','nobbHP','nobbLP']#
-etas = ['DEtaLo','DEtaMi','DEtaHi'] #['allE']
+etas = ['DEtaLo','DEtaHi'] #['allE']
 
 DcFolder = 'Dc_GbuToWW'
 

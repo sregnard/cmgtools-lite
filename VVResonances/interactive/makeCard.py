@@ -49,7 +49,7 @@ if sig not in ['GbuToWW','RadToWW','ZprToWW','WprToWZ','WprToWH','VBFGbuToWW','V
 for lepton in ['e','mu']:
     for purity in ['HP','LP']:
         for category in ['bb','nobb','vbf']:
-            for deta in ['DEtaLo','DEtaMi','DEtaHi']:
+            for deta in ['DEtaLo','DEtaHi']:
 
                 card=DataCardMaker(lepton,purity,YEAR,intlumi,category+"_"+deta)
                 cat='_'.join([lepton,purity,category,deta,YEAR])

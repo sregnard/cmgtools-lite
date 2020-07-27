@@ -171,7 +171,7 @@ eta = options.deltaeta
 leptons = ['mu','e']
 purities = ['LP','HP']
 categories = ['bb','nobb','vbf']
-deltaetas = ['DEtaLo','DEtaMi','DEtaHi']
+deltaetas = ['DEtaLo','DEtaHi']
 
 
 dataset="data_obs"
