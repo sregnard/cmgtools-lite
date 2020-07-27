@@ -210,13 +210,11 @@ cuts['vbf'] = '(lnujj_nJets>=2&&lnujj_vbfDEta>4.0&&lnujj_vbfMass>500)'
 categories=['bb','nobb','vbf']
 categoriesMerged=['allC']
 
-thrHE='2'
-thrLE='1'
-cuts['DEtaLo'] = '(abs(lnujj_l1_eta-lnujj_l2_eta)<'+thrLE+')'
-cuts['DEtaMi'] = '(abs(lnujj_l1_eta-lnujj_l2_eta)>='+thrLE+'&&abs(lnujj_l1_eta-lnujj_l2_eta)<='+thrHE+')'
-cuts['DEtaHi'] = '(abs(lnujj_l1_eta-lnujj_l2_eta)>'+thrHE+')'
+thrDEta='1.0'
+cuts['DEtaLo'] = '(abs(lnujj_l1_eta-lnujj_l2_eta)<'+thrDEta+')'
+cuts['DEtaHi'] = '(abs(lnujj_l1_eta-lnujj_l2_eta)>='+thrDEta+')'
 cuts['allE'] = '1'
-etas=['DEtaLo','DEtaMi','DEtaHi']
+etas=['DEtaLo','DEtaHi']
 etasMerged=['allE']
 
 #cuts['resW']  ='(lnujj_l2_mergedVTruth==1&&!(lnujj_l2_nearestBDRTruth<0.8&&lnujj_l2_gen_b_pt/(lnujj_l2_gen_qq_pt+lnujj_l2_gen_b_pt)>0.1&&lnujj_l2_gen_softDrop_mass>100))'
