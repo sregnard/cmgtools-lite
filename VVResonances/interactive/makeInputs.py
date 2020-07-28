@@ -113,7 +113,7 @@ bbWgtWZ={
 bbWgtWH={
     'bb'   : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*'+str(sf)) for ptcut,sf in bbSFWH_2018))+'))',
     'nobb' : '((year==2016)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2016[ptcut])+')/(1-'+str(bbEffWH_2016[ptcut])+'))') for ptcut,sf in bbSFWH_2016))+')  +  (year==2017)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2017[ptcut])+')/(1-'+str(bbEffWH_2017[ptcut])+'))') for ptcut,sf in bbSFWH_2017))+')  +  (year==2018)*('+('+'.join((ptcut.replace('pt','lnujj_l2_pt')+'*((1-'+str(sf)+'*'+str(bbEffWH_2018[ptcut])+')/(1-'+str(bbEffWH_2018[ptcut])+'))') for ptcut,sf in bbSFWH_2018))+'))',
-    'vbf' : '1', 
+    'vbf' : '1',
     'allC': '1',
     }
 bbWgtWW_up={
@@ -210,9 +210,21 @@ cuts['vbf'] = '(lnujj_nJets>=2&&lnujj_vbfDEta>4.0&&lnujj_vbfMass>500)'
 categories=['bb','nobb','vbf']
 categoriesMerged=['allC']
 
+'''
 thrDEta='1.0'
 cuts['DEtaLo'] = '(abs(lnujj_l1_eta-lnujj_l2_eta)<'+thrDEta+')'
 cuts['DEtaHi'] = '(abs(lnujj_l1_eta-lnujj_l2_eta)>='+thrDEta+')'
+cuts['allE'] = '1'
+etas=['DEtaLo','DEtaHi']
+etasMerged=['allE']
+'''
+
+thrDRap='1.0'
+rapid1='log((sqrt(((lnujj_l1_mass)**2)+((lnujj_l1_pt)**2)*(cosh(lnujj_l1_eta)**2))+(lnujj_l1_pt)*sinh(lnujj_l1_eta))/sqrt(((lnujj_l1_mass)**2)+((lnujj_l1_pt)**2)))'
+rapid2='log((sqrt(((lnujj_l2_mass)**2)+((lnujj_l2_pt)**2)*(cosh(lnujj_l2_eta)**2))+(lnujj_l2_pt)*sinh(lnujj_l2_eta))/sqrt(((lnujj_l2_mass)**2)+((lnujj_l2_pt)**2)))'
+DRap='abs('+rapid1+'-'+rapid2+')'
+cuts['DEtaLo'] = '('+DRap+'<'+thrDRap+')'
+cuts['DEtaHi'] = '('+DRap+'>='+thrDRap+')'
 cuts['allE'] = '1'
 etas=['DEtaLo','DEtaHi']
 etasMerged=['allE']
