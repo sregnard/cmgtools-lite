@@ -203,7 +203,7 @@ cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&abs(lnujj_l1_l_p
 ## exclude 2018 events where the selected V jet is in the problematic HEM15/16 region:
 cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&(-1.55<lnujj_l2_phi)&&(lnujj_l2_phi<-0.9)&&(-2.5<lnujj_l2_eta)&&(lnujj_l2_eta<-1.479)))'
 ## new cut on pT/M:
-cuts['common'] = cuts['common'] + '*(lnujj_l1_pt/lnujj_LV_mass>0.4&&lnujj_l2_pt/lnujj_LV_mass>0.4)'
+#cuts['common'] = cuts['common'] + '*(lnujj_l1_pt/lnujj_LV_mass>0.4&&lnujj_l2_pt/lnujj_LV_mass>0.4)'
 ## lumi-based reweighting for MC:
 if YEAR=="Run2":
     cuts['common'] = cuts['common'] + '*( (run>500) + (run<500)*((year==2016)*'+lumiWeight2016+'+(year==2017)*'+lumiWeight2017+'+(year==2018)*'+lumiWeight2018+') )'
@@ -235,6 +235,17 @@ cuts['allC'] = '1'
 cuts['vbf'] = '(lnujj_nJets>=2&&lnujj_vbfDEta>4.0&&lnujj_vbfMass>500)'
 categories=['bb','nobb','vbf']
 categoriesMerged=['allC']
+
+thrDRap='1.0'
+rapid1='log((sqrt(((lnujj_l1_mass)**2)+((lnujj_l1_pt)**2)*(cosh(lnujj_l1_eta)**2))+(lnujj_l1_pt)*sinh(lnujj_l1_eta))/sqrt(((lnujj_l1_mass)**2)+((lnujj_l1_pt)**2)))'
+rapid2='log((sqrt(((lnujj_l2_mass)**2)+((lnujj_l2_pt)**2)*(cosh(lnujj_l2_eta)**2))+(lnujj_l2_pt)*sinh(lnujj_l2_eta))/sqrt(((lnujj_l2_mass)**2)+((lnujj_l2_pt)**2)))'
+DRap='abs('+rapid1+'-'+rapid2+')'
+cuts['DEtaLo'] = '('+DRap+'<'+thrDRap+')'
+cuts['DEtaHi'] = '('+DRap+'>='+thrDRap+')'
+cuts['allE'] = '1'
+etas=['DEtaLo','DEtaHi']
+etasMerged=['allE']
+
 
 
 cuts['nonres']='(lnujj_l2_mergedVTruth==0)'
@@ -423,6 +434,8 @@ for r in ['CR','SB']: ## uncomment this one for the plots of the analysis note, 
 
         for c in categoriesMerged: #categories:
 
+          for e in etasMerged: #etas:
+
             for i,pl in enumerate(plots):
 
                 if not(i in [0,1,2,4,6,7,8,9,11,12,16,20,27,28,29]): continue ## uncomment this one for the plots of the analysis note
@@ -441,12 +454,10 @@ for r in ['CR','SB']: ## uncomment this one for the plots of the analysis note, 
                 for l in leps:
 
                     prs = "b1" if not LIKETEMPLATES else "b2"
-                    cat = l+"_"+p+"_"+c
+                    cat = l+"_"+p+"_"+c+"_"+e
 
-                    #if ('all' in cat) and (cat!="allL_allP_allC"): continue
-                    #if cat!="allL_allP_allC": continue
 
-                    cut = '*'.join([cuts['common'],cuts[r],cuts[l],cuts[p],cuts[c]])
+                    cut = '*'.join([cuts['common'],cuts[r],cuts[l],cuts[p],cuts[c],cuts[e]])
 
 
                     myLumi = lumiValue
