@@ -206,14 +206,32 @@ for plotter in data.plotters:
     dataset=plotter.makeDataSet('lnujj_l1_pt,lnujj_l2_gen_pt,'+variables[1]+','+variables[0],options.cut,-1)
     reweigh=0
     if options.output.find("nonRes")!=-1 and options.output.find("CR")==-1:
-        if options.output.find("_HP_")!=-1 and (options.output.find("_nobb_")!=-1 or options.output.find("_vbf_")!=-1):
-            reweigh=-2.1e-4;
-        elif options.output.find("_HP_")!=-1 and options.output.find("_bb_")!=-1:
-            reweigh=-2.65e-4;
-        elif options.output.find("_LP_")!=-1 and (options.output.find("_nobb_")!=-1 or options.output.find("_vbf_")!=-1):
-            reweigh=-2.57e-4;
-        elif options.output.find("_LP_")!=-1 and options.output.find("_bb_")!=-1:
-            reweigh=-2.61e-4;
+        if options.output.find("DEtaLo")!=-1:
+            if options.output.find("_HP_")!=-1 and options.output.find("_nobb_")!=-1:
+                reweigh=-3.29e-4;
+            elif options.output.find("_HP_")!=-1 and options.output.find("_bb_")!=-1:
+                reweigh=8.43e-5;
+            elif options.output.find("_HP_")!=-1 and options.output.find("_vbf_")!=-1:
+                reweigh=-4.54e-5;
+            elif options.output.find("_LP_")!=-1 and options.output.find("_nobb_")!=-1:
+                reweigh=-3.39e-4;
+            elif options.output.find("_LP_")!=-1 and options.output.find("_bb_")!=-1:
+                reweigh=-2.59e-4;
+            elif options.output.find("_LP_")!=-1 and options.output.find("_vbf_")!=-1:
+                reweigh=-3.39e-4; ##-6.31e-4;
+        elif options.output.find("DEtaHi")!=-1:
+            if options.output.find("_HP_")!=-1 and options.output.find("_nobb_")!=-1:
+                reweigh=-8.73e-5;
+            elif options.output.find("_HP_")!=-1 and options.output.find("_bb_")!=-1:
+                reweigh=5.33e-5;
+            elif options.output.find("_HP_")!=-1 and options.output.find("_vbf_")!=-1:
+                reweigh=-9.39e-5;
+            elif options.output.find("_LP_")!=-1 and options.output.find("_nobb_")!=-1:
+                reweigh=-1.67e-4;
+            elif options.output.find("_LP_")!=-1 and options.output.find("_bb_")!=-1:
+                reweigh=-1.23e-4;
+            elif options.output.find("_LP_")!=-1 and options.output.find("_vbf_")!=-1:
+                reweigh=-2.61e-4;
         else:
             reweigh=0.0;
 

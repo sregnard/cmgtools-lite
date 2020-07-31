@@ -248,10 +248,14 @@ renormRes = {
       },
 }
 
-## get non-resonant MVV slope from CR (also hardcoded in vvMake2DTemplateWithKernels.py):
+## get non-resonant MVV slope from the jet mass sideband (also hardcoded in vvMake2DTemplateWithKernels.py):
 renormNonResMvvSlope = {
-    'HP':{'nobb':-2.1e-4, 'bb':-2.65e-4,'vbf':-2.1e-4 },
-    'LP':{'nobb':-2.57e-4,'bb':-2.61e-4,'vbf':-2.57e-4},
+    'HP':{ 'nobb': {'DEtaLo':-3.29e-4,'DEtaHi':-8.73e-5},
+           'bb':   {'DEtaLo':8.43e-5, 'DEtaHi':5.33e-5 },
+           'vbf':  {'DEtaLo':-4.54e-5,'DEtaHi':-9.39e-5}, },
+    'LP':{ 'nobb': {'DEtaLo':-3.39e-4,'DEtaHi':-1.67e-4},
+           'bb':   {'DEtaLo':-2.59e-4,'DEtaHi':-1.23e-4},
+           'vbf':  {'DEtaLo':-3.39e-4,'DEtaHi':-2.61e-4}, } # was 'DEtaLo':-6.31e-4, but it kills the tails too much
 }
 
 
@@ -546,7 +550,7 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',factor=1):
 
                     ## alternative cut strings, for the control plots of templates:
                     if name=='nonRes_wgtMVV_inclLC':
-                        cut="*".join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],cuts['allC'],cuts[e],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV'],'(1.0+'+str(renormNonResMvvSlope[p][c])+'*lnujj_gen_partialMass)'])
+                        cut="*".join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],cuts['allC'],cuts[e],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV'],'(1.0+'+str(renormNonResMvvSlope[p][c][e])+'*lnujj_gen_partialMass)'])
                     elif name=='nonRes_CR_inclLC':
                         cut="*".join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],cuts['allC'],cuts[e],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
                     elif name=='nonRes_wgtMJJ'or name=='nonRes_CR_wgtMJJ':
