@@ -628,21 +628,24 @@ if DOSIGNALSHAPES:
     if DOVBFWprToWZ: makeSignalShapesMVV("LNuJJ_VBFWprToWZ",VBFWprToWZTemplate)
 
     ## Use some non-VBF signal shapes for VBF, and vice versa:
+    for e in etas:
+        for p in purities:
+            os.system( '\cp '+outDir+'LNuJJ_VBFZprToWW_MJJ_'+p+'_vbf_'+e+'.json '+outDir+'LNuJJ_ZprToWW_MJJ_'+p+'_vbf_'+e+'.json' )
+            os.system( '\cp '+outDir+'LNuJJ_VBFZprToWW_MVV_'+p+'_vbf_'+e+'.json '+outDir+'LNuJJ_ZprToWW_MVV_'+p+'_vbf_'+e+'.json' )
+            os.system( '\cp '+outDir+'LNuJJ_VBFWprToWZ_MJJ_'+p+'_vbf_'+e+'.json '+outDir+'LNuJJ_WprToWZ_MJJ_'+p+'_vbf_'+e+'.json' )
+            os.system( '\cp '+outDir+'LNuJJ_VBFWprToWZ_MVV_'+p+'_vbf_'+e+'.json '+outDir+'LNuJJ_WprToWZ_MVV_'+p+'_vbf_'+e+'.json' )
+            os.system( '\cp '+outDir+'LNuJJ_GbuToWW_MJJ_'+p+'_bb_'+e+'.json '+outDir+'LNuJJ_VBFGbuToWW_MJJ_'+p+'_bb_'+e+'.json' )
+            os.system( '\cp '+outDir+'LNuJJ_GbuToWW_MVV_'+p+'_bb_'+e+'.json '+outDir+'LNuJJ_VBFGbuToWW_MVV_'+p+'_bb_'+e+'.json' )
+            os.system( '\cp '+outDir+'LNuJJ_WprToWZ_MJJ_'+p+'_bb_'+e+'.json '+outDir+'LNuJJ_VBFWprToWZ_MJJ_'+p+'_bb_'+e+'.json' )
+            os.system( '\cp '+outDir+'LNuJJ_WprToWZ_MVV_'+p+'_bb_'+e+'.json '+outDir+'LNuJJ_VBFWprToWZ_MVV_'+p+'_bb_'+e+'.json' )
+            os.system( '\cp '+outDir+'LNuJJ_WprToWZ_MJJ_'+p+'_nobb_'+e+'.json '+outDir+'LNuJJ_VBFWprToWZ_MJJ_'+p+'_nobb_'+e+'.json' )
+            os.system( '\cp '+outDir+'LNuJJ_WprToWZ_MVV_'+p+'_nobb_'+e+'.json '+outDir+'LNuJJ_VBFWprToWZ_MVV_'+p+'_nobb_'+e+'.json' )
+        os.system( '\cp '+outDir+'LNuJJ_RadToWW_MJJ_LP_bb_'+e+'.json '+outDir+'LNuJJ_VBFRadToWW_MJJ_LP_bb_'+e+'.json' )
+        os.system( '\cp '+outDir+'LNuJJ_RadToWW_MVV_LP_bb_'+e+'.json '+outDir+'LNuJJ_VBFRadToWW_MVV_LP_bb_'+e+'.json' )
     for p in purities:
-        os.system( '\cp '+outDir+'LNuJJ_VBFZprToWW_MJJ_'+p+'_vbf.json '+outDir+'LNuJJ_ZprToWW_MJJ_'+p+'_vbf.json' )
-        os.system( '\cp '+outDir+'LNuJJ_VBFZprToWW_MVV_'+p+'_vbf.json '+outDir+'LNuJJ_ZprToWW_MVV_'+p+'_vbf.json' )
-        os.system( '\cp '+outDir+'LNuJJ_VBFWprToWZ_MJJ_'+p+'_vbf.json '+outDir+'LNuJJ_WprToWZ_MJJ_'+p+'_vbf.json' )
-        os.system( '\cp '+outDir+'LNuJJ_VBFWprToWZ_MVV_'+p+'_vbf.json '+outDir+'LNuJJ_WprToWZ_MVV_'+p+'_vbf.json' )
-        os.system( '\cp '+outDir+'LNuJJ_GbuToWW_MJJ_'+p+'_bb.json '+outDir+'LNuJJ_VBFGbuToWW_MJJ_'+p+'_bb.json' )
-        os.system( '\cp '+outDir+'LNuJJ_GbuToWW_MVV_'+p+'_bb.json '+outDir+'LNuJJ_VBFGbuToWW_MVV_'+p+'_bb.json' )
-        os.system( '\cp '+outDir+'LNuJJ_ZprToWW_MJJ_'+p+'_bb.json '+outDir+'LNuJJ_VBFZprToWW_MJJ_'+p+'_bb.json' )
-        os.system( '\cp '+outDir+'LNuJJ_ZprToWW_MVV_'+p+'_bb.json '+outDir+'LNuJJ_VBFZprToWW_MVV_'+p+'_bb.json' )
-        os.system( '\cp '+outDir+'LNuJJ_WprToWZ_MJJ_'+p+'_bb.json '+outDir+'LNuJJ_VBFWprToWZ_MJJ_'+p+'_bb.json' )
-        os.system( '\cp '+outDir+'LNuJJ_WprToWZ_MVV_'+p+'_bb.json '+outDir+'LNuJJ_VBFWprToWZ_MVV_'+p+'_bb.json' )
-        os.system( '\cp '+outDir+'LNuJJ_WprToWZ_MJJ_'+p+'_nobb.json '+outDir+'LNuJJ_VBFWprToWZ_MJJ_'+p+'_nobb.json' )
-        os.system( '\cp '+outDir+'LNuJJ_WprToWZ_MVV_'+p+'_nobb.json '+outDir+'LNuJJ_VBFWprToWZ_MVV_'+p+'_nobb.json' )
-    os.system( '\cp '+outDir+'LNuJJ_RadToWW_MJJ_LP_bb.json '+outDir+'LNuJJ_VBFRadToWW_MJJ_LP_bb.json' )
-    os.system( '\cp '+outDir+'LNuJJ_RadToWW_MVV_LP_bb.json '+outDir+'LNuJJ_VBFRadToWW_MVV_LP_bb.json' )
+        os.system( '\cp '+outDir+'LNuJJ_GbuToWW_MJJ_LP_bb_'+e+'.json '+outDir+'LNuJJ_ZprToWW_MJJ_LP_bb_'+e+'.json' )
+        os.system( '\cp '+outDir+'LNuJJ_GbuToWW_MJJ_LP_bb_'+e+'.json '+outDir+'LNuJJ_VBFZprToWW_MJJ_LP_bb_'+e+'.json' )
+
 
 if DOSIGNALYIELDS:
     if DOGbuToWW: makeSignalYields("LNuJJ_GbuToWW",GbuToWWTemplate,BR_GbuToWW,tau21SF,bbWgtWW)
