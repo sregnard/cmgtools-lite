@@ -22,33 +22,33 @@ do
 	#: '
 	cd Jobs_Limits
 	pwd
-	hadd -f merged.higgsCombineTest.Asymptotic.root higgsCombineTest.Asymptotic.mH*.root
+	hadd -f merged.higgsCombineTest.AsymptoticLimits.root higgsCombineTest.AsymptoticLimits.mH*.root
 	cd ..
 	#'
 
         : '  
 	cd Jobs_pvalue_obs
 	pwd
-	hadd -f merged.higgsCombineTest.ProfileLikelihood.root higgsCombineTest.ProfileLikelihood.mH*.root
+	hadd -f merged.higgsCombineTest.Significance.root higgsCombineTest.Significance.mH*.root
 	cd ..
         #'
 
         : '  
 	cd Jobs_BiasTestNoInjectedSignal_1000
 	pwd
-	hadd -f merged.higgsCombineTest.MaxLikelihoodFit.root higgsCombineTest.MaxLikelihoodFit.mH*.root
+	hadd -f merged.higgsCombineTest.FitDiagnostics.root higgsCombineTest.FitDiagnostics.mH*.root
 	cd ..
         #'
         : '  
 	cd Jobs_BiasTestInject2sigma_1000
 	pwd
-	hadd -f merged.higgsCombineTest.MaxLikelihoodFit.root higgsCombineTest.MaxLikelihoodFit.mH*.root
+	hadd -f merged.higgsCombineTest.FitDiagnostics.root higgsCombineTest.FitDiagnostics.mH*.root
 	cd ..
         #'
         : '  
 	cd Jobs_BiasTestInject5sigma_1000
 	pwd
-	hadd -f merged.higgsCombineTest.MaxLikelihoodFit.root higgsCombineTest.MaxLikelihoodFit.mH*.root
+	hadd -f merged.higgsCombineTest.FitDiagnostics.root higgsCombineTest.FitDiagnostics.mH*.root
 	cd ..
         #'
 
