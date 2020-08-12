@@ -23,8 +23,8 @@ do
 	#:'
 	mkdir Jobs_Limits
 	cd Jobs_Limits
-	#python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitLimits.py -s 50 -m 1000 -M 4500 -q condor -o "-M Asymptotic --rAbsAcc=0.00001 --rMin=1e-6 --rMax=0.01" ../../combined_$card.root
-	python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitLimits.py -s 100 -m 1000 -M 4500 -q condor -o "-M Asymptotic --rAbsAcc=0.00001 --rMin=1e-6 --rMax=0.01" ../../combined_$card.root
+	#python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitLimits.py -s 50 -m 1000 -M 4500 -q condor -o "-M AsymptoticLimits --rAbsAcc=0.00001 --rMin=1e-6 --rMax=0.01" ../../combined_$card.root
+	python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitLimits.py -s 100 -m 1000 -M 4500 -q condor -o "-M AsymptoticLimits --rAbsAcc=0.00001 --rMin=1e-6 --rMax=0.01" ../../combined_$card.root
 	cd ..
 	#'
 
@@ -41,7 +41,7 @@ do
 	cd Jobs_BiasTestNoInjectedSignal_1000
 	for n in `seq 1 10`
 	do
-	    python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitLimits.py -s 100 -m 1000 -M 4500 -q condor -t 2880 -o "-M MaxLikelihoodFit -t 100 -s -1 --rMin=-1000 --rMax=1000" ../../combined_$card.root
+	    python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitLimits.py -s 100 -m 1000 -M 4500 -q condor -t 2880 -o "-M FitDiagnostics -t 100 -s -1 --rMin=-1000 --rMax=1000" ../../combined_$card.root
 	done
 	cd ..
 	#'
@@ -51,7 +51,7 @@ do
 	cd Jobs_BiasTestInject2sigma_1000
 	for n in `seq 1 10`
 	do
-	    python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitLimits.py -s 500 -m 1000 -M 4500 --injectSignal ${signal}2sigma -q condor -t 2880 -o "-M MaxLikelihoodFit -t 100 -s -1 --rMin=-1000 --rMax=1000" ../../combined_$card.root
+	    python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitLimits.py -s 500 -m 1000 -M 4500 --injectSignal ${signal}2sigma -q condor -t 2880 -o "-M FitDiagnostics -t 100 -s -1 --rMin=-1000 --rMax=1000" ../../combined_$card.root
 	done
 	cd ..
 	#'
@@ -60,7 +60,7 @@ do
 	cd Jobs_BiasTestInject5sigma_1000
 	for n in `seq 1 10`
 	do
-	    python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitLimits.py -s 500 -m 1000 -M 4500 --injectSignal ${signal}5sigma -q condor -t 2880 -o "-M MaxLikelihoodFit -t 100 -s -1 --rMin=-1000 --rMax=1000" ../../combined_$card.root
+	    python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitLimits.py -s 500 -m 1000 -M 4500 --injectSignal ${signal}5sigma -q condor -t 2880 -o "-M FitDiagnostics -t 100 -s -1 --rMin=-1000 --rMax=1000" ../../combined_$card.root
 	done
 	cd ..
 	#'

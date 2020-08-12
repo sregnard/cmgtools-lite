@@ -1,9 +1,9 @@
 ## values obtained by scanning the expected significance, using the command:
-##   combine ../combined.root -M ProfileLikelihood -t -1 --signif --pvalue -m 1000 --expectSignal=...
+##   combine ../combined.root -M Significance -t -1 --signif --pvalue -m 1000 --expectSignal=...
 
 rToInject = {
 
-    'XWW2sigma': {
+    'GbuToWW2sigma': {
         1000 : 0.0087,
         1500 : 0.0021,
         2000 : 0.00076,
@@ -13,7 +13,7 @@ rToInject = {
         4000 : 0.000129,
         4500 : 0.000128,
     },
-    'XWZ2sigma': {
+    'WprToWZ2sigma': {
         1000 : 0.0186,
         1500 : 0.0043,
         2000 : 0.00156,
@@ -23,7 +23,7 @@ rToInject = {
         4000 : 0.000275,
         4500 : 0.000287,
     },
-    'XWH2sigma': {
+    'WprToWH2sigma': {
         1000 : 0.0230,
         1500 : 0.0055,
         2000 : 0.0022,
@@ -33,7 +33,7 @@ rToInject = {
         4000 : 0.00045,
         4500 : 0.00045,
     },
-    'VBFXWW2sigma': {
+    'VBFRadToWW2sigma': {
         1000 : 0.0038,
         1500 : 0.00094,
         2000 : 0.00042,
@@ -45,7 +45,7 @@ rToInject = {
     },
 
 
-    'XWW5sigma': {
+    'GbuToWW5sigma': {
         1000 : 0.0218,
         1500 : 0.00544,
         2000 : 0.00216,
@@ -55,7 +55,7 @@ rToInject = {
         4000 : 0.000415,
         4500 : 0.000421,
     },
-    'XWZ5sigma': {
+    'WprToWZ5sigma': {
         1000 : 0.0473,
         1500 : 0.0113,
         2000 : 0.00442,
@@ -65,7 +65,7 @@ rToInject = {
         4000 : 0.000923,
         4500 : 0.000923,
     },
-    'XWH5sigma': {
+    'WprToWH5sigma': {
         1000 : 0.06,
         1500 : 0.0147,
         2000 : 0.0060,
@@ -75,7 +75,7 @@ rToInject = {
         4000 : 0.001287,
         4500 : 0.00135,
     },
-    'VBFXWW5sigma': {
+    'VBFRadToWW5sigma': {
         1000 : 0.0098,
         1500 : 0.0028,
         2000 : 0.00133,
