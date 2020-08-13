@@ -429,7 +429,7 @@ def makeBackgroundShapesMVVConditional(name,filename,template,addCut="1"):
                 cut='*'.join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],cuts[e],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
 
                 rootFile=outDir+filename+"_"+name+"_"+p+"_"+c+"_"+e+"_COND2D.root"
-                cmd='vvMake2DTemplateWithKernels.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass,lnujj_l2_softDrop_mass" -u "(1+0.0004*lnujj_l2_gen_pt),(1+0.000001*lnujj_l2_gen_pt*lnujj_l2_gen_pt)" -b {binsMVV} -B {binsMJJ} -x {minMVV} -X {maxMVV} -y {minMJJ} -Y {maxMJJ} -r {res} -l {limitTailFit2D} -t 2 {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMVV=binsMVV['allC'],minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,limitTailFit2D=limitTailFit2D['allC'],ntuples=ntuples)
+                cmd='vvMake2DTemplateWithKernels.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass,lnujj_l2_softDrop_mass" -b {binsMVV} -B {binsMJJ} -x {minMVV} -X {maxMVV} -y {minMJJ} -Y {maxMJJ} -r {res} -l {limitTailFit2D} -t 2 {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMVV=binsMVV['allC'],minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,limitTailFit2D=limitTailFit2D['allC'],ntuples=ntuples)
                 os.system(cmd)
 
                 ## store gen distributions, just for control plots:
@@ -487,7 +487,7 @@ def makeResBackgroundShapesMVVConditional(name,filename,template,addCut="1"):
             cut='*'.join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts['allP'],cuts[e],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
 
             rootFile=outDir+filename+"_"+name+"_"+c+"_"+e+"_COND2D.root"
-            cmd='vvMake2DTemplateWithKernels.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass,lnujj_l2_softDrop_mass" -u "(1+0.0004*lnujj_l2_gen_pt),(1+0.000001*lnujj_l2_gen_pt*lnujj_l2_gen_pt)" -b {binsMVV} -B {binsMJJ} -x {minMVV} -X {maxMVV} -y {minMJJ} -Y {maxMJJ} -r {res} -l {limitTailFit2D} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMVV=binsMVV['allC'],minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,limitTailFit2D=limitTailFit2D['allC'],ntuples=ntuples)
+            cmd='vvMake2DTemplateWithKernels.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass,lnujj_l2_softDrop_mass" -b {binsMVV} -B {binsMJJ} -x {minMVV} -X {maxMVV} -y {minMJJ} -Y {maxMJJ} -r {res} -l {limitTailFit2D} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMVV=binsMVV['allC'],minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJJ=binsMJJ[c],minMJJ=minMJJ,maxMJJ=maxMJJ,limitTailFit2D=limitTailFit2D['allC'],ntuples=ntuples)
             os.system(cmd)
 
             ##store gen distributions, just for control plots:

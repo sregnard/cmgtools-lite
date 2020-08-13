@@ -166,36 +166,36 @@ for i in range(1,res_x.GetNbinsX()+1):
 
 
 ## Make histograms for uncertainty weights
-uncWeights=options.uncweight.split(',')
-uncw1=uncWeights[0]
-uncw2=uncWeights[1]
-hGenPtUp=ROOT.TH1F("hGenPtUp","hGenPtUp",5000,0,5000)
-hGenPtDn=ROOT.TH1F("hGenPtDn","hGenPtDn",5000,0,5000)
-hGenPt2Up=ROOT.TH1F("hGenPt2Up","hGenPt2Up",5000,0,5000)
-hGenPt2Dn=ROOT.TH1F("hGenPt2Dn","hGenPt2Dn",5000,0,5000)
-fGenPtUp=ROOT.TF1("fGenPtUp",uncw1.replace("lnujj_l2_gen_pt","x"),0,5000)
-fGenPtDn=ROOT.TF1("fGenPtDn",'1/'+uncw1.replace("lnujj_l2_gen_pt","x"),0,5000)
-fGenPt2Up=ROOT.TF1("fGenPt2Up",uncw2.replace("lnujj_l2_gen_pt","x"),0,5000)
-fGenPt2Dn=ROOT.TF1("fGenPt2Dn",'1/'+uncw2.replace("lnujj_l2_gen_pt","x"),0,5000)
-for i in range(5000):
-    hGenPtUp.Fill(i+0.5,fGenPtUp.Eval(i+0.5))
-    hGenPtDn.Fill(i+0.5,fGenPtDn.Eval(i+0.5))
-    hGenPt2Up.Fill(i+0.5,fGenPt2Up.Eval(i+0.5))
-    hGenPt2Dn.Fill(i+0.5,fGenPt2Dn.Eval(i+0.5))
+#uncWeights=options.uncweight.split(',')
+#uncw1=uncWeights[0]
+#uncw2=uncWeights[1]
+#hGenPtUp=ROOT.TH1F("hGenPtUp","hGenPtUp",5000,0,5000)
+#hGenPtDn=ROOT.TH1F("hGenPtDn","hGenPtDn",5000,0,5000)
+#hGenPt2Up=ROOT.TH1F("hGenPt2Up","hGenPt2Up",5000,0,5000)
+#hGenPt2Dn=ROOT.TH1F("hGenPt2Dn","hGenPt2Dn",5000,0,5000)
+#fGenPtUp=ROOT.TF1("fGenPtUp",uncw1.replace("lnujj_l2_gen_pt","x"),0,5000)
+#fGenPtDn=ROOT.TF1("fGenPtDn",'1/'+uncw1.replace("lnujj_l2_gen_pt","x"),0,5000)
+#fGenPt2Up=ROOT.TF1("fGenPt2Up",uncw2.replace("lnujj_l2_gen_pt","x"),0,5000)
+#fGenPt2Dn=ROOT.TF1("fGenPt2Dn",'1/'+uncw2.replace("lnujj_l2_gen_pt","x"),0,5000)
+#for i in range(5000):
+#    hGenPtUp.Fill(i+0.5,fGenPtUp.Eval(i+0.5))
+#    hGenPtDn.Fill(i+0.5,fGenPtDn.Eval(i+0.5))
+#    hGenPt2Up.Fill(i+0.5,fGenPt2Up.Eval(i+0.5))
+#    hGenPt2Dn.Fill(i+0.5,fGenPt2Dn.Eval(i+0.5))
 
 
 histogram=ROOT.TH2F("histo","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-histogram_gpt_up=ROOT.TH2F("histo_MVVScaleUp","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-histogram_gpt_down=ROOT.TH2F("histo_MVVScaleDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-histogram_gpt2_up=ROOT.TH2F("histo_DiagUp","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-histogram_gpt2_down=ROOT.TH2F("histo_DiagDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+histogram_MVVScale_up=ROOT.TH2F("histo_MVVScaleUp","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+histogram_MVVScale_down=ROOT.TH2F("histo_MVVScaleDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+histogram_Diag_up=ROOT.TH2F("histo_DiagUp","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+histogram_Diag_down=ROOT.TH2F("histo_DiagDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
 
 histograms=[
     histogram,
-    histogram_gpt_up,
-    histogram_gpt_down,
-    histogram_gpt2_up,
-    histogram_gpt2_down,
+    histogram_MVVScale_up,
+    histogram_MVVScale_down,
+    histogram_Diag_up,
+    histogram_Diag_down,
 ]
 
 
@@ -235,7 +235,7 @@ for plotter in data.plotters:
         else:
             reweigh=0.0;
 
-    datamaker=ROOT.cmg.ConditionalGaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,res_x,histogram,histogram_gpt_up,histogram_gpt_down,histogram_gpt2_up,histogram_gpt2_down,reweigh);
+    datamaker=ROOT.cmg.ConditionalGaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,res_x,histogram,histogram_MVVScale_up,histogram_MVVScale_down,histogram_Diag_up,histogram_Diag_down,reweigh);
 
 
 f=ROOT.TFile(options.output,"RECREATE")
@@ -259,10 +259,10 @@ for hist in histograms:
 
 
 
-hGenPtUp.Write("hGenPtUp")
-hGenPtDn.Write("hGenPtDn")
-hGenPt2Up.Write("hGenPt2Up")
-hGenPt2Dn.Write("hGenPt2Dn")
+#hGenPtUp.Write("hGenPtUp")
+#hGenPtDn.Write("hGenPtDn")
+#hGenPt2Up.Write("hGenPt2Up")
+#hGenPt2Dn.Write("hGenPt2Dn")
 
 f.Close()
 
