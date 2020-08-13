@@ -228,6 +228,11 @@ for l in leptons:
                 cmsLabel(plotter2.canvas)
                 saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVV_"+sigStr+"_"+subcat)
                 #'''
+                ''' ## same but linear scale
+                plotter2.drawBinned(varMVV,labelMVV,label,subcat,[0,0],options.doUncBand,0,0,"",minMVV,maxMVV,YmaxMVV,UNSTACKSIG,sigSF,sigLabel,dataset)
+                cmsLabel(plotter2.canvas)
+                saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVVlinear_"+sigStr+"_"+subcat)
+                #'''
 
                 ''' ## unblinded (for tests with toys)
                 plotter2.drawBinned(varMVV,labelMVV,label,subcat,[0,0],options.doUncBand,1,0,"",minMVV,maxMVV,YmaxMVV,False,-1,"",dataset)

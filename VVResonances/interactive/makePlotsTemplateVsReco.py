@@ -35,8 +35,8 @@ INCRout = "CR" if options.inCR else ""
 
 
 def saveCanvas(canvas,name):
-    canvas.SaveAs(name+".root")
-    canvas.SaveAs(name+".C")
+    #canvas.SaveAs(name+".root")
+    #canvas.SaveAs(name+".C")
     canvas.SaveAs(name+".pdf")
     #canvas.SaveAs(name+".png")
     canvas.SaveAs(name+".eps")

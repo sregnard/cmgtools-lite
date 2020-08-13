@@ -11,7 +11,7 @@ import optparse
 parser = optparse.OptionParser()
 parser.add_option("-y","--year",dest="year",default="Run2",help="2016 or 2017 or 2018 or Run2")
 parser.add_option("-o","--outDir",dest="outDirPrefix",default='PlotsTemplates_',help="where to save the plots")
-parser.add_option("-p","--plots",dest="plots",default='all',help="possible plots: all, signal, nonResTpl, nonResSys, CRNonResTpl, CRNonResSys, resTpl, resSys, CRResTpl, CRResSys, resW, resTop, scaleres, bbtagunc")
+parser.add_option("-p","--plots",dest="plots",default='all',help="possible plots: all, signalParam, signalTpl, nonResTpl, nonResSys, CRNonResTpl, CRNonResSys, resTpl, resSys, CRResTpl, CRResSys, resW, resTop, scaleres, bbtagunc")
 parser.add_option("-d","--withDC",dest="withDC",type=int,default=1,help="include plots that require datacards")
 parser.add_option("-D","--differentBinning",action="store_true",dest="differentBinning",help="use other binning for bb category",default=True)
 (options,args) = parser.parse_args()
@@ -23,7 +23,7 @@ outDir=options.outDirPrefix+YEAR+'/'
 
 plots = options.plots
 if 'all' in plots:
-    plots = plots + ', signal, nonResTpl, nonResSys, CRNonResTpl, CRNonResSys, resTpl, resSys, CRResTpl, CRResSys, scaleres'
+    plots = plots + ', signalParam, signalTpl, nonResTpl, nonResSys, CRNonResTpl, CRNonResSys, resTpl, resSys, CRResTpl, CRResSys, scaleres'
 
 
 COMPCATEGORIES=0
@@ -149,7 +149,7 @@ maxmx=8100
 
 
 def saveCanvas(canvas,name):
-  canvas.SaveAs(name+".root")
+  #canvas.SaveAs(name+".root")
   #canvas.SaveAs(name+".C")
   canvas.SaveAs(name+".pdf")
   #canvas.SaveAs(name+".png")
@@ -1807,10 +1807,10 @@ if 'CRResSys' in plots:
 
 
 
-if 'signal' in plots:
+if 'signalParam' in plots:
 
-    for c in categories:#['nobb']:#
-        for p in purities:#['HP']:#
+    for p in purities:
+        for c in categories:
           for e in etas:
             pass
             #'''
@@ -1822,7 +1822,7 @@ if 'signal' in plots:
             #makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MVV_"+p+"_"+c+"_"+e+".root" for s in signalsVBF],signalsVBF,'MVV',p+"_"+c+"_"+e,"paramSignalShape_VBFSig_")
             #'''
 
-            for l in leptons:#['e']:#
+            for l in leptons:
                 pass
                 #'''
                 #makeSignalYieldParam([inDir+"LNuJJ_"+s+"_"+l+"_"+p+"_"+c+"_"+e+"_yield.root" for s in signals],signals,"paramSignalYield_allSig_"+l+"_"+p+"_"+c+"_"+e)
@@ -1830,8 +1830,15 @@ if 'signal' in plots:
                 makeSignalYieldParam([inDir+"LNuJJ_"+s+"_"+l+"_"+p+"_"+c+"_"+e+"_yield.root" for s in signalsVBF],signalsVBF,"paramSignalYield_VBFSig_"+l+"_"+p+"_"+c+"_"+e)
                 #'''
 
-                for signal in signals:
-                    print c, p, l, e, signal
+if 'signalTpl' in plots:
+
+    for signal in signals:
+        for l in leptons:
+            for p in purities:
+                for c in categories:
+                  for e in etas:
+
+                    print signal, l, p, c, e
                     if options.withDC:
                         pass
 
@@ -1877,9 +1884,9 @@ if 'signal' in plots:
 
 if 'bbtagunc' in plots:
     for signal in signals:
-        for c in categories:#['nobb']:#
+        for l in leptons:#['e']:#
             for p in purities:#['HP']:#
-                for l in leptons:#['e']:#
+                for c in categories:#['nobb']:#
                   for e in etas:
                     makeSignalYieldParam_unc(inDir+"LNuJJ_"+signal+"_"+l+"_"+p+"_"+c+"_"+e+"_yield.root",inDir+"LNuJJ_"+signal+"_bbSFup_"+l+"_"+p+"_"+c+"_"+e+"_yield.root",inDir+"LNuJJ_"+signal+"_bbSFdn_"+l+"_"+p+"_"+c+"_"+e+"_yield.root","paramSignalYieldbbSFunc_"+signal+"_"+l+"_"+p+"_"+c+"_"+e,0)
                     makeSignalYieldParam_unc(inDir+"LNuJJ_"+signal+"_"+l+"_"+p+"_"+c+"_"+e+"_yield.root",inDir+"LNuJJ_"+signal+"_bbSFup_"+l+"_"+p+"_"+c+"_"+e+"_yield.root",inDir+"LNuJJ_"+signal+"_bbSFdn_"+l+"_"+p+"_"+c+"_"+e+"_yield.root","paramSignalbbSFunc_"+signal+"_"+l+"_"+p+"_"+c+"_"+e,1)
