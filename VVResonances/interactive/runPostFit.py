@@ -33,7 +33,7 @@ parser.add_option("-t","--fitToy",dest="fitToy",type=int, default=-1,help="Toy t
 minMJJ=20.0
 maxMJJ=210.0
 
-minMVV=600.0
+minMVV=700.0
 maxMVV=5000.0
 
 YmaxMJJ = -1 ##2016 paper: 650

@@ -257,7 +257,7 @@ cuts['res']   ='(lnujj_l2_mergedVTruth==1)'
 minMJJ=20.0
 maxMJJ=210.0
 
-minMVV=600.0
+minMVV=700.0
 maxMVV=5000.0
 
 

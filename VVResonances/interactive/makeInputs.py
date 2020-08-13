@@ -297,7 +297,7 @@ dataTemplate = data2016Template + "," + data2017Template + "," + data2018Templat
 minMJJ=20.0
 maxMJJ=210.0
 
-minMVV=600.0
+minMVV=700.0
 maxMVV=5000.0
 
 binsMJJ={}
@@ -306,10 +306,10 @@ binsMJJ['nobb']=38
 binsMJJ['vbf']=19
 binsMJJ['allC']=38 #95
 binsMVV={}
-binsMVV['bb']=176
-binsMVV['nobb']=176
-binsMVV['vbf']=176
-binsMVV['allC']=176
+binsMVV['bb']=172
+binsMVV['nobb']=172
+binsMVV['vbf']=172
+binsMVV['allC']=172
 
 
 fspline={}
@@ -335,8 +335,8 @@ cuts['acceptance']= "(lnujj_LV_mass>{minMVV}&&lnujj_LV_mass<{maxMVV}&&lnujj_l2_s
 cuts['acceptanceMVV']= "(lnujj_LV_mass>{minMVV}&&lnujj_LV_mass<{maxMVV})".format(minMVV=minMVV,maxMVV=maxMVV)
 cuts['acceptanceMJJ']= "(lnujj_l2_softDrop_mass>{minMJJ}&&lnujj_l2_softDrop_mass<{maxMJJ})".format(minMJJ=minMJJ,maxMJJ=maxMJJ)
 
-cuts['acceptanceGEN']= "(lnujj_l2_gen_softDrop_mass>{minMJJ}&&lnujj_l2_gen_softDrop_mass<{maxMJJ}&&lnujj_gen_partialMass>{minMVV}&&lnujj_gen_partialMass<{maxMVV})".format(minMJJ=10,maxMJJ=300,minMVV=500,maxMVV=10000)
-cuts['acceptanceGENMVV']= "(lnujj_gen_partialMass>{minMVV}&&lnujj_gen_partialMass<{maxMVV})".format(minMVV=500,maxMVV=5000)
+cuts['acceptanceGEN']= "(lnujj_l2_gen_softDrop_mass>{minMJJ}&&lnujj_l2_gen_softDrop_mass<{maxMJJ}&&lnujj_gen_partialMass>{minMVV}&&lnujj_gen_partialMass<{maxMVV})".format(minMJJ=10,maxMJJ=300,minMVV=600,maxMVV=10000)
+cuts['acceptanceGENMVV']= "(lnujj_gen_partialMass>{minMVV}&&lnujj_gen_partialMass<{maxMVV})".format(minMVV=600,maxMVV=5000)
 cuts['acceptanceGENMJJ']= "(lnujj_l2_gen_softDrop_mass>{minMJJ}&&lnujj_l2_gen_softDrop_mass<{maxMJJ}&&lnujj_LV_mass>{minMVV}&&lnujj_LV_mass<{maxMVV})".format(minMJJ=minMJJ-5,maxMJJ=maxMJJ+5,minMVV=minMVV,maxMVV=maxMVV)
 
 
@@ -642,9 +642,10 @@ if DOSIGNALSHAPES:
             os.system( '\cp '+outDir+'LNuJJ_WprToWZ_MVV_'+p+'_nobb_'+e+'.json '+outDir+'LNuJJ_VBFWprToWZ_MVV_'+p+'_nobb_'+e+'.json' )
         os.system( '\cp '+outDir+'LNuJJ_RadToWW_MJJ_LP_bb_'+e+'.json '+outDir+'LNuJJ_VBFRadToWW_MJJ_LP_bb_'+e+'.json' )
         os.system( '\cp '+outDir+'LNuJJ_RadToWW_MVV_LP_bb_'+e+'.json '+outDir+'LNuJJ_VBFRadToWW_MVV_LP_bb_'+e+'.json' )
-    for p in purities:
         os.system( '\cp '+outDir+'LNuJJ_GbuToWW_MJJ_LP_bb_'+e+'.json '+outDir+'LNuJJ_ZprToWW_MJJ_LP_bb_'+e+'.json' )
-        os.system( '\cp '+outDir+'LNuJJ_GbuToWW_MJJ_LP_bb_'+e+'.json '+outDir+'LNuJJ_VBFZprToWW_MJJ_LP_bb_'+e+'.json' )
+    for p in purities:
+        os.system( '\cp '+outDir+'LNuJJ_ZprToWW_MJJ_'+p+'_bb_DEtaLo.json '+outDir+'LNuJJ_VBFZprToWW_MJJ_'+p+'_bb_DEtaLo.json' )
+        os.system( '\cp '+outDir+'LNuJJ_ZprToWW_MVV_'+p+'_bb_DEtaLo.json '+outDir+'LNuJJ_VBFZprToWW_MVV_'+p+'_bb_DEtaLo.json' )
 
 
 if DOSIGNALYIELDS:

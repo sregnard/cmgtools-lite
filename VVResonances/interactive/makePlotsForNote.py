@@ -114,7 +114,7 @@ DcFolder = 'Dc_GbuToWW'
 minMJJ=20.0
 maxMJJ=210.0
 
-minMVV=600.0
+minMVV=700.0
 maxMVV=5000.0
 
 binsMJJ={}
@@ -124,15 +124,15 @@ binsMJJ['nobbHP']=38
 binsMJJ['nobbLP']=38
 binsMJJ['nob']=95
 binsMJJ['vbf']=19
-binsMJJ['allC']=38#95
+binsMJJ['allC']=38
 binsMVV={}
-binsMVV['bb']=176#44
-binsMVV['nobb']=176
-binsMVV['nobbHP']=176
-binsMVV['nobbLP']=176
-binsMVV['nob']=176
-binsMVV['vbf']=176
-binsMVV['allC']=176
+binsMVV['bb']=172
+binsMVV['nobb']=172
+binsMVV['nobbHP']=172
+binsMVV['nobbLP']=172
+binsMVV['nob']=172
+binsMVV['vbf']=172
+binsMVV['allC']=172
 
 varMVV = {}
 varMJJ = {}
