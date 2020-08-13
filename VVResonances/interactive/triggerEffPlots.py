@@ -4,8 +4,8 @@ import math
 import numpy as np
 from array import array
 from ROOT import gROOT, gStyle
-from tdrstyle import *
-from CMS_lumi import *
+from CMGTools.VVResonances.plotting.tdrstyle import *
+from CMGTools.VVResonances.plotting.CMS_lumi import *
 
 import optparse
 parser = optparse.OptionParser()
@@ -186,7 +186,7 @@ for i in range(n2):
     h2m[i].GetZaxis().SetRangeUser(0.,1.)
     h2m[i].GetXaxis().SetTitle(h2n[i][3]+' p_{T}')
     h2m[i].GetYaxis().SetTitle(h2n[i][3]+' #eta')
-    h2m[i].GetZaxis().SetTitle('Efficiency in data')
+    h2m[i].GetZaxis().SetTitle('Efficiency in MC')
     h2m[i].Draw('colz')
     saveCanvas(outputDir,c2m[i])
     cmsLabel(c2m[i])
@@ -199,7 +199,7 @@ for i in range(n2):
     h2d[i].GetZaxis().SetRangeUser(0.,1.)
     h2d[i].GetXaxis().SetTitle(h2n[i][3]+' p_{T}')
     h2d[i].GetYaxis().SetTitle(h2n[i][3]+' #eta')
-    h2d[i].GetZaxis().SetTitle('Efficiency in MC')
+    h2d[i].GetZaxis().SetTitle('Efficiency in data')
     h2d[i].Draw('colz')
     saveCanvas(outputDir,c2d[i])
     cmsLabel(c2d[i])
