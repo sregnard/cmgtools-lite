@@ -250,12 +250,12 @@ renormRes = {
 
 ## get non-resonant MVV slope from the jet mass sideband (also hardcoded in vvMake2DTemplateWithKernels.py):
 renormNonResMvvSlope = {
-    'HP':{ 'nobb': {'DEtaLo':-3.29e-4,'DEtaHi':-8.73e-5},
-           'bb':   {'DEtaLo':8.43e-5, 'DEtaHi':5.33e-5 },
-           'vbf':  {'DEtaLo':-4.54e-5,'DEtaHi':-9.39e-5}, },
-    'LP':{ 'nobb': {'DEtaLo':-3.39e-4,'DEtaHi':-1.67e-4},
-           'bb':   {'DEtaLo':-2.59e-4,'DEtaHi':-1.23e-4},
-           'vbf':  {'DEtaLo':-3.39e-4,'DEtaHi':-2.61e-4}, } # was 'DEtaLo':-6.31e-4, but it kills the tails too much
+    'HP':{ 'nobb': {'DEtaLo':-1.71e-4,'DEtaHi':-3.87e-5},
+           'bb':   {'DEtaLo':-7.22e-4,'DEtaHi':-5.06e-4},
+           'vbf':  {'DEtaLo':2.52e-4,'DEtaHi':5.26e-4}, },
+    'LP':{ 'nobb': {'DEtaLo':-2.64e-4,'DEtaHi':-1.38e-4},
+           'bb':   {'DEtaLo':-5.41e-4,'DEtaHi':-3.63e-4},
+           'vbf':  {'DEtaLo':-1.78e-4,'DEtaHi':1.98e-4}, }
 }
 
 
