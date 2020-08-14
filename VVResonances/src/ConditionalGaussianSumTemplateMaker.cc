@@ -37,8 +37,8 @@ ConditionalGaussianSumTemplateMaker::ConditionalGaussianSumTemplateMaker(const R
       x=out->GetXaxis()->GetBinCenter(i);
       weight=weight*(1.0+reweigh*genx);
       out->Fill(x,geny,weight*gaus(x,scalex,resx));
-      outUp->Fill(x,geny,weight*(1+1.5e-3*(x-600))*gaus(x,scalex,resx));
-      outDown->Fill(x,geny,weight*(1.0/(1+1.5e-3*(x-600)))*gaus(x,scalex,resx));
+      outUp->Fill(x,geny,weight*(1+1.5e-3*(x-700))*gaus(x,scalex,resx));
+      outDown->Fill(x,geny,weight*(1.0/(1+1.5e-3*(x-700)))*gaus(x,scalex,resx));
       outUp2->Fill(x,geny,weight*gaus(x,scalex*(std::max(1.0,1+0.005*(geny-80.))),resx));
       outDown2->Fill(x,geny,weight*gaus(x,scalex*(std::min(1.0,1-0.005*(geny-80))),resx));
     }
