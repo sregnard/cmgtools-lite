@@ -550,7 +550,7 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',factor=1):
 
                     ## alternative cut strings, for the control plots of templates:
                     if name=='nonRes_wgtMVV_inclLC':
-                        cut="*".join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],cuts['allC'],cuts[e],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV'],'(1.0+'+str(renormNonResMvvSlope[p][c][e])+'*lnujj_gen_partialMass)'])
+                        cut="*".join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],cuts['allC'],cuts[e],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV'],'(1.0+'+str(renormNonResMvvSlope[p][c][e])+'*(lnujj_gen_partialMass-1000))'])
                     elif name=='nonRes_CR_inclLC':
                         cut="*".join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],cuts['allC'],cuts[e],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
                     elif name=='nonRes_wgtMJJ'or name=='nonRes_CR_wgtMJJ':
