@@ -249,13 +249,21 @@ renormRes = {
 }
 
 ## get non-resonant MVV slope from the jet mass sideband (also hardcoded in vvMake2DTemplateWithKernels.py):
-renormNonResMvvSlope = {
-    'HP':{ 'nobb': {'DEtaLo':-1.71e-4,'DEtaHi':-3.87e-5},
-           'bb':   {'DEtaLo':-7.22e-4,'DEtaHi':-5.06e-4},
-           'vbf':  {'DEtaLo':2.52e-4,'DEtaHi':5.26e-4}, },
-    'LP':{ 'nobb': {'DEtaLo':-2.64e-4,'DEtaHi':-1.38e-4},
-           'bb':   {'DEtaLo':-5.41e-4,'DEtaHi':-3.63e-4},
-           'vbf':  {'DEtaLo':-1.78e-4,'DEtaHi':1.98e-4}, }
+renormNonResMvvSlope_p0 = {
+    'HP':{ 'bb':   {'DEtaLo':-5.11351e-02, 'DEtaHi':1.42547e-01, 'allE':9.22987e-03 },
+           'nobb': {'DEtaLo':7.64206e-01, 'DEtaHi':9.33242e-01, 'allE':7.23583e-01 },
+           'vbf':  {'DEtaLo':1.22312e+00, 'DEtaHi':1.78506e+00, 'allE':1.29390e+00 }, },
+    'LP':{ 'bb':   {'DEtaLo':3.23885e-01, 'DEtaHi':4.43246e-01, 'allE':4.92293e-01 },
+           'nobb': {'DEtaLo':6.42083e-01, 'DEtaHi':7.87605e-01, 'allE':6.15018e-01 },
+           'vbf':  {'DEtaLo':7.66046e-01, 'DEtaHi':1.32359e+00, 'allE':8.32691e-01 }, }
+}
+renormNonResMvvSlope_p1 = {
+    'HP':{ 'bb':   {'DEtaLo':9.48416e+02, 'DEtaHi':8.25972e+02, 'allE':9.06804e+02 },
+           'nobb': {'DEtaLo':2.12583e+02, 'DEtaHi':6.24309e+01, 'allE':2.50664e+02 },
+           'vbf':  {'DEtaLo':-1.30739e+02, 'DEtaHi':-6.93369e+02, 'allE':-1.90990e+02 }, },
+    'LP':{ 'bb':   {'DEtaLo':5.97861e+02, 'DEtaHi':5.30202e+02, 'allE':4.56496e+02 },
+           'nobb': {'DEtaLo':3.15756e+02, 'DEtaHi':2.02196e+02, 'allE':3.43643e+02 },
+           'vbf':  {'DEtaLo':2.05378e+02, 'DEtaHi':-3.03538e+02, 'allE':1.46536e+02 }, }
 }
 
 
@@ -550,7 +558,7 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',factor=1):
 
                     ## alternative cut strings, for the control plots of templates:
                     if name=='nonRes_wgtMVV_inclLC':
-                        cut="*".join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],cuts['allC'],cuts[e],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV'],'(1.0+'+str(renormNonResMvvSlope[p][c][e])+'*(lnujj_gen_partialMass-1000))'])
+                        cut="*".join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],cuts['allC'],cuts[e],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV'],'('+str(renormNonResMvvSlope_p0[p][c][e])+'+'+str(renormNonResMvvSlope_p1[p][c][e])+'/lnujj_gen_partialMass)'])
                     elif name=='nonRes_CR_inclLC':
                         cut="*".join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],cuts['allC'],cuts[e],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
                     elif name=='nonRes_wgtMJJ'or name=='nonRes_CR_wgtMJJ':

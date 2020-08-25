@@ -201,41 +201,61 @@ histograms=[
 
 
 
-
+output=options.output
 for plotter in data.plotters:
-    dataset=plotter.makeDataSet('lnujj_l1_pt,lnujj_l2_gen_pt,'+variables[1]+','+variables[0],options.cut,-1)
-    reweigh=0
-    if options.output.find("nonRes")!=-1 and options.output.find("CR")==-1:
-        if options.output.find("DEtaLo")!=-1:
-            if options.output.find("_HP_")!=-1 and options.output.find("_nobb_")!=-1:
-                reweigh=-1.71e-4;
-            elif options.output.find("_HP_")!=-1 and options.output.find("_bb_")!=-1:
-                reweigh=-7.22e-4;
-            elif options.output.find("_HP_")!=-1 and options.output.find("_vbf_")!=-1:
-                reweigh=2.52e-4;
-            elif options.output.find("_LP_")!=-1 and options.output.find("_nobb_")!=-1:
-                reweigh=-2.64e-4;
-            elif options.output.find("_LP_")!=-1 and options.output.find("_bb_")!=-1:
-                reweigh=-5.41e-4;
-            elif options.output.find("_LP_")!=-1 and options.output.find("_vbf_")!=-1:
-                reweigh=-1.78e-4;
-        elif options.output.find("DEtaHi")!=-1:
-            if options.output.find("_HP_")!=-1 and options.output.find("_nobb_")!=-1:
-                reweigh=-3.87e-5;
-            elif options.output.find("_HP_")!=-1 and options.output.find("_bb_")!=-1:
-                reweigh=-5.06e-4;
-            elif options.output.find("_HP_")!=-1 and options.output.find("_vbf_")!=-1:
-                reweigh=5.26e-4;
-            elif options.output.find("_LP_")!=-1 and options.output.find("_nobb_")!=-1:
-                reweigh=-1.38e-4;
-            elif options.output.find("_LP_")!=-1 and options.output.find("_bb_")!=-1:
-                reweigh=-3.63e-4;
-            elif options.output.find("_LP_")!=-1 and options.output.find("_vbf_")!=-1:
-                reweigh=1.98e-4;
-        else:
-            reweigh=0.0;
 
-    datamaker=ROOT.cmg.ConditionalGaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,res_x,histogram,histogram_MVVScale_up,histogram_MVVScale_down,histogram_Diag_up,histogram_Diag_down,reweigh);
+    dataset=plotter.makeDataSet('lnujj_l1_pt,lnujj_l2_gen_pt,'+variables[1]+','+variables[0],options.cut,-1)
+
+    reweigh_p0=1.0
+    reweigh_p1=0.0
+    if "nonRes" in output and not("CR" in output):
+        if "DEtaLo" in output:
+            if "_HP_" in output:
+                if "_bb_" in output:
+                    reweigh_p0=-5.11351e-02; reweigh_p1=9.48416e+02
+                elif "_nobb_" in output:
+                    reweigh_p0=7.64206e-01; reweigh_p1=2.12583e+02
+                elif "_vbf_" in output:
+                    reweigh_p0=1.22312e+00; reweigh_p1=-1.30739e+02
+            elif "_LP_" in output: 
+                if "_bb_" in output:
+                    reweigh_p0=3.23885e-01; reweigh_p1=5.97861e+02 
+                elif "_nobb_" in output:
+                    reweigh_p0=6.42083e-01; reweigh_p1=3.15756e+02
+                elif "_vbf_" in output:
+                    reweigh_p0=7.66046e-01; reweigh_p1=2.05378e+02
+        elif "DEtaHi" in output:
+            if "_HP_" in output:
+                if "_bb_" in output:
+                    reweigh_p0=1.42547e-01; reweigh_p1=8.25972e+02
+                elif "_nobb_" in output:
+                    reweigh_p0=9.33242e-01; reweigh_p1=6.24309e+01
+                elif "_vbf_" in output:
+                    reweigh_p0=1.78506e+00; reweigh_p1=-6.93369e+02
+            elif "_LP_" in output: 
+                if "_bb_" in output:
+                    reweigh_p0=4.43246e-01; reweigh_p1=5.30202e+02
+                elif "_nobb_" in output:
+                    reweigh_p0=7.87605e-01; reweigh_p1=2.02196e+02
+                elif "_vbf_" in output:
+                    reweigh_p0=1.32359e+00; reweigh_p1=-3.03538e+02
+        elif "allE" in output:
+            if "_HP_" in output:
+                if "_bb_" in output:
+                    reweigh_p0=9.22987e-03; reweigh_p1=9.06804e+02
+                elif "_nobb_" in output:
+                    reweigh_p0=7.23583e-01; reweigh_p1=2.50664e+02
+                elif "_vbf_" in output:
+                    reweigh_p0=1.29390e+00; reweigh_p1=-1.90990e+02
+            elif "_LP_" in output: 
+                if "_bb_" in output:
+                    reweigh_p0=4.92293e-01; reweigh_p1=4.56496e+02
+                elif "_nobb_" in output:
+                    reweigh_p0=6.15018e-01; reweigh_p1=3.43643e+02
+                elif "_vbf_" in output:
+                    reweigh_p0=8.32691e-01; reweigh_p1=1.46536e+02
+
+    datamaker=ROOT.cmg.ConditionalGaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,res_x,histogram,histogram_MVVScale_up,histogram_MVVScale_down,histogram_Diag_up,histogram_Diag_down,reweigh_p0,reweigh_p1);
 
 
 f=ROOT.TFile(options.output,"RECREATE")

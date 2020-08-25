@@ -5,7 +5,20 @@ using namespace cmg;
 ConditionalGaussianSumTemplateMaker::ConditionalGaussianSumTemplateMaker() {}
 ConditionalGaussianSumTemplateMaker::~ConditionalGaussianSumTemplateMaker() {}
 
-ConditionalGaussianSumTemplateMaker::ConditionalGaussianSumTemplateMaker(const RooDataSet* dataset,const char* varx, const char* vary,const char* varpt, TH1* hscalex,TH1* hresx,TH2* out,TH2* outUp,TH2* outDown, TH2* outUp2,TH2*outDown2,float reweigh ) {
+ConditionalGaussianSumTemplateMaker::ConditionalGaussianSumTemplateMaker(const RooDataSet* dataset, 
+									 const char* varx, 
+									 const char* vary, 
+									 const char* varpt, 
+									 TH1* hscalex, 
+									 TH1* hresx, 
+									 TH2* out, 
+									 TH2* outUp, 
+									 TH2* outDown, 
+									 TH2* outUp2, 
+									 TH2*outDown2, 
+									 float reweigh_p0, 
+									 float reweigh_p1
+									 ) {
 
   double genx,geny,x,scalex,resx,genpt;
   genx=0.0;
@@ -35,7 +48,7 @@ ConditionalGaussianSumTemplateMaker::ConditionalGaussianSumTemplateMaker(const R
     for (int i=1;i<out->GetNbinsX()+1;++i) {
       float weight = dataset->weight();
       x=out->GetXaxis()->GetBinCenter(i);
-      weight=weight*(1.0+reweigh*(genx-1000));
+      weight=weight*(reweigh_p0+reweigh_p1/genx);
       out->Fill(x,geny,weight*gaus(x,scalex,resx));
       outUp->Fill(x,geny,weight*(1+1.5e-3*(x-700))*gaus(x,scalex,resx));
       outDown->Fill(x,geny,weight*(1.0/(1+1.5e-3*(x-700)))*gaus(x,scalex,resx));
