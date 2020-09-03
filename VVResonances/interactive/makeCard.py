@@ -115,9 +115,6 @@ for lepton in ['e','mu']:
                 ## lepton efficiency
                 card.addSystematic("CMS_eff_"+LYtag,"lnN",{'GbuToWW':1.05,'RadToWW':1.05,'ZprToWW':1.05,'WprToWZ':1.05,'WprToWH':1.05,'VBFGbuToWW':1.05,'VBFRadToWW':1.05,'VBFZprToWW':1.05,'VBFWprToWZ':1.05})
 
-                ## efficiency of the pt/m cut
-                card.addSystematic("CMS_eff_ptom_"+YEAR,"lnN",{'GbuToWW':1.025,'RadToWW':1.025,'ZprToWW':1.025,'WprToWZ':1.025,'WprToWH':1.025,'VBFGbuToWW':1.05,'VBFRadToWW':1.05,'VBFZprToWW':1.05,'VBFWprToWZ':1.05})
-
                 ## b tagging fake rate
                 card.addSystematic("CMS_btag_fake_"+YEAR,"lnN",{'GbuToWW':1.02,'RadToWW':1.02,'ZprToWW':1.02,'WprToWZ':1.02,'WprToWH':1.02,'VBFGbuToWW':1.02,'VBFRadToWW':1.02,'VBFZprToWW':1.02,'VBFWprToWZ':1.02})
 
@@ -132,6 +129,12 @@ for lepton in ['e','mu']:
                     card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'GbuToWW':1+bbuncWW,'RadToWW':1+bbuncWW,'ZprToWW':1+bbuncWW,'WprToWZ':1+bbuncWZ,'WprToWH':1+bbuncWH,'VBFGbuToWW':1+bbuncWW,'VBFRadToWW':1+bbuncWW,'VBFZprToWW':1+bbuncWW,'VBFWprToWZ':1+bbuncWZ})
                 if category=='nobb':
                     card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'GbuToWW':1-nobbuncWW,'RadToWW':1-nobbuncWW,'ZprToWW':1-nobbuncWW,'WprToWZ':1-nobbuncWZ,'WprToWH':1-nobbuncWH,'VBFGbuToWW':1-nobbuncWW,'VBFRadToWW':1-nobbuncWW,'VBFZprToWW':1-nobbuncWW,'VBFWprToWZ':1-nobbuncWZ})
+
+                ## Dy tagging
+                if deta=='DEtaLo':
+                    card.addSystematic("CMS_VV_Dy_"+YEAR,"lnN",{'GbuToWW':0.985,'RadToWW':0.965,'ZprToWW':0.965,'WprToWZ':0.98,'WprToWH':0.98,'VBFGbuToWW':0.95,'VBFRadToWW':0.965,'VBFZprToWW':0.945,'VBFWprToWZ':0.945})
+                if deta=='DEtaHi':
+                    card.addSystematic("CMS_VV_Dy_"+YEAR,"lnN",{'GbuToWW':1.04 ,'RadToWW':1.04 ,'ZprToWW':1.04 ,'WprToWZ':1.04,'WprToWH':1.04,'VBFGbuToWW':1.06,'VBFRadToWW':1.04 ,'VBFZprToWW':1.02 ,'VBFWprToWZ':1.02 })
 
                 ## background normalization
                 #card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+LPCEYtag,"lnN",{'nonRes':1.25})
