@@ -197,7 +197,7 @@ for l in leptons:
             ##label="W#rightarrow"+(("e","#mu")[l=='mu'])+"#nu, "+(("low-purity","high-purity")[p=='HP'])
             ##label=(("electron","muon")[l=='mu'])+", "+(("low-purity","high-purity")[p=='HP'])
             #label="#bf{"+(("electron","muon")[l=='mu'])+", "+(("low-purity","high-purity")[p=='HP'])+"}"
-            label=(("e","#mu")[l=='mu'])+", "+p+", "+c#+", "+YEAR
+            label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+(("LDy","HDy")[e=='DEtaHi'])#+", "+YEAR
 
             if lep!='' and lep!=l: continue
             if pur!='' and pur!=p: continue 
@@ -308,10 +308,10 @@ for l in leptons:
                 saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_"+sigStr+"_"+subcat)
                 #'''
 
-                ''' ## blind, in MVV slices
-                plotter.drawBinned(varMJJ,labelMJJ,"#splitline{"+label+"}{0.6 #leq m_{WV} < 1 TeV}",subcat,[70,150],options.doUncBand,0,0,varMVV+":bin1:600:1000",minMJJ,maxMJJ,YmaxMJJ)
+                #''' ## blind, in MVV slices
+                plotter.drawBinned(varMJJ,labelMJJ,"#splitline{"+label+"}{0.7 #leq m_{WV} < 1 TeV}",subcat,[70,150],options.doUncBand,0,0,varMVV+":bin1:700:1000",minMJJ,maxMJJ,YmaxMJJ)
                 cmsLabel(plotter.canvas)
-                saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJBlind_MVV0600to1000_"+sigStr+"_"+subcat)
+                saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJBlind_MVV0700to1000_"+sigStr+"_"+subcat)
                 
                 plotter.drawBinned(varMJJ,labelMJJ,"#splitline{"+label+"}{1 #leq m_{WV} < 1.5 TeV}",subcat,[70,150],options.doUncBand,0,0,varMVV+":bin2:1000:1500",minMJJ,maxMJJ,YmaxMJJ)
                 cmsLabel(plotter.canvas)
@@ -323,9 +323,9 @@ for l in leptons:
                 #'''
 
                 ''' ## unblinded, in MVV slices
-                plotter.drawBinned(varMJJ,labelMJJ,"#splitline{"+label+"}{0.6 #leq m_{WV} < 1 TeV}",subcat,[0,0],options.doUncBand,0,0,varMVV+":bin1:600:1000",minMJJ,maxMJJ,YmaxMJJ)
+                plotter.drawBinned(varMJJ,labelMJJ,"#splitline{"+label+"}{0.7 #leq m_{WV} < 1 TeV}",subcat,[0,0],options.doUncBand,0,0,varMVV+":bin1:700:1000",minMJJ,maxMJJ,YmaxMJJ)
                 cmsLabel(plotter.canvas)
-                saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_MVV0600to1000_"+sigStr+"_"+subcat)
+                saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_MVV0700to1000_"+sigStr+"_"+subcat)
                 
                 plotter.drawBinned(varMJJ,labelMJJ,"#splitline{"+label+"}{1 #leq m_{WV} < 1.5 TeV}",subcat,[0,0],options.doUncBand,0,0,varMVV+":bin2:1000:1500",minMJJ,maxMJJ,YmaxMJJ)
                 cmsLabel(plotter.canvas)
