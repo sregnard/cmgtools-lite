@@ -16,6 +16,7 @@ parser.add_option("-C","--CMSlabel",dest="CMSlabel",type=int,default=0,help="0:N
 (options,args) = parser.parse_args()
 
 
+FORPAPER = 0 ## plots for the paper instead of AN
 
 LIKETEMPLATES = 0 ## classify the backgrounds as nonRes and res, like in templates
 
@@ -31,7 +32,7 @@ YEAR=options.year
 if YEAR not in ["2016","2017","2018","Run2"]:
     parser.error("year must be 2016, 2017, 2018, or Run2")
 
-outDir='ControlPlots'+YEAR
+outDir='ControlPlots'+YEAR+('_paper' if FORPAPER else '')
 os.system('mkdir -p '+outDir)
 
 if YEAR=="Run2":
@@ -363,7 +364,7 @@ resStack.addPlotter(res,"res","resonant","background")
 
 
 
-plots = [
+plotsAN = [
   #( "", "", , , , "", "" ),
   ( "nVert",                  "nVert",                       60,  0.,  60.,   "N primary vertices", ""    ),
   ( "lnujj_l1_l_pt",          "lnujj_l1_l_pt",               100, 0.,  1000., "lepton p_{T}",       "GeV" ),
@@ -403,6 +404,12 @@ plots = [
   ( "lnujj_nJets",            "lnujj_nJets",                 13,0.,12.,       "N_{jets}",           ""    ),
   ( "lnujj_vbf_j1_pt",        "lnujj_vbf_j1_pt",             100, 0.,  1000., "VBF jet 1 p_{T}",    "GeV" ),
   ( "mjet",                   "lnujj_l2_softDrop_mass",      100, -5.,  20.,  "m_{jet}",            "GeV" ),
+  ( "dy",                     DRap,                          60, 0.,  6.,     "#Deltay_{WV}",       "" ),
+]
+
+plotsPaper = [
+  ( "mjet",                   "lnujj_l2_softDrop_mass",      38,  20., 210.,  "m_{jet}",            "GeV" , 0),
+  ( "tau21DDT",               "lnujj_l2_tau2/lnujj_l2_tau1-(-0.08)*log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt)", 50,  0., 1.0,    "#tau_{21}^{DDT}",       "" , 1),
 ]
 
 
@@ -428,7 +435,7 @@ if COMPUTEWJETSSF:
 #for r in ['SB']:
 #for r in ['SRMVV']:
 #for r in ['SR']:
-for r in ['CR','SB']: ## uncomment this one for the plots of the analysis note, and use REMOVEBKGDKFAC=0 and RESCALEWJETS=1
+for r in (['CR'] if FORPAPER else ['CR','SB']): 
 
     for p in puritiesMerged: #purities:
 
@@ -436,19 +443,20 @@ for r in ['CR','SB']: ## uncomment this one for the plots of the analysis note, 
 
           for e in etasMerged: #etas:
 
-            for i,pl in enumerate(plots):
+            for i,pl in enumerate(plotsPaper if FORPAPER else plotsAN):
 
-                if not(i in [0,1,2,4,6,7,8,9,11,12,16,20,27,28,29]): continue ## uncomment this one for the plots of the analysis note
-                #if i!=8: continue
-                #if i!=11: continue
-                #if not(i in [7,11]): continue
-                #if not(i in [2,3,5]): continue
-                #if not(i in [1,4,8]): continue
-                #if not(i in [27,28,29]): continue
-                #if i!=30: continue
+                if not FORPAPER:
+                    if not(i in [0,1,2,4,6,7,8,9,11,12,16,20,27,28,29,32]): continue ## uncomment this one for the plots of the analysis note
+                    #if i!=8: continue
+                    #if i!=11: continue
+                    #if not(i in [7,11]): continue
+                    #if not(i in [2,3,5]): continue
+                    #if not(i in [1,4,8]): continue
+                    #if not(i in [27,28,29]): continue
+                    #if i!=32: continue
 
                 leps = leptonsMerged
-                if ("l1" in pl[1]) or ("met" in pl[1]) or ("LV" in pl[1]):
+                if ("l1" in pl[0]) or ("met" in pl[0]) or ("mWV" in pl[0]):
                     leps = leptons
 
                 for l in leps:
@@ -464,7 +472,7 @@ for r in ['CR','SB']: ## uncomment this one for the plots of the analysis note, 
 
 
                     #'''
-                    res = lnujjStack.drawStackWithRatio(pl[1],cut,myLumi,pl[2],pl[3],pl[4],pl[5],pl[6])
+                    res = lnujjStack.drawStackWithRatio(pl[1],cut,myLumi,pl[2],pl[3],pl[4],pl[5],pl[6],0.,pl[7])
                     cmsLabel(res['canvas'])
                     saveCanvas(res['canvas'],outDir+'/'+r+'_'+prs+'_'+cat+'_'+YEAR+'_'+pl[0])
                     #'''

@@ -278,7 +278,7 @@ class StackPlotter(object):
         
         
 
-    def drawStackWithRatio(self,var,cut,lumi,bins,mini,maxi,titlex = "", units = "",expandY=0.0):
+    def drawStackWithRatio(self,var,cut,lumi,bins,mini,maxi,titlex = "", units = "",expandY=0.0,legLeft=0):
 
         canvas = ROOT.TCanvas("canvas","",500,500)
         ROOT.gStyle.SetOptStat(0)
@@ -362,7 +362,7 @@ class StackPlotter(object):
         else:    
             frame.GetYaxis().SetTitle("Events")
 
-        legend = ROOT.TLegend(0.62,0.62,0.92,0.95,"","brNDC")
+        legend = ROOT.TLegend(0.62-legLeft*0.4,0.62,0.92-legLeft*0.4,0.95,"","brNDC")
 	legend.SetBorderSize(0)
 	legend.SetLineColor(1)
 	legend.SetLineStyle(1)
