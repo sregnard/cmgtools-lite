@@ -172,19 +172,19 @@ def compareTemplatesVsReco(contrib,l,p,c,e,var,varDesc):
     if contrib=='nonRes' and var=="MVV" and (options.coarse or options.conditional):
         fRecoName = options.inDir+"/LNuJJ_norm"+INCRin+"_"+cat+".root"
         h2RecoName='nonRes_CR_inclLC' if options.inCR else 'nonRes_wgtMVV_inclLC'
-        label=p+", "+e
+        label=p+", "+(("LDy","HDy")[e=='DEtaHi'])
     elif contrib=='nonRes' and var=="MJ" and (not ININTERVALS):
         fRecoName = options.inDir+"/LNuJJ_norm"+INCRin+"_"+cat+".root"
         h2RecoName='nonRes'+INCRin+'_wgtMJJ'
-        label=l+", "+p+", "+c+", "+e
+        label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+(("LDy","HDy")[e=='DEtaHi'])
     elif contrib=='res' and var=="MVV" and (options.coarse or options.conditional):
         fRecoName = options.inDir+"/LNuJJ_norm"+INCRin+"_"+cat+".root"
         h2RecoName='res'+INCRin+'_inclLPC'
-        label=e
+        label=(("LDy","HDy")[e=='DEtaHi'])
     else:
         fRecoName = options.inDir+"/LNuJJ_norm"+INCRin+"_"+cat+".root"
         h2RecoName=contrib+INCRin
-        label=l+", "+p+", "+c+", "+e
+        label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+(("LDy","HDy")[e=='DEtaHi'])
     if not os.path.isfile(fRecoName):
         print "Error in compareTemplatesVsReco: file "+fRecoName+" does not exist."
         return
