@@ -157,9 +157,9 @@ def getPlotters(samples,sampleDir,isData=False,corr="1"):
                 if "ntuples2016" in fpath:
                     pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*L1PrefireWeight')
                 elif "ntuples2017" in fpath:
-                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*Flag_rerunEcalBadCalibFilter*L1PrefireWeight')
+                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*L1PrefireWeight')
                 elif "ntuples2018" in fpath:
-                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET)*Flag_rerunEcalBadCalibFilter')
+                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET)')
                 else:
                     sys.exit("Year not found, aborting.")
 
@@ -189,9 +189,9 @@ def getPlotters(samples,sampleDir,isData=False,corr="1"):
                     if RESCALEWJETS:
                         if fname.find("WJetsToLNu_HT")!=-1: 
                             wjetsFactor=1.
-                            if   "ntuples2016" in fpath:  wjetsFactor = 0.96
-                            elif "ntuples2017" in fpath:  wjetsFactor = 0.86
-                            elif "ntuples2018" in fpath:  wjetsFactor = 0.79
+                            if   "ntuples2016" in fpath:  wjetsFactor = 1.022
+                            elif "ntuples2017" in fpath:  wjetsFactor = 0.926
+                            elif "ntuples2018" in fpath:  wjetsFactor = 0.860
                             plotters[-1].addCorrectionFactor(wjetsFactor,'flat')
                             print '  reweighting '+fpath+' '+str(wjetsFactor)
                     #'''
@@ -243,7 +243,7 @@ cuts['common'] = '1'
 #cuts['common'] = cuts['common'] + '*(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)' ## FIXME: HLT flags are temporarily handled via pcuts
 cuts['common'] = cuts['common'] + '*((run>500) + (run<500)*lnujj_sfWV)'
 cuts['common'] = cuts['common'] + '*(lnujj_nOtherLeptons==0&&nlljj==0&&lnujj_l2_softDrop_mass>0&&lnujj_LV_mass>0)'
-cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalSuperTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&(Flag_eeBadScFilter*(run>500)+(run<500))&&(Flag_BadMuonFilter*(year==2016)+Flag_BadPFMuonFilter*(year!=2016)))'
+cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalSuperTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&Flag_BadPFMuonFilter&&(Flag_eeBadScFilter*(run>500)+(run<500))&&Flag_rerunEcalBadCalibFilter)'
 
 ## exclude 2018 events where the selected electron is in the problematic HEM15/16 region:
 cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&abs(lnujj_l1_l_pdgId)==11&&(-1.55<lnujj_l1_l_phi)&&(lnujj_l1_l_phi<-0.9)&&(-2.5<lnujj_l1_l_eta)&&(lnujj_l1_l_eta<-1.479)))'
@@ -283,6 +283,16 @@ cuts['vbf'] = '(lnujj_nJets>=2&&lnujj_vbfDEta>4.0&&lnujj_vbfMass>500)'
 categories=['bb','nobb','vbf']
 categoriesMerged=['allC']
 
+thrDRap='1.0'
+rapid1='log((sqrt(((lnujj_l1_mass)**2)+((lnujj_l1_pt)**2)*(cosh(lnujj_l1_eta)**2))+(lnujj_l1_pt)*sinh(lnujj_l1_eta))/sqrt(((lnujj_l1_mass)**2)+((lnujj_l1_pt)**2)))'
+rapid2='log((sqrt(((lnujj_l2_mass)**2)+((lnujj_l2_pt)**2)*(cosh(lnujj_l2_eta)**2))+(lnujj_l2_pt)*sinh(lnujj_l2_eta))/sqrt(((lnujj_l2_mass)**2)+((lnujj_l2_pt)**2)))'
+DRap='abs('+rapid1+'-'+rapid2+')'
+cuts['LDy'] = '('+DRap+'<'+thrDRap+')'
+cuts['HDy'] = '('+DRap+'>='+thrDRap+')'
+cuts['allD'] = '1'
+dys=['LDy','HDy']
+dysMerged=['allD']
+
 
 cuts['nonres']='(lnujj_l2_mergedVTruth==0)'
 cuts['res']   ='(lnujj_l2_mergedVTruth==1)'
@@ -298,25 +308,24 @@ maxMVV=5000.0
 
 
 
-cuts['acceptance']= "(lnujj_LV_mass>{minMVV}&&lnujj_LV_mass<{maxMVV}&&lnujj_l2_softDrop_mass>{minMJJ}&&lnujj_l2_softDrop_mass<{maxMJJ})".format(minMVV=minMVV,maxMVV=maxMVV,minMJJ=minMJJ,maxMJJ=maxMJJ)
-cuts['acceptanceMVV']= "(lnujj_LV_mass>{minMVV}&&lnujj_LV_mass<{maxMVV})".format(minMVV=minMVV,maxMVV=maxMVV)
-cuts['acceptanceMJJ']= "(lnujj_l2_softDrop_mass>{minMJJ}&&lnujj_l2_softDrop_mass<{maxMJJ})".format(minMJJ=minMJJ,maxMJJ=maxMJJ)
+cuts['acceptance']    = "(lnujj_LV_mass>{minMVV}&&lnujj_LV_mass<{maxMVV}&&lnujj_l2_softDrop_mass>{minMJJ}&&lnujj_l2_softDrop_mass<{maxMJJ})".format(minMVV=minMVV,maxMVV=maxMVV,minMJJ=minMJJ,maxMJJ=maxMJJ)
+cuts['acceptanceMVV'] = "(lnujj_LV_mass>{minMVV}&&lnujj_LV_mass<{maxMVV})".format(minMVV=minMVV,maxMVV=maxMVV)
+cuts['acceptanceMJJ'] = "(lnujj_l2_softDrop_mass>{minMJJ}&&lnujj_l2_softDrop_mass<{maxMJJ})".format(minMJJ=minMJJ,maxMJJ=maxMJJ)
 cuts['blinding'] = "((lnujj_l2_softDrop_mass<70)||(150<lnujj_l2_softDrop_mass))"
 
-cuts['0'] = "1"
-cuts['AccMVV'] = cuts['acceptanceMVV']
-cuts['Acc'] = cuts['acceptance']
-cuts['AccBW'] = cuts['acceptance']+'*lnujj_btagWeight'
-cuts['CR'] = '*'.join([cuts['b'],cuts['allL'],cuts['allC'],cuts['allP'],cuts['acceptance']])
-cuts['SBL'] = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],cuts['acceptance'],cuts['blinding']])
-cuts['SB'] = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],cuts['allP'],cuts['acceptance'],cuts['blinding']])
-cuts['SRMVV'] = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],cuts['allP'],cuts['acceptanceMVV'],"(lnujj_l2_softDrop_mass>10)"])
-cuts['SR'] = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],cuts['allP'],cuts['acceptance']])
+cuts['0']      = "1"
+cuts['Acc']    = '*'.join([            cuts['allL'],cuts['allC'],cuts['allP'],cuts['allD'],cuts['acceptance']])
+cuts['AccBW']  = cuts['Acc']+'*lnujj_btagWeight'
+cuts['CR']     = '*'.join([cuts['b'],  cuts['allL'],cuts['allC'],cuts['allP'],cuts['allD'],cuts['acceptance']])
+cuts['SBL']    = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],             cuts['allD'],cuts['acceptance'],cuts['blinding']])
+cuts['SB']     = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],cuts['allP'],cuts['allD'],cuts['acceptance'],cuts['blinding']])
+cuts['SRMVV']  = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],cuts['allP'],cuts['allD'],cuts['acceptanceMVV'],"(lnujj_l2_softDrop_mass>10)"])
+cuts['SR']     = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],cuts['allP'],cuts['allD'],cuts['acceptance']])
 
 
 
 
-ttbar='TT_pow_pythia,TTHad_pow,TTLep_pow,TTSemi_pow'
+ttbar='TT_pow,TTHad_pow,TTLep_pow,TTSemi_pow'
 singletop='T_tW,TBar_tW,T_tch,TBar_tch'
 diboson='WWToLNuQQ,WZTo1L1Nu2Q,ZZTo2L2Q'
 vhiggs='WminusLNuHBB,WplusLNuHBB,WminusH_HToBB_WToLNu,WplusH_HToBB_WToLNu,ZH_HToBB_ZToLL'

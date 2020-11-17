@@ -278,7 +278,7 @@ class StackPlotter(object):
         
         
 
-    def drawStackWithRatio(self,var,cut,lumi,bins,mini,maxi,titlex = "", units = "",expandY=0.0,legLeft=0):
+    def drawStackWithRatio(self,var,cut,lumi,bins,mini,maxi,titlex = "", units = "",expandY=0.0,legLeft=0,rescaleToData=0):
 
         canvas = ROOT.TCanvas("canvas","",500,500)
         ROOT.gStyle.SetOptStat(0)
@@ -339,6 +339,12 @@ class StackPlotter(object):
                 print label+" : %f\n" % hist.Integral()
                 dataIntegral=data.IntegralAndError(1,data.GetNbinsX(),error)
                 dataErr=error*error
+
+        if rescaleToData:
+            for hs in stack.GetHists():
+                print 'integral before rescaling to data: ', hs.Integral()
+                hs.Scale(dataIntegral/background)
+                print 'integral after rescaling to data:  ', hs.Integral()
 
         if data != None:                  
             datamax = ROOT.Math.chisquared_quantile_c((1-0.6827)/2.,2*(data.GetMaximum()+1))/2.

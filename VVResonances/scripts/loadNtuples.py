@@ -37,9 +37,9 @@ def loadNtuples(samples,sampleDir,isData=False):
                 if "ntuples2016" in fpath:
                     pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*L1PrefireWeight')
                 elif "ntuples2017" in fpath:
-                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*Flag_rerunEcalBadCalibFilter*L1PrefireWeight')
+                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*L1PrefireWeight')
                 elif "ntuples2018" in fpath:
-                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET)*Flag_rerunEcalBadCalibFilter')
+                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET)')
                 else:
                     sys.exit("Year not found, aborting.")
 
@@ -66,9 +66,9 @@ def loadNtuples(samples,sampleDir,isData=False):
                     #''' ## rescale the W+jets yields (the current factors were computed from 30 < mjet < 50 GeV, on top of the NLO k-factors)
                     if fname.find("WJetsToLNu_HT")!=-1: 
                         wjetsFactor=1.
-                        if   "ntuples2016" in fpath:  wjetsFactor = 0.96
-                        elif "ntuples2017" in fpath:  wjetsFactor = 0.86
-                        elif "ntuples2018" in fpath:  wjetsFactor = 0.79
+                        if   "ntuples2016" in fpath:  wjetsFactor = 1.022
+                        elif "ntuples2017" in fpath:  wjetsFactor = 0.926
+                        elif "ntuples2018" in fpath:  wjetsFactor = 0.860
                         plotters[-1].addCorrectionFactor(wjetsFactor,'flat')
                         print '  reweighting '+fpath+' '+str(wjetsFactor)
                     #'''
@@ -116,9 +116,9 @@ def loadSignalNtuples(samples,sampleDir,minMX,maxMX,corr=1.):
                 if "ntuples2016" in fpath:
                     pcuts[mass].append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*L1PrefireWeight')
                 elif "ntuples2017" in fpath:
-                    pcuts[mass].append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*Flag_rerunEcalBadCalibFilter*L1PrefireWeight')
+                    pcuts[mass].append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*L1PrefireWeight')
                 elif "ntuples2018" in fpath:
-                    pcuts[mass].append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET)*Flag_rerunEcalBadCalibFilter')
+                    pcuts[mass].append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET)')
                 else:
                     sys.exit("Year not found, aborting.")
 
@@ -138,7 +138,7 @@ def loadSignalNtuples(samples,sampleDir,minMX,maxMX,corr=1.):
 
     for mass in sorted(plotters.keys()):
 
-        if len(plotters[mass]) != (1,3)[sampleDir=='ntuples']:
+        if len(plotters[mass]) != (1,(3,2)['Wprime_VBF_Wh_Wlephinc_narrow' in samples])[sampleDir=='ntuples']: ##FIXME: rechange when 2017 VBFWH is ready
             continue
 
         mergedplotters[mass]=MergedPlotter(plotters[mass],pcuts[mass])

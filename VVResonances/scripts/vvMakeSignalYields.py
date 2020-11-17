@@ -28,7 +28,7 @@ parser.add_option("-V","--MVV",dest="mvv",help="mVV variable",default='')
 parser.add_option("-x","--minMVV",dest="min",type=float,help="min mVV",default=1)
 parser.add_option("-X","--maxMVV",dest="max",type=float,help="max mVV",default=1)
 parser.add_option("-f","--function",dest="function",help="interpolating function",default='')
-parser.add_option("-b","--BR",dest="BR",type=float,help="branching ratio",default=1)
+parser.add_option("-b","--BR",dest="BR",help="branching ratio",default='1.0')
 
 (options,args) = parser.parse_args()
 
@@ -46,7 +46,7 @@ for mass in sorted(plotter.keys()):
     print 'integrating',str(mass)
 
     ## Get the histo from MC
-    histo = plotter[mass].drawTH1(options.mvv,options.cut,"1",500,options.min,options.max)
+    histo = plotter[mass].drawTH1(options.mvv,options.cut+"*("+options.BR+")","1",500,options.min,options.max)
 
     ## Get the yield and its uncertainty
     err=ROOT.Double(0)
@@ -54,8 +54,8 @@ for mass in sorted(plotter.keys()):
     print integral, err
 
     ## Add them to the graph
-    yieldgraph.SetPoint(N,mass,integral*options.BR)
-    yieldgraph.SetPointError(N,0.0,err*options.BR)
+    yieldgraph.SetPoint(N,mass,integral)
+    yieldgraph.SetPointError(N,0.0,err)
 
     N=N+1
 

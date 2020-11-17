@@ -112,9 +112,9 @@ def getPlotters(samples,sampleDir,isData=False,corr="1"):
                 if "ntuples2016" in fpath:
                     pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*L1PrefireWeight')
                 elif "ntuples2017" in fpath:
-                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*Flag_rerunEcalBadCalibFilter*L1PrefireWeight')
+                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)*L1PrefireWeight')
                 elif "ntuples2018" in fpath:
-                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET)*Flag_rerunEcalBadCalibFilter')
+                    pcuts.append('(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET)')
                 else:
                     sys.exit("Year not found, aborting.")
 
@@ -144,9 +144,9 @@ def getPlotters(samples,sampleDir,isData=False,corr="1"):
                     if RESCALEWJETS:
                         if fname.find("WJetsToLNu_HT")!=-1: 
                             wjetsFactor=1.
-                            if   "ntuples2016" in fpath:  wjetsFactor = 0.96
-                            elif "ntuples2017" in fpath:  wjetsFactor = 0.86
-                            elif "ntuples2018" in fpath:  wjetsFactor = 0.79
+                            if   "ntuples2016" in fpath:  wjetsFactor = 1.022
+                            elif "ntuples2017" in fpath:  wjetsFactor = 0.926
+                            elif "ntuples2018" in fpath:  wjetsFactor = 0.860
                             plotters[-1].addCorrectionFactor(wjetsFactor,'flat')
                             print '  reweighting '+fpath+' '+str(wjetsFactor)
                     #'''
@@ -197,7 +197,7 @@ cuts['common'] = '1'
 #cuts['common'] = cuts['common'] + '*(HLT_MU||HLT_ELE||HLT_ISOMU||HLT_ISOELE||HLT_MET||HLT_PHOTON)' ## FIXME: HLT flags are temporarily handled via pcuts
 cuts['common'] = cuts['common'] + '*((run>500) + (run<500)*lnujj_sfWV)'
 cuts['common'] = cuts['common'] + '*(lnujj_nOtherLeptons==0&&nlljj==0&&lnujj_l2_softDrop_mass>0&&lnujj_LV_mass>0)'
-cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalSuperTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&(Flag_eeBadScFilter*(run>500)+(run<500))&&(Flag_BadMuonFilter*(year==2016)+Flag_BadPFMuonFilter*(year!=2016)))'
+cuts['common'] = cuts['common'] + '*(Flag_goodVertices&&Flag_globalSuperTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&Flag_BadPFMuonFilter&&(Flag_eeBadScFilter*(run>500)+(run<500))&&Flag_rerunEcalBadCalibFilter)'
 
 ## exclude 2018 events where the selected electron is in the problematic HEM15/16 region:
 cuts['common'] = cuts['common'] + '*(!(year==2018&&run>=319077&&abs(lnujj_l1_l_pdgId)==11&&(-1.55<lnujj_l1_l_phi)&&(lnujj_l1_l_phi<-0.9)&&(-2.5<lnujj_l1_l_eta)&&(lnujj_l1_l_eta<-1.479)))'
@@ -241,11 +241,11 @@ thrDRap='1.0'
 rapid1='log((sqrt(((lnujj_l1_mass)**2)+((lnujj_l1_pt)**2)*(cosh(lnujj_l1_eta)**2))+(lnujj_l1_pt)*sinh(lnujj_l1_eta))/sqrt(((lnujj_l1_mass)**2)+((lnujj_l1_pt)**2)))'
 rapid2='log((sqrt(((lnujj_l2_mass)**2)+((lnujj_l2_pt)**2)*(cosh(lnujj_l2_eta)**2))+(lnujj_l2_pt)*sinh(lnujj_l2_eta))/sqrt(((lnujj_l2_mass)**2)+((lnujj_l2_pt)**2)))'
 DRap='abs('+rapid1+'-'+rapid2+')'
-cuts['DEtaLo'] = '('+DRap+'<'+thrDRap+')'
-cuts['DEtaHi'] = '('+DRap+'>='+thrDRap+')'
-cuts['allE'] = '1'
-etas=['DEtaLo','DEtaHi']
-etasMerged=['allE']
+cuts['LDy'] = '('+DRap+'<'+thrDRap+')'
+cuts['HDy'] = '('+DRap+'>='+thrDRap+')'
+cuts['allD'] = '1'
+dys=['LDy','HDy']
+dysMerged=['allD']
 
 
 
@@ -263,25 +263,24 @@ maxMVV=5000.0
 
 
 
-cuts['acceptance']= "(lnujj_LV_mass>{minMVV}&&lnujj_LV_mass<{maxMVV}&&lnujj_l2_softDrop_mass>{minMJJ}&&lnujj_l2_softDrop_mass<{maxMJJ})".format(minMVV=minMVV,maxMVV=maxMVV,minMJJ=minMJJ,maxMJJ=maxMJJ)
-cuts['acceptanceMVV']= "(lnujj_LV_mass>{minMVV}&&lnujj_LV_mass<{maxMVV})".format(minMVV=minMVV,maxMVV=maxMVV)
-cuts['acceptanceMJJ']= "(lnujj_l2_softDrop_mass>{minMJJ}&&lnujj_l2_softDrop_mass<{maxMJJ})".format(minMJJ=minMJJ,maxMJJ=maxMJJ)
+cuts['acceptance']    = "(lnujj_LV_mass>{minMVV}&&lnujj_LV_mass<{maxMVV}&&lnujj_l2_softDrop_mass>{minMJJ}&&lnujj_l2_softDrop_mass<{maxMJJ})".format(minMVV=minMVV,maxMVV=maxMVV,minMJJ=minMJJ,maxMJJ=maxMJJ)
+cuts['acceptanceMVV'] = "(lnujj_LV_mass>{minMVV}&&lnujj_LV_mass<{maxMVV})".format(minMVV=minMVV,maxMVV=maxMVV)
+cuts['acceptanceMJJ'] = "(lnujj_l2_softDrop_mass>{minMJJ}&&lnujj_l2_softDrop_mass<{maxMJJ})".format(minMJJ=minMJJ,maxMJJ=maxMJJ)
 cuts['blinding'] = "((lnujj_l2_softDrop_mass<70)||(150<lnujj_l2_softDrop_mass))"
 
-cuts['0'] = "1"
-cuts['AccMVV'] = cuts['acceptanceMVV']
-cuts['Acc'] = cuts['acceptance']
-cuts['AccBW'] = cuts['acceptance']+'*lnujj_btagWeight'
-cuts['CR'] = '*'.join([cuts['b'],cuts['allL'],cuts['allC'],cuts['allP'],cuts['acceptance']])
-cuts['SBL'] = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],cuts['acceptance'],cuts['blinding']])
-cuts['SB'] = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],cuts['allP'],cuts['acceptance'],cuts['blinding']])
-cuts['SRMVV'] = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],cuts['allP'],cuts['acceptanceMVV'],"(lnujj_l2_softDrop_mass>10)"])
-cuts['SR'] = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],cuts['allP'],cuts['acceptance']])
+cuts['0']      = "1"
+cuts['Acc']    = '*'.join([            cuts['allL'],cuts['allC'],cuts['allP'],cuts['allD'],cuts['acceptance']])
+cuts['AccBW']  = cuts['Acc']+'*lnujj_btagWeight'
+cuts['CR']     = '*'.join([cuts['b'],  cuts['allL'],cuts['allC'],cuts['allP'],cuts['allD'],cuts['acceptance']])
+cuts['SBL']    = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],             cuts['allD'],cuts['acceptance'],cuts['blinding']])
+cuts['SB']     = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],cuts['allP'],cuts['allD'],cuts['acceptance'],cuts['blinding']])
+cuts['SRMVV']  = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],cuts['allP'],cuts['allD'],cuts['acceptanceMVV'],"(lnujj_l2_softDrop_mass>10)"])
+cuts['SR']     = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],cuts['allP'],cuts['allD'],cuts['acceptance']])
 
 
 
 
-ttbar='TT_pow_pythia,TTHad_pow,TTLep_pow,TTSemi_pow'
+ttbar='TT_pow,TTHad_pow,TTLep_pow,TTSemi_pow'
 singletop='T_tW,TBar_tW,T_tch,TBar_tch'
 diboson='WWToLNuQQ,WZTo1L1Nu2Q,ZZTo2L2Q'
 vhiggs='WminusLNuHBB,WplusLNuHBB,WminusH_HToBB_WToLNu,WplusH_HToBB_WToLNu,ZH_HToBB_ZToLL'
@@ -365,46 +364,47 @@ resStack.addPlotter(res,"res","resonant","background")
 
 
 plotsAN = [
-  #( "", "", , , , "", "" ),
-  ( "nVert",                  "nVert",                       60,  0.,  60.,   "N primary vertices", ""    ),
-  ( "lnujj_l1_l_pt",          "lnujj_l1_l_pt",               100, 0.,  1000., "lepton p_{T}",       "GeV" ),
-  ( "lnujj_l1_l_eta",         "lnujj_l1_l_eta",              60,  -3., 3.,    "lepton #eta",        ""    ),
-  ( "lnujj_l1_l_phi",         "lnujj_l1_l_phi",              80,  -4., 4.,    "lepton #phi",        ""    ),
-  ( "met_pt",                 "met_pt",                      100, 0.,  1000., "E_{T}^{miss}",       "GeV" ),
-  ( "met_phi",                "met_phi",                     80,  -4., 4.,    "#phi(E_{T}^{miss})", ""    ),
-  ( "lnujj_l1_pt",            "lnujj_l1_pt",                 100, 0.,  1000., "W p_{T}",            "GeV" ),
-  ( "lnujj_l1_mt",            "lnujj_l1_mt",                 60,  0.,  150.,  "W m_{T}",            "GeV" ),
-  ( "lnujj_l2_pt",            "lnujj_l2_pt",                 100, 0.,  1000., "jet p_{T}",          "GeV" ),
-  ( "lnujj_l2_eta",           "lnujj_l2_eta",                60,  -3., 3.,    "jet #eta",           ""    ),
-  ( "lnujj_l2_phi",           "lnujj_l2_phi",                80,  -4., 4.,    "jet #phi",           ""    ),
-  ( "mjet",                   "lnujj_l2_softDrop_mass",      100, 0.,  250.,  "m_{jet}",            "GeV" ),
-  #( "mjet",                   "lnujj_l2_softDrop_mass",      45,  30., 210.,  "m_{jet}",            "GeV" ),
-  #( "mjet",                   "lnujj_l2_softDrop_mass",      60,  0.,  240.,  "m_{jet}",            "GeV" ),
-  ( "mWV",                    "lnujj_LV_mass",               88,  600.,5000., "m_{WV}",             "GeV" ),
-  ( "highestOtherBTag",       "lnujj_highestOtherBTag",      40,  -1., 1.,    "highest b tag",      ""    ),
-  ( "tau21",                  "lnujj_l2_tau2/lnujj_l2_tau1", 50,  0.,  1.,    "#tau_{21}",          ""    ),
-  ( "tau21DDTold",            "lnujj_l2_tau2/lnujj_l2_tau1-(-0.06845)*log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt)", 50,  0.,  1.,    "#tau_{21}^{DDT} (old)", "" ),
-  ( "tau21DDT",               "lnujj_l2_tau2/lnujj_l2_tau1-(-0.08376)*log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt)", 50,  0.,  1.,    "#tau_{21}^{DDT}",       "" ),
-  ( "N2b1",                   "lnujj_l2_N2b1",               50,  0.,  0.5,   "N_{2}^{(1)}",        ""    ),
-  ( "N2b1DDT",                "lnujj_l2_N2b1-(-0.013916)*log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt)",              50,  0.,  0.5,   "N_{2}^{(1), DDT}",      "" ),
-  ( "N2b2",                   "lnujj_l2_N2b2",               50,  0.,  0.5,   "N_{2}^{(2)}",        "",   ),
-  ( "DoubleB",                bbtagger,                      50,  -1., 1.,    "DoubleB",            "",   ),
-  ( ("minsubjetdeepcsv","minsubjetcsv")[YEAR=="2016"],   "min(lnujj_l2_s1BTag,lnujj_l2_s2BTag)",    50,   0.,  1., "min. subjet "+("DeepCSV","CSV")[YEAR=="2016"], "" ),
-  ( "rhoprime",               "log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt)",   140,  -2., 5., "#rho'", "" ),
-  ( "lnujj_nLooseBTags",      "lnujj_nLooseBTags",           5,   0.,  5.,    "N loose b tags",     ""    ),
-  ( "lnujj_nMediumBTags",     "lnujj_nMediumBTags",          5,   0.,  5.,    "N medium b tags",    ""    ),
-  ( "lnujj_nTightBTags",      "lnujj_nTightBTags",           5,   0.,  5.,    "N tight b tags",     ""    ),
-  #( "lnujj_l2_minpts1pts2overpts1pluspts2", "min(lnujj_l2_softDrop_s1_pt,lnujj_l2_softDrop_s2_pt)/(lnujj_l2_softDrop_s1_pt+lnujj_l2_softDrop_s2_pt)", 50,  0.,  1.,    "SD min(p_{T,s1}, p_{T,s2}) / (p_{T,s1} + p_{T,s2})",""    ),
-  #( "lnujj_l2_gen_pt",        "lnujj_l2_gen_pt",             100, 0.,  1000., "gen jet p_{T}",      "GeV" ),
-  #( "lnujj_l2_gen_eta",       "lnujj_l2_gen_eta",            60,  -3., 3.,    "gen jet #eta",       ""    ),
-  #( "run",                    "run",                         120,270000.,330000.,"run number",      ""    ),
-  ( "run",                    "run",                         200,290000.,310000.,"run number",      ""    ),
-  ( "lnujj_vbfDEta",          "lnujj_vbfDEta",               100,0.,6.,       "#Delta#eta_{dijet}", ""    ),
-  ( "lnujj_vbfMass",          "lnujj_vbfMass",               100,0.,1500.,    "m_{dijet}",          "GeV" ),
-  ( "lnujj_nJets",            "lnujj_nJets",                 13,0.,12.,       "N_{jets}",           ""    ),
-  ( "lnujj_vbf_j1_pt",        "lnujj_vbf_j1_pt",             100, 0.,  1000., "VBF jet 1 p_{T}",    "GeV" ),
-  ( "mjet",                   "lnujj_l2_softDrop_mass",      100, -5.,  20.,  "m_{jet}",            "GeV" ),
-  ( "dy",                     DRap,                          60, 0.,  6.,     "#Deltay_{WV}",       "" ),
+  #( "", "", , , , "", "", 0),
+  ( "nVert",                  "nVert",                       60,  0.,  60.,   "N primary vertices", ""    , 0),
+  ( "lnujj_l1_l_pt",          "lnujj_l1_l_pt",               100, 0.,  1000., "lepton p_{T}",       "GeV" , 0),
+  ( "lnujj_l1_l_eta",         "lnujj_l1_l_eta",              60,  -3., 3.,    "lepton #eta",        ""    , 0),
+  ( "lnujj_l1_l_phi",         "lnujj_l1_l_phi",              80,  -4., 4.,    "lepton #phi",        ""    , 0),
+  ( "met_pt",                 "met_pt",                      100, 0.,  1000., "E_{T}^{miss}",       "GeV" , 0),
+  ( "met_phi",                "met_phi",                     80,  -4., 4.,    "#phi(E_{T}^{miss})", ""    , 0),
+  ( "lnujj_l1_pt",            "lnujj_l1_pt",                 100, 0.,  1000., "W p_{T}",            "GeV" , 0),
+  ( "lnujj_l1_mt",            "lnujj_l1_mt",                 60,  0.,  150.,  "W m_{T}",            "GeV" , 0),
+  ( "lnujj_l2_pt",            "lnujj_l2_pt",                 100, 0.,  1000., "jet p_{T}",          "GeV" , 0),
+  ( "lnujj_l2_eta",           "lnujj_l2_eta",                60,  -3., 3.,    "jet #eta",           ""    , 0),
+  ( "lnujj_l2_phi",           "lnujj_l2_phi",                80,  -4., 4.,    "jet #phi",           ""    , 0),
+  ( "mjet",                   "lnujj_l2_softDrop_mass",      100, 0.,  250.,  "m_{jet}",            "GeV" , 0),
+  #( "mjet",                   "lnujj_l2_softDrop_mass",      45,  30., 210.,  "m_{jet}",            "GeV" , 0),
+  #( "mjet",                   "lnujj_l2_softDrop_mass",      60,  0.,  240.,  "m_{jet}",            "GeV" , 0),
+  ( "mWV",                    "lnujj_LV_mass",               88,  600.,5000., "m_{WV}",             "GeV" , 0),
+  ( "highestOtherBTag",       "lnujj_highestOtherBTag",      40,  -1., 1.,    "highest b tag",      ""    , 0),
+  ( "tau21",                  "lnujj_l2_tau2/lnujj_l2_tau1", 50,  0.,  1.,    "#tau_{21}",          ""    , 0),
+  ( "tau21DDTold",            "lnujj_l2_tau2/lnujj_l2_tau1-(-0.06845)*log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt)", 50,  0.,  1.,    "#tau_{21}^{DDT} (old)", "" , 0),
+  ( "tau21DDT",               "lnujj_l2_tau2/lnujj_l2_tau1-(-0.08376)*log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt)", 50,  0.,  1.,    "#tau_{21}^{DDT}",       "" , 0),
+  ( "N2b1",                   "lnujj_l2_N2b1",               50,  0.,  0.5,   "N_{2}^{(1)}",        ""    , 0),
+  ( "N2b1DDT",                "lnujj_l2_N2b1-(-0.013916)*log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt)",              50,  0.,  0.5,   "N_{2}^{(1, 0), DDT}",      "" , 0),
+  ( "N2b2",                   "lnujj_l2_N2b2",               50,  0.,  0.5,   "N_{2}^{(2)}",        ""    , 0),
+  ( "DoubleB",                bbtagger,                      50,  -1., 1.,    "DoubleB",            ""    , 0),
+  ( ("minsubjetdeepcsv","minsubjetcsv")[YEAR=="2016"],   "min(lnujj_l2_s1BTag,lnujj_l2_s2BTag)",    50,   0.,  1., "min. subjet "+("DeepCSV","CSV")[YEAR=="2016"], "" , 0),
+  ( "rhoprime",               "log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt)",   140,  -2., 5., "#rho'", "" , 0),
+  ( "lnujj_nLooseBTags",      "lnujj_nLooseBTags",           5,   0.,  5.,    "N loose b tags",     ""    , 0),
+  ( "lnujj_nMediumBTags",     "lnujj_nMediumBTags",          5,   0.,  5.,    "N medium b tags",    ""    , 0),
+  ( "lnujj_nTightBTags",      "lnujj_nTightBTags",           5,   0.,  5.,    "N tight b tags",     ""    , 0),
+  #( "lnujj_l2_minpts1pts2overpts1pluspts2", "min(lnujj_l2_softDrop_s1_pt,lnujj_l2_softDrop_s2_pt)/(lnujj_l2_softDrop_s1_pt+lnujj_l2_softDrop_s2_pt)", 50,  0.,  1.,    "SD min(p_{T,s1}, p_{T,s2}) / (p_{T,s1} + p_{T,s2})",""    , 0),
+  #( "lnujj_l2_gen_pt",        "lnujj_l2_gen_pt",             100, 0.,  1000., "gen jet p_{T}",      "GeV" , 0),
+  #( "lnujj_l2_gen_eta",       "lnujj_l2_gen_eta",            60,  -3., 3.,    "gen jet #eta",       ""    , 0),
+  #( "run",                    "run",                         120,270000.,330000.,"run number",      ""    , 0),
+  #( "run",                    "run",                         70,272000.,286000.,"run number",       ""    , 0),
+  ( "run",                    "run",                         200,290000.,310000.,"run number",      ""    , 0),
+  ( "lnujj_vbfDEta",          "lnujj_vbfDEta",               100,0.,6.,       "#Delta#eta_{dijet}", ""    , 0),
+  ( "lnujj_vbfMass",          "lnujj_vbfMass",               100,0.,1500.,    "m_{dijet}",          "GeV" , 0),
+  ( "lnujj_nJets",            "lnujj_nJets",                 13,0.,12.,       "N_{jets}",           ""    , 0),
+  ( "lnujj_vbf_j1_pt",        "lnujj_vbf_j1_pt",             100, 0.,  1000., "VBF jet 1 p_{T}",    "GeV" , 0),
+  ( "mjet",                   "lnujj_l2_softDrop_mass",      100, -5.,  20.,  "m_{jet}",            "GeV" , 0),
+  ( "dy",                     DRap,                          60, 0.,  6.,     "#Deltay_{WV}",       ""    , 0),
 ]
 
 plotsPaper = [
@@ -418,7 +418,7 @@ plotsPaper = [
 renormFactorLMSB = 1.
 if COMPUTEWJETSSF:
     cutsLMSB = '*'.join([cuts['common'],cuts['SR'],"(lnujj_l2_softDrop_mass>30&&lnujj_l2_softDrop_mass<50)"])
-    pl_ = plots[11]
+    pl_ = plotsAN[11]
     stack_ = lnujjStack.drawStackWithRatio(pl_[1],cutsLMSB,lumiValue,pl_[2],pl_[3],pl_[4],pl_[5],pl_[6])
     renormFactorLMSB = stack_['ratio']
     print "Renormalization factor for W+jets in the signal region, computed as the data/bkgd ratio in the [30, 50 GeV] mjet sideband: ", renormFactorLMSB
@@ -426,10 +426,9 @@ if COMPUTEWJETSSF:
 
 
 
-#for r in ['0','AccMVV','CR','SB','SR']:
 #for r in ['0']:
-#for r in ['AccMVV']:
 #for r in ['Acc']:
+#for r in ['AccBW']:
 #for r in ['CR']:
 #for r in ['SBL']:
 #for r in ['SB']:
@@ -441,18 +440,23 @@ for r in (['CR'] if FORPAPER else ['CR','SB']):
 
         for c in categoriesMerged: #categories:
 
-          for e in etasMerged: #etas:
+          for d in dysMerged: #dys:
 
             for i,pl in enumerate(plotsPaper if FORPAPER else plotsAN):
 
                 if not FORPAPER:
                     if not(i in [0,1,2,4,6,7,8,9,11,12,16,20,27,28,29,32]): continue ## uncomment this one for the plots of the analysis note
+                    #if not(i in [8,11,16]): continue
+                    #if not(i in [11,24]): continue
+                    #if i!=0: continue
+                    #if i!=1: continue
                     #if i!=8: continue
                     #if i!=11: continue
                     #if not(i in [7,11]): continue
                     #if not(i in [2,3,5]): continue
                     #if not(i in [1,4,8]): continue
                     #if not(i in [27,28,29]): continue
+                    #if i!=26: continue
                     #if i!=32: continue
 
                 leps = leptonsMerged
@@ -462,10 +466,10 @@ for r in (['CR'] if FORPAPER else ['CR','SB']):
                 for l in leps:
 
                     prs = "b1" if not LIKETEMPLATES else "b2"
-                    cat = l+"_"+p+"_"+c+"_"+e
+                    cat = l+"_"+p+"_"+c+"_"+d
 
 
-                    cut = '*'.join([cuts['common'],cuts[r],cuts[l],cuts[p],cuts[c],cuts[e]])
+                    cut = '*'.join([cuts['common'],cuts[r],cuts[l],cuts[p],cuts[c],cuts[d]])
 
 
                     myLumi = lumiValue
@@ -490,3 +494,137 @@ for r in (['CR'] if FORPAPER else ['CR','SB']):
                         renormFactorCR = res['ratio']
                         print "Data/bkgd ratio in the top enriched control region: ", renormFactorCR
                     #'''
+
+
+
+
+
+
+''' ## compute signal efficiencies for bb tagging scale factors
+
+#GbuToWW = getPlotters("BulkGravToWWToWlepWhad_narrow",ntuplesMC,False)
+#RadToWW = getPlotters("RadionToWW_narrow",ntuplesMC,False)
+#ZprToWW = getPlotters("ZprimeToWW_narrow",ntuplesMC,False)
+#WprToWZ = getPlotters("WprimeToWZToWlepZhad_narrow",ntuplesMC,False)
+#WprToWH = getPlotters("WprimeToWhToWlephbb_narrow,WprimeToWHToWlepHinc_narrow",ntuplesMC,False)
+#VBFGbuToWW = getPlotters("VBF_BulkGravToWWinclusive_narrow,VBF_BulkGravToWW_narrow",ntuplesMC,False)
+#VBFRadToWW = getPlotters("VBF_RadionToWW_narrow",ntuplesMC,False)
+#VBFZprToWW = getPlotters("VBF_ZprimeToWWinclusive_narrow,VBF_ZprimeToWW_narrow",ntuplesMC,False)
+#VBFWprToWZ = getPlotters("VBF_WprimeToWZinclusive_narrow,VBF_WprimeToWZ_narrow",ntuplesMC,False)
+#VBFWprToWH = getPlotters("Wprime_VBF_Wh_Wlephinc_narrow",ntuplesMC,False)
+#signals = [
+#    (GbuToWW, 'GbuToWW'),
+#    (RadToWW, 'RadToWW'),
+#    (ZprToWW, 'ZprToWW'),
+#    (WprToWZ, 'WprToWZ'),
+#    (WprToWH, 'WprToWH'),
+#    (VBFGbuToWW, 'VBFGbuToWW'),
+#    (VBFRadToWW, 'VBFRadToWW'),
+#    (VBFZprToWW, 'VBFZprToWW'),
+#    (VBFWprToWZ, 'VBFWprToWZ'),
+#    (VBFWprToWH, 'VBFWprToWH'),
+#]
+
+## Actually, we only need one per decay channel:
+XWW = getPlotters('BulkGravToWWToWlepWhad_narrow',ntuplesMC,False)
+XWZ = getPlotters('WprimeToWZToWlepZhad_narrow',ntuplesMC,False)
+XWH = getPlotters('WprimeToWHToWlepHinc_narrow,WprimeToWhToWlephbb_narrow',ntuplesMC,False)
+signals = [
+    (XWW, 'XWW'),
+    (XWZ, 'XWZ'),
+    (XWH, 'XWH'),
+]
+
+bbWPs = [ 
+    #('L', 0.3), 
+    #('M1', 0.6), 
+    ('M2', 0.8), 
+]
+
+ptcuts = [
+    '(pt<=350)',
+    '(350<pt&&pt<=430)',
+    '(430<pt)',
+    '(350<pt)',
+]
+
+fileEff = open("DoubleBefficiencies.py","a")
+
+for r in ['SR']:
+  for l in leptonsMerged:
+    for p in puritiesMerged:
+      for d in dysMerged:
+        for sig,signame in signals:
+              
+            for wp, thr in bbWPs:
+                fileEff.write( 'EffMC_'+wp+'_'+signame+'_'+YEAR+' = {\n' )
+
+                for ptcut in ptcuts:
+
+                    cut = '*'.join([cuts['common'],cuts[r],cuts[l],cuts[p],cuts[d],ptcut.replace('pt','lnujj_l2_pt')])
+                    cutbb = cut + '*('+str(thr)+'<'+bbtagger+')'
+                    
+                    pl_ = plotsAN[3]
+                    h   = sig.drawTH1(pl_[1],cut  ,lumiValue,pl_[2],pl_[3],pl_[4],pl_[5],pl_[6])
+                    hbb = sig.drawTH1(pl_[1],cutbb,lumiValue,pl_[2],pl_[3],pl_[4],pl_[5],pl_[6])
+                    
+                    effi = hbb.Integral()/h.Integral()
+                    
+                    fileEff.write( "    '"+ptcut+"' : "+str(effi)+",\n" )
+
+                fileEff.write( '}\n' )
+
+            #fileEff.write( '\n' )
+
+fileEff.close()
+#'''
+
+
+
+
+
+
+
+''' ## get the reweigthing function for non-resonant MVV spectrum from the jet mass sideband
+
+cuts['bb']   = '((run>500)*'+cuts['bb']  +' + (run<500))'
+cuts['nobb'] = '((run>500)*'+cuts['nobb']+' + (run<500))'
+cuts['vbf']  = '((run>500)*'+cuts['vbf'] +' + (run<500))'
+
+for r in ['SB']:
+  for l in leptonsMerged:
+    for p in purities:
+        for c in categories:
+            for d in dys:
+
+                for i,pl in enumerate(plotsAN):
+                    if i!=12: continue
+
+                    prs = "b1" if not LIKETEMPLATES else "b2"
+                    cat = l+"_"+p+"_"+c+"_"+d
+
+                    #if ('all' in cat) and (cat!="allL_allP_allC"): continue
+                    #if cat!="allL_allP_allC": continue
+                    #if cat!="allL_HP_bb_DEtaLo": continue
+
+                    print cat
+
+                    cut = '*'.join([cuts['common'],cuts[r],cuts[l],cuts[p],cuts[c],cuts[d]])
+
+                    myLumi = lumiValue
+
+                    lnujjStack.setLog(1)
+                    res = lnujjStack.drawStackWithRatio(pl[1],cut,myLumi,pl[2],pl[3],pl[4],pl[5],pl[6],0.,pl[7],1)
+                    cmsLabel(res['canvas'])
+
+                    f1 = ROOT.TF1("f1", "[0]+[1]/x", 700, 5000)
+                    res['ratioGraph'].Fit("f1","R")
+                    res['pad2'].cd()
+                    res['pad2'].Update()
+                    f1.SetLineWidth(2)
+                    f1.Draw("lsame")
+                    res['pad2'].Update()
+                    print  cat, 'from 700:  ', f1.GetParameter(1)
+
+                    saveCanvas(res['canvas'],outDir+'/slopes'+r+'_'+prs+'_'+cat+'_'+YEAR+'_'+pl[0]+'_1OverX')
+#'''
