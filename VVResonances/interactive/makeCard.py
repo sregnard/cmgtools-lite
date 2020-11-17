@@ -32,7 +32,7 @@ bbuncWZ = 0.09
 bbuncWH = 0.06
 nobbuncWW = 0.004
 nobbuncWZ = 0.015
-nobbuncWH = 0.02
+nobbuncWH = 0.025
 
 inCR = options.region=="CR"
 sfx_rgn = "_CR" if inCR else ""
@@ -40,7 +40,7 @@ sfx_rgn = "_CR" if inCR else ""
 sfx_year = "_"+YEAR if YEAR!="Run2" else ""
 
 sig=options.signalType
-if sig not in ['GbuToWW','RadToWW','ZprToWW','WprToWZ','WprToWH','VBFGbuToWW','VBFRadToWW','VBFZprToWW','VBFWprToWZ']:
+if sig not in ['GbuToWW','RadToWW','ZprToWW','WprToWZ','WprToWH','VBFGbuToWW','VBFRadToWW','VBFZprToWW','VBFWprToWZ','VBFWprToWH']:
     sys.exit('Error: unrecognized signal')
 
 
@@ -49,10 +49,10 @@ if sig not in ['GbuToWW','RadToWW','ZprToWW','WprToWZ','WprToWH','VBFGbuToWW','V
 for lepton in ['e','mu']:
     for purity in ['HP','LP']:
         for category in ['bb','nobb','vbf']:
-            for deta in ['DEtaLo','DEtaHi']:
+            for dy in ['LDy','HDy']:
 
-                card=DataCardMaker(lepton,purity,YEAR,intlumi,category+"_"+deta)
-                cat='_'.join([lepton,purity,category,deta,YEAR])
+                card=DataCardMaker(lepton,purity,YEAR,intlumi,category+"_"+dy)
+                cat='_'.join([lepton,purity,category,dy,YEAR])
                 cmd=cmd+" "+cat+'=datacard_'+cat+'.txt '
 
 
@@ -63,12 +63,12 @@ for lepton in ['e','mu']:
                     varMJJ = "MJ_coarse"
 
 
-                PCEtag = "_".join([purity,category,deta])
-                LPCEtag = "_".join([lepton,purity,category,deta])
+                PCEtag = "_".join([purity,category,dy])
+                LPCEtag = "_".join([lepton,purity,category,dy])
                 LYtag = "_".join([lepton,YEAR])
                 PYtag = "_".join([purity,YEAR])
-                PCEYtag = "_".join([purity,category,deta,YEAR])
-                LPCEYtag = "_".join([lepton,purity,category,deta,YEAR])
+                PCEYtag = "_".join([purity,category,dy,YEAR])
+                LPCEYtag = "_".join([lepton,purity,category,dy,YEAR])
 
                 ## Signal
                 card.addMVVSignalParametricShape(sig+"_MVV",varMVV,inputDir+"LNuJJ_"+sig+"_MVV_"+PCEtag+".json",{'CMS_scale_j_'+YEAR:1,'CMS_scale_MET_'+YEAR:1.0,'CMS_scale_'+LYtag:1.0},{'CMS_res_j_'+YEAR:1.0,'CMS_res_MET_'+YEAR:1.0})
@@ -104,37 +104,37 @@ for lepton in ['e','mu']:
                 ## SYSTEMATICS
 
                 ## luminosity
-                card.addSystematic("CMS_lumi_"+YEAR,"lnN",{'GbuToWW':1.018,'RadToWW':1.018,'ZprToWW':1.018,'WprToWZ':1.018,'WprToWH':1.018,'VBFGbuToWW':1.018,'VBFRadToWW':1.018,'VBFZprToWW':1.018,'VBFWprToWZ':1.018})
+                card.addSystematic("CMS_lumi_"+YEAR,"lnN",{'GbuToWW':1.018,'RadToWW':1.018,'ZprToWW':1.018,'WprToWZ':1.018,'WprToWH':1.018,'VBFGbuToWW':1.018,'VBFRadToWW':1.018,'VBFZprToWW':1.018,'VBFWprToWZ':1.018,'VBFWprToWH':1.018})
 
                 ## PDF
-                card.addSystematic("CMS_pdf","lnN",{'GbuToWW':1.01,'RadToWW':1.01,'ZprToWW':1.01,'WprToWZ':1.01,'WprToWH':1.01,'VBFGbuToWW':1.01,'VBFRadToWW':1.01,'VBFZprToWW':1.01,'VBFWprToWZ':1.01})
+                card.addSystematic("CMS_pdf","lnN",{'GbuToWW':1.01,'RadToWW':1.01,'ZprToWW':1.01,'WprToWZ':1.01,'WprToWH':1.01,'VBFGbuToWW':1.01,'VBFRadToWW':1.01,'VBFZprToWW':1.01,'VBFWprToWZ':1.01,'VBFWprToWH':1.01})
 
                 ## pileup reweighting (from shifting the min-bias cross section)
-                card.addSystematic("CMS_puWeight_"+YEAR,"lnN",{'GbuToWW':1.015,'RadToWW':1.015,'ZprToWW':1.015,'WprToWZ':1.015,'WprToWH':1.015,'VBFGbuToWW':1.015,'VBFRadToWW':1.015,'VBFZprToWW':1.015,'VBFWprToWZ':1.015})
+                card.addSystematic("CMS_puWeight_"+YEAR,"lnN",{'GbuToWW':1.015,'RadToWW':1.015,'ZprToWW':1.015,'WprToWZ':1.015,'WprToWH':1.015,'VBFGbuToWW':1.015,'VBFRadToWW':1.015,'VBFZprToWW':1.015,'VBFWprToWZ':1.015,'VBFWprToWH':1.015})
 
                 ## lepton efficiency
-                card.addSystematic("CMS_eff_"+LYtag,"lnN",{'GbuToWW':1.05,'RadToWW':1.05,'ZprToWW':1.05,'WprToWZ':1.05,'WprToWH':1.05,'VBFGbuToWW':1.05,'VBFRadToWW':1.05,'VBFZprToWW':1.05,'VBFWprToWZ':1.05})
+                card.addSystematic("CMS_eff_"+LYtag,"lnN",{'GbuToWW':1.05,'RadToWW':1.05,'ZprToWW':1.05,'WprToWZ':1.05,'WprToWH':1.05,'VBFGbuToWW':1.05,'VBFRadToWW':1.05,'VBFZprToWW':1.05,'VBFWprToWZ':1.05,'VBFWprToWH':1.05})
 
                 ## b tagging fake rate
-                card.addSystematic("CMS_btag_fake_"+YEAR,"lnN",{'GbuToWW':1.02,'RadToWW':1.02,'ZprToWW':1.02,'WprToWZ':1.02,'WprToWH':1.02,'VBFGbuToWW':1.02,'VBFRadToWW':1.02,'VBFZprToWW':1.02,'VBFWprToWZ':1.02})
+                card.addSystematic("CMS_btag_fake_"+YEAR,"lnN",{'GbuToWW':1.02,'RadToWW':1.02,'ZprToWW':1.02,'WprToWZ':1.02,'WprToWH':1.02,'VBFGbuToWW':1.02,'VBFRadToWW':1.02,'VBFZprToWW':1.02,'VBFWprToWZ':1.02,'VBFWprToWH':1.02})
 
                 ## V tagging
                 if purity=='HP':
-                    card.addSystematic("CMS_VV_LNuJ_Vtag_eff_"+YEAR,"lnN",{'GbuToWW':1+HPunc,'RadToWW':1+HPunc,'ZprToWW':1+HPunc,'WprToWZ':1+HPunc,'WprToWH':1+HPunc,'VBFGbuToWW':1+HPunc,'VBFRadToWW':1+HPunc,'VBFZprToWW':1+HPunc,'VBFWprToWZ':1+HPunc})
+                    card.addSystematic("CMS_VV_LNuJ_Vtag_eff_"+YEAR,"lnN",{'GbuToWW':1+HPunc,'RadToWW':1+HPunc,'ZprToWW':1+HPunc,'WprToWZ':1+HPunc,'WprToWH':1+HPunc,'VBFGbuToWW':1+HPunc,'VBFRadToWW':1+HPunc,'VBFZprToWW':1+HPunc,'VBFWprToWZ':1+HPunc,'VBFWprToWH':1+HPunc})
                 if purity=='LP':
-                    card.addSystematic("CMS_VV_LNuJ_Vtag_eff_"+YEAR,"lnN",{'GbuToWW':1-LPunc,'RadToWW':1-LPunc,'ZprToWW':1-LPunc,'WprToWZ':1-LPunc,'WprToWH':1-LPunc,'VBFGbuToWW':1-LPunc,'VBFRadToWW':1-LPunc,'VBFZprToWW':1-LPunc,'VBFWprToWZ':1-LPunc})
+                    card.addSystematic("CMS_VV_LNuJ_Vtag_eff_"+YEAR,"lnN",{'GbuToWW':1-LPunc,'RadToWW':1-LPunc,'ZprToWW':1-LPunc,'WprToWZ':1-LPunc,'WprToWH':1-LPunc,'VBFGbuToWW':1-LPunc,'VBFRadToWW':1-LPunc,'VBFZprToWW':1-LPunc,'VBFWprToWZ':1-LPunc,'VBFWprToWH':1-LPunc})
 
                 ## bb tagging
                 if category=='bb':
-                    card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'GbuToWW':1+bbuncWW,'RadToWW':1+bbuncWW,'ZprToWW':1+bbuncWW,'WprToWZ':1+bbuncWZ,'WprToWH':1+bbuncWH,'VBFGbuToWW':1+bbuncWW,'VBFRadToWW':1+bbuncWW,'VBFZprToWW':1+bbuncWW,'VBFWprToWZ':1+bbuncWZ})
+                    card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'GbuToWW':1+bbuncWW,'RadToWW':1+bbuncWW,'ZprToWW':1+bbuncWW,'WprToWZ':1+bbuncWZ,'WprToWH':1+bbuncWH,'VBFGbuToWW':1+bbuncWW,'VBFRadToWW':1+bbuncWW,'VBFZprToWW':1+bbuncWW,'VBFWprToWZ':1+bbuncWZ,'VBFWprToWH':1+bbuncWH})
                 if category=='nobb':
-                    card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'GbuToWW':1-nobbuncWW,'RadToWW':1-nobbuncWW,'ZprToWW':1-nobbuncWW,'WprToWZ':1-nobbuncWZ,'WprToWH':1-nobbuncWH,'VBFGbuToWW':1-nobbuncWW,'VBFRadToWW':1-nobbuncWW,'VBFZprToWW':1-nobbuncWW,'VBFWprToWZ':1-nobbuncWZ})
+                    card.addSystematic("CMS_VV_LNuJ_bbtag_eff_"+YEAR,"lnN",{'GbuToWW':1-nobbuncWW,'RadToWW':1-nobbuncWW,'ZprToWW':1-nobbuncWW,'WprToWZ':1-nobbuncWZ,'WprToWH':1-nobbuncWH,'VBFGbuToWW':1-nobbuncWW,'VBFRadToWW':1-nobbuncWW,'VBFZprToWW':1-nobbuncWW,'VBFWprToWZ':1-nobbuncWZ,'VBFWprToWH':1-nobbuncWH})
 
                 ## Dy tagging
-                if deta=='DEtaLo':
-                    card.addSystematic("CMS_VV_Dy_"+YEAR,"lnN",{'GbuToWW':0.985,'RadToWW':0.965,'ZprToWW':0.965,'WprToWZ':0.98,'WprToWH':0.98,'VBFGbuToWW':0.95,'VBFRadToWW':0.965,'VBFZprToWW':0.945,'VBFWprToWZ':0.945})
-                if deta=='DEtaHi':
-                    card.addSystematic("CMS_VV_Dy_"+YEAR,"lnN",{'GbuToWW':1.04 ,'RadToWW':1.04 ,'ZprToWW':1.04 ,'WprToWZ':1.04,'WprToWH':1.04,'VBFGbuToWW':1.06,'VBFRadToWW':1.04 ,'VBFZprToWW':1.02 ,'VBFWprToWZ':1.02 })
+                if dy=='LDy':
+                    card.addSystematic("CMS_VV_Dy_"+YEAR,"lnN",{'GbuToWW':0.985,'RadToWW':0.965,'ZprToWW':0.965,'WprToWZ':0.98,'WprToWH':0.98,'VBFGbuToWW':0.95,'VBFRadToWW':0.965,'VBFZprToWW':0.945,'VBFWprToWZ':0.945,'VBFWprToWH':0.945})
+                if dy=='HDy':
+                    card.addSystematic("CMS_VV_Dy_"+YEAR,"lnN",{'GbuToWW':1.04 ,'RadToWW':1.04 ,'ZprToWW':1.04 ,'WprToWZ':1.04,'WprToWH':1.04,'VBFGbuToWW':1.06,'VBFRadToWW':1.04 ,'VBFZprToWW':1.02 ,'VBFWprToWZ':1.02 ,'VBFWprToWH':1.02 })
 
                 ## background normalization
                 #card.addSystematic("CMS_VV_LNuJ_nonRes_norm_"+LPCEYtag,"lnN",{'nonRes':1.25})

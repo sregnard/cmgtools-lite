@@ -42,6 +42,7 @@ DOVBFGbuToWW = 1
 DOVBFRadToWW = 1
 DOVBFZprToWW = 1
 DOVBFWprToWZ = 1
+DOVBFWprToWH = 0
 
 signalsNonVBF = []
 if DOGbuToWW: signalsNonVBF.append('GbuToWW')
@@ -54,6 +55,7 @@ if DOVBFGbuToWW: signalsVBF.append('VBFGbuToWW')
 if DOVBFRadToWW: signalsVBF.append('VBFRadToWW')
 if DOVBFZprToWW: signalsVBF.append('VBFZprToWW')
 if DOVBFWprToWZ: signalsVBF.append('VBFWprToWZ')
+if DOVBFWprToWH: signalsVBF.append('VBFWprToWH')
 signals = signalsNonVBF + signalsVBF
 
 colorSignal = { 
@@ -66,6 +68,7 @@ colorSignal = {
     'VBFRadToWW': ROOT.kBlue-4,
     'VBFZprToWW': ROOT.kBlue+3,
     'VBFWprToWZ': ROOT.kPink+6,
+    'VBFWprToWH': ROOT.kRed-4,
 }
 colorGradientSignal = {
     'GbuToWW':    ["#8B4D00","#A15900","#B16200","#C36B01","#D97700","#ED8200","#FF8D00","#FF9410","#FF9B1F","#FFA22F","#FFAA40"],
@@ -77,6 +80,7 @@ colorGradientSignal = {
     'VBFRadToWW': ["#001950","#00226B","#002A86","#0033A0","#003EC3","#0047E1","#0051FF","#1862FF","#2268FF","#3072FF","#407DFF"],
     'VBFZprToWW': ["#001950","#00226B","#002A86","#0033A0","#003EC3","#0047E1","#0051FF","#1862FF","#2268FF","#3072FF","#407DFF"],
     'VBFWprToWZ': ["#500048","#6B0061","#89007B","#A10091","#C300AF","#E100CB","#FF00E6","#FF17E9","#FF22EA","#FF30EB","#FF41ED"],
+    'VBFWprToWH': ["#500000","#6B0000","#8A0000","#A10000","#C30000","#E10000","#FF0000","#FF1010","#FF2020","#FF3030","#FF4040"],
 }
 markerSignal = { 
     'GbuToWW':    20,
@@ -88,6 +92,7 @@ markerSignal = {
     'VBFRadToWW': 25,
     'VBFZprToWW': 26,
     'VBFWprToWZ': 32,
+    'VBFWprToWH': 30,
 }
 legendSignal = { 
     'GbuToWW': "ggF G_{bulk} #rightarrow WW",
@@ -99,6 +104,7 @@ legendSignal = {
     'VBFRadToWW': "VBF Rad #rightarrow WW",
     'VBFZprToWW': "VBF Z' #rightarrow WW",
     'VBFWprToWZ': "VBF W' #rightarrow WZ",
+    'VBFWprToWH': "VBF W' #rightarrow WH",
 }
 
 colorUp=ROOT.kRed
@@ -107,7 +113,7 @@ colorDn=ROOT.kAzure+1
 leptons = ['e','mu']#['allL']#
 purities = ['HP','LP']#['allP']#
 categories = ['bb','nobb','vbf']   #['allC']#['bb','nobbHP','nobbLP']#
-etas = ['DEtaLo','DEtaHi'] #['allE']
+dys = ['LDy','HDy'] #['allD']
 
 DcFolder = 'Dc_GbuToWW'
 
@@ -855,7 +861,7 @@ def compCategories2(fileprefix,histoname,projection,pur,cat,dy,outputprefix,var,
                 h[p][c][d].SetLineColor(dyColor[d]+purHue[p])
                 h[p][c][d].SetLineStyle(catStyle[c])
                 h[p][c][d].SetLineWidth(2)
-                lgd.AddEntry(h[p][c][d],pur[p]+", "+cat[c]+", "+(("LDy","HDy")[dy[d]=='DEtaHi']),"l")
+                lgd.AddEntry(h[p][c][d],pur[p]+", "+cat[c]+", "+dy[d],"l")
                 h[p][c][d].Draw("hist,same")
 
     lgd.Draw()
@@ -1566,18 +1572,18 @@ if 'nonResTpl' in plots:
         #compCategories(inDir+"LNuJJ_norm","nonRes",True,leptons,purities,categories,"compReco_nonRes","MVV","m_{WV} (GeV)",False)
         #compCategories(inDir+"LNuJJ_norm","nonRes",True,leptons,purities,categories,"compReco_nonRes","MVV","m_{WV} (GeV)",True)
         #compCategories(inDir+"LNuJJ_norm","nonRes",True,leptons,purities,categories,"compReco_nonRes","MJJ","m_{jet} (GeV)")
-        compCategories2(inDir+"LNuJJ_nonRes_2D_e","histo",True,purities,categories,etas,"compTemplate_nonRes_e","MVV","m_{WV} (GeV)",False)
-        compCategories2(inDir+"LNuJJ_nonRes_2D_e","histo",True,purities,categories,etas,"compTemplate_nonRes_e","MVV","m_{WV} (GeV)",True)
-        compCategories2(inDir+"LNuJJ_nonRes_2D_e","histo",True,purities,categories,etas,"compTemplate_nonRes_e","MJJ","m_{jet} (GeV)")
-        compCategories2(inDir+"LNuJJ_norm_e","nonRes",True,purities,categories,etas,"compReco_nonRes_e","MVV","m_{WV} (GeV)",False)
-        compCategories2(inDir+"LNuJJ_norm_e","nonRes",True,purities,categories,etas,"compReco_nonRes_e","MVV","m_{WV} (GeV)",True)
-        compCategories2(inDir+"LNuJJ_norm_e","nonRes",True,purities,categories,etas,"compReco_nonRes_e","MJJ","m_{jet} (GeV)")
-        compCategories2(inDir+"LNuJJ_nonRes_2D_mu","histo",True,purities,categories,etas,"compTemplate_nonRes_mu","MVV","m_{WV} (GeV)",False)
-        compCategories2(inDir+"LNuJJ_nonRes_2D_mu","histo",True,purities,categories,etas,"compTemplate_nonRes_mu","MVV","m_{WV} (GeV)",True)
-        compCategories2(inDir+"LNuJJ_nonRes_2D_mu","histo",True,purities,categories,etas,"compTemplate_nonRes_mu","MJJ","m_{jet} (GeV)")
-        compCategories2(inDir+"LNuJJ_norm_mu","nonRes",True,purities,categories,etas,"compReco_nonRes_mu","MVV","m_{WV} (GeV)",False)
-        compCategories2(inDir+"LNuJJ_norm_mu","nonRes",True,purities,categories,etas,"compReco_nonRes_mu","MVV","m_{WV} (GeV)",True)
-        compCategories2(inDir+"LNuJJ_norm_mu","nonRes",True,purities,categories,etas,"compReco_nonRes_mu","MJJ","m_{jet} (GeV)")
+        compCategories2(inDir+"LNuJJ_nonRes_2D_e","histo",True,purities,categories,dys,"compTemplate_nonRes_e","MVV","m_{WV} (GeV)",False)
+        compCategories2(inDir+"LNuJJ_nonRes_2D_e","histo",True,purities,categories,dys,"compTemplate_nonRes_e","MVV","m_{WV} (GeV)",True)
+        compCategories2(inDir+"LNuJJ_nonRes_2D_e","histo",True,purities,categories,dys,"compTemplate_nonRes_e","MJJ","m_{jet} (GeV)")
+        compCategories2(inDir+"LNuJJ_norm_e","nonRes",True,purities,categories,dys,"compReco_nonRes_e","MVV","m_{WV} (GeV)",False)
+        compCategories2(inDir+"LNuJJ_norm_e","nonRes",True,purities,categories,dys,"compReco_nonRes_e","MVV","m_{WV} (GeV)",True)
+        compCategories2(inDir+"LNuJJ_norm_e","nonRes",True,purities,categories,dys,"compReco_nonRes_e","MJJ","m_{jet} (GeV)")
+        compCategories2(inDir+"LNuJJ_nonRes_2D_mu","histo",True,purities,categories,dys,"compTemplate_nonRes_mu","MVV","m_{WV} (GeV)",False)
+        compCategories2(inDir+"LNuJJ_nonRes_2D_mu","histo",True,purities,categories,dys,"compTemplate_nonRes_mu","MVV","m_{WV} (GeV)",True)
+        compCategories2(inDir+"LNuJJ_nonRes_2D_mu","histo",True,purities,categories,dys,"compTemplate_nonRes_mu","MJJ","m_{jet} (GeV)")
+        compCategories2(inDir+"LNuJJ_norm_mu","nonRes",True,purities,categories,dys,"compReco_nonRes_mu","MVV","m_{WV} (GeV)",False)
+        compCategories2(inDir+"LNuJJ_norm_mu","nonRes",True,purities,categories,dys,"compReco_nonRes_mu","MVV","m_{WV} (GeV)",True)
+        compCategories2(inDir+"LNuJJ_norm_mu","nonRes",True,purities,categories,dys,"compReco_nonRes_mu","MJJ","m_{jet} (GeV)")
 
     if COMPYEARS:
         compYears([inDir16+"LNuJJ_nonRes_2D",inDir17+"LNuJJ_nonRes_2D",inDir18+"LNuJJ_nonRes_2D",inDirR2+"LNuJJ_nonRes_2D"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_nonRes","MVV","m_{WV} (GeV)",False)
@@ -1590,81 +1596,81 @@ if 'nonResTpl' in plots:
     for l in leptons:
         for p in purities:
             for c in categories:
-              for e in etas:
+              for d in dys:
                 #continue
-                label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+(("LDy","HDy")[e=='DEtaHi'])
+                label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+d
                 
                 #'''
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -e {e} -b {b} -B {B}".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, e=e, b=binsMVV[c], B=binsMJJ[c]))
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -e {e} -b {b} -B {B} -r 0".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, e=e, b=binsMVV[c], B=binsMJJ[c])) ##without the ranges
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -e {e} -b {b} -B {B} -d 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, e=e, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -e {e} -b {b} -B {B} -D 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, e=e, b=binsMVV[c], B=binsMJJ[c])) ##to test conditional template
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B}".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c]))
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -r 0".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##without the ranges
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -O 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -D 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test conditional template
                 #'''
 
                 #'''
-                makeTemplate2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","histo","template_nonRes_"+l+"_"+p+"_"+c+"_"+e,label)
-                #makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+"_"+e+".root","histo","templCond_nonRes_"+l+"_"+p+"_"+c+"_"+e,label)
-                #makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+"_"+e+".root","histo_coarse","template_nonResCoarse_"+l+"_"+p+"_"+c+"_"+e,label)
-                #makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+"_"+e+".root","histo_coarsesmoothed","template_nonResCoarseSmoothed_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_nonRes_"+p+"_"+c+"_"+e+"_COND2D.root","histo","templCond_nonRes_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_nonRes_"+p+"_"+c+"_"+e+"_COND2D.root","histo_coarse","template_nonResCoarse_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_nonRes_"+p+"_"+c+"_"+e+"_COND2D.root","histo_coarsesmoothed","template_nonResCoarseSmoothed_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+"_"+e+".root","nonRes","reco_nonRes_"+l+"_"+p+"_"+c+"_"+e,label)
-                #makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_"+e+"_GEN.root","nonRes","gen_nonRes_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_GEN.root","nonRes_"+p+"_"+c+"_"+e,"gen_nonRes_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+"_"+e+".root","nonRes","templateVsReco_nonRes_"+l+"_"+p+"_"+c+"_"+e) #,4,(5,0)[binsMJJ[c]==18])
-                makeTemplateVsReco1D(inDir+"LNuJJ_nonRes_MJJ_"+l+"_"+p+"_"+c+"_"+e+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+"_"+e+".root","nonRes_wgtMJJ","templateVsReco1D_nonRes_MJ_"+l+"_"+p+"_"+c+"_"+e,"MJJ","m_{jet} (GeV)")
+                makeTemplate2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","histo","template_nonRes_"+l+"_"+p+"_"+c+"_"+d,label)
+                #makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+"_"+d+".root","histo","templCond_nonRes_"+l+"_"+p+"_"+c+"_"+d,label)
+                #makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+"_"+d+".root","histo_coarse","template_nonResCoarse_"+l+"_"+p+"_"+c+"_"+d,label)
+                #makeTemplate2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+"_"+d+".root","histo_coarsesmoothed","template_nonResCoarseSmoothed_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_"+p+"_"+c+"_"+d+"_COND2D.root","histo","templCond_nonRes_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_"+p+"_"+c+"_"+d+"_COND2D.root","histo_coarse","template_nonResCoarse_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_"+p+"_"+c+"_"+d+"_COND2D.root","histo_coarsesmoothed","template_nonResCoarseSmoothed_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+"_"+d+".root","nonRes","reco_nonRes_"+l+"_"+p+"_"+c+"_"+d,label)
+                #makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_"+d+"_GEN.root","nonRes","gen_nonRes_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_GEN.root","nonRes_"+p+"_"+c+"_"+d,"gen_nonRes_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+"_"+d+".root","nonRes","templateVsReco_nonRes_"+l+"_"+p+"_"+c+"_"+d) #,4,(5,0)[binsMJJ[c]==18])
+                makeTemplateVsReco1D(inDir+"LNuJJ_nonRes_MJJ_"+l+"_"+p+"_"+c+"_"+d+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+"_"+d+".root","nonRes_wgtMJJ","templateVsReco1D_nonRes_MJ_"+l+"_"+p+"_"+c+"_"+d,"MJJ","m_{jet} (GeV)")
                 #'''
-                ##makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+"_"+e+".root","histo_coarse",inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_"+e+".root","nonRes","templateVsReco_nonResCoarse_"+l+"_"+p+"_"+c+"_"+e)
-                #makeTemplateVsReco1D(inDir+"LNuJJ_nonRes_MVV_"+l+"_"+p+"_"+c+"_"+e+".root","histo",inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_"+e+".root","nonRes","templateVsReco1D_nonRes_MVV_"+l+"_"+p+"_"+c+"_"+e,"MVV","m_{WV} (GeV)")
+                ##makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_COND2D_"+l+"_"+p+"_"+c+"_"+d+".root","histo_coarse",inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_"+d+".root","nonRes","templateVsReco_nonResCoarse_"+l+"_"+p+"_"+c+"_"+d)
+                #makeTemplateVsReco1D(inDir+"LNuJJ_nonRes_MVV_"+l+"_"+p+"_"+c+"_"+d+".root","histo",inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_"+d+".root","nonRes","templateVsReco1D_nonRes_MVV_"+l+"_"+p+"_"+c+"_"+d,"MVV","m_{WV} (GeV)")
 
 if 'nonResSys' in plots:
     for l in leptons:
         for p in purities:
             for c in categories:
-              for e in etas:
+              for d in dys:
                 #continue
-                label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+(("LDy","HDy")[e=='DEtaHi'])
+                label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+d
 
                 '''
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"PTX",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"OPTX",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"PTY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"OPTY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"GPTBoth",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"GPT2Both",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"GPTX",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"GPT2X",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"SDY",label)
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"PTX",label)
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTX",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"PTY",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTY",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"GPTBoth",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"GPT2Both",label)
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"GPTX",label)
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"GPT2X",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"SDY",label)
 
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"PTX")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"OPTX")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"PTY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"OPTY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"GPTBoth")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"GPT2Both")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"GPTX")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"GPT2X")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"SDY")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"PTX")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTX")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"PTY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"GPTBoth")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"GPT2Both")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"GPTX")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"GPT2X")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"SDY")
                 #'''
 
                 #'''
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"MVVScale",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"Diag",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"logWeight",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"MJJScale",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"SD",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"PTY",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"OPTY",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"MVVScale",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"Diag",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"logWeight",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"MJJScale",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"SD",label)
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"PTY",label)
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTY",label)
                 #'''
                 '''
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"MVVScale")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"Diag")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"logWeight")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"MJJScale")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"SD")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"PTY")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+e,"OPTY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"MVVScale")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"Diag")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"logWeight")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"MJJScale")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"SD")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"PTY")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTY")
                 #'''
 
 
@@ -1677,18 +1683,18 @@ if 'CRNonResTpl' in plots:
         #compCategories(inDir+"LNuJJ_norm_CR","nonRes_CR",True,leptons,purities,categories,"compReco_CRnonRes","MVV","m_{WV} (GeV)",False)
         #compCategories(inDir+"LNuJJ_norm_CR","nonRes_CR",True,leptons,purities,categories,"compReco_CRnonRes","MVV","m_{WV} (GeV)",True)
         #compCategories(inDir+"LNuJJ_norm_CR","nonRes_CR",True,leptons,purities,categories,"compReco_CRnonRes","MJJ","m_{jet} (GeV)")
-        compCategories2(inDir+"LNuJJ_nonRes_CR_2D_e","histo",True,purities,categories,etas,"compTemplate_CRnonRes_e","MVV","m_{WV} (GeV)",False)
-        compCategories2(inDir+"LNuJJ_nonRes_CR_2D_e","histo",True,purities,categories,etas,"compTemplate_CRnonRes_e","MVV","m_{WV} (GeV)",True)
-        compCategories2(inDir+"LNuJJ_nonRes_CR_2D_e","histo",True,purities,categories,etas,"compTemplate_CRnonRes_e","MJJ","m_{jet} (GeV)")
-        compCategories2(inDir+"LNuJJ_norm_CR_e","nonRes_CR",True,purities,categories,etas,"compReco_CRnonRes_e","MVV","m_{WV} (GeV)",False)
-        compCategories2(inDir+"LNuJJ_norm_CR_e","nonRes_CR",True,purities,categories,etas,"compReco_CRnonRes_e","MVV","m_{WV} (GeV)",True)
-        compCategories2(inDir+"LNuJJ_norm_CR_e","nonRes_CR",True,purities,categories,etas,"compReco_CRnonRes_e","MJJ","m_{jet} (GeV)")
-        compCategories2(inDir+"LNuJJ_nonRes_CR_2D_mu","histo",True,purities,categories,etas,"compTemplate_CRnonRes_mu","MVV","m_{WV} (GeV)",False)
-        compCategories2(inDir+"LNuJJ_nonRes_CR_2D_mu","histo",True,purities,categories,etas,"compTemplate_CRnonRes_mu","MVV","m_{WV} (GeV)",True)
-        compCategories2(inDir+"LNuJJ_nonRes_CR_2D_mu","histo",True,purities,categories,etas,"compTemplate_CRnonRes_mu","MJJ","m_{jet} (GeV)")
-        compCategories2(inDir+"LNuJJ_norm_CR_mu","nonRes_CR",True,purities,categories,etas,"compReco_CRnonRes_mu","MVV","m_{WV} (GeV)",False)
-        compCategories2(inDir+"LNuJJ_norm_CR_mu","nonRes_CR",True,purities,categories,etas,"compReco_CRnonRes_mu","MVV","m_{WV} (GeV)",True)
-        compCategories2(inDir+"LNuJJ_norm_CR_mu","nonRes_CR",True,purities,categories,etas,"compReco_CRnonRes_mu","MJJ","m_{jet} (GeV)")
+        compCategories2(inDir+"LNuJJ_nonRes_CR_2D_e","histo",True,purities,categories,dys,"compTemplate_CRnonRes_e","MVV","m_{WV} (GeV)",False)
+        compCategories2(inDir+"LNuJJ_nonRes_CR_2D_e","histo",True,purities,categories,dys,"compTemplate_CRnonRes_e","MVV","m_{WV} (GeV)",True)
+        compCategories2(inDir+"LNuJJ_nonRes_CR_2D_e","histo",True,purities,categories,dys,"compTemplate_CRnonRes_e","MJJ","m_{jet} (GeV)")
+        compCategories2(inDir+"LNuJJ_norm_CR_e","nonRes_CR",True,purities,categories,dys,"compReco_CRnonRes_e","MVV","m_{WV} (GeV)",False)
+        compCategories2(inDir+"LNuJJ_norm_CR_e","nonRes_CR",True,purities,categories,dys,"compReco_CRnonRes_e","MVV","m_{WV} (GeV)",True)
+        compCategories2(inDir+"LNuJJ_norm_CR_e","nonRes_CR",True,purities,categories,dys,"compReco_CRnonRes_e","MJJ","m_{jet} (GeV)")
+        compCategories2(inDir+"LNuJJ_nonRes_CR_2D_mu","histo",True,purities,categories,dys,"compTemplate_CRnonRes_mu","MVV","m_{WV} (GeV)",False)
+        compCategories2(inDir+"LNuJJ_nonRes_CR_2D_mu","histo",True,purities,categories,dys,"compTemplate_CRnonRes_mu","MVV","m_{WV} (GeV)",True)
+        compCategories2(inDir+"LNuJJ_nonRes_CR_2D_mu","histo",True,purities,categories,dys,"compTemplate_CRnonRes_mu","MJJ","m_{jet} (GeV)")
+        compCategories2(inDir+"LNuJJ_norm_CR_mu","nonRes_CR",True,purities,categories,dys,"compReco_CRnonRes_mu","MVV","m_{WV} (GeV)",False)
+        compCategories2(inDir+"LNuJJ_norm_CR_mu","nonRes_CR",True,purities,categories,dys,"compReco_CRnonRes_mu","MVV","m_{WV} (GeV)",True)
+        compCategories2(inDir+"LNuJJ_norm_CR_mu","nonRes_CR",True,purities,categories,dys,"compReco_CRnonRes_mu","MJJ","m_{jet} (GeV)")
 
     if COMPYEARS:
         compYears([inDir16+"LNuJJ_nonRes_CR_2D",inDir17+"LNuJJ_nonRes_CR_2D",inDir18+"LNuJJ_nonRes_CR_2D",inDirR2+"LNuJJ_nonRes_CR_2D"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_CRnonRes","MVV","m_{WV} (GeV)",False)
@@ -1700,79 +1706,79 @@ if 'CRNonResTpl' in plots:
     for l in leptons:
         for p in purities:
             for c in categories:
-              for e in etas:
+              for d in dys:
                 #continue
-                label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+(("LDy","HDy")[e=='DEtaHi'])
+                label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+d
 
                 #'''
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -e {e} -b {b} -B {B} -R".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, e=e, b=binsMVV[c], B=binsMJJ[c]))
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -e {e} -b {b} -B {B} -R -r 0".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, e=e, b=binsMVV[c], B=binsMJJ[c])) ##without the ranges
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -e {e} -b {b} -B {B} -R -d 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, e=e, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -e {e} -b {b} -B {B} -R -D 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, e=e, b=binsMVV[c], B=binsMJJ[c])) ##to test conditional template
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -R".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c]))
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -R -r 0".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##without the ranges
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -R -O 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -R -D 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test conditional template
                 #'''
 
                 #'''
-                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","histo","template_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,label)
-                #makeTemplate2D(inDir+"LNuJJ_nonRes_CR_COND2D_"+l+"_"+p+"_"+c+"_"+e+".root","histo","templCond_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,label)
-                #makeTemplate2D(inDir+"LNuJJ_nonRes_CR_COND2D_"+l+"_"+p+"_"+c+"_"+e+".root","histo_coarse","template_CRnonResCoarse_"+l+"_"+p+"_"+c+"_"+e,label)
-                #makeTemplate2D(inDir+"LNuJJ_nonRes_CR_COND2D_"+l+"_"+p+"_"+c+"_"+e+".root","histo_coarsesmoothed","template_CRnonResCoarseSmoothed_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_"+p+"_"+c+"_"+e+"_COND2D.root","histo","templCond_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_"+p+"_"+c+"_"+e+"_COND2D.root","histo_coarse","template_CRnonResCoarse_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_"+p+"_"+c+"_"+e+"_COND2D.root","histo_coarsesmoothed","template_CRnonResCoarseSmoothed_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+"_"+e+".root","nonRes_CR","reco_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,label)
-                #makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_"+e+"_GEN.root","nonRes_CR","gen_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_GEN.root","nonRes_CR_"+p+"_"+c+"_"+e,"gen_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","histo",inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+"_"+e+".root","nonRes_CR","templateVsReco_CRnonRes_"+l+"_"+p+"_"+c+"_"+e) #,4,(5,0)[binsMJJ[c]==18])
-                makeTemplateVsReco1D(inDir+"LNuJJ_nonRes_CR_MJJ_"+l+"_"+p+"_"+c+"_"+e+".root","histo",inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+"_"+e+".root","nonRes_CR_wgtMJJ","templateVsReco1D_CRnonRes_MJ_"+l+"_"+p+"_"+c+"_"+e,"MJJ","m_{jet} (GeV)")
+                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","histo","template_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,label)
+                #makeTemplate2D(inDir+"LNuJJ_nonRes_CR_COND2D_"+l+"_"+p+"_"+c+"_"+d+".root","histo","templCond_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,label)
+                #makeTemplate2D(inDir+"LNuJJ_nonRes_CR_COND2D_"+l+"_"+p+"_"+c+"_"+d+".root","histo_coarse","template_CRnonResCoarse_"+l+"_"+p+"_"+c+"_"+d,label)
+                #makeTemplate2D(inDir+"LNuJJ_nonRes_CR_COND2D_"+l+"_"+p+"_"+c+"_"+d+".root","histo_coarsesmoothed","template_CRnonResCoarseSmoothed_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_"+p+"_"+c+"_"+d+"_COND2D.root","histo","templCond_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_"+p+"_"+c+"_"+d+"_COND2D.root","histo_coarse","template_CRnonResCoarse_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_nonRes_CR_"+p+"_"+c+"_"+d+"_COND2D.root","histo_coarsesmoothed","template_CRnonResCoarseSmoothed_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+"_"+d+".root","nonRes_CR","reco_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,label)
+                #makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_"+d+"_GEN.root","nonRes_CR","gen_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_GEN.root","nonRes_CR_"+p+"_"+c+"_"+d,"gen_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplateVsReco2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","histo",inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+"_"+d+".root","nonRes_CR","templateVsReco_CRnonRes_"+l+"_"+p+"_"+c+"_"+d) #,4,(5,0)[binsMJJ[c]==18])
+                makeTemplateVsReco1D(inDir+"LNuJJ_nonRes_CR_MJJ_"+l+"_"+p+"_"+c+"_"+d+".root","histo",inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+"_"+d+".root","nonRes_CR_wgtMJJ","templateVsReco1D_CRnonRes_MJ_"+l+"_"+p+"_"+c+"_"+d,"MJJ","m_{jet} (GeV)")
                 #'''
 
 if 'CRNonResSys' in plots:
     for l in leptons:
         for p in purities:
             for c in categories:
-              for e in etas:
+              for d in dys:
                 #continue
-                label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+(("LDy","HDy")[e=='DEtaHi'])
+                label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+d
 
                 '''
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"PTX",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"OPTX",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"PTY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"OPTY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"GPTBoth",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"GPT2Both",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"GPTX",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"GPT2X",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"SDY",label)
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"PTX",label)
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTX",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"PTY",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTY",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"GPTBoth",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"GPT2Both",label)
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"GPTX",label)
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"GPT2X",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"SDY",label)
 
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"PTX")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"OPTX")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"PTY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"OPTY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"GPTBoth")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"GPT2Both")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"GPTX")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"GPT2X")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"SDY")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"PTX")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTX")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"PTY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"GPTBoth")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"GPT2Both")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"GPTX")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"GPT2X")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"SDY")
                 #'''
 
                 #'''
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"MVVScale",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"Diag",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"logWeight",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"MJJScale",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"SD",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"PTY",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"OPTY",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"MVVScale",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"Diag",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"logWeight",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"MJJScale",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"SD",label)
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"PTY",label)
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTY",label)
                 #'''
                 '''
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"MVVScale")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"Diag")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"logWeight")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"MJJScale")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"SD")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"PTY")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+e,"OPTY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"MVVScale")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"Diag")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"logWeight")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"MJJScale")
+                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"SD")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"PTY")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTY")
                 #'''
 
 
@@ -1787,18 +1793,18 @@ if 'resTpl' in plots:
         #compCategories(inDir+"LNuJJ_norm","res",True,leptons,purities,categories,"compReco_res","MVV","m_{WV} (GeV)",False)
         #compCategories(inDir+"LNuJJ_norm","res",True,leptons,purities,categories,"compReco_res","MVV","m_{WV} (GeV)",True)
         #compCategories(inDir+"LNuJJ_norm","res",True,leptons,purities,categories,"compReco_res","MJJ","m_{jet} (GeV)")
-        compCategories2(inDir+"LNuJJ_res_2D_e","histo",True,purities,categories,etas,"compTemplate_res_e","MVV","m_{WV} (GeV)",False)
-        compCategories2(inDir+"LNuJJ_res_2D_e","histo",True,purities,categories,etas,"compTemplate_res_e","MVV","m_{WV} (GeV)",True)
-        compCategories2(inDir+"LNuJJ_res_2D_e","histo",True,purities,categories,etas,"compTemplate_res_e","MJJ","m_{jet} (GeV)")
-        compCategories2(inDir+"LNuJJ_norm_e","res",True,purities,categories,etas,"compReco_res_e","MVV","m_{WV} (GeV)",False)
-        compCategories2(inDir+"LNuJJ_norm_e","res",True,purities,categories,etas,"compReco_res_e","MVV","m_{WV} (GeV)",True)
-        compCategories2(inDir+"LNuJJ_norm_e","res",True,purities,categories,etas,"compReco_res_e","MJJ","m_{jet} (GeV)")
-        compCategories2(inDir+"LNuJJ_res_2D_mu","histo",True,purities,categories,etas,"compTemplate_res_mu","MVV","m_{WV} (GeV)",False)
-        compCategories2(inDir+"LNuJJ_res_2D_mu","histo",True,purities,categories,etas,"compTemplate_res_mu","MVV","m_{WV} (GeV)",True)
-        compCategories2(inDir+"LNuJJ_res_2D_mu","histo",True,purities,categories,etas,"compTemplate_res_mu","MJJ","m_{jet} (GeV)")
-        compCategories2(inDir+"LNuJJ_norm_mu","res",True,purities,categories,etas,"compReco_res_mu","MVV","m_{WV} (GeV)",False)
-        compCategories2(inDir+"LNuJJ_norm_mu","res",True,purities,categories,etas,"compReco_res_mu","MVV","m_{WV} (GeV)",True)
-        compCategories2(inDir+"LNuJJ_norm_mu","res",True,purities,categories,etas,"compReco_res_mu","MJJ","m_{jet} (GeV)")
+        compCategories2(inDir+"LNuJJ_res_2D_e","histo",True,purities,categories,dys,"compTemplate_res_e","MVV","m_{WV} (GeV)",False)
+        compCategories2(inDir+"LNuJJ_res_2D_e","histo",True,purities,categories,dys,"compTemplate_res_e","MVV","m_{WV} (GeV)",True)
+        compCategories2(inDir+"LNuJJ_res_2D_e","histo",True,purities,categories,dys,"compTemplate_res_e","MJJ","m_{jet} (GeV)")
+        compCategories2(inDir+"LNuJJ_norm_e","res",True,purities,categories,dys,"compReco_res_e","MVV","m_{WV} (GeV)",False)
+        compCategories2(inDir+"LNuJJ_norm_e","res",True,purities,categories,dys,"compReco_res_e","MVV","m_{WV} (GeV)",True)
+        compCategories2(inDir+"LNuJJ_norm_e","res",True,purities,categories,dys,"compReco_res_e","MJJ","m_{jet} (GeV)")
+        compCategories2(inDir+"LNuJJ_res_2D_mu","histo",True,purities,categories,dys,"compTemplate_res_mu","MVV","m_{WV} (GeV)",False)
+        compCategories2(inDir+"LNuJJ_res_2D_mu","histo",True,purities,categories,dys,"compTemplate_res_mu","MVV","m_{WV} (GeV)",True)
+        compCategories2(inDir+"LNuJJ_res_2D_mu","histo",True,purities,categories,dys,"compTemplate_res_mu","MJJ","m_{jet} (GeV)")
+        compCategories2(inDir+"LNuJJ_norm_mu","res",True,purities,categories,dys,"compReco_res_mu","MVV","m_{WV} (GeV)",False)
+        compCategories2(inDir+"LNuJJ_norm_mu","res",True,purities,categories,dys,"compReco_res_mu","MVV","m_{WV} (GeV)",True)
+        compCategories2(inDir+"LNuJJ_norm_mu","res",True,purities,categories,dys,"compReco_res_mu","MJJ","m_{jet} (GeV)")
 
     if COMPYEARS:
         compYears([inDir16+"LNuJJ_res_2D",inDir17+"LNuJJ_res_2D",inDir18+"LNuJJ_res_2D",inDirR2+"LNuJJ_res_2D"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_res","MVV","m_{WV} (GeV)",False)
@@ -1810,57 +1816,57 @@ if 'resTpl' in plots:
     for l in leptons:
         for p in purities:
             for c in categories:
-              for e in etas:
+              for d in dys:
                 #continue
-                label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+(("LDy","HDy")[e=='DEtaHi'])
+                label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+d
 
                 #'''
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -e {e} -b {b} -B {B}".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, e=e, b=binsMVV[c], B=binsMJJ[c]))
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -e {e} -b {b} -B {B} -r 0".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, e=e, b=binsMVV[c], B=binsMJJ[c])) ##without the ranges
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -e {e} -b {b} -B {B} -d 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, e=e, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -e {e} -b {b} -B {B} -D 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, e=e, b=binsMVV[c], B=binsMJJ[c])) ##to test conditional template
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B}".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c]))
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -r 0".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##without the ranges
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -O 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -D 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test conditional template
                 #'''
 
                 #'''
-                makeTemplate2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","histo","template_res_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_res_"+c+"_"+e+"_COND2D.root","histo","templCond_res_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_res_"+c+"_"+e+"_COND2D.root","histo_coarse","template_resCoarse_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_res_"+c+"_"+e+"_COND2D.root","histo_coarsesmoothed","template_resCoarseSmoothed_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+"_"+e+".root","res","reco_res_"+l+"_"+p+"_"+c+"_"+e,label)
-                #makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_"+e+"_GEN.root","res","gen_res_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_GEN.root","res_"+c+"_"+e,"gen_res_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplateVsReco2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+"_"+e+".root","res","templateVsReco_res_"+l+"_"+p+"_"+c+"_"+e) 
-                makeTemplateVsReco1D(inDir+"LNuJJ_res_MJJ_"+l+"_"+p+"_"+c+"_"+e+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+"_"+e+".root","res","templateVsReco1D_res_MJ_"+l+"_"+p+"_"+c+"_"+e,"MJJ","m_{jet} (GeV)")
+                makeTemplate2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","histo","template_res_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_res_"+c+"_"+d+"_COND2D.root","histo","templCond_res_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_res_"+c+"_"+d+"_COND2D.root","histo_coarse","template_resCoarse_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_res_"+c+"_"+d+"_COND2D.root","histo_coarsesmoothed","template_resCoarseSmoothed_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+"_"+d+".root","res","reco_res_"+l+"_"+p+"_"+c+"_"+d,label)
+                #makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_"+d+"_GEN.root","res","gen_res_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_GEN.root","res_"+c+"_"+d,"gen_res_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplateVsReco2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+"_"+d+".root","res","templateVsReco_res_"+l+"_"+p+"_"+c+"_"+d) 
+                makeTemplateVsReco1D(inDir+"LNuJJ_res_MJJ_"+l+"_"+p+"_"+c+"_"+d+".root","histo",inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+"_"+d+".root","res","templateVsReco1D_res_MJ_"+l+"_"+p+"_"+c+"_"+d,"MJJ","m_{jet} (GeV)")
                 #'''
 
 if 'resSys' in plots:
     for l in leptons:
         for p in purities:
             for c in categories:
-              for e in etas:
-                label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+(("LDy","HDy")[e=='DEtaHi'])
+              for d in dys:
+                label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+d
 
                 #'''
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_res_"+l+"_"+p+"_"+c+"_"+e,"MVVScale",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_res_"+l+"_"+p+"_"+c+"_"+e,"Diag",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_res_"+l+"_"+p+"_"+c+"_"+e,"scaleY",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_res_"+l+"_"+p+"_"+c+"_"+e,"resY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_res_"+l+"_"+p+"_"+c+"_"+e,"scaleWY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_res_"+l+"_"+p+"_"+c+"_"+e,"resWY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_res_"+l+"_"+p+"_"+c+"_"+e,"scaleTopY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_res_"+l+"_"+p+"_"+c+"_"+e,"resTopY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_res_"+l+"_"+p+"_"+c+"_"+e,"fractionY",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"MVVScale",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"Diag",label)
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"scaleY",label)
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"resY",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"scaleWY",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"resWY",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"scaleTopY",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"resTopY",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"fractionY",label)
                 #'''
                 '''
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_res_"+l+"_"+p+"_"+c+"_"+e,"MVVScale")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_res_"+l+"_"+p+"_"+c+"_"+e,"Diag")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_res_"+l+"_"+p+"_"+c+"_"+e,"scaleY")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_res_"+l+"_"+p+"_"+c+"_"+e,"resY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_res_"+l+"_"+p+"_"+c+"_"+e,"scaleWY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_res_"+l+"_"+p+"_"+c+"_"+e,"resWY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_res_"+l+"_"+p+"_"+c+"_"+e,"scaleTopY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_res_"+l+"_"+p+"_"+c+"_"+e,"resTopY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_res_"+l+"_"+p+"_"+c+"_"+e,"fractionY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"MVVScale")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"Diag")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"scaleY")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"resY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"scaleWY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"resWY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"scaleTopY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"resTopY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"fractionY")
                 #'''
 
 
@@ -1874,18 +1880,18 @@ if 'CRResTpl' in plots:
         #compCategories(inDir+"LNuJJ_norm_CR","res_CR",True,leptons,purities,categories,"compReco_CRres","MVV","m_{WV} (GeV)",False)
         #compCategories(inDir+"LNuJJ_norm_CR","res_CR",True,leptons,purities,categories,"compReco_CRres","MVV","m_{WV} (GeV)",True)
         #compCategories(inDir+"LNuJJ_norm_CR","res_CR",True,leptons,purities,categories,"compReco_CRres","MJJ","m_{jet} (GeV)")
-        compCategories2(inDir+"LNuJJ_res_CR_2D_e","histo",True,purities,categories,etas,"compTemplate_CRres_e","MVV","m_{WV} (GeV)",False)
-        compCategories2(inDir+"LNuJJ_res_CR_2D_e","histo",True,purities,categories,etas,"compTemplate_CRres_e","MVV","m_{WV} (GeV)",True)
-        compCategories2(inDir+"LNuJJ_res_CR_2D_e","histo",True,purities,categories,etas,"compTemplate_CRres_e","MJJ","m_{jet} (GeV)")
-        compCategories2(inDir+"LNuJJ_norm_CR_e","res_CR",True,purities,categories,etas,"compReco_CRres_e","MVV","m_{WV} (GeV)",False)
-        compCategories2(inDir+"LNuJJ_norm_CR_e","res_CR",True,purities,categories,etas,"compReco_CRres_e","MVV","m_{WV} (GeV)",True)
-        compCategories2(inDir+"LNuJJ_norm_CR_e","res_CR",True,purities,categories,etas,"compReco_CRres_e","MJJ","m_{jet} (GeV)")
-        compCategories2(inDir+"LNuJJ_res_CR_2D_mu","histo",True,purities,categories,etas,"compTemplate_CRres_mu","MVV","m_{WV} (GeV)",False)
-        compCategories2(inDir+"LNuJJ_res_CR_2D_mu","histo",True,purities,categories,etas,"compTemplate_CRres_mu","MVV","m_{WV} (GeV)",True)
-        compCategories2(inDir+"LNuJJ_res_CR_2D_mu","histo",True,purities,categories,etas,"compTemplate_CRres_mu","MJJ","m_{jet} (GeV)")
-        compCategories2(inDir+"LNuJJ_norm_CR_mu","res_CR",True,purities,categories,etas,"compReco_CRres_mu","MVV","m_{WV} (GeV)",False)
-        compCategories2(inDir+"LNuJJ_norm_CR_mu","res_CR",True,purities,categories,etas,"compReco_CRres_mu","MVV","m_{WV} (GeV)",True)
-        compCategories2(inDir+"LNuJJ_norm_CR_mu","res_CR",True,purities,categories,etas,"compReco_CRres_mu","MJJ","m_{jet} (GeV)")
+        compCategories2(inDir+"LNuJJ_res_CR_2D_e","histo",True,purities,categories,dys,"compTemplate_CRres_e","MVV","m_{WV} (GeV)",False)
+        compCategories2(inDir+"LNuJJ_res_CR_2D_e","histo",True,purities,categories,dys,"compTemplate_CRres_e","MVV","m_{WV} (GeV)",True)
+        compCategories2(inDir+"LNuJJ_res_CR_2D_e","histo",True,purities,categories,dys,"compTemplate_CRres_e","MJJ","m_{jet} (GeV)")
+        compCategories2(inDir+"LNuJJ_norm_CR_e","res_CR",True,purities,categories,dys,"compReco_CRres_e","MVV","m_{WV} (GeV)",False)
+        compCategories2(inDir+"LNuJJ_norm_CR_e","res_CR",True,purities,categories,dys,"compReco_CRres_e","MVV","m_{WV} (GeV)",True)
+        compCategories2(inDir+"LNuJJ_norm_CR_e","res_CR",True,purities,categories,dys,"compReco_CRres_e","MJJ","m_{jet} (GeV)")
+        compCategories2(inDir+"LNuJJ_res_CR_2D_mu","histo",True,purities,categories,dys,"compTemplate_CRres_mu","MVV","m_{WV} (GeV)",False)
+        compCategories2(inDir+"LNuJJ_res_CR_2D_mu","histo",True,purities,categories,dys,"compTemplate_CRres_mu","MVV","m_{WV} (GeV)",True)
+        compCategories2(inDir+"LNuJJ_res_CR_2D_mu","histo",True,purities,categories,dys,"compTemplate_CRres_mu","MJJ","m_{jet} (GeV)")
+        compCategories2(inDir+"LNuJJ_norm_CR_mu","res_CR",True,purities,categories,dys,"compReco_CRres_mu","MVV","m_{WV} (GeV)",False)
+        compCategories2(inDir+"LNuJJ_norm_CR_mu","res_CR",True,purities,categories,dys,"compReco_CRres_mu","MVV","m_{WV} (GeV)",True)
+        compCategories2(inDir+"LNuJJ_norm_CR_mu","res_CR",True,purities,categories,dys,"compReco_CRres_mu","MJJ","m_{jet} (GeV)")
 
     if COMPYEARS:
         compYears([inDir16+"LNuJJ_res_CR_2D",inDir17+"LNuJJ_res_CR_2D",inDir18+"LNuJJ_res_CR_2D",inDirR2+"LNuJJ_res_CR_2D"],["2016","2017","2018","merged"],"histo",True,leptons,purities,categories,"compYears_CRres","MVV","m_{WV} (GeV)",False)
@@ -1897,57 +1903,57 @@ if 'CRResTpl' in plots:
     for l in leptons:
         for p in purities:
             for c in categories:
-              for e in etas:
+              for d in dys:
                 #continue
-                label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+(("LDy","HDy")[e=='DEtaHi'])
+                label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+d
 
                 #'''
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -e {e} -b {b} -B {B} -R".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, e=e, b=binsMVV[c], B=binsMJJ[c]))
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -e {e} -b {b} -B {B} -R -r 0".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, e=e, b=binsMVV[c], B=binsMJJ[c])) ##without the ranges
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -e {e} -b {b} -B {B} -R -d 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, e=e, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -e {e} -b {b} -B {B} -R -D 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, e=e, b=binsMVV[c], B=binsMJJ[c])) ##to test conditional template
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -R".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c]))
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -R -r 0".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##without the ranges
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -R -O 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -R -D 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test conditional template
                 #'''
 
                 #'''
-                makeTemplate2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","histo","template_CRres_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_res_CR_"+c+"_"+e+"_COND2D.root","histo","templCond_CRres_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_res_CR_"+c+"_"+e+"_COND2D.root","histo_coarse","template_CRresCoarse_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_res_CR_"+c+"_"+e+"_COND2D.root","histo_coarsesmoothed","template_CRresCoarseSmoothed_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+"_"+e+".root","res_CR","reco_CRres_"+l+"_"+p+"_"+c+"_"+e,label)
-                #makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_"+e+"_GEN.root","res","gen_CRres_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplate2D(inDir+"LNuJJ_GEN.root","res_"+c+"_"+e,"gen_CRres_"+l+"_"+p+"_"+c+"_"+e,label)
-                makeTemplateVsReco2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","histo",inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+"_"+e+".root","res_CR","templateVsReco_CRres_"+l+"_"+p+"_"+c+"_"+e) 
-                makeTemplateVsReco1D(inDir+"LNuJJ_res_CR_MJJ_"+l+"_"+p+"_"+c+"_"+e+".root","histo",inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+"_"+e+".root","res_CR","templateVsReco1D_CRres_MJ_"+l+"_"+p+"_"+c+"_"+e,"MJJ","m_{jet} (GeV)")
+                makeTemplate2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","histo","template_CRres_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_res_CR_"+c+"_"+d+"_COND2D.root","histo","templCond_CRres_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_res_CR_"+c+"_"+d+"_COND2D.root","histo_coarse","template_CRresCoarse_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_res_CR_"+c+"_"+d+"_COND2D.root","histo_coarsesmoothed","template_CRresCoarseSmoothed_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+"_"+d+".root","res_CR","reco_CRres_"+l+"_"+p+"_"+c+"_"+d,label)
+                #makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_"+d+"_GEN.root","res","gen_CRres_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_GEN.root","res_"+c+"_"+d,"gen_CRres_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplateVsReco2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","histo",inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+"_"+d+".root","res_CR","templateVsReco_CRres_"+l+"_"+p+"_"+c+"_"+d) 
+                makeTemplateVsReco1D(inDir+"LNuJJ_res_CR_MJJ_"+l+"_"+p+"_"+c+"_"+d+".root","histo",inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+"_"+d+".root","res_CR","templateVsReco1D_CRres_MJ_"+l+"_"+p+"_"+c+"_"+d,"MJJ","m_{jet} (GeV)")
                 #'''
 
 if 'CRResSys' in plots:
     for l in leptons:
         for p in purities:
             for c in categories:
-              for e in etas:
-                label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+(("LDy","HDy")[e=='DEtaHi'])
+              for d in dys:
+                label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+d
 
                 #'''
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+e,"MVVScale",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+e,"Diag",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+e,"scaleY",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+e,"resY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+e,"scaleWY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+e,"resWY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+e,"scaleTopY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+e,"resTopY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+e,"fractionY",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"MVVScale",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"Diag",label)
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"scaleY",label)
+                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"resY",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"scaleWY",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"resWY",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"scaleTopY",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"resTopY",label)
+                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"fractionY",label)
                 #'''
                 '''
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+e,"MVVScale")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+e,"Diag")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+e,"scaleY")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+e,"resY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+e,"scaleWY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+e,"resWY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+e,"scaleTopY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+e,"resTopY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+e+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+e,"fractionY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"MVVScale")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"Diag")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"scaleY")
+                #makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"resY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"scaleWY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"resWY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"scaleTopY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"resTopY")
+                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"fractionY")
                 #'''
 
 
@@ -1956,23 +1962,23 @@ if 'signalParam' in plots:
 
     for p in purities:
         for c in categories:
-          for e in etas:
+          for d in dys:
             pass
             #'''
-            makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MJJ_"+p+"_"+c+"_"+e+".root" for s in signals],signals,'MJJ',p+"_"+c+"_"+e,"paramSignalShape_allSig_")
-            makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MVV_"+p+"_"+c+"_"+e+".root" for s in signals],signals,'MVV',p+"_"+c+"_"+e,"paramSignalShape_allSig_")
-            #makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MJJ_"+p+"_"+c+"_"+e+".root" for s in signalsNonVBF],signalsNonVBF,'MJJ',p+"_"+c+"_"+e,"paramSignalShape_NonVBFSig_")
-            #makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MVV_"+p+"_"+c+"_"+e+".root" for s in signalsNonVBF],signalsNonVBF,'MVV',p+"_"+c+"_"+e,"paramSignalShape_NonVBFSig_")
-            #makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MJJ_"+p+"_"+c+"_"+e+".root" for s in signalsVBF],signalsVBF,'MJJ',p+"_"+c+"_"+e,"paramSignalShape_VBFSig_")
-            #makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MVV_"+p+"_"+c+"_"+e+".root" for s in signalsVBF],signalsVBF,'MVV',p+"_"+c+"_"+e,"paramSignalShape_VBFSig_")
+            makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MJJ_"+p+"_"+c+"_"+d+".root" for s in signals],signals,'MJJ',p+"_"+c+"_"+d,"paramSignalShape_allSig_")
+            makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MVV_"+p+"_"+c+"_"+d+".root" for s in signals],signals,'MVV',p+"_"+c+"_"+d,"paramSignalShape_allSig_")
+            #makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MJJ_"+p+"_"+c+"_"+d+".root" for s in signalsNonVBF],signalsNonVBF,'MJJ',p+"_"+c+"_"+d,"paramSignalShape_NonVBFSig_")
+            #makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MVV_"+p+"_"+c+"_"+d+".root" for s in signalsNonVBF],signalsNonVBF,'MVV',p+"_"+c+"_"+d,"paramSignalShape_NonVBFSig_")
+            #makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MJJ_"+p+"_"+c+"_"+d+".root" for s in signalsVBF],signalsVBF,'MJJ',p+"_"+c+"_"+d,"paramSignalShape_VBFSig_")
+            #makeSignalShapeParam([inDir+"debugSignalShape_LNuJJ_"+s+"_MVV_"+p+"_"+c+"_"+d+".root" for s in signalsVBF],signalsVBF,'MVV',p+"_"+c+"_"+d,"paramSignalShape_VBFSig_")
             #'''
 
             for l in leptons:
                 pass
                 #'''
-                #makeSignalYieldParam([inDir+"LNuJJ_"+s+"_"+l+"_"+p+"_"+c+"_"+e+"_yield.root" for s in signals],signals,"paramSignalYield_allSig_"+l+"_"+p+"_"+c+"_"+e)
-                makeSignalYieldParam([inDir+"LNuJJ_"+s+"_"+l+"_"+p+"_"+c+"_"+e+"_yield.root" for s in signalsNonVBF],signalsNonVBF,"paramSignalYield_NonVBFSig_"+l+"_"+p+"_"+c+"_"+e)
-                makeSignalYieldParam([inDir+"LNuJJ_"+s+"_"+l+"_"+p+"_"+c+"_"+e+"_yield.root" for s in signalsVBF],signalsVBF,"paramSignalYield_VBFSig_"+l+"_"+p+"_"+c+"_"+e)
+                #makeSignalYieldParam([inDir+"LNuJJ_"+s+"_"+l+"_"+p+"_"+c+"_"+d+"_yield.root" for s in signals],signals,"paramSignalYield_allSig_"+l+"_"+p+"_"+c+"_"+d)
+                makeSignalYieldParam([inDir+"LNuJJ_"+s+"_"+l+"_"+p+"_"+c+"_"+d+"_yield.root" for s in signalsNonVBF],signalsNonVBF,"paramSignalYield_NonVBFSig_"+l+"_"+p+"_"+c+"_"+d)
+                makeSignalYieldParam([inDir+"LNuJJ_"+s+"_"+l+"_"+p+"_"+c+"_"+d+"_yield.root" for s in signalsVBF],signalsVBF,"paramSignalYield_VBFSig_"+l+"_"+p+"_"+c+"_"+d)
                 #'''
 
 if 'signalTpl' in plots:
@@ -1981,39 +1987,39 @@ if 'signalTpl' in plots:
         for l in leptons:
             for p in purities:
                 for c in categories:
-                  for e in etas:
+                  for d in dys:
 
-                    print signal, l, p, c, e
-                    label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+(("LDy","HDy")[e=='DEtaHi'])
+                    print signal, l, p, c, d
+                    label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+d
                     if options.withDC:
                         pass
 
                         '''
                         for mx in [2000]: #[1000,2000,3000,4000]: #[1000,1400,2000,3000,4500]:
-                            os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -e {e} -b {b} -B {B} -r 0 -s".format(i=inDir, o=outDir, C=signal+str(mx).zfill(4), l=l, p=p, c=c, e=e, b=binsMVV[c], B=binsMJJ[c]))
+                            os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -r 0 -s".format(i=inDir, o=outDir, C=signal+str(mx).zfill(4), l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c]))
                         #'''
                         '''
-                        os.system("rm "+inDir+"/LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+e+".root")
+                        os.system("rm "+inDir+"/LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+d+".root")
                         for mx in [1000,1500,2000,2500,3000,3500,4000,4500]:
                             print mx
-                            extractSignalTemplateFromDC("Dc_"+signal+"/combined_"+YEAR+".root","shapeSig_"+signal+"_"+l+"_"+p+"_"+c+"_"+e+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+e,c)
-                            #extractSignalTemplateFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MVV_"+l+"_"+p+"_"+c+"_"+e+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_MVVGivenMJJFromDC_"+l+"_"+p+"_"+c+"_"+e,c)
-                            #extractSignalMjjPdfFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MJJ_"+l+"_"+p+"_"+c+"_"+e+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_MJJFromDC_"+l+"_"+p+"_"+c+"_"+e,c) ## just for a check
+                            extractSignalTemplateFromDC("Dc_"+signal+"/combined_"+YEAR+".root","shapeSig_"+signal+"_"+l+"_"+p+"_"+c+"_"+d+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+d,c)
+                            #extractSignalTemplateFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MVV_"+l+"_"+p+"_"+c+"_"+d+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_MVVGivenMJJFromDC_"+l+"_"+p+"_"+c+"_"+d,c)
+                            #extractSignalMjjPdfFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MJJ_"+l+"_"+p+"_"+c+"_"+d+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_MJJFromDC_"+l+"_"+p+"_"+c+"_"+d,c) ## just for a check
                         #'''
                         '''
-                        makeSignalParamFromHisto(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+e+".root","templateSignalVsMX_fromHisto_"+signal+"_MVV_"+l+"_"+p+"_"+c+"_"+e,"MVV",signal,"1000,1500,2000,2500,3000,3500,4000,4500")
-                        makeSignalParamFromHisto(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+e+".root","templateSignalVsMX_fromHisto_"+signal+"_MJJ_"+l+"_"+p+"_"+c+"_"+e,"MJJ",signal,"1000,1500,2000,2500,3000,3500,4000,4500")
+                        makeSignalParamFromHisto(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+d+".root","templateSignalVsMX_fromHisto_"+signal+"_MVV_"+l+"_"+p+"_"+c+"_"+d,"MVV",signal,"1000,1500,2000,2500,3000,3500,4000,4500")
+                        makeSignalParamFromHisto(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+d+".root","templateSignalVsMX_fromHisto_"+signal+"_MJJ_"+l+"_"+p+"_"+c+"_"+d,"MJJ",signal,"1000,1500,2000,2500,3000,3500,4000,4500")
                         #'''
                         #'''
-                        makeSignalParamFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MVV_"+l+"_"+p+"_"+c+"_"+e+"_"+YEAR,"templateSignalVsMX_fromDC_"+signal+"_MVV_"+l+"_"+p+"_"+c+"_"+e,signal,"1000,1500,2000,2500,3000,3500,4000,4500",varMVV[c],"m_{WV} (GeV)")
-                        makeSignalParamFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MJJ_"+l+"_"+p+"_"+c+"_"+e+"_"+YEAR,"templateSignalVsMX_fromDC_"+signal+"_MJJ_"+l+"_"+p+"_"+c+"_"+e,signal,"1000,1500,2000,2500,3000,3500,4000,4500",varMJJ[c],"m_{jet} (GeV)")
+                        makeSignalParamFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MVV_"+l+"_"+p+"_"+c+"_"+d+"_"+YEAR,"templateSignalVsMX_fromDC_"+signal+"_MVV_"+l+"_"+p+"_"+c+"_"+d,signal,"1000,1500,2000,2500,3000,3500,4000,4500",varMVV[c],"m_{WV} (GeV)")
+                        makeSignalParamFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MJJ_"+l+"_"+p+"_"+c+"_"+d+"_"+YEAR,"templateSignalVsMX_fromDC_"+signal+"_MJJ_"+l+"_"+p+"_"+c+"_"+d,signal,"1000,1500,2000,2500,3000,3500,4000,4500",varMJJ[c],"m_{jet} (GeV)")
                         #''' 
                         '''
                         for mx in [2000]:
-                            makeTemplate2D(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+e+".root",signal+str(mx),"template_"+signal+str(mx)+"_"+l+"_"+p+"_"+c+"_"+e,label,False)
-                            makeTemplate2D(inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+"_"+e+".root",signal+str(mx),"reco_"+signal+str(mx)+"_"+l+"_"+p+"_"+c+"_"+e,label,False)
-                            #makeTemplate2D(inDir+"LNuJJ_"+signal+"_MVVGivenMJJFromDC_"+l+"_"+p+"_"+c+"_"+e+".root",signal+str(mx),"templCond_"+signal+str(mx)+"_"+l+"_"+p+"_"+c+"_"+e,label,False)
-                            makeTemplateVsReco2D(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+e+".root",signal+str(mx),inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+"_"+e+".root",signal+str(mx),"templateVsReco_"+signal+str(mx)+"_"+l+"_"+p+"_"+c+"_"+e)
+                            makeTemplate2D(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+d+".root",signal+str(mx),"template_"+signal+str(mx)+"_"+l+"_"+p+"_"+c+"_"+d,label,False)
+                            makeTemplate2D(inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+"_"+d+".root",signal+str(mx),"reco_"+signal+str(mx)+"_"+l+"_"+p+"_"+c+"_"+d,label,False)
+                            #makeTemplate2D(inDir+"LNuJJ_"+signal+"_MVVGivenMJJFromDC_"+l+"_"+p+"_"+c+"_"+d+".root",signal+str(mx),"templCond_"+signal+str(mx)+"_"+l+"_"+p+"_"+c+"_"+d,label,False)
+                            makeTemplateVsReco2D(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+d+".root",signal+str(mx),inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+"_"+d+".root",signal+str(mx),"templateVsReco_"+signal+str(mx)+"_"+l+"_"+p+"_"+c+"_"+d)
                         #'''
     '''
     if COMPCATEGORIES:
@@ -2033,9 +2039,9 @@ if 'bbtagunc' in plots:
         for l in leptons:#['e']:#
             for p in purities:#['HP']:#
                 for c in categories:#['nobb']:#
-                  for e in etas:
-                    makeSignalYieldParam_unc(inDir+"LNuJJ_"+signal+"_"+l+"_"+p+"_"+c+"_"+e+"_yield.root",inDir+"LNuJJ_"+signal+"_bbSFup_"+l+"_"+p+"_"+c+"_"+e+"_yield.root",inDir+"LNuJJ_"+signal+"_bbSFdn_"+l+"_"+p+"_"+c+"_"+e+"_yield.root","paramSignalYieldbbSFunc_"+signal+"_"+l+"_"+p+"_"+c+"_"+e,0)
-                    makeSignalYieldParam_unc(inDir+"LNuJJ_"+signal+"_"+l+"_"+p+"_"+c+"_"+e+"_yield.root",inDir+"LNuJJ_"+signal+"_bbSFup_"+l+"_"+p+"_"+c+"_"+e+"_yield.root",inDir+"LNuJJ_"+signal+"_bbSFdn_"+l+"_"+p+"_"+c+"_"+e+"_yield.root","paramSignalbbSFunc_"+signal+"_"+l+"_"+p+"_"+c+"_"+e,1)
+                  for d in dys:
+                    makeSignalYieldParam_unc(inDir+"LNuJJ_"+signal+"_"+l+"_"+p+"_"+c+"_"+d+"_yield.root",inDir+"LNuJJ_"+signal+"_bbSFup_"+l+"_"+p+"_"+c+"_"+d+"_yield.root",inDir+"LNuJJ_"+signal+"_bbSFdn_"+l+"_"+p+"_"+c+"_"+d+"_yield.root","paramSignalYieldbbSFunc_"+signal+"_"+l+"_"+p+"_"+c+"_"+d,0)
+                    makeSignalYieldParam_unc(inDir+"LNuJJ_"+signal+"_"+l+"_"+p+"_"+c+"_"+d+"_yield.root",inDir+"LNuJJ_"+signal+"_bbSFup_"+l+"_"+p+"_"+c+"_"+d+"_yield.root",inDir+"LNuJJ_"+signal+"_bbSFdn_"+l+"_"+p+"_"+c+"_"+d+"_yield.root","paramSignalbbSFunc_"+signal+"_"+l+"_"+p+"_"+c+"_"+d,1)
 
 
 

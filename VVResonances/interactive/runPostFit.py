@@ -20,7 +20,7 @@ parser.add_option("-v","--var",dest="variable",default='',help="restrict mjj or 
 parser.add_option("-l","--lep",dest="lepton",default='',help="restrict to some lepton")
 parser.add_option("-p","--pur",dest="purity",default='',help="restrict to some purity")
 parser.add_option("-c","--cat",dest="category",default='',help="restrict to some category")
-parser.add_option("-e","--eta",dest="deltaeta",default='',help="restrict to some deltaeta")
+parser.add_option("-d","--dy",dest="deltay",default='',help="restrict to some deltay")
 parser.add_option("-C","--CMSlabel",dest="CMSlabel",type=int,default=0,help="0:None 1:CMS 2:CMS Preliminary 3:CMS Supplementary")
 parser.add_option("-b","--differentBinning",dest="differentBinning",type=int,default=1,help="use other binning for bb category")
 parser.add_option("-S","--splitWTopPeaks",dest="splitWTopPeaks",type=int,default=0,help="separate W and top peak bkgd")
@@ -166,12 +166,12 @@ if doMvv:
 lep = options.lepton
 pur = options.purity
 cat = options.category
-eta = options.deltaeta
+dy  = options.deltay
 
 leptons = ['mu','e']
 purities = ['LP','HP']
 categories = ['bb','nobb','vbf']
-deltaetas = ['DEtaLo','DEtaHi']
+dys = ['LDy','HDy']
 
 
 dataset="data_obs"
@@ -182,7 +182,7 @@ if options.fitToy>0:
 for l in leptons:
     for p in purities:
         for c in categories:
-          for e in deltaetas:
+          for d in dys:
             #continue
 
             varMVV = "MLNuJ"
@@ -191,18 +191,18 @@ for l in leptons:
                 varMVV = "MLNuJ_coarse"
                 varMJJ = "MJ_coarse"
 
-            subcat = '_'.join([l,p,c,e,YEAR])
+            subcat = '_'.join([l,p,c,d,YEAR])
 
             ##label="W #rightarrow "+(("e","#mu")[l=='mu'])+"#nu, "+p
             ##label="W#rightarrow"+(("e","#mu")[l=='mu'])+"#nu, "+(("low-purity","high-purity")[p=='HP'])
             ##label=(("electron","muon")[l=='mu'])+", "+(("low-purity","high-purity")[p=='HP'])
             #label="#bf{"+(("electron","muon")[l=='mu'])+", "+(("low-purity","high-purity")[p=='HP'])+"}"
-            label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+(("LDy","HDy")[e=='DEtaHi'])#+", "+YEAR
+            label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+d#+", "+YEAR
 
             if lep!='' and lep!=l: continue
             if pur!='' and pur!=p: continue 
             if cat!='' and cat!=c: continue
-            if eta!='' and eta!=e: continue 
+            if dy !='' and dy !=d: continue 
 
             if doMvv:
                 pass

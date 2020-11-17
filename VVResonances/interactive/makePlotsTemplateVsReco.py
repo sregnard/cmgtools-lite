@@ -17,10 +17,10 @@ parser.add_option("-B","--binmjet",dest="mjetbinning",type=int,default=90,help="
 parser.add_option("-l","--lep",dest="lepton",default='allL',help="lepton")
 parser.add_option("-p","--pur",dest="purity",default='allP',help="purity")
 parser.add_option("-c","--cat",dest="category",default='nob',help="category")
-parser.add_option("-e","--eta",dest="deltaeta",default='',help="deltaeta")
+parser.add_option("-d","--dy",dest="deltay",default='',help="deltay")
 parser.add_option("-r","--inranges",dest="inranges",type=int,default=1,help="also in intervals of the other variable")
 parser.add_option("-f","--final",dest="final",type=int,default=0,help="print CMS label")
-parser.add_option("-d","--coarse",dest="coarse",type=int,default=0,help="input is a coarse template")
+parser.add_option("-O","--coarse",dest="coarse",type=int,default=0,help="input is a coarse template")
 parser.add_option("-D","--conditional",dest="conditional",type=int,default=0,help="input is a conditional template")
 (options,args) = parser.parse_args()
 
@@ -139,9 +139,9 @@ def conditional(hist):
 
 
 
-def compareTemplatesVsReco(contrib,l,p,c,e,var,varDesc):
+def compareTemplatesVsReco(contrib,l,p,c,d,var,varDesc):
 
-    cat=l+"_"+p+"_"+c+"_"+e
+    cat=l+"_"+p+"_"+c+"_"+d
 
     nintervals = ir[contrib]['nIntervalsMVV' if var=="MVV" else 'nIntervalsMJ'] if ININTERVALS else 0
 
@@ -172,19 +172,19 @@ def compareTemplatesVsReco(contrib,l,p,c,e,var,varDesc):
     if contrib=='nonRes' and var=="MVV" and (options.coarse or options.conditional):
         fRecoName = options.inDir+"/LNuJJ_norm"+INCRin+"_"+cat+".root"
         h2RecoName='nonRes_CR_inclLC' if options.inCR else 'nonRes_wgtMVV_inclLC'
-        label=p+", "+(("LDy","HDy")[e=='DEtaHi'])
+        label=p+", "+d
     elif contrib=='nonRes' and var=="MJ" and (not ININTERVALS):
         fRecoName = options.inDir+"/LNuJJ_norm"+INCRin+"_"+cat+".root"
         h2RecoName='nonRes'+INCRin+'_wgtMJJ'
-        label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+(("LDy","HDy")[e=='DEtaHi'])
+        label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+d
     elif contrib=='res' and var=="MVV" and (options.coarse or options.conditional):
         fRecoName = options.inDir+"/LNuJJ_norm"+INCRin+"_"+cat+".root"
         h2RecoName='res'+INCRin+'_inclLPC'
-        label=(("LDy","HDy")[e=='DEtaHi'])
+        label=d
     else:
         fRecoName = options.inDir+"/LNuJJ_norm"+INCRin+"_"+cat+".root"
         h2RecoName=contrib+INCRin
-        label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+(("LDy","HDy")[e=='DEtaHi'])
+        label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+d
     if not os.path.isfile(fRecoName):
         print "Error in compareTemplatesVsReco: file "+fRecoName+" does not exist."
         return
@@ -199,10 +199,10 @@ def compareTemplatesVsReco(contrib,l,p,c,e,var,varDesc):
     hTpt = []
     if contrib=='nonRes':
         #fTptName = "LNuJJ_nonRes"+INCRin+"_COND2D_"+cat+".root" if (options.coarse or options.conditional) else "LNuJJ_nonRes"+INCRin+"_2D_"+cat+".root"
-        fTptName = "LNuJJ_nonRes"+INCRin+"_"+p+"_"+c+"_"+e+"_COND2D.root" if (options.coarse or options.conditional) else "LNuJJ_nonRes"+INCRin+"_2D_"+cat+".root"
+        fTptName = "LNuJJ_nonRes"+INCRin+"_"+p+"_"+c+"_"+d+"_COND2D.root" if (options.coarse or options.conditional) else "LNuJJ_nonRes"+INCRin+"_2D_"+cat+".root"
     elif contrib=='res':
         #fTptName = "LNuJJ_res_2DFromDC_"+cat+".root"
-        fTptName = "LNuJJ_res"+INCRin+"_"+c+"_"+e+"_COND2D.root" if (options.coarse or options.conditional) else "LNuJJ_res"+INCRin+"_2D_"+cat+".root"
+        fTptName = "LNuJJ_res"+INCRin+"_"+c+"_"+d+"_COND2D.root" if (options.coarse or options.conditional) else "LNuJJ_res"+INCRin+"_2D_"+cat+".root"
     elif contrib=='resW':
         fTptName = "LNuJJ_resW_2DFromDC_"+cat+".root"
     elif contrib=='resTop':
@@ -392,9 +392,9 @@ style.cd()
 l=options.lepton
 p=options.purity
 c=options.category
-e=options.deltaeta
+d=options.deltay
 
 if DOMJJ:
-    compareTemplatesVsReco(options.contrib,l,p,c,e,'MJ',"m_{jet} (GeV)")
+    compareTemplatesVsReco(options.contrib,l,p,c,d,'MJ',"m_{jet} (GeV)")
 if DOMVV:
-    compareTemplatesVsReco(options.contrib,l,p,c,e,'MVV',"m_{WV} (GeV)")
+    compareTemplatesVsReco(options.contrib,l,p,c,d,'MVV',"m_{WV} (GeV)")
