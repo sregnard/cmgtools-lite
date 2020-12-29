@@ -18,10 +18,13 @@ def makeHisto_uncorr(name,fx,nhistox,fy,nhistoy,fout):
 def makeHisto_xgiveny(name,fx,nhistox,fy,nhistoy,fout):
     histox=fx.Get(nhistox)
     histoy=fy.Get(nhistoy)
-    h=ROOT.TH2F(name,name,histox.GetNbinsX(),histox.GetXaxis().GetXmin(),histox.GetXaxis().GetXmax(),histox.GetNbinsY(),histox.GetYaxis().GetXmin(),histox.GetYaxis().GetXmax())
+    h=ROOT.TH2F(name,name,histox.GetNbinsX(),histox.GetXaxis().GetXmin(),histox.GetXaxis().GetXmax(),histoy.GetNbinsX(),histoy.GetXaxis().GetXmin(),histoy.GetXaxis().GetXmax())
     for i in range(1,histox.GetNbinsX()+1):
+        x = histox.GetXaxis().GetBinCenter(i)
         for j in range(1,histoy.GetNbinsX()+1):
-            h.SetBinContent(i,j,histox.GetBinContent(i,j)*histoy.GetBinContent(j))
+            y = histoy.GetXaxis().GetBinCenter(j)
+            bin2D = histox.GetBin(histox.GetXaxis().FindBin(x),histox.GetYaxis().FindBin(y))
+            h.SetBinContent(i,j,histox.GetBinContent(bin2D)*histoy.GetBinContent(j))
     fout.cd()
     h.Write()
 

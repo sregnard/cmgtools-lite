@@ -14,12 +14,12 @@ from DoubleBefficiencies import *
 
 
 
-DONORMMC       = 1
-DONORMDATA     = 1
-DOSIGNALSHAPES = 1
-DOSIGNALYIELDS = 1
+DONORMMC       = 0
+DONORMDATA     = 0
+DOSIGNALSHAPES = 0
+DOSIGNALYIELDS = 0
 DORESONANT     = 1
-DONONRESONANT  = 1
+DONONRESONANT  = 0
 
 DONORMMCASDATA = 0
 DOSIGNALCTPL   = 0
@@ -30,15 +30,15 @@ DONORMDATACR   = 0
 DORESONANTCR   = 0
 DONONRESONANTCR= 0
 
-DOGbuToWW = 1
-DORadToWW = 1
-DOZprToWW = 1
-DOWprToWZ = 1
-DOWprToWH = 1
-DOVBFGbuToWW = 1
-DOVBFRadToWW = 1
-DOVBFZprToWW = 1
-DOVBFWprToWZ = 1
+DOGbuToWW = 0
+DORadToWW = 0
+DOZprToWW = 0
+DOWprToWZ = 0
+DOWprToWH = 0
+DOVBFGbuToWW = 0
+DOVBFRadToWW = 0
+DOVBFZprToWW = 0
+DOVBFWprToWZ = 0
 DOVBFWprToWH = 0
 
 
@@ -499,6 +499,39 @@ def makeResBackgroundShapesMVVConditional(name,filename,template,addCut="1"):
             cmd='vvMakeData.py -s "{samples}" -d {data} -c "{cut}" -o "{rootFile}" -v "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass" -b "{BINS},{bins}" -m "{MINI},{mini}" -M "{MAXI},{maxi}" -f {factor} -n "{name}" {ntuples}'.format(samples=template,cut=cut,rootFile=rootFile,BINS=binsMVV['allC'],bins=binsMJJ[c],MINI=minMVV,MAXI=maxMVV,mini=minMJJ,maxi=maxMJJ,factor=1,name=name+"_"+c+"_"+d,data=0,ntuples=ntuples)
             os.system(cmd)
 
+def makeResBackgroundShapesMVVConditionalTwoBins(name,filename,template,addCut="1"):
+    inCR = ("CR" in name)
+
+    cut='*'.join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts['allP'],cuts['allC'],cuts['allD'],'lnujj_l2_gen_softDrop_mass>10&&lnujj_gen_partialMass>0',addCut])
+    resFile=outDir+filename+"_"+name+"_detectorResponse.root"
+    cmd='vvMake2DDetectorParam.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_LV_mass,lnujj_l2_softDrop_mass" -g "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass,lnujj_l2_gen_pt" -b "100,150,200,250,300,350,400,450,500,600,700,800,900,1000,1500,2000,5000" {ntuples}'.format(rootFile=resFile,samples=template,cut=cut,ntuples=ntuples)
+    os.system(cmd)
+
+    for p in purities:
+        for c in categories:
+            for d in dys:
+                cut='*'.join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],cuts[c],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
+
+                rootFile=outDir+filename+"_"+name+"_"+p+"_"+c+"_"+d+"_COND2D.root"
+                if p=="HP":
+                    cmd='vvMake2DTemplateWithKernelsCoarse.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass,lnujj_l2_softDrop_mass" -b {binsMVV} -B {binsMJJ} -x {minMVV} -X {maxMVV} -y {minMJJ} -Y {maxMJJ} -r {res} -l {limitTailFit2D} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMVV=binsMVV['allC'],minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJJ=1,minMJJ=minMJJ,maxMJJ=maxMJJ,limitTailFit2D=limitTailFit2D['allC'],ntuples=ntuples)
+                    os.system(cmd)
+
+                    ##store gen distributions, just for control plots:
+                    rootFile=outDir+filename+"_GEN.root"
+                    cmd='vvMakeData.py -s "{samples}" -d {data} -c "{cut}" -o "{rootFile}" -v "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass" -b "{BINS},{bins}" -m "{MINI},{mini}" -M "{MAXI},{maxi}" -f {factor} -n "{name}" {ntuples}'.format(samples=template,cut=cut,rootFile=rootFile,BINS=binsMVV['allC'],bins=2,MINI=minMVV,MAXI=maxMVV,mini=minMJJ,maxi=maxMJJ,factor=1,name=name+"_"+p+'_'+c+"_"+d,data=0,ntuples=ntuples)
+                    os.system(cmd)
+                else:
+                    cmd='vvMake2DTemplateWithKernelsCoarse.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass,lnujj_l2_softDrop_mass" -b {binsMVV} -B {binsMJJ} -x {minMVV} -X {maxMVV} -y {minMJJ} -Y {maxMJJ} -r {res} -l {limitTailFit2D} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMVV=binsMVV['allC'],minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJJ=2,minMJJ=minMJJ,maxMJJ=maxMJJ,limitTailFit2D=limitTailFit2D['allC'],ntuples=ntuples)
+                    os.system(cmd)
+
+                    ##store gen distributions, just for control plots:
+                    rootFile=outDir+filename+"_GEN.root"
+                    cmd='vvMakeData.py -s "{samples}" -d {data} -c "{cut}" -o "{rootFile}" -v "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass" -b "{BINS},{bins}" -m "{MINI},{mini}" -M "{MAXI},{maxi}" -f {factor} -n "{name}" {ntuples}'.format(samples=template,cut=cut,rootFile=rootFile,BINS=binsMVV['allC'],bins=2,MINI=minMVV,MAXI=maxMVV,mini=minMJJ,maxi=maxMJJ,factor=1,name=name+"_"+p+'_'+c+"_"+d,data=0,ntuples=ntuples)
+                    os.system(cmd)
+
+
+
 
 def makeBackgroundShapesMJJFits(name,filename,template,addCut="1"):
     inCR = ("CR" in name)
@@ -520,7 +553,7 @@ def mergeBackgroundShapesRes(name,filename):
             for c in categories:
                 for d in dys:
                     inputy=outDir+filename+"_"+name+"_MJJ_"+l+"_"+p+"_"+c+"_"+d+".root"
-                    inputx=outDir+filename+"_"+name+"_"+c+"_"+d+"_COND2D.root"
+                    inputx=outDir+filename+"_"+name+"_"+p+"_"+c+"_"+d+"_COND2D.root"
                     rootFile=outDir+filename+"_"+name+"_2D_"+l+"_"+p+"_"+c+"_"+d+".root"
                     cmd='vvMergeHistosToPDF2D.py -i "{inputx}" -I "{inputy}" -o "{rootFile}" -s "MVVScale:MVVScale,Diag:Diag" -S "scaleW:scaleWY,scaleTop:scaleTopY,resW:resWY,resTop:resTopY,f:fractionY" '.format(rootFile=rootFile,inputx=inputx,inputy=inputy)
                     os.system(cmd)
@@ -715,8 +748,8 @@ if DOSIGNALCTPL:
 
 ## Resonant background templates (W+V/t)
 if DORESONANT:
-    makeBackgroundShapesMJJFits("res","LNuJJ",resTemplate,cuts['res'])
-    makeResBackgroundShapesMVVConditional("res","LNuJJ",resTemplate,cuts['res'])
+#    makeBackgroundShapesMJJFits("res","LNuJJ",resTemplate,cuts['res'])
+#    makeResBackgroundShapesMVVConditionalTwoBins("res","LNuJJ",resTemplate,cuts['res'])
     mergeBackgroundShapesRes("res","LNuJJ")
 
 if DORESONANTCR:
