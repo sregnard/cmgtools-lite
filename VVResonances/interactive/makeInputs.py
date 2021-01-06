@@ -30,15 +30,15 @@ DONORMDATACR   = 0
 DORESONANTCR   = 0
 DONONRESONANTCR= 0
 
-DOGbuToWW = 0
-DORadToWW = 0
-DOZprToWW = 0
-DOWprToWZ = 0
-DOWprToWH = 0
-DOVBFGbuToWW = 0
-DOVBFRadToWW = 0
-DOVBFZprToWW = 0
-DOVBFWprToWZ = 0
+DOGbuToWW = 1
+DORadToWW = 1
+DOZprToWW = 1
+DOWprToWZ = 1
+DOWprToWH = 1
+DOVBFGbuToWW = 1
+DOVBFRadToWW = 1
+DOVBFZprToWW = 1
+DOVBFWprToWZ = 1
 DOVBFWprToWH = 0
 
 
@@ -510,19 +510,20 @@ def makeResBackgroundShapesMVVConditionalTwoBins(name,filename,template,addCut="
     for p in purities:
         for c in categories:
             for d in dys:
-                cut='*'.join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],cuts[c],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
+                cut='*'.join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],cuts[c],cuts[d],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
+                limitTailFit2DRes = 1200 if (p+"_"+c+"_"+d in ['HP_bb_HDy','HP_bb_LDy','HP_vbf_HDy','LP_bb_LDy']) else 1100 if (p+"_"+c+"_"+d in ['HP_vbf_LDy','LP_vbf_LDy']) else 1400 if (p+"_"+c+"_"+d in ['LP_bb_HDy','LP_vbf_HDy']) else 1600
 
                 rootFile=outDir+filename+"_"+name+"_"+p+"_"+c+"_"+d+"_COND2D.root"
                 if p=="HP":
-                    cmd='vvMake2DTemplateWithKernelsCoarse.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass,lnujj_l2_softDrop_mass" -b {binsMVV} -B {binsMJJ} -x {minMVV} -X {maxMVV} -y {minMJJ} -Y {maxMJJ} -r {res} -l {limitTailFit2D} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMVV=binsMVV['allC'],minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJJ=1,minMJJ=minMJJ,maxMJJ=maxMJJ,limitTailFit2D=limitTailFit2D['allC'],ntuples=ntuples)
+                    cmd='vvMake2DTemplateWithKernelsCoarse.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass,lnujj_l2_softDrop_mass" -b {binsMVV} -B {binsMJJ} -x {minMVV} -X {maxMVV} -y {minMJJ} -Y {maxMJJ} -r {res} -l {limitTailFit2D} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMVV=binsMVV['allC'],minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJJ=1,minMJJ=minMJJ,maxMJJ=maxMJJ,limitTailFit2D=limitTailFit2DRes,ntuples=ntuples)
                     os.system(cmd)
 
                     ##store gen distributions, just for control plots:
                     rootFile=outDir+filename+"_GEN.root"
-                    cmd='vvMakeData.py -s "{samples}" -d {data} -c "{cut}" -o "{rootFile}" -v "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass" -b "{BINS},{bins}" -m "{MINI},{mini}" -M "{MAXI},{maxi}" -f {factor} -n "{name}" {ntuples}'.format(samples=template,cut=cut,rootFile=rootFile,BINS=binsMVV['allC'],bins=2,MINI=minMVV,MAXI=maxMVV,mini=minMJJ,maxi=maxMJJ,factor=1,name=name+"_"+p+'_'+c+"_"+d,data=0,ntuples=ntuples)
+                    cmd='vvMakeData.py -s "{samples}" -d {data} -c "{cut}" -o "{rootFile}" -v "lnujj_gen_partialMass,lnujj_l2_gen_softDrop_mass" -b "{BINS},{bins}" -m "{MINI},{mini}" -M "{MAXI},{maxi}" -f {factor} -n "{name}" {ntuples}'.format(samples=template,cut=cut,rootFile=rootFile,BINS=binsMVV['allC'],bins=1,MINI=minMVV,MAXI=maxMVV,mini=minMJJ,maxi=maxMJJ,factor=1,name=name+"_"+p+'_'+c+"_"+d,data=0,ntuples=ntuples)
                     os.system(cmd)
                 else:
-                    cmd='vvMake2DTemplateWithKernelsCoarse.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass,lnujj_l2_softDrop_mass" -b {binsMVV} -B {binsMJJ} -x {minMVV} -X {maxMVV} -y {minMJJ} -Y {maxMJJ} -r {res} -l {limitTailFit2D} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMVV=binsMVV['allC'],minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJJ=2,minMJJ=minMJJ,maxMJJ=maxMJJ,limitTailFit2D=limitTailFit2D['allC'],ntuples=ntuples)
+                    cmd='vvMake2DTemplateWithKernelsCoarse.py -o "{rootFile}" -s "{samples}" -c "{cut}" -v "lnujj_gen_partialMass,lnujj_l2_softDrop_mass" -b {binsMVV} -B {binsMJJ} -x {minMVV} -X {maxMVV} -y {minMJJ} -Y {maxMJJ} -r {res} -l {limitTailFit2D} {ntuples}'.format(rootFile=rootFile,samples=template,cut=cut,binsMVV=binsMVV['allC'],minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJJ=2,minMJJ=minMJJ,maxMJJ=maxMJJ,limitTailFit2D=limitTailFit2DRes,ntuples=ntuples)
                     os.system(cmd)
 
                     ##store gen distributions, just for control plots:
@@ -592,8 +593,8 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',factor=1):
                         cut="*".join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],cuts['allC'],cuts[d],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
                     elif name=='nonRes_wgtMJJ'or name=='nonRes_CR_wgtMJJ':
                         cut="*".join([cuts['CR' if inCR else 'common'],cuts[l],cuts[p],cuts[c],cuts[d],addCut,cuts['acceptanceMVV']]) #,'(1+0.17*exp(-0.5*(TMath::Log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt)+0.44)^2))'])
-                    elif name=='res_inclLPC' or name=='res_CR_inclLPC':
-                        cut="*".join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts['allP'],cuts['allC'],cuts[d],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
+                    elif name=='res_inclL' or name=='res_CR_inclL':
+                        cut="*".join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],cuts[c],cuts[d],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
 
                     rootFile=outDir+filename+"_"+l+"_"+p+"_"+c+"_"+d+".root"
                     cmd='vvMakeData.py -s "{samples}" -d {data} -c "{cut}" -o "{rootFile}" -v "lnujj_LV_mass,lnujj_l2_softDrop_mass" -b "{BINS},{bins}" -m "{MINI},{mini}" -M "{MAXI},{maxi}" -f {factor} -n "{name}" {ntuples}'.format(samples=template,cut=cut,rootFile=rootFile,BINS=binsMVV[c],bins=binsMJJ[c],MINI=minMVV,MAXI=maxMVV,mini=minMJJ,maxi=maxMJJ,factor=f,name=name,data=data,ntuples=ntuples)
@@ -619,7 +620,7 @@ if DONORMMC:
     ## The next 3 are just for control plots:
     makeNormalizations("nonRes_wgtMVV_inclLC","LNuJJ_norm",nonResTemplate,0,cuts['nonres'])
     makeNormalizations("nonRes_wgtMJJ","LNuJJ_norm",nonResTemplate,0,cuts['nonres'])
-    makeNormalizations("res_inclLPC","LNuJJ_norm",resTemplate,0,cuts['res'])
+    makeNormalizations("res_inclL","LNuJJ_norm",resTemplate,0,cuts['res'])
 if DONORMDATA:
     makeNormalizations("data","LNuJJ_norm",dataTemplate,1)
     makeNormalizations("data_2016","LNuJJ_norm",data2016Template,1)
@@ -634,7 +635,7 @@ if DONORMMCCR:
     ## The next 3 are just for control plots:
     makeNormalizations("nonRes_CR_inclLC","LNuJJ_norm_CR",nonResTemplate,0,cuts['nonres'])
     makeNormalizations("nonRes_CR_wgtMJJ","LNuJJ_norm_CR",nonResTemplate,0,cuts['nonres'])
-    makeNormalizations("res_CR_inclLPC","LNuJJ_norm_CR",resTemplate,0,cuts['res'])
+    makeNormalizations("res_CR_inclL","LNuJJ_norm_CR",resTemplate,0,cuts['res'])
 if DONORMDATACR:
     makeNormalizations("data_CR","LNuJJ_norm_CR",dataTemplate,1)
     makeNormalizations("data_CR_2016","LNuJJ_norm_CR",data2016Template,1)
@@ -748,8 +749,8 @@ if DOSIGNALCTPL:
 
 ## Resonant background templates (W+V/t)
 if DORESONANT:
-#    makeBackgroundShapesMJJFits("res","LNuJJ",resTemplate,cuts['res'])
-#    makeResBackgroundShapesMVVConditionalTwoBins("res","LNuJJ",resTemplate,cuts['res'])
+    makeBackgroundShapesMJJFits("res","LNuJJ",resTemplate,cuts['res'])
+    makeResBackgroundShapesMVVConditionalTwoBins("res","LNuJJ",resTemplate,cuts['res'])
     mergeBackgroundShapesRes("res","LNuJJ")
 
 if DORESONANTCR:
