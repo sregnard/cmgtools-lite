@@ -162,7 +162,8 @@ for lepton in ['e','mu']:
 
 
                 card.addSystematic("CMS_VV_LNuJ_res_MVVScale_"+LPCEYtag,"param",[0.0,0.333])
-                card.addSystematic("CMS_VV_LNuJ_res_Diag_"+LPCEYtag,"param",[0.0,0.333])
+                if purity=='LP':
+                    card.addSystematic("CMS_VV_LNuJ_res_Diag_"+LPCEYtag,"param",[0.0,0.333])
                 card.addSystematic("CMS_VV_LNuJ_res_fractionY_"+LPCEYtag,"param",[0.0,0.333])
 
                 card.addSystematic("CMS_scale_prunedj_WPeak_"+PYtag,"param",[-0.22,0.2]) ## central value: -1.1%, uncertainty: +-1%
