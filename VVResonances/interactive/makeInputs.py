@@ -511,7 +511,7 @@ def makeResBackgroundShapesMVVConditionalTwoBins(name,filename,template,addCut="
         for c in categories:
             for d in dys:
                 cut='*'.join([cuts['CR' if inCR else 'common'],cuts['allL'],cuts[p],cuts[c],cuts[d],addCut,cuts['acceptanceMJJ'],cuts['acceptanceGENMVV']])
-                limitTailFit2DRes = 1200 if (p+"_"+c+"_"+d in ['HP_bb_HDy','HP_bb_LDy','HP_vbf_HDy','LP_bb_LDy']) else 1100 if (p+"_"+c+"_"+d in ['HP_vbf_LDy','LP_vbf_LDy']) else 1400 if (p+"_"+c+"_"+d in ['LP_bb_HDy','LP_vbf_HDy']) else 1600
+                limitTailFit2DRes = 1200 if (p+"_"+c+"_"+d in ['HP_bb_HDy','HP_bb_LDy','HP_vbf_HDy','LP_bb_LDy']) else 1100 if (p+"_"+c+"_"+d in ['HP_vbf_LDy','LP_vbf_LDy']) else 1400
 
                 rootFile=outDir+filename+"_"+name+"_"+p+"_"+c+"_"+d+"_COND2D.root"
                 if p=="HP":
