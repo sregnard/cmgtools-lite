@@ -93,7 +93,10 @@ for lepton in ['e','mu']:
 
                 ## Resonant bkgd
                 rootFile=inputDir+"LNuJJ_res"+sfx_rgn+"_2D_"+LPCEtag+".root"
-                card.addHistoShapeFromFile("res",[varMVV,varMJJ],rootFile,"histo",['MVVScale:CMS_VV_LNuJ_res_MVVScale_'+LPCEYtag,'Diag:CMS_VV_LNuJ_res_Diag_'+LPCEYtag,'scaleWY:CMS_scale_prunedj_WPeak_'+PYtag,'resWY:CMS_res_prunedj_WPeak_'+PYtag,'scaleTopY:CMS_scale_prunedj_TopPeak_'+PYtag,'resTopY:CMS_res_prunedj_TopPeak_'+PYtag,'fractionY:CMS_VV_LNuJ_res_fractionY_'+LPCEYtag],False,0)
+                if purity=='HP':
+                    card.addHistoShapeFromFile("res",[varMVV,varMJJ],rootFile,"histo",['MVVScale:CMS_VV_LNuJ_res_MVVScale_'+LPCEYtag,'MVVTail:CMS_VV_LNuJ_res_MVVTail_'+LPCEYtag,'scaleWY:CMS_scale_prunedj_WPeak_'+PYtag,'resWY:CMS_res_prunedj_WPeak_'+PYtag,'scaleTopY:CMS_scale_prunedj_TopPeak_'+PYtag,'resTopY:CMS_res_prunedj_TopPeak_'+PYtag,'fractionY:CMS_VV_LNuJ_res_fractionY_'+LPCEYtag],False,0)
+                else:
+                    card.addHistoShapeFromFile("res",[varMVV,varMJJ],rootFile,"histo",['MVVScaleBinW:CMS_VV_LNuJ_res_MVVScaleBinW_'+LPCEYtag,'MVVScaleBinTop:CMS_VV_LNuJ_res_MVVScaleBinTop_'+LPCEYtag,'MVVTail:CMS_VV_LNuJ_res_MVVTail_'+LPCEYtag,'scaleWY:CMS_scale_prunedj_WPeak_'+PYtag,'resWY:CMS_res_prunedj_WPeak_'+PYtag,'scaleTopY:CMS_scale_prunedj_TopPeak_'+PYtag,'resTopY:CMS_res_prunedj_TopPeak_'+PYtag,'fractionY:CMS_VV_LNuJ_res_fractionY_'+LPCEYtag],False,0)
 
                 card.addFixedYieldFromFile("res",1,inputDir+"LNuJJ_norm"+sfx_rgn+"_"+LPCEtag+".root","res"+sfx_rgn)
 
@@ -160,10 +163,12 @@ for lepton in ['e','mu']:
                 card.addSystematic("CMS_VV_LNuJ_nonRes_MJJScale_"+LPCEYtag,"param",[0.0,0.333])
                 #card.addSystematic("CMS_VV_LNuJ_nonRes_OPTY_"+LPCEYtag,"param",[0.0,0.333])
 
-
-                card.addSystematic("CMS_VV_LNuJ_res_MVVScale_"+LPCEYtag,"param",[0.0,0.333])
+                if purity=='HP':
+                    card.addSystematic("CMS_VV_LNuJ_res_MVVScale_"+LPCEYtag,"param",[0.0,0.333])
                 if purity=='LP':
-                    card.addSystematic("CMS_VV_LNuJ_res_Diag_"+LPCEYtag,"param",[0.0,0.333])
+                    card.addSystematic("CMS_VV_LNuJ_res_MVVScaleBinW_"+LPCEYtag,"param",[0.0,0.333])
+                    card.addSystematic("CMS_VV_LNuJ_res_MVVScaleBinTop_"+LPCEYtag,"param",[0.0,0.333])
+                card.addSystematic("CMS_VV_LNuJ_res_MVVTail_"+LPCEYtag,"param",[0.0,0.333])
                 card.addSystematic("CMS_VV_LNuJ_res_fractionY_"+LPCEYtag,"param",[0.0,0.333])
 
                 card.addSystematic("CMS_scale_prunedj_WPeak_"+PYtag,"param",[-0.22,0.2]) ## central value: -1.1%, uncertainty: +-1%

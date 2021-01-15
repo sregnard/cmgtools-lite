@@ -556,7 +556,10 @@ def mergeBackgroundShapesRes(name,filename):
                     inputy=outDir+filename+"_"+name+"_MJJ_"+l+"_"+p+"_"+c+"_"+d+".root"
                     inputx=outDir+filename+"_"+name+"_"+p+"_"+c+"_"+d+"_COND2D.root"
                     rootFile=outDir+filename+"_"+name+"_2D_"+l+"_"+p+"_"+c+"_"+d+".root"
-                    cmd='vvMergeHistosToPDF2D.py -i "{inputx}" -I "{inputy}" -o "{rootFile}" -s "MVVScale:MVVScale,Diag:Diag" -S "scaleW:scaleWY,scaleTop:scaleTopY,resW:resWY,resTop:resTopY,f:fractionY" '.format(rootFile=rootFile,inputx=inputx,inputy=inputy)
+                    if p=="HP":
+                        cmd='vvMergeHistosToPDF2D.py -i "{inputx}" -I "{inputy}" -o "{rootFile}" -s "MVVScale:MVVScale,Diag:Diag,MVVTail:MVVTail" -S "scaleW:scaleWY,scaleTop:scaleTopY,resW:resWY,resTop:resTopY,f:fractionY" '.format(rootFile=rootFile,inputx=inputx,inputy=inputy)
+                    else:
+                        cmd='vvMergeHistosToPDF2D.py -i "{inputx}" -I "{inputy}" -o "{rootFile}" -s "MVVScale:MVVScale,MVVScaleBinW:MVVScaleBinW,MVVScaleBinTop:MVVScaleBinTop,Diag:Diag,MVVTail:MVVTail" -S "scaleW:scaleWY,scaleTop:scaleTopY,resW:resWY,resTop:resTopY,f:fractionY" '.format(rootFile=rootFile,inputx=inputx,inputy=inputy)
                     os.system(cmd)
 
 

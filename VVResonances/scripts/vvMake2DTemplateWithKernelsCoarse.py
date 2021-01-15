@@ -27,7 +27,7 @@ parser.add_option("-X","--maxx",dest="maxx",type=float,help="conditional bins sp
 parser.add_option("-y","--miny",dest="miny",type=float,help="bins",default=0)
 parser.add_option("-Y","--maxy",dest="maxy",type=float,help="conditional bins split by comma",default=1)
 parser.add_option("-l","--limit",dest="limit",type=float,help="lower limit of the high-mass smoothing range",default=2500)
-parser.add_option("-t","--tails",dest="tails",type=int,help="method for tail smoothing: 1: all bins together (default); 2: do lowest 4 bins independently",default=1)
+parser.add_option("-t","--tails",dest="tails",type=int,help="method for tail smoothing: 1: MJJ bins together (default); 2: in each MJJ bin",default=1)
 (options,args) = parser.parse_args()
 
 DEBUG=0
@@ -37,6 +37,11 @@ def addToYSlice(h2,b,h1):
     for i in range(1,h2.GetNbinsX()+1):
         h2.Fill(h2.GetXaxis().GetBinLowEdge(i),h2.GetYaxis().GetBinLowEdge(b),h1.GetBinContent(i))
         #print 'addToYSlice', i, b, h1.GetBinContent(i), h2.GetBinContent(i,b)
+
+
+def copyBinY(hToModify,hToCopy,biny):
+    for i in range(1,hToModify.GetNbinsX()+1):
+        hToModify.SetBinContent(i,biny,hToCopy.GetBinContent(i,biny))
 
 
 def mirror(histo,histoNominal,name):
@@ -77,7 +82,7 @@ def conditional(hist):
 
 
 
-def smoothTail(hist):
+def smoothTail(hist,varPower=1.):
     hist.Scale(1.0/hist.Integral())
 
     bin_limit = hist.GetXaxis().FindBin(options.limit)
@@ -89,6 +94,7 @@ def smoothTail(hist):
     fun=ROOT.TF1("func","{Y}*(((x-[1])/({X}-[1]))^[0])".format(X=X,Y=Y),options.limit,options.maxx)
     fun.SetParameter(0,-10.)
     histfit.Fit(fun,"WL,R")
+    fun.SetParameter(0,fun.GetParameter(0)*varPower)
 
     for i in range(1,hist.GetNbinsX()+1):
         x=hist.GetXaxis().GetBinCenter(i)
@@ -96,28 +102,13 @@ def smoothTail(hist):
             for j in range(1,hist.GetNbinsY()+1):
                 hist.SetBinContent(i,j,fun.Eval(x)*hist.GetBinContent(bin_limit,j)/fun.Eval(histfit.GetBinCenter(bin_limit)))
 
-def smoothTail_4LowestBinsIndep(hist):
+
+def smoothTail_perBin(hist,varPower=1.):
     hist.Scale(1.0/hist.Integral())
 
     bin_limit = hist.GetXaxis().FindBin(options.limit)
 
-    histfit=hist.ProjectionX("q",4,hist.GetNbinsY())
-    X=histfit.GetBinCenter(bin_limit)
-    Y=histfit.GetBinContent(bin_limit)
-    print 'X', X, 'Y', Y
-    fun=ROOT.TF1("func","{Y}*(((x-[1])/({X}-[1]))^[0])".format(X=X,Y=Y),options.limit,options.maxx)
-    fun.SetParameter(0,-10.)
-    histfit.Fit(fun,"WL,R")
-
-    for i in range(1,hist.GetNbinsX()+1):
-        x=hist.GetXaxis().GetBinCenter(i)
-        if x>options.limit:
-            for j in range(4,hist.GetNbinsY()+1):
-                hist.SetBinContent(i,j,fun.Eval(x)*hist.GetBinContent(bin_limit,j)/fun.Eval(histfit.GetBinCenter(bin_limit)))
-
-    for j in range(1,4):
-        y=hist.GetYaxis().GetBinCenter(j)
-
+    for j in range(1,hist.GetNbinsY()+1):
         histfit=hist.ProjectionX("q_"+str(j),j,j)
         X=histfit.GetBinCenter(bin_limit)
         Y=histfit.GetBinContent(bin_limit)
@@ -125,6 +116,7 @@ def smoothTail_4LowestBinsIndep(hist):
         fun=ROOT.TF1("func","{Y}*(((x-[1])/({X}-[1]))^[0])".format(X=X,Y=Y),options.limit,options.maxx)
         fun.SetParameter(0,-10.)
         histfit.Fit(fun,"WL,R")
+        fun.SetParameter(0,fun.GetParameter(0)*varPower)
 
         for i in range(1,hist.GetNbinsX()+1):
             x=hist.GetXaxis().GetBinCenter(i)
@@ -192,6 +184,7 @@ histogram_MVVScale_down=ROOT.TH2F("histo_MVVScaleDown","histo",len(binsx)-1,arra
 histogram_Diag_up=ROOT.TH2F("histo_DiagUp","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
 histogram_Diag_down=ROOT.TH2F("histo_DiagDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
 
+
 histograms=[
     histogram,
     histogram_MVVScale_up,
@@ -208,58 +201,53 @@ for plotter in data.plotters:
 
     dataset=plotter.makeDataSet('lnujj_l1_pt,lnujj_l2_gen_pt,'+variables[1]+','+variables[0],options.cut,-1)
 
-    reweigh_p0=1.0
-    reweigh_p1=0.0
-    if "nonRes" in output and not("CR" in output):
-        if "LDy" in output:
-            if "_HP_" in output:
-                if "_bb_" in output:
-                    reweigh_p0=-2.30925e-01; reweigh_p1=1.09425e+03
-                elif "_nobb_" in output:
-                    reweigh_p0=8.05508e-01; reweigh_p1=1.76198e+02
-                elif "_vbf_" in output:
-                    reweigh_p0=1.33682e+00; reweigh_p1=-2.29086e+02
-            elif "_LP_" in output: 
-                if "_bb_" in output:
-                    reweigh_p0=1.55205e-01; reweigh_p1=7.44516e+02
-                elif "_nobb_" in output:
-                    reweigh_p0=6.04165e-01; reweigh_p1=3.49644e+02
-                elif "_vbf_" in output:
-                    reweigh_p0=6.56712e-01; reweigh_p1=3.01037e+02 
-        elif "HDy" in output:
-            if "_HP_" in output:
-                if "_bb_" in output:
-                    reweigh_p0=1.81102e-01; reweigh_p1=7.99967e+02
-                elif "_nobb_" in output:
-                    reweigh_p0=8.51879e-01; reweigh_p1=1.39868e+02
-                elif "_vbf_" in output:
-                    reweigh_p0=1.87112e+00; reweigh_p1=-7.81894e+02
-            elif "_LP_" in output: 
-                if "_bb_" in output:
-                    reweigh_p0=4.19399e-01; reweigh_p1=5.56574e+02
-                elif "_nobb_" in output:
-                    reweigh_p0=7.73172e-01; reweigh_p1=2.16080e+02
-                elif "_vbf_" in output:
-                    reweigh_p0=1.30759e+00; reweigh_p1=-2.88210e+02
-
-    datamaker=ROOT.cmg.ConditionalGaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,res_x,histogram,histogram_MVVScale_up,histogram_MVVScale_down,histogram_Diag_up,histogram_Diag_down,reweigh_p0,reweigh_p1);
+    datamaker=ROOT.cmg.ConditionalGaussianSumTemplateMaker(dataset,variables[0],variables[1],'lnujj_l2_gen_pt',scale_x,res_x,histogram,histogram_MVVScale_up,histogram_MVVScale_down,histogram_Diag_up,histogram_Diag_down,1.,0.);
 
 
 f=ROOT.TFile(options.output,"RECREATE")
 f.cd()
 
-finalHistograms={}
-for hist in histograms:
+
+smoothFunc = smoothTail if options.tails==1 else smoothTail_perBin
+
+for i,hist in enumerate(histograms):
+    
+    if i==0:
+        hist_MVVTail_up = hist.Clone()
+        hist_MVVTail_down = hist.Clone()
+
+        smoothFunc(hist_MVVTail_up,1.1)
+        hist_MVVTail_up.Write(hist.GetName()+"_smoothed_MVVTailUp")
+        conditional(hist_MVVTail_up)
+        hist_MVVTail_up.Write(hist.GetName()+"_MVVTailUp")
+
+        smoothFunc(hist_MVVTail_down,0.9)
+        hist_MVVTail_down.Write(hist.GetName()+"_smoothed_MVVTailDown")
+        conditional(hist_MVVTail_down)
+        hist_MVVTail_down.Write(hist.GetName()+"_MVVTailDown")
+
     hist.Write(hist.GetName()+"_unsmoothed")
-    if options.tails==1:
-        smoothTail(hist)
-    elif options.tails==2:
-        smoothTail_4LowestBinsIndep(hist)
+
+    smoothFunc(hist)
     hist.Write(hist.GetName()+"_smoothed")
     conditional(hist)
     hist.Write(hist.GetName())
-    finalHistograms[hist.GetName()]=hist
 
+if options.binsy==2:
+
+    histogram_MVVScaleBinW_up = histogram.Clone()
+    copyBinY(histogram_MVVScaleBinW_up,histogram_MVVScale_up,1)
+    histogram_MVVScaleBinW_up.Write(histogram.GetName()+"_MVVScaleBinWUp")
+    histogram_MVVScaleBinW_down = histogram.Clone()
+    copyBinY(histogram_MVVScaleBinW_down,histogram_MVVScale_down,1)
+    histogram_MVVScaleBinW_down.Write(histogram.GetName()+"_MVVScaleBinWDown")
+
+    histogram_MVVScaleBinTop_up = histogram.Clone()
+    copyBinY(histogram_MVVScaleBinTop_up,histogram_MVVScale_up,2)
+    histogram_MVVScaleBinTop_up.Write(histogram.GetName()+"_MVVScaleBinTopUp")
+    histogram_MVVScaleBinTop_down = histogram.Clone()
+    copyBinY(histogram_MVVScaleBinTop_down,histogram_MVVScale_down,2)
+    histogram_MVVScaleBinTop_down.Write(histogram.GetName()+"_MVVScaleBinTopDown")
 
 
 #hGenPtUp.Write("hGenPtUp")
