@@ -12,7 +12,7 @@ parser.add_option("-y","--year",dest="year",default="Run2",help="2016 or 2017 or
 parser.add_option("-i","--input",dest="inputFile",default='',help="input root datacard")
 parser.add_option("-f","--fit",dest="fit",type=int,default=1,help="perform the fit")
 parser.add_option("-r","--fixR",dest="fixR",type=float,help="fix r in the fit")
-parser.add_option("-s","--signalType",dest="signalType",default='',help="XWW or XWZ or XWH")
+parser.add_option("-s","--signalType",dest="signalType",default='',help="GbuToWW, RadToWW, ZprToWW, WprToWZ, WprToWH, VBFGbuToWW, VBFRadToWW, VBFZprToWW, VBFWprToWZ, or VBFWprToWH")
 parser.add_option("-m","--fixMX",dest="fixMX",type=float,help="fix signal mass")
 parser.add_option("-R","--dispR",dest="dispR",type=float,help="displayed signal cross section times BR")
 parser.add_option("-u","--doUncBand",dest="doUncBand",type=int,default=0,help="do uncertainty band")
@@ -42,7 +42,7 @@ YmaxMVV = -1 ##2016 paper: 2e+4
 labelMJJ = "m_{jet} (GeV)"
 labelMVV = "m_{WV} (GeV)"
 
-UNSTACKSIG = 1
+UNSTACKSIG = 0
 OPTINRESW = 1 #to be activated when resW uses FastVerticalInterpHistPdf2D
 VERBOSE = 0
 
@@ -89,14 +89,35 @@ if s!="":
     sigStr = s + ("" if options.fixMX is None else str(int((options.fixMX))))
     mx = "" if options.fixMX is None else '{:,g}'.format(options.fixMX/1000)
     sx = "" if options.dispR is None else '{:,g}'.format(options.dispR)
-    if s=="XWW":
-        sigLgd += "G_{Bulk}" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWW" 
+    if s=="GbuToWW":
+        sigLgd += "ggF G_{Bulk}" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWW" 
         sigColor = ROOT.kRed-3
-    elif s=="XWZ":
-        sigLgd += "W'" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWZ"
+    elif s=="RadToWW":
+        sigLgd += "ggF Rad" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWW" 
+        sigColor = ROOT.kRed-3
+    elif s=="ZprToWW":
+        sigLgd += "DY Z'" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWW" 
+        sigColor = ROOT.kRed-3
+    elif s=="WprToWZ":
+        sigLgd += "DY W'" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWZ"
         sigColor = ROOT.kViolet-5
-    elif s=="XWH":
-        sigLgd += "W'" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWH"
+    elif s=="WprToWH":
+        sigLgd += "DY W'" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWH"
+        sigColor = ROOT.kViolet+6
+    elif s=="VBFGbuToWW":
+        sigLgd += "VBF G_{Bulk}" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWW" 
+        sigColor = ROOT.kRed-3
+    elif s=="VBFRadToWW":
+        sigLgd += "VBF Rad" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWW" 
+        sigColor = ROOT.kRed-3
+    elif s=="VBFZprToWW":
+        sigLgd += "VBF Z'" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWW" 
+        sigColor = ROOT.kRed-3
+    elif s=="VBFWprToWZ":
+        sigLgd += "VBF W'" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWZ"
+        sigColor = ROOT.kViolet-5
+    elif s=="VBFWprToWH":
+        sigLgd += "VBF W'" + ("" if options.fixMX is None else "#scale[0.9]{("+mx+" TeV)}") + "#rightarrowWH"
         sigColor = ROOT.kViolet+6
     sigLabel = "" if options.dispR is None else "#scale[0.9]{(#sigma #times BR = "+sx+" pb)}" 
 
@@ -207,7 +228,7 @@ for l in leptons:
             if doMvv:
                 pass
 
-                #''' ## just low-mjet and high-mjet sidebands
+                ''' ## just low-mjet and high-mjet sidebands
                 plotter2.drawBinned(varMVV,labelMVV,label,subcat,[0,0],options.doUncBand,1,0,varMJJ+":low:20:70",minMVV,maxMVV,YmaxMVV,False,-1,"",dataset)
                 cmsLabel(plotter2.canvas)
                 saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVV_LowMJJ_"+sigStr+"_"+subcat)
@@ -223,12 +244,12 @@ for l in leptons:
                 saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVVBlind_"+sigStr+"_"+subcat)
                 #'''
 
-                ''' ## unblinded (for the paper)
+                #''' ## unblinded (for the paper)
                 plotter2.drawBinned(varMVV,labelMVV,label,subcat,[0,0],options.doUncBand,1,0,"",minMVV,maxMVV,YmaxMVV,UNSTACKSIG,sigSF,sigLabel,dataset)
                 cmsLabel(plotter2.canvas)
                 saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVV_"+sigStr+"_"+subcat)
                 #'''
-                ''' ## same but linear scale
+                #''' ## same but linear scale
                 plotter2.drawBinned(varMVV,labelMVV,label,subcat,[0,0],options.doUncBand,0,0,"",minMVV,maxMVV,YmaxMVV,UNSTACKSIG,sigSF,sigLabel,dataset)
                 cmsLabel(plotter2.canvas)
                 saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVVlinear_"+sigStr+"_"+subcat)
@@ -253,7 +274,7 @@ for l in leptons:
                 saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVVWZoom_"+sigStr+"_"+subcat)
                 #'''
 
-                ''' ## unblinded, in MJJ slices
+                #''' ## unblinded, in MJJ slices
                 plotter2.drawBinned(varMVV,labelMVV,"#splitline{"+label+"}{20 #leq m_{jet} < 70 GeV}",subcat,[0,0],options.doUncBand,1,0,varMJJ+":bin1:20:70",minMVV,maxMVV,YmaxMVV)
                 cmsLabel(plotter2.canvas)
                 saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVV_MJJ020to070_"+sigStr+"_"+subcat)
@@ -274,23 +295,30 @@ for l in leptons:
                 ''' ## debug 1
                 plotter2.drawBinned(varMVV,labelMVV,"#splitline{"+label+"}{70 #leq m_{jet} < 100 GeV}",subcat,[0,0],options.doUncBand,1,0,varMJJ+":sig:70:100",minMVV,maxMVV,YmaxMVV)
                 cmsLabel(plotter2.canvas)
-                saveCanvas(plotter2.canvas,directory+"/debug"+prefix+"MVV_MJ70to110_"+sigStr+"_"+subcat)
+                saveCanvas(plotter2.canvas,directory+"/debug"+prefix+"MVV_MJJ070to100_"+sigStr+"_"+subcat)
 
                 plotter2.drawOverlay(varMVV,labelMVV,"#splitline{"+label+"}{70 #leq m_{jet} < 100 GeV}",subcat,[0,0],0,0,varMJJ+":sig:70:100",minMVV,maxMVV,YmaxMVV)
                 cmsLabel(plotter2.canvas)
-                saveCanvas(plotter2.canvas,directory+"/debugOverlay_"+prefix+"MVV_MJ70to110_"+sigStr+"_"+subcat)
+                saveCanvas(plotter2.canvas,directory+"/debugOverlay_"+prefix+"MVV_MJJ070to100_"+sigStr+"_"+subcat)
                 #'''
 
                 ''' ## debug 2
-                plotter2.drawBinned(varMVV,labelMVV,"#splitline{"+label+"}{100 #leq m_{jet} < 140 GeV}",subcat,[0,0],options.doUncBand,1,0,varMJJ+":bindebug:100:140",minMVV,maxMVV,YmaxMVV)
+                plotter2.drawBinned(varMVV,labelMVV,"#splitline{"+label+"}{70 #leq m_{jet} < 100 GeV}",subcat,[0,0],options.doUncBand,1,0,varMJJ+":bindebug:70:100",minMVV,maxMVV,YmaxMVV,UNSTACKSIG,sigSF,sigLabel,dataset)
                 cmsLabel(plotter2.canvas)
-                saveCanvas(plotter2.canvas,directory+"/"+prefix+"MVV_MJJ100to140_"+sigStr+"_"+subcat)
+                saveCanvas(plotter2.canvas,directory+"/debug"+prefix+"MVV_MJJ070to100_"+sigStr+"_"+subcat)
+                plotter2.drawBinned(varMVV,labelMVV,"#splitline{"+label+"}{70 #leq m_{jet} < 100 GeV}",subcat,[0,0],options.doUncBand,0,0,varMJJ+":bindebug:70:100",minMVV,maxMVV,YmaxMVV,UNSTACKSIG,sigSF,sigLabel,dataset)
+                cmsLabel(plotter2.canvas)
+                saveCanvas(plotter2.canvas,directory+"/debug"+prefix+"MVVlinear_MJJ070to100_"+sigStr+"_"+subcat)
+
+                #plotter2.drawBinned(varMVV,labelMVV,"#splitline{"+label+"}{100 #leq m_{jet} < 140 GeV}",subcat,[0,0],options.doUncBand,1,0,varMJJ+":bindebug:100:140",minMVV,maxMVV,YmaxMVV,UNSTACKSIG,sigSF,sigLabel,dataset)
+                #cmsLabel(plotter2.canvas)
+                #saveCanvas(plotter2.canvas,directory+"/debug"+prefix+"MVV_MJJ100to140_"+sigStr+"_"+subcat)
                 #'''
 
             if doMjj:
                 pass
 
-                #''' ## blind
+                ''' ## blind
                 plotter.drawBinned(varMJJ,labelMJJ,label,subcat,[70,150],options.doUncBand,0,0,"",minMJJ,maxMJJ,YmaxMJJ,False,-1,"",dataset)
                 cmsLabel(plotter.canvas)
                 saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJBlind_"+sigStr+"_"+subcat)
@@ -302,13 +330,13 @@ for l in leptons:
                 saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_"+sigStr+"_"+subcat)
                 #'''
 
-                ''' ## unblinded (for the paper)
+                #''' ## unblinded (for the paper)
                 plotter.drawBinned(varMJJ,labelMJJ,label,subcat,[0,0],options.doUncBand,0,0,"",minMJJ,maxMJJ,YmaxMJJ,UNSTACKSIG,sigSF,sigLabel,dataset)
                 cmsLabel(plotter.canvas)
                 saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_"+sigStr+"_"+subcat)
                 #'''
 
-                #''' ## blind, in MVV slices
+                ''' ## blind, in MVV slices
                 plotter.drawBinned(varMJJ,labelMJJ,"#splitline{"+label+"}{0.7 #leq m_{WV} < 1 TeV}",subcat,[70,150],options.doUncBand,0,0,varMVV+":bin1:700:1000",minMJJ,maxMJJ,YmaxMJJ)
                 cmsLabel(plotter.canvas)
                 saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJBlind_MVV0700to1000_"+sigStr+"_"+subcat)
@@ -322,7 +350,7 @@ for l in leptons:
                 saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJBlind_MVV1500to5000_"+sigStr+"_"+subcat)
                 #'''
 
-                ''' ## unblinded, in MVV slices
+                #''' ## unblinded, in MVV slices
                 plotter.drawBinned(varMJJ,labelMJJ,"#splitline{"+label+"}{0.7 #leq m_{WV} < 1 TeV}",subcat,[0,0],options.doUncBand,0,0,varMVV+":bin1:700:1000",minMJJ,maxMJJ,YmaxMJJ)
                 cmsLabel(plotter.canvas)
                 saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_MVV0700to1000_"+sigStr+"_"+subcat)
@@ -353,9 +381,14 @@ for l in leptons:
                 #'''
 
                 ''' ## debug 2
-                plotter.drawBinned(varMJJ,labelMJJ,"#splitline{"+label+"}{0.8 #leq m_{WV} < 1.2 TeV}",subcat,[0,0],options.doUncBand,0,0,varMVV+":bindebug:800:1200",minMJJ,maxMJJ,YmaxMJJ)
+                plotter.drawBinned(varMJJ,labelMJJ,"#splitline{"+label+"}{0.8 #leq m_{WV} < 1.2 TeV}",subcat,[0,0],options.doUncBand,0,0,varMVV+":bindebug:800:1200",minMJJ,maxMJJ,YmaxMJJ,UNSTACKSIG,sigSF,sigLabel,dataset)
                 cmsLabel(plotter.canvas)
-                saveCanvas(plotter.canvas,directory+"/"+prefix+"MJJ_MVV0800to1200_"+sigStr+"_"+subcat)
+                saveCanvas(plotter.canvas,directory+"/debug"+prefix+"MJJ_MVV0800to1200_"+sigStr+"_"+subcat)
+                #'''
+                ''' ## debug 3
+                plotter.drawBinned(varMJJ,labelMJJ,"#splitline{"+label+"}{1.3 #leq m_{WV} < 1.7 TeV}",subcat,[0,0],options.doUncBand,0,0,varMVV+":bindebug:1300:1700",minMJJ,maxMJJ,YmaxMJJ,UNSTACKSIG,sigSF,sigLabel,dataset)
+                cmsLabel(plotter.canvas)
+                saveCanvas(plotter.canvas,directory+"/debug"+prefix+"MJJ_MVV1300to1700_"+sigStr+"_"+subcat)
                 #'''
 
 

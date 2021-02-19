@@ -105,20 +105,35 @@ curveset = {}
 
 nameSuffix,           lgdSuffix,                   color,          width, lstyle,blind, filepath           = range(7)
 
-curveset['percateg']  = { 'lgdL':0.35, 'lgdD':0.55, 'grid':0, 'curves': [
-    ( "bb_e_HP",      "bb, e, HP",                 ROOT.kOrange+7, 3,     9,     1,     "path/file.root", ),
-    ( "bb_e_LP",      "bb, e, LP",                 ROOT.kOrange+7, 3,     7,     1,     "path/file.root", ),
-    ( "bb_mu_HP",     "bb, #mu, HP",               ROOT.kPink-2,   3,     9,     1,     "path/file.root", ),
-    ( "bb_mu_LP",     "bb, #mu, LP",               ROOT.kPink-2,   3,     7,     1,     "path/file.root", ),
-    ( "nobb_e_HP",    "nobb, e, HP",               ROOT.kYellow+2, 3,     9,     1,     "path/file.root", ),
-    ( "nobb_e_LP",    "nobb, e, LP",               ROOT.kYellow+2, 3,     7,     1,     "path/file.root", ),
-    ( "nobb_mu_HP",   "nobb, #mu, HP",             ROOT.kGreen+2,  3,     9,     1,     "path/file.root", ),
-    ( "nobb_mu_LP",   "nobb, #mu, LP",             ROOT.kGreen+2,  3,     7,     1,     "path/file.root", ),
-    ( "vbf_e_HP",     "vbf, e, HP",                ROOT.kViolet+5, 3,     9,     1,     "path/file.root", ),
-    ( "vbf_e_LP",     "vbf, e, LP",                ROOT.kViolet+5, 3,     7,     1,     "path/file.root", ),
-    ( "vbf_mu_HP",    "vbf, #mu, HP",              ROOT.kAzure-3,  3,     9,     1,     "path/file.root", ),
-    ( "vbf_mu_LP",    "vbf, #mu, LP",              ROOT.kAzure-3,  3,     7,     1,     "path/file.root", ),
-    ( "combined",     "combined",                  ROOT.kBlack,    3,     1,     1,     "path/file.root", ),
+curveset['percateg_LDy']  = { 'lgdL':0.35, 'lgdD':0.65, 'grid':0, 'curves': [
+    ( "e_HP_bb_LDy",      "e, HP, bb, LDy",        ROOT.kRed+1,    3,     7,     1,     "path/file.root", ),
+    ( "e_LP_bb_LDy",      "e, LP, bb, LDy",        ROOT.kRed-9,    3,     7,     1,     "path/file.root", ),
+    ( "mu_HP_bb_LDy",     "#mu, HP, bb, LDy",      ROOT.kOrange+4, 3,     7,     1,     "path/file.root", ),
+    ( "mu_LP_bb_LDy",     "#mu, LP, bb, LDy",      ROOT.kOrange+1, 3,     7,     1,     "path/file.root", ),
+    ( "e_HP_nobb_LDy",    "e, HP, nobb, LDy",      ROOT.kBlue,     3,     7,     1,     "path/file.root", ),
+    ( "e_LP_nobb_LDy",    "e, LP, nobb, LDy",      ROOT.kBlue-9,   3,     7,     1,     "path/file.root", ),
+    ( "mu_HP_nobb_LDy",   "#mu, HP, nobb, LDy",    ROOT.kCyan+2,   3,     7,     1,     "path/file.root", ),
+    ( "mu_LP_nobb_LDy",   "#mu, LP, nobb, LDy",    ROOT.kCyan-6,   3,     7,     1,     "path/file.root", ),
+    ( "e_HP_vbf_LDy",     "e, HP, vbf, LDy",       ROOT.kGreen+3,  3,     7,     1,     "path/file.root", ),
+    ( "e_LP_vbf_LDy",     "e, LP, vbf, LDy",       ROOT.kGreen-6,  3,     7,     1,     "path/file.root", ),
+    ( "mu_HP_vbf_LDy",    "#mu, HP, vbf, LDy",     ROOT.kYellow+2, 3,     7,     1,     "path/file.root", ),
+    ( "mu_LP_vbf_LDy",    "#mu, LP, vbf, LDy",     ROOT.kYellow-3, 3,     7,     1,     "path/file.root", ),
+    ( "combined",         "full combination",      ROOT.kBlack,    3,     7,     1,     "path/file.root", ),
+]}
+curveset['percateg_HDy']  = { 'lgdL':0.35, 'lgdD':0.65, 'grid':0, 'curves': [
+    ( "e_HP_bb_HDy",      "e, HP, bb, HDy",        ROOT.kRed+1,    3,     7,     1,     "path/file.root", ),
+    ( "e_LP_bb_HDy",      "e, LP, bb, HDy",        ROOT.kRed-9,    3,     7,     1,     "path/file.root", ),
+    ( "mu_HP_bb_HDy",     "#mu, HP, bb, HDy",      ROOT.kOrange+4, 3,     7,     1,     "path/file.root", ),
+    ( "mu_LP_bb_HDy",     "#mu, LP, bb, HDy",      ROOT.kOrange+1, 3,     7,     1,     "path/file.root", ),
+    ( "e_HP_nobb_HDy",    "e, HP, nobb, HDy",      ROOT.kBlue,     3,     7,     1,     "path/file.root", ),
+    ( "e_LP_nobb_HDy",    "e, LP, nobb, HDy",      ROOT.kBlue-9,   3,     7,     1,     "path/file.root", ),
+    ( "mu_HP_nobb_HDy",   "#mu, HP, nobb, HDy",    ROOT.kCyan+2,   3,     7,     1,     "path/file.root", ),
+    ( "mu_LP_nobb_HDy",   "#mu, LP, nobb, HDy",    ROOT.kCyan-6,   3,     7,     1,     "path/file.root", ),
+    ( "e_HP_vbf_HDy",     "e, HP, vbf, HDy",       ROOT.kGreen+3,  3,     7,     1,     "path/file.root", ),
+    ( "e_LP_vbf_HDy",     "e, LP, vbf, HDy",       ROOT.kGreen-6,  3,     7,     1,     "path/file.root", ),
+    ( "mu_HP_vbf_HDy",    "#mu, HP, vbf, HDy",     ROOT.kYellow+2, 3,     7,     1,     "path/file.root", ),
+    ( "mu_LP_vbf_HDy",    "#mu, LP, vbf, HDy",     ROOT.kYellow-3, 3,     7,     1,     "path/file.root", ),
+    ( "combined",         "full combination",      ROOT.kBlack,    3,     7,     1,     "path/file.root", ),
 ]}
 
 curveset['peryear']  = { 'lgdL':0.35, 'lgdD':0.6, 'grid':0, 'curves': [
@@ -168,7 +183,7 @@ lgd = ROOT.TLegend(plot['lgdL'],plot['lgdD']-lgdshift,0.95,0.9-lgdshift)
 lgd.SetFillStyle(0)
 lgd.SetBorderSize(0)
 lgd.SetTextFont(42)
-lgd.SetTextSize(0.036)
+lgd.SetTextSize(0.036)#0.02)
 if options.legendHeader: lgd.SetHeader("95% CL median expected upper limits")
 compactLegend = True
 exponly = True
@@ -220,7 +235,7 @@ for i in range(ncurves):
 
     N=0
     for mass,info in data[i].iteritems():
-        print 'Setting mass',mass,info
+        print curves[i][nameSuffix],' mass',mass,info
 
         if not ('exp' in info.keys() and '+1sigma' in info.keys() and '+2sigma' in info.keys() and '-1sigma' in info.keys() and '-2sigma' in info.keys() and 'obs' in info.keys()):
             print 'Incomplete file'
@@ -229,6 +244,9 @@ for i in range(ncurves):
         if not obsbl:
             bandObs[i].SetPoint(N,mass,info['obs'])
  
+        if ("B2G16029" in options.curves) and mass==4500:
+          continue
+
         ## Manually excluding points where the fit failed
         #if options.curves=="" and (curves[i][nameSuffix] in [""]) and mass in []:
         #  continue

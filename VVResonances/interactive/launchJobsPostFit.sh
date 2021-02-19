@@ -1,6 +1,8 @@
 #!/bin/bash
 
-for signal in WprToWH 
+for signal in GbuToWW
+#for signal in WprToWH
+#for signal in VBFZprToWW
 #for signal in GbuToWW RadToWW ZprToWW WprToWZ WprToWH VBFGbuToWW VBFRadToWW VBFZprToWW VBFWprToWZ
 
 do
@@ -36,6 +38,12 @@ do
 	mkdir Jobs_PostFit_${signal}1000
 	cd Jobs_PostFit_${signal}1000
 	python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitPostFit.py ../../combined_full.root -o "-y ${year} -s ${signal} -m 1000"
+	cd ..
+	#'
+        :'  ## post-fit, signal+background (mX=1500)
+	mkdir Jobs_PostFit_${signal}1500
+	cd Jobs_PostFit_${signal}1500
+	python $CMSSW_BASE/src/CMGTools/VVResonances/scripts/vvSubmitPostFit.py ../../combined_full.root -o "-y ${year} -s ${signal} -m 1500"
 	cd ..
 	#'
 

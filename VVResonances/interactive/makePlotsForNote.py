@@ -110,12 +110,13 @@ legendSignal = {
 colorUp=ROOT.kRed
 colorDn=ROOT.kAzure+1
 
-leptons = ['e','mu']#['allL']#
-purities = ['HP','LP']#['allP']#
-categories = ['bb','nobb','vbf']   #['allC']#['bb','nobbHP','nobbLP']#
+leptons = ['e','mu'] #['allL']
+purities = ['HP','LP'] #['allP']
+categories = ['bb','nobb','vbf'] #['allC']
 dys = ['LDy','HDy'] #['allD']
 
 DcFolder = 'Dc_GbuToWW'
+#DcFolder = 'Dc_VBFZprToWW'
 
 minMJJ=20.0
 maxMJJ=210.0
@@ -132,12 +133,12 @@ binsMJJ['nob']=95
 binsMJJ['vbf']=19
 binsMJJ['allC']=38
 binsMVV={}
-binsMVV['bb']=172
+binsMVV['bb']=172#43
 binsMVV['nobb']=172
 binsMVV['nobbHP']=172
 binsMVV['nobbLP']=172
 binsMVV['nob']=172
-binsMVV['vbf']=172
+binsMVV['vbf']=172#43
 binsMVV['allC']=172
 
 varMVV = {}
@@ -1603,8 +1604,12 @@ if 'nonResTpl' in plots:
                 #'''
                 os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B}".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c]))
                 os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -r 0".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##without the ranges
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -O 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -D 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test conditional template
+                #os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -O 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
+                #os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -D 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test conditional template
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -L".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c]))
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -L -r 0".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##without the ranges
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -L -O 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -L -D 1".format(i=inDir, o=outDir, C='nonRes', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test conditional template
                 #'''
 
                 #'''
@@ -1632,46 +1637,9 @@ if 'nonResSys' in plots:
                 #continue
                 label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+d
 
-                '''
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"PTX",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTX",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"PTY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"GPTBoth",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"GPT2Both",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"GPTX",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"GPT2X",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"SDY",label)
-
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"PTX")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTX")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"PTY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"GPTBoth")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"GPT2Both")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"GPTX")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"GPT2X")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"SDY")
-                #'''
-
-                #'''
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"MVVScale",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"Diag",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"logWeight",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"MJJScale",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"SD",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"PTY",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTY",label)
-                #'''
-                '''
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"MVVScale")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"Diag")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"logWeight")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"MJJScale")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"SD")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"PTY")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTY")
-                #'''
+                for unc in ["MVVScale","Diag","logWeight","MJJScale","SD"]: #["PTX","OPTX","PTY","OPTY","GPTBoth","GPT2Both","GPTX","GPT2X","SDY"]:
+                    makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,unc,label)
+                    #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_nonRes_"+l+"_"+p+"_"+c+"_"+d,unc)
 
 
 if 'CRNonResTpl' in plots:
@@ -1740,46 +1708,9 @@ if 'CRNonResSys' in plots:
                 #continue
                 label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+d
 
-                '''
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"PTX",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTX",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"PTY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"GPTBoth",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"GPT2Both",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"GPTX",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"GPT2X",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"SDY",label)
-
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"PTX")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTX")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"PTY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"GPTBoth")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"GPT2Both")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"GPTX")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"GPT2X")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"SDY")
-                #'''
-
-                #'''
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"MVVScale",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"Diag",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"logWeight",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"MJJScale",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"SD",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"PTY",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTY",label)
-                #'''
-                '''
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"MVVScale")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"Diag")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"logWeight")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"MJJScale")
-                makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"SD")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"PTY")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,"OPTY")
-                #'''
+                for unc in ["MVVScale","Diag","logWeight","MJJScale","SD"]: #["PTX","OPTX","PTY","OPTY","GPTBoth","GPT2Both","GPTX","GPT2X","SDY"]:
+                    makeShapeUncertaintiesProj2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,unc,label)
+                    #makeShapeUncertainties2D(inDir+"LNuJJ_nonRes_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRnonRes_"+l+"_"+p+"_"+c+"_"+d,unc)
 
 
 
@@ -1823,15 +1754,19 @@ if 'resTpl' in plots:
                 #'''
                 os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B}".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c]))
                 os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -r 0".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##without the ranges
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -O 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
-                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -D 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test conditional template
+                #os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -O 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
+                #os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -D 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test conditional template
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -L".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c]))
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -L -r 0".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##without the ranges
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -L -O 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test coarse intermediary template
+                os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -L -D 1".format(i=inDir, o=outDir, C='res', l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c])) ##to test conditional template
                 #'''
 
                 #'''
                 makeTemplate2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","histo","template_res_"+l+"_"+p+"_"+c+"_"+d,label)
-                makeTemplate2D(inDir+"LNuJJ_res_"+c+"_"+d+"_COND2D.root","histo","templCond_res_"+l+"_"+p+"_"+c+"_"+d,label)
-                makeTemplate2D(inDir+"LNuJJ_res_"+c+"_"+d+"_COND2D.root","histo_coarse","template_resCoarse_"+l+"_"+p+"_"+c+"_"+d,label)
-                makeTemplate2D(inDir+"LNuJJ_res_"+c+"_"+d+"_COND2D.root","histo_coarsesmoothed","template_resCoarseSmoothed_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_res_"+p+"_"+c+"_"+d+"_COND2D.root","histo","templCond_res_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_res_"+p+"_"+c+"_"+d+"_COND2D.root","histo_unsmoothed","template_resCoarse_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_res_"+p+"_"+c+"_"+d+"_COND2D.root","histo_smoothed","template_resCoarseSmoothed_"+l+"_"+p+"_"+c+"_"+d,label)
                 makeTemplate2D(inDir+"LNuJJ_norm_"+l+"_"+p+"_"+c+"_"+d+".root","res","reco_res_"+l+"_"+p+"_"+c+"_"+d,label)
                 #makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_"+d+"_GEN.root","res","gen_res_"+l+"_"+p+"_"+c+"_"+d,label)
                 makeTemplate2D(inDir+"LNuJJ_GEN.root","res_"+c+"_"+d,"gen_res_"+l+"_"+p+"_"+c+"_"+d,label)
@@ -1846,28 +1781,14 @@ if 'resSys' in plots:
               for d in dys:
                 label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+d
 
-                #'''
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"MVVScale",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"Diag",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"scaleY",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"resY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"scaleWY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"resWY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"scaleTopY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"resTopY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"fractionY",label)
-                #'''
-                '''
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"MVVScale")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"Diag")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"scaleY")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"resY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"scaleWY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"resWY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"scaleTopY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"resTopY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,"fractionY")
-                #'''
+                if p=="HP":
+                    for unc in ["MVVScale","MVVTail","scaleWY","resWY","scaleTopY","resTopY","fractionY"]: #["Diag","scaleY","resY"]:
+                        makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,unc,label)
+                        #makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,unc)
+                elif p=="LP":
+                    for unc in ["MVVScaleBinW","MVVScaleBinTop","MVVTail","scaleWY","resWY","scaleTopY","resTopY","fractionY"]: #["Diag","scaleY","resY"]:
+                        makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,unc,label)
+                        #makeShapeUncertainties2D(inDir+"LNuJJ_res_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_res_"+l+"_"+p+"_"+c+"_"+d,unc)
 
 
 if 'CRResTpl' in plots:
@@ -1916,9 +1837,9 @@ if 'CRResTpl' in plots:
 
                 #'''
                 makeTemplate2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","histo","template_CRres_"+l+"_"+p+"_"+c+"_"+d,label)
-                makeTemplate2D(inDir+"LNuJJ_res_CR_"+c+"_"+d+"_COND2D.root","histo","templCond_CRres_"+l+"_"+p+"_"+c+"_"+d,label)
-                makeTemplate2D(inDir+"LNuJJ_res_CR_"+c+"_"+d+"_COND2D.root","histo_coarse","template_CRresCoarse_"+l+"_"+p+"_"+c+"_"+d,label)
-                makeTemplate2D(inDir+"LNuJJ_res_CR_"+c+"_"+d+"_COND2D.root","histo_coarsesmoothed","template_CRresCoarseSmoothed_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_res_CR_"+p+"_"+c+"_"+d+"_COND2D.root","histo","templCond_CRres_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_res_CR_"+p+"_"+c+"_"+d+"_COND2D.root","histo_unsmoothed","template_CRresCoarse_"+l+"_"+p+"_"+c+"_"+d,label)
+                makeTemplate2D(inDir+"LNuJJ_res_CR_"+p+"_"+c+"_"+d+"_COND2D.root","histo_smoothed","template_CRresCoarseSmoothed_"+l+"_"+p+"_"+c+"_"+d,label)
                 makeTemplate2D(inDir+"LNuJJ_norm_CR_"+l+"_"+p+"_"+c+"_"+d+".root","res_CR","reco_CRres_"+l+"_"+p+"_"+c+"_"+d,label)
                 #makeTemplate2D(inDir+"LNuJJ_"+l+"_"+p+"_"+c+"_"+d+"_GEN.root","res","gen_CRres_"+l+"_"+p+"_"+c+"_"+d,label)
                 makeTemplate2D(inDir+"LNuJJ_GEN.root","res_"+c+"_"+d,"gen_CRres_"+l+"_"+p+"_"+c+"_"+d,label)
@@ -1933,28 +1854,14 @@ if 'CRResSys' in plots:
               for d in dys:
                 label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+d
 
-                #'''
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"MVVScale",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"Diag",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"scaleY",label)
-                #makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"resY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"scaleWY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"resWY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"scaleTopY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"resTopY",label)
-                makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"fractionY",label)
-                #'''
-                '''
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"MVVScale")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"Diag")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"scaleY")
-                #makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"resY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"scaleWY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"resWY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"scaleTopY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"resTopY")
-                makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,"fractionY")
-                #'''
+                if p=="HP":
+                    for unc in ["MVVScale","MVVTail","scaleWY","resWY","scaleTopY","resTopY","fractionY"]: #["Diag","scaleY","resY"]:
+                        makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,unc,label)
+                        #makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,unc)
+                elif p=="LP":
+                    for unc in ["MVVScaleBinW","MVVScaleBinTop","MVVTail","scaleWY","resWY","scaleTopY","resTopY","fractionY"]: #["Diag","scaleY","resY"]:
+                        makeShapeUncertaintiesProj2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,unc,label)
+                        #makeShapeUncertainties2D(inDir+"LNuJJ_res_CR_2D_"+l+"_"+p+"_"+c+"_"+d+".root","systs_CRres_"+l+"_"+p+"_"+c+"_"+d,unc)
 
 
 

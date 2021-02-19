@@ -12,6 +12,7 @@ parser.add_option("-o","--outDir",dest="outDir",default='PlotsCheckTemplates',he
 parser.add_option("-C","--contrib",dest="contrib",default='nonRes',help="nonRes or resW or resTop or res")
 parser.add_option("-s","--signal",dest="signal",default=False,action="store_true",help="signal template")
 parser.add_option("-R","--inCR",dest="inCR",default=False,action="store_true",help="in control region")
+parser.add_option("-L","--logy",dest="logy",default=False,action="store_true",help="log scale")
 parser.add_option("-b","--binmvv",dest="mvvbinning",type=int,default=168,help="168 or 42")
 parser.add_option("-B","--binmjet",dest="mjetbinning",type=int,default=90,help="38 or 19")
 parser.add_option("-l","--lep",dest="lepton",default='allL',help="lepton")
@@ -73,11 +74,11 @@ ir['nonRes'] = {
     'rangeUpMVVCoarseTpt' : [-1,6,10,13,16],
     'rangeLoMVVCoarseReco': ([-1,1,6,10,14] if options.mjetbinning == 19 else [-1,1,11,19,27]),
     'rangeUpMVVCoarseReco': ([-1,5,9,13,19] if options.mjetbinning == 19 else [-1,10,18,26,38]),
-    ## MVV in [600,800], [800,1000], [1000,1600], [1600,5000]
-    'rangeLoMJ': ([-1,1,3,5,11] if options.mvvbinning == 44 else [-1,1,9,17,41]),
-    'rangeUpMJ': ([-1,2,4,10,44] if options.mvvbinning == 44 else [-1,8,16,40,176]),
+    ## MVV in [700,800], [800,1000], [1000,1600], [1600,5000]
+    'rangeLoMJ': ([-1,1,2,4,10] if options.mvvbinning == 43 else [-1,1,5,13,37]),
+    'rangeUpMJ': ([-1,1,3,9,43] if options.mvvbinning == 43 else [-1,4,12,36,172]),
     'rangeLabelMVV': ['full m_{jet} range', '20 #leq m_{jet} < 70 GeV', '70 #leq m_{jet} < 110 GeV', '110 #leq m_{jet} < 150 GeV', '150 #leq m_{jet} < 210 GeV'],
-    'rangeLabelMJ' : ['full m_{WV} range', '0.6 #leq m_{WV} < 0.8 TeV', '0.8 #leq m_{WV} < 1.0 TeV', '1.0 #leq m_{WV} < 1.6 TeV', '1.6 #leq m_{WV} < 5.0 TeV'],
+    'rangeLabelMJ' : ['full m_{WV} range', '0.7 #leq m_{WV} < 0.8 TeV', '0.8 #leq m_{WV} < 1.0 TeV', '1.0 #leq m_{WV} < 1.6 TeV', '1.6 #leq m_{WV} < 5.0 TeV'],
     'multMVV': [1., 1., 1e-1, 5e-2, 1e-2],
     'multMJ' : [1., 1., 1., 1., 4.],
     'multLabelMVV': ['', '', ' (#times 0.1)', ' (#times 0.05)', ' (#times 0.01)'],
@@ -95,11 +96,11 @@ ir['resW'] = {
     'rangeUpMVVCoarseTpt' : [-1,6,13,16],
     'rangeLoMVVCoarseReco': ([-1,1,6,14] if options.mjetbinning == 19 else [-1,1,11,27]),
     'rangeUpMVVCoarseReco': ([-1,5,13,19] if options.mjetbinning == 19 else [-1,10,26,38]),
-    ## MVV in [600,800], [800,1000], [1000,1600], [1600,5000]
-    'rangeLoMJ': ([-1,1,3,5,11] if options.mvvbinning == 44 else [-1,1,9,17,41]),
-    'rangeUpMJ': ([-1,2,4,10,44] if options.mvvbinning == 44 else [-1,8,16,40,176]),
-    'rangeLabelMVV': ['full m_{jet} range', '20 #leq m_{jet} < 70 GeV', '70 #leq m_{jet} < 150 GeV', '150 #leq m_{jet} < 210 GeV'],
-    'rangeLabelMJ' : ['full m_{WV} range', '0.6 #leq m_{WV} < 0.8 TeV', '0.8 #leq m_{WV} < 1.0 TeV', '1.0 #leq m_{WV} < 1.6 TeV', '1.6 #leq m_{WV} < 5.0 TeV'],
+    ## MVV in [700,800], [800,1000], [1000,1600], [1600,5000]
+    'rangeLoMJ': ([-1,1,2,4,10] if options.mvvbinning == 43 else [-1,1,5,13,37]),
+    'rangeUpMJ': ([-1,1,3,9,43] if options.mvvbinning == 43 else [-1,4,12,36,172]),
+    'rangeLabelMVV': ['full m_{jet} range', '20 #leq m_{jet} < 70 GeV', '70 #leq m_{jet} < 110 GeV', '110 #leq m_{jet} < 150 GeV', '150 #leq m_{jet} < 210 GeV'],
+    'rangeLabelMJ' : ['full m_{WV} range', '0.7 #leq m_{WV} < 0.8 TeV', '0.8 #leq m_{WV} < 1.0 TeV', '1.0 #leq m_{WV} < 1.6 TeV', '1.6 #leq m_{WV} < 5.0 TeV'],
     'multMVV': [1., 1., 1., 1e-2],
     'multMJ' : [1., 1., 1., 1., 4.],
     'multLabelMVV': ['', '', '', ' (#times 0.01)'],
@@ -163,7 +164,7 @@ def compareTemplatesVsReco(contrib,l,p,c,d,var,varDesc):
         pad2.Draw()
         pad1.cd()
 
-    LOGY = var=="MVV" and (contrib=='nonRes' or contrib=='resW' or contrib=='resTop' or contrib=='res')
+    LOGY = options.logy and var=="MVV" #and (contrib=='nonRes' or contrib=='resW' or contrib=='resTop' or contrib=='res')
     if LOGY:
         (pad1 if RATIOPLOT else c1).SetLogy()
 
@@ -179,7 +180,7 @@ def compareTemplatesVsReco(contrib,l,p,c,d,var,varDesc):
         label=(("e","#mu")[l=='mu'])+", "+p+", "+c+", "+d
     elif contrib=='res' and var=="MVV" and (options.coarse or options.conditional):
         fRecoName = options.inDir+"/LNuJJ_norm"+INCRin+"_"+cat+".root"
-        h2RecoName='res'+INCRin+'_inclLPC'
+        h2RecoName='res'+INCRin+'_inclL'
         label=d
     else:
         fRecoName = options.inDir+"/LNuJJ_norm"+INCRin+"_"+cat+".root"
@@ -202,7 +203,7 @@ def compareTemplatesVsReco(contrib,l,p,c,d,var,varDesc):
         fTptName = "LNuJJ_nonRes"+INCRin+"_"+p+"_"+c+"_"+d+"_COND2D.root" if (options.coarse or options.conditional) else "LNuJJ_nonRes"+INCRin+"_2D_"+cat+".root"
     elif contrib=='res':
         #fTptName = "LNuJJ_res_2DFromDC_"+cat+".root"
-        fTptName = "LNuJJ_res"+INCRin+"_"+c+"_"+d+"_COND2D.root" if (options.coarse or options.conditional) else "LNuJJ_res"+INCRin+"_2D_"+cat+".root"
+        fTptName = "LNuJJ_res"+INCRin+"_"+p+"_"+c+"_"+d+"_COND2D.root" if (options.coarse or options.conditional) else "LNuJJ_res"+INCRin+"_2D_"+cat+".root"
     elif contrib=='resW':
         fTptName = "LNuJJ_resW_2DFromDC_"+cat+".root"
     elif contrib=='resTop':
@@ -215,7 +216,7 @@ def compareTemplatesVsReco(contrib,l,p,c,d,var,varDesc):
             print "Error in compareTemplatesVsReco: file "+fTptPath+" does not exist."
             return
         fTpt.append(ROOT.TFile(fTptPath))
-        h2_Tpt.append(fTpt[i].Get(contrib if options.signal else "histo_coarse" if options.coarse else "histo"))
+        h2_Tpt.append(fTpt[i].Get(contrib if options.signal else "histo_coarse" if (options.coarse and contrib=='nonRes') else "histo_unsmoothed" if( options.coarse and contrib=='res') else "histo"))
         #h2_Tpt.append(fTpt[i].Get(contrib if options.signal else "histo_coarsesmoothed" if options.coarse else "histo"))
         if options.coarse:
             refillEvtPerBin(h2_Tpt[i])
@@ -373,7 +374,7 @@ def compareTemplatesVsReco(contrib,l,p,c,d,var,varDesc):
     if options.final:
         CMSPlotLabel("CMS","Simulation Supplementary",{'':{'lumi':'','energy':'13 TeV'}})(c1,'',0)
 
-    saveCanvas(c1,options.outDir+"/"+'templateVsReco'+tag+'_'+INCRout+contrib+("Coarse" if options.coarse else "")+("Cond" if options.conditional else "")+('_r0' if not ININTERVALS else '')+'_'+var+'_'+cat)
+    saveCanvas(c1,options.outDir+"/"+'templateVsReco'+tag+'_'+INCRout+contrib+("Coarse" if options.coarse else "")+("Cond" if options.conditional else "")+('_r0' if not ININTERVALS else '')+'_'+var+'_'+cat+('_linear','')[not(not(LOGY) and var=="MVV")])
 
 
 

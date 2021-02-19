@@ -1,8 +1,9 @@
 #!/bin/bash
 
 for signal in GbuToWW RadToWW ZprToWW WprToWZ WprToWH VBFGbuToWW VBFRadToWW VBFZprToWW VBFWprToWZ
+#for signal in GbuToWW
 #for signal in WprToWH
-#for signal in VBFRadToWW
+#for signal in VBFZprToWW #ZprToWW
 
 do 
 
@@ -12,9 +13,8 @@ do
 
     cd Dc_${signal}/
 
-    #for card in bb_e_HP bb_e_LP bb_mu_HP bb_mu_LP nobb_e_HP nobb_e_LP nobb_mu_HP nobb_mu_LP vbf_e_HP vbf_e_LP vbf_mu_HP vbf_mu_LP bb_e bb_mu nobb_e nobb_mu vbf_e vbf_mu bb_HP bb_LP nobb_HP nobb_LP vbf_HP vbf_LP e_HP e_LP mu_HP mu_LP bb nobb vbf e mu HP LP full
-    #for card in bb_e_HP bb_e_LP bb_mu_HP bb_mu_LP nobb_e_HP nobb_e_LP nobb_mu_HP nobb_mu_LP vbf_e_HP vbf_e_LP vbf_mu_HP vbf_mu_LP
-    #for card in 2016 2017 2018
+    #for card in e_HP_bb_LDy e_HP_bb_HDy e_HP_nobb_LDy e_HP_nobb_HDy e_HP_vbf_LDy e_HP_vbf_HDy e_LP_bb_LDy e_LP_bb_HDy e_LP_nobb_LDy e_LP_nobb_HDy e_LP_vbf_LDy e_LP_vbf_HDy mu_HP_bb_LDy mu_HP_bb_HDy mu_HP_nobb_LDy mu_HP_nobb_HDy mu_HP_vbf_LDy mu_HP_vbf_HDy mu_LP_bb_LDy mu_LP_bb_HDy mu_LP_nobb_LDy mu_LP_nobb_HDy mu_LP_vbf_LDy mu_LP_vbf_HDy
+    #for card in 2016 2017 2018 full
     for card in full 
 
     do
