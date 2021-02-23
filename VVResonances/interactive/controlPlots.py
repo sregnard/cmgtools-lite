@@ -16,7 +16,7 @@ parser.add_option("-C","--CMSlabel",dest="CMSlabel",type=int,default=0,help="0:N
 (options,args) = parser.parse_args()
 
 
-FORPAPER = 0 ## plots for the paper instead of AN
+FORPAPER = 1 ## plots for the paper instead of AN
 
 LIKETEMPLATES = 0 ## classify the backgrounds as nonRes and res, like in templates
 
@@ -25,6 +25,7 @@ RESCALEWJETS = 1 ## rescale the W+jets yields
 
 COMPUTEWJETSSF = 0 ## run the computation of scale factors for W+jets yields
 
+ROOT.TGaxis.SetMaxDigits(3)
 
 
 
@@ -271,6 +272,7 @@ cuts['blinding'] = "((lnujj_l2_softDrop_mass<70)||(150<lnujj_l2_softDrop_mass))"
 cuts['0']      = "1"
 cuts['Acc']    = '*'.join([            cuts['allL'],cuts['allC'],cuts['allP'],cuts['allD'],cuts['acceptance']])
 cuts['AccBW']  = cuts['Acc']+'*lnujj_btagWeight'
+cuts['CRL']    = '*'.join([cuts['b'],  cuts['allL'],cuts['allC'],             cuts['allD'],cuts['acceptance']])
 cuts['CR']     = '*'.join([cuts['b'],  cuts['allL'],cuts['allC'],cuts['allP'],cuts['allD'],cuts['acceptance']])
 cuts['SBL']    = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],             cuts['allD'],cuts['acceptance'],cuts['blinding']])
 cuts['SB']     = '*'.join([cuts['nob'],cuts['allL'],cuts['allC'],cuts['allP'],cuts['allD'],cuts['acceptance'],cuts['blinding']])
@@ -316,7 +318,7 @@ QCD.setFillProperties(1001,ROOT.kGray)
 VJets.setFillProperties(1001,ROOT.kAzure-9)
 Top.setFillProperties(1001,ROOT.kSpring-5)
 TT.setFillProperties(1001,ROOT.kSpring-5)
-ST.setFillProperties(1001,ROOT.kSpring+2)
+ST.setFillProperties(1001,ROOT.TColor.GetColor("#B3DA96"))
 VV.setFillProperties(1001,ROOT.kOrange-2)
 #VH.setFillProperties(1001,ROOT.kRed-9)
 #TopVVVH.setFillProperties(1001,ROOT.kSpring+5)
@@ -342,7 +344,7 @@ else:
     lnujjStack.addPlotter(QCD,"QCD","QCD multijet","background")
     #lnujjStack.addPlotter(VH,"VH","VH","background")
     lnujjStack.addPlotter(VV,"VV","VV","background")
-    lnujjStack.addPlotter(VJets,"WJets","V+Jets","background")
+    lnujjStack.addPlotter(VJets,"WJets","V+jets","background")
     #lnujjStack.addPlotter(Top,"top","top","background")
     lnujjStack.addPlotter(ST,"ST","single top","background")
     lnujjStack.addPlotter(TT,"TT","t#bar{t}","background")
@@ -410,6 +412,8 @@ plotsAN = [
 plotsPaper = [
   ( "mjet",                   "lnujj_l2_softDrop_mass",      38,  20., 210.,  "m_{jet}",            "GeV" , 0),
   ( "tau21DDT",               "lnujj_l2_tau2/lnujj_l2_tau1-(-0.08)*log(lnujj_l2_softDrop_mass*lnujj_l2_softDrop_mass/lnujj_l2_pt)", 50,  0., 1.0,    "#tau_{21}^{DDT}",       "" , 1),
+  ( "DoubleB",                bbtagger,                      50,  -1., 1.,    "double-b tagger",    ""    , 0),
+  ( "dy",                     DRap,                          60,  0.,  6.,    "#Deltay",            ""    , 0),
 ]
 
 
@@ -434,7 +438,7 @@ if COMPUTEWJETSSF:
 #for r in ['SB']:
 #for r in ['SRMVV']:
 #for r in ['SR']:
-for r in (['CR'] if FORPAPER else ['CR','SB']): 
+for r in (['CRL','CR'] if FORPAPER else ['CR','SB']):
 
     for p in puritiesMerged: #purities:
 
@@ -458,6 +462,9 @@ for r in (['CR'] if FORPAPER else ['CR','SB']):
                     #if not(i in [27,28,29]): continue
                     #if i!=26: continue
                     #if i!=32: continue
+                else:
+                    if r=='CR' and pl[0]=="tau21DDT": continue
+                    if r=='CRL' and pl[0]!="tau21DDT": continue ## relax the tau21DDT<0.80 cut only in the plot of that variable
 
                 leps = leptonsMerged
                 if ("l1" in pl[0]) or ("met" in pl[0]) or ("mWV" in pl[0]):
@@ -469,7 +476,7 @@ for r in (['CR'] if FORPAPER else ['CR','SB']):
                     cat = l+"_"+p+"_"+c+"_"+d
 
 
-                    cut = '*'.join([cuts['common'],cuts[r],cuts[l],cuts[p],cuts[c],cuts[d]])
+                    cut = '*'.join([cuts['common'],cuts[r],cuts[l],(cuts[p] if p!="allP" else "1"),cuts[c],cuts[d]])
 
 
                     myLumi = lumiValue
@@ -496,6 +503,57 @@ for r in (['CR'] if FORPAPER else ['CR','SB']):
                     #'''
 
 
+
+
+''' ## additional plots for section 5.4.3 of the AN
+for r in ['CR','SB']:
+  for l in leptonsMerged:
+
+      for p in puritiesMerged: #purities:
+        for c in categories:
+          for d in dysMerged: #dys:
+              for i,pl in enumerate(plotsAN):
+                    if not(i in [11,12,16,20,27,28,29,32]): continue
+
+                    prs = "b1" if not LIKETEMPLATES else "b2"
+                    cat = l+"_"+p+"_"+c+"_"+d
+                    cut = '*'.join([cuts['common'],cuts[r],cuts[l],cuts[p],cuts[c],cuts[d]])
+                    myLumi = lumiValue
+
+                    res = lnujjStack.drawStackWithRatio(pl[1],cut,myLumi,pl[2],pl[3],pl[4],pl[5],pl[6],0.,pl[7])
+                    cmsLabel(res['canvas'])
+                    saveCanvas(res['canvas'],outDir+'/'+r+'_'+prs+'_'+cat+'_'+YEAR+'_'+pl[0])
+
+      for p in purities:
+        for c in categoriesMerged: #categories:
+          for d in dysMerged: #dys:
+              for i,pl in enumerate(plotsAN):
+                    if not(i in [11,12,16,20,32]): continue
+
+                    prs = "b1" if not LIKETEMPLATES else "b2"
+                    cat = l+"_"+p+"_"+c+"_"+d
+                    cut = '*'.join([cuts['common'],cuts[r],cuts[l],cuts[p],cuts[c],cuts[d]])
+                    myLumi = lumiValue
+
+                    res = lnujjStack.drawStackWithRatio(pl[1],cut,myLumi,pl[2],pl[3],pl[4],pl[5],pl[6],0.,pl[7])
+                    cmsLabel(res['canvas'])
+                    saveCanvas(res['canvas'],outDir+'/'+r+'_'+prs+'_'+cat+'_'+YEAR+'_'+pl[0])
+
+      for p in puritiesMerged: #purities:
+        for c in categoriesMerged: #categories:
+          for d in dys:
+              for i,pl in enumerate(plotsAN):
+                    if not(i in [11,12,16,20,32]): continue
+
+                    prs = "b1" if not LIKETEMPLATES else "b2"
+                    cat = l+"_"+p+"_"+c+"_"+d
+                    cut = '*'.join([cuts['common'],cuts[r],cuts[l],cuts[p],cuts[c],cuts[d]])
+                    myLumi = lumiValue
+
+                    res = lnujjStack.drawStackWithRatio(pl[1],cut,myLumi,pl[2],pl[3],pl[4],pl[5],pl[6],0.,pl[7])
+                    cmsLabel(res['canvas'])
+                    saveCanvas(res['canvas'],outDir+'/'+r+'_'+prs+'_'+cat+'_'+YEAR+'_'+pl[0])
+#'''
 
 
 

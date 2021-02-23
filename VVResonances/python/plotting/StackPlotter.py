@@ -8,6 +8,7 @@ def convertToPoisson(h):
     graph = ROOT.TGraphAsymmErrors()
     q = (1-0.6827)/2.
 
+    ig=0
     for i in range(1,h.GetNbinsX()+1):
         x=h.GetXaxis().GetBinCenter(i)
         xLow =h.GetXaxis().GetBinLowEdge(i) 
@@ -15,15 +16,16 @@ def convertToPoisson(h):
         y=h.GetBinContent(i)
         yLow=0
         yHigh=0
-        if y !=0.0:
+        #print i,x,y
+        if y!=0.0:
             yLow = y-ROOT.Math.chisquared_quantile_c(1-q,2*y)/2.
             yHigh = ROOT.Math.chisquared_quantile_c(q,2*(y+1))/2.-y
-            graph.SetPoint(i-1,x,y)
-            graph.SetPointEYlow(i-1,yLow)
-            graph.SetPointEYhigh(i-1,yHigh)
-            graph.SetPointEXlow(i-1,0.0)
-            graph.SetPointEXhigh(i-1,0.0)
-
+            graph.SetPoint(ig,x,y)
+            graph.SetPointEYlow(ig,yLow)
+            graph.SetPointEYhigh(ig,yHigh)
+            graph.SetPointEXlow(ig,0.0)
+            graph.SetPointEXhigh(ig,0.0)
+            ig+=1
 
     graph.SetMarkerStyle(20)
     graph.SetLineWidth(2)
@@ -106,7 +108,7 @@ class StackPlotter(object):
                 dataG=convertToPoisson(hist)
                 dataG.SetLineWidth(1)
                 print label+" : %f\n" % hist.Integral()
-                
+
        
         #if data not found plot stack only
 
@@ -287,11 +289,11 @@ class StackPlotter(object):
         ROOT.gStyle.SetPadRightMargin(0.04)
 
         canvas.cd()
-        pad1 = ROOT.TPad("pad1","",0.0,0.24,1.0,0.95,0)
+        pad1 = ROOT.TPad("pad1","",0.0,0.24,1.0,1.0,0)
         pad2 = ROOT.TPad("pad2","",0.0,0.0,1.0,0.24,0)
 
-        pad1.SetTopMargin(0.)
-        pad1.SetBottomMargin(0.028)
+        pad1.SetTopMargin(0.066)
+        pad1.SetBottomMargin(0.026)
         pad1.SetLeftMargin(0.14)
         pad1.SetRightMargin(0.04)
         pad2.SetTopMargin(0.)
@@ -321,6 +323,7 @@ class StackPlotter(object):
             if typeP=="signal" or typeP=="background":
                 hist = plotter.drawTH1(var,cutL,lumi,bins,mini,maxi,titlex,units)
                 hist.SetName(name)
+                hist.SetLineWidth(1)
                 stack.Add(hist)
                 hists.append(hist)
                 print label+" : %f\n" % hist.Integral()
@@ -335,7 +338,10 @@ class StackPlotter(object):
                 hists.append(hist)
                 data=hist
                 dataG=convertToPoisson(hist)
+                #for i in range (dataG.GetN()):
+                #    print i, dataG.GetX()[i], dataG.GetY()[i]
                 dataG.SetLineWidth(1)
+                dataG.SetMarkerSize(0.8)
                 print label+" : %f\n" % hist.Integral()
                 dataIntegral=data.IntegralAndError(1,data.GetNbinsX(),error)
                 dataErr=error*error
@@ -354,21 +360,21 @@ class StackPlotter(object):
         if not self.log:
             frame = pad1.DrawFrame(mini,0.0,maxi,max(stack.GetMaximum(),datamax)*(1.20+expandY*0.3))
         else:    
-            frame = pad1.DrawFrame(mini,0.1,maxi,max(stack.GetMaximum(),datamax)*100)
+            frame = pad1.DrawFrame(mini,0.1,maxi,max(stack.GetMaximum(),datamax)*(5 if rescaleToData else 100))
 
-        frame.SetLabelSize(0.04,"X")    
-        frame.SetLabelSize(0.06,"Y")    
-        frame.SetTitleSize(0.05,"X")    
-        frame.SetTitleSize(0.07,"Y")    
-        frame.SetTitleOffset(3,"X")    
-        frame.SetLabelOffset(3,"X")    
-        frame.SetTitleOffset(0.9,"Y") 
-        if len(units)>0:
-            frame.GetYaxis().SetTitle("Events / "+str((maxi-mini)/bins)+ " "+units)
-        else:    
-            frame.GetYaxis().SetTitle("Events")
+        frame.SetLabelSize(0.04,"X")
+        frame.SetLabelSize(0.056,"Y")
+        frame.SetTitleSize(0.05,"X")
+        frame.SetTitleSize(0.07,"Y")
+        frame.SetTitleOffset(3,"X")
+        frame.SetLabelOffset(3,"X")
+        frame.SetTitleOffset(0.92,"Y")
+        binWidth=(maxi-mini)/bins
+        if binWidth==int(binWidth):
+            binWidth=int(binWidth)
+        frame.GetYaxis().SetTitle("Events / "+str(binWidth) + ((" "+units) if len(units)>0 else "") )
 
-        legend = ROOT.TLegend(0.62-legLeft*0.4,0.62,0.92-legLeft*0.4,0.95,"","brNDC")
+        legend = ROOT.TLegend(0.62-legLeft*0.44,0.50-legLeft*0.1,0.92-legLeft*0.4,0.90-legLeft*0.1,"","brNDC")
 	legend.SetBorderSize(0)
 	legend.SetLineColor(1)
 	legend.SetLineStyle(1)
@@ -376,6 +382,7 @@ class StackPlotter(object):
 	legend.SetFillColor(0)
 	legend.SetFillStyle(0)
 	legend.SetTextFont(42)
+        legend.SetTextSize(0.058)
         legend.SetFillColor(ROOT.kWhite)
         for (histo,label,typeP) in reversed(zip(hists,self.labels,self.types)):
             if typeP!="data" and typeP!='signal':
@@ -398,12 +405,12 @@ class StackPlotter(object):
         #pad2.SetGridy()
 
         frame2 = pad2.DrawFrame(mini,0.5,maxi,1.5)
-        frame2.SetLabelSize(0.16,"X")    
-        frame2.SetLabelSize(0.125,"Y")    
-        frame2.SetTitleSize(0.21,"X")    
-        frame2.SetTitleSize(0.17,"Y")   
-        frame2.SetTitleOffset(0.95,"X")    
-        frame2.SetTitleOffset(0.35,"Y")    
+        frame2.SetLabelSize(0.18,"X")
+        frame2.SetLabelSize(0.125,"Y")
+        frame2.SetTitleSize(0.22,"X")
+        frame2.SetTitleSize(0.19,"Y")
+        frame2.SetTitleOffset(1.0,"X")
+        frame2.SetTitleOffset(0.32,"Y")
         if len(units)>0:
             frame2.GetXaxis().SetTitle(titlex + " (" +units+")")
         else:    
