@@ -228,6 +228,8 @@ for l in leptons:
             if doMvv:
                 pass
 
+                ROOT.TGaxis.SetMaxDigits(4)
+
                 ''' ## just low-mjet and high-mjet sidebands
                 plotter2.drawBinned(varMVV,labelMVV,label,subcat,[0,0],options.doUncBand,1,0,varMJJ+":low:20:70",minMVV,maxMVV,YmaxMVV,False,-1,"",dataset)
                 cmsLabel(plotter2.canvas)
@@ -317,6 +319,8 @@ for l in leptons:
 
             if doMjj:
                 pass
+
+                ROOT.TGaxis.SetMaxDigits(3)
 
                 ''' ## blind
                 plotter.drawBinned(varMJJ,labelMJJ,label,subcat,[70,150],options.doUncBand,0,0,"",minMJJ,maxMJJ,YmaxMJJ,False,-1,"",dataset)

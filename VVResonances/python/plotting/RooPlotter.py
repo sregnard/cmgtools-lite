@@ -823,11 +823,11 @@ class RooPlotter(object):
 
         self.canvas=ROOT.TCanvas("c","",500,500)
         self.canvas.cd()
-        self.pad1 = ROOT.TPad("pad1","",0.0,0.24,1.0,0.95,0)
+        self.pad1 = ROOT.TPad("pad1","",0.0,0.24,1.0,1.0,0)
         self.pad2 = ROOT.TPad("pad2","",0.0,0.0,1.0,0.24,0)
 
-        self.pad1.SetTopMargin(0.)
-        self.pad1.SetBottomMargin(0.028)
+        self.pad1.SetTopMargin(0.066)
+        self.pad1.SetBottomMargin(0.026)
         self.pad1.SetLeftMargin(0.14)
         self.pad1.SetRightMargin(0.04)
         self.pad2.SetTopMargin(0.)
@@ -943,7 +943,7 @@ class RooPlotter(object):
         self.stack = ROOT.THStack("stack","")
 
         printSigLabel = sigLabel!=""
-        self.legend = ROOT.TLegend(0.57,0.79-0.065*(visError+len(self.contributions)+printSigLabel),0.92,0.95,"","brNDC")
+        self.legend = ROOT.TLegend(0.61,0.72-0.065*(visError+len(self.contributions)+printSigLabel),0.92,0.90,"","brNDC")
 	self.legend.SetBorderSize(0)
 	self.legend.SetLineColor(1)
 	self.legend.SetLineStyle(1)
@@ -951,7 +951,7 @@ class RooPlotter(object):
 	self.legend.SetFillColor(0)
 	self.legend.SetFillStyle(0)
 	self.legend.SetTextFont(42)
-	self.legend.SetTextSize(0.055)
+	self.legend.SetTextSize(0.058)
 
         self.legend.SetHeader(label)
         self.legend.AddEntry(self.frame.getHist("datapoints"),"Data","EP")
@@ -982,12 +982,12 @@ class RooPlotter(object):
         self.frame.SetXTitle(varDesc)
         self.frame.SetYTitle("Events")
         self.frame.SetLabelSize(0.04,"X")    
-        self.frame.SetLabelSize(0.06,"Y")    
+        self.frame.SetLabelSize(0.056,"Y")
         self.frame.SetTitleSize(0.05,"X")    
         self.frame.SetTitleSize(0.07,"Y")    
         self.frame.SetTitleOffset(3,"X")    
         self.frame.SetLabelOffset(3,"X")    
-        self.frame.SetTitleOffset(0.9,"Y")    
+        self.frame.SetTitleOffset(0.92,"Y")
 
         self.frame.Draw("AH")
 
@@ -1003,7 +1003,7 @@ class RooPlotter(object):
 
         hist=self.frame.getHist("datapoints")
         hist.SetMarkerStyle(20)
-        hist.SetMarkerSize(0.5)
+        hist.SetMarkerSize(0.8 if var.startswith("MJ") else 0.5)
         if var.startswith("MLNuJ"):
             hist.SetMarkerSize(0.4)
         #hist.SetLineWidth(2)
@@ -1033,7 +1033,7 @@ class RooPlotter(object):
             #if log and maxY>0:
             #    self.frame.GetYaxis().SetRangeUser(0.3,maxY)
             if log:
-                self.frame.GetYaxis().SetRangeUser(0.15 if maxErr>10. else 0.015, maxY if maxY>0 else 2.*maxErr)
+                self.frame.GetYaxis().SetRangeUser(0.12 if maxErr>10. else 0.012, maxY if maxY>0 else 2.*maxErr)
         if var.startswith("MJ"):
             if not log and maxY>0:
                 self.frame.GetYaxis().SetRangeUser(0.,maxY)
@@ -1057,13 +1057,13 @@ class RooPlotter(object):
 
         self.frame2=self.w.var(var).frame()
         self.frame2.SetTitle("")    
-        self.frame2.SetLabelSize(0.16,"X")    
+        self.frame2.SetLabelSize(0.18 if var.startswith("MJ") else 0.16,"X")
         self.frame2.SetLabelSize(0.125,"Y")    
         #self.frame2.SetLabelOffset(0.01,"X")    
-        self.frame2.SetTitleSize(0.21,"X")    
-        self.frame2.SetTitleSize(0.17,"Y")   
-        self.frame2.SetTitleOffset(0.95,"X")    
-        self.frame2.SetTitleOffset(0.35,"Y")    
+        self.frame2.SetTitleSize(0.22,"X")
+        self.frame2.SetTitleSize(0.19,"Y")
+        self.frame2.SetTitleOffset(1.0,"X")
+        self.frame2.SetTitleOffset(0.32,"Y")
 
         self.frame2.Draw()
         self.frame2.SetXTitle(varDesc)
