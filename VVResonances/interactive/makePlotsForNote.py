@@ -1891,7 +1891,7 @@ if 'signalParam' in plots:
 if 'signalTpl' in plots:
 
     for signal in signals:
-        for l in leptons:
+        for l in ['mu']: #leptons:
             for p in purities:
                 for c in categories:
                   for d in dys:
@@ -1901,23 +1901,24 @@ if 'signalTpl' in plots:
                     if options.withDC:
                         pass
 
-                        '''
-                        for mx in [2000]: #[1000,2000,3000,4000]: #[1000,1400,2000,3000,4500]:
-                            os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -r 0 -s".format(i=inDir, o=outDir, C=signal+str(mx).zfill(4), l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c]))
                         #'''
-                        '''
                         os.system("rm "+inDir+"/LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+d+".root")
-                        for mx in [1000,1500,2000,2500,3000,3500,4000,4500]:
+                        for mx in [2000]: #[1000,1500,2000,2500,3000,3500,4000,4500]:
                             print mx
-                            extractSignalTemplateFromDC("Dc_"+signal+"/combined_"+YEAR+".root","shapeSig_"+signal+"_"+l+"_"+p+"_"+c+"_"+d+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+d,c)
+                            #extractSignalTemplateFromDC("Dc_"+signal+"/combined_"+YEAR+".root","shapeSig_"+signal+"_"+l+"_"+p+"_"+c+"_"+d+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+d,c)
+                            extractSignalTemplateFromDC("Dc_"+signal+"/combined_full.root","shapeSig_"+signal+"_"+l+"_"+p+"_"+c+"_"+d+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+d,c)
                             #extractSignalTemplateFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MVV_"+l+"_"+p+"_"+c+"_"+d+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_MVVGivenMJJFromDC_"+l+"_"+p+"_"+c+"_"+d,c)
                             #extractSignalMjjPdfFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MJJ_"+l+"_"+p+"_"+c+"_"+d+"_"+YEAR,signal,mx,inDir+"LNuJJ_"+signal+"_MJJFromDC_"+l+"_"+p+"_"+c+"_"+d,c) ## just for a check
+                        #'''
+                        #'''
+                        for mx in [2000]: #[1000,2000,3000,4000]: #[1000,1400,2000,3000,4500]:
+                            os.system("python $CMSSW_BASE/src/CMGTools/VVResonances/interactive/makePlotsTemplateVsReco.py -i {i} -o {o} -C {C} -l {l} -p {p} -c {c} -d {d} -b {b} -B {B} -r 0 -s -H '{H}'".format(i=inDir, o=outDir, C=signal+str(mx).zfill(4), l=l, p=p, c=c, d=d, b=binsMVV[c], B=binsMJJ[c], H=colorGradientSignal[signal][-1]))
                         #'''
                         '''
                         makeSignalParamFromHisto(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+d+".root","templateSignalVsMX_fromHisto_"+signal+"_MVV_"+l+"_"+p+"_"+c+"_"+d,"MVV",signal,"1000,1500,2000,2500,3000,3500,4000,4500")
                         makeSignalParamFromHisto(inDir+"LNuJJ_"+signal+"_2DFromDC_"+l+"_"+p+"_"+c+"_"+d+".root","templateSignalVsMX_fromHisto_"+signal+"_MJJ_"+l+"_"+p+"_"+c+"_"+d,"MJJ",signal,"1000,1500,2000,2500,3000,3500,4000,4500")
                         #'''
-                        #'''
+                        '''
                         makeSignalParamFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MVV_"+l+"_"+p+"_"+c+"_"+d+"_"+YEAR,"templateSignalVsMX_fromDC_"+signal+"_MVV_"+l+"_"+p+"_"+c+"_"+d,signal,"1000,1500,2000,2500,3000,3500,4000,4500",varMVV[c],"m_{WV} (GeV)")
                         makeSignalParamFromDC("Dc_"+signal+"/combined_"+YEAR+".root",signal+"_MJJ_"+l+"_"+p+"_"+c+"_"+d+"_"+YEAR,"templateSignalVsMX_fromDC_"+signal+"_MJJ_"+l+"_"+p+"_"+c+"_"+d,signal,"1000,1500,2000,2500,3000,3500,4000,4500",varMJJ[c],"m_{jet} (GeV)")
                         #''' 

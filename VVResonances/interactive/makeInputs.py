@@ -14,15 +14,15 @@ from DoubleBefficiencies import *
 
 
 
-DONORMMC       = 0
-DONORMDATA     = 0
-DOSIGNALSHAPES = 0
-DOSIGNALYIELDS = 0
+DONORMMC       = 1
+DONORMDATA     = 1
+DOSIGNALSHAPES = 1
+DOSIGNALYIELDS = 1
 DORESONANT     = 1
-DONONRESONANT  = 0
+DONONRESONANT  = 1
 
 DONORMMCASDATA = 0
-DOSIGNALCTPL   = 0
+DOSIGNALCTPL   = 1
 DOSIGNALYIELDSBBUNC = 0
 
 DONORMMCCR     = 0
@@ -725,29 +725,17 @@ if DOSIGNALYIELDSBBUNC:
     if DOVBFWprToWH: makeSignalYields("LNuJJ_VBFWprToWH_bbSFdn",VBFWprToWHTemplate,BR_VBFWprToWH,tau21SF,bbWgtWH_dn)
 
 if DOSIGNALCTPL:
-    #for mx in [600,800,1000,1200,1400,1600,1800,2000,2500,3000,3500,4000,4500]:
-    for mx in [1000,2000,3000,4000]:
-        if DOGbuToWW: makeNormalizations("GbuToWW"+str(mx).zfill(4),"LNuJJ_norm",GbuToWWTemplate+"_"+str(mx),0,BR_GbuToWW)
-        if DORadToWW: makeNormalizations("RadToWW"+str(mx).zfill(4),"LNuJJ_norm",RadToWWTemplate+"_"+str(mx),0,BR_RadToWW)
-        if DOZprToWW: makeNormalizations("ZprToWW"+str(mx).zfill(4),"LNuJJ_norm",ZprToWWTemplate+"_"+str(mx),0,BR_ZprToWW)
-        if DOWprToWZ: makeNormalizations("WprToWZ"+str(mx).zfill(4),"LNuJJ_norm",WprToWZTemplate+"_"+str(mx),0,BR_WprToWZ)
-        if DOWprToWH: makeNormalizations("WprToWH"+str(mx).zfill(4),"LNuJJ_norm",WprToWHTemplate+"_"+str(mx),0,BR_WprToWH)
-        if DOVBFGbuToWW: makeNormalizations("VBFGbuToWW"+str(mx).zfill(4),"LNuJJ_norm",VBFGbuToWWTemplate+"_"+str(mx),0,BR_VBFGbuToWW)
-        if DOVBFRadToWW: makeNormalizations("VBFRadToWW"+str(mx).zfill(4),"LNuJJ_norm",VBFRadToWWTemplate+"_"+str(mx),0,BR_VBFRadToWW)
-        if DOVBFZprToWW: makeNormalizations("VBFZprToWW"+str(mx).zfill(4),"LNuJJ_norm",VBFZprToWWTemplate+"_"+str(mx),0,BR_VBFZprToWW)
-        if DOVBFWprToWZ: makeNormalizations("VBFWprToWZ"+str(mx).zfill(4),"LNuJJ_norm",VBFWprToWZTemplate+"_"+str(mx),0,BR_VBFWprToWZ)
-        if DOVBFWprToWH: makeNormalizations("VBFWprToWH"+str(mx).zfill(4),"LNuJJ_norm",VBFWprToWHTemplate+"_"+str(mx),0,BR_VBFWprToWH)
-
-    if DOGbuToWW: makeNormalizations("GbuToWWall","LNuJJ_norm",GbuToWWTemplate,0,BR_GbuToWW)
-    if DORadToWW: makeNormalizations("RadToWWall","LNuJJ_norm",RadToWWTemplate,0,BR_RadToWW)
-    if DOZprToWW: makeNormalizations("ZprToWWall","LNuJJ_norm",ZprToWWTemplate,0,BR_ZprToWW)
-    if DOWprToWZ: makeNormalizations("WprToWZall","LNuJJ_norm",WprToWZTemplate,0,BR_WprToWZ)
-    if DOWprToWH: makeNormalizations("WprToWHall","LNuJJ_norm",WprToWHTemplate,0,BR_WprToWH)
-    if DOVBFGbuToWW: makeNormalizations("VBFGbuToWWall","LNuJJ_norm",VBFGbuToWWTemplate,0,BR_VBFGbuToWW)
-    if DOVBFRadToWW: makeNormalizations("VBFRadToWWall","LNuJJ_norm",VBFRadToWWTemplate,0,BR_VBFRadToWW)
-    if DOVBFZprToWW: makeNormalizations("VBFZprToWWall","LNuJJ_norm",VBFZprToWWTemplate,0,BR_VBFZprToWW)
-    if DOVBFWprToWZ: makeNormalizations("VBFWprToWZall","LNuJJ_norm",VBFWprToWZTemplate,0,BR_VBFWprToWZ)
-    if DOVBFWprToWH: makeNormalizations("VBFWprToWHall","LNuJJ_norm",VBFWprToWHTemplate,0,BR_VBFWprToWH)
+    for mx in [2000]: #[1000,2000,3000,4000]: #[600,800,1000,1200,1400,1600,1800,2000,2500,3000,3500,4000,4500]:
+        if DOGbuToWW: makeNormalizations("GbuToWW"+str(mx).zfill(4),"LNuJJ_norm",GbuToWWTemplate.replace("narrow","narrow_"+str(mx)),0,BR_GbuToWW)
+        if DORadToWW: makeNormalizations("RadToWW"+str(mx).zfill(4),"LNuJJ_norm",RadToWWTemplate.replace("narrow","narrow_"+str(mx)),0,BR_RadToWW)
+        if DOZprToWW: makeNormalizations("ZprToWW"+str(mx).zfill(4),"LNuJJ_norm",ZprToWWTemplate.replace("narrow","narrow_"+str(mx)),0,BR_ZprToWW)
+        if DOWprToWZ: makeNormalizations("WprToWZ"+str(mx).zfill(4),"LNuJJ_norm",WprToWZTemplate.replace("narrow","narrow_"+str(mx)),0,BR_WprToWZ)
+        if DOWprToWH: makeNormalizations("WprToWH"+str(mx).zfill(4),"LNuJJ_norm",WprToWHTemplate.replace("narrow","narrow_"+str(mx)),0,BR_WprToWH)
+        if DOVBFGbuToWW: makeNormalizations("VBFGbuToWW"+str(mx).zfill(4),"LNuJJ_norm",VBFGbuToWWTemplate.replace("narrow","narrow_"+str(mx)),0,BR_VBFGbuToWW)
+        if DOVBFRadToWW: makeNormalizations("VBFRadToWW"+str(mx).zfill(4),"LNuJJ_norm",VBFRadToWWTemplate.replace("narrow","narrow_"+str(mx)),0,BR_VBFRadToWW)
+        if DOVBFZprToWW: makeNormalizations("VBFZprToWW"+str(mx).zfill(4),"LNuJJ_norm",VBFZprToWWTemplate.replace("narrow","narrow_"+str(mx)),0,BR_VBFZprToWW)
+        if DOVBFWprToWZ: makeNormalizations("VBFWprToWZ"+str(mx).zfill(4),"LNuJJ_norm",VBFWprToWZTemplate.replace("narrow","narrow_"+str(mx)),0,BR_VBFWprToWZ)
+        if DOVBFWprToWH: makeNormalizations("VBFWprToWH"+str(mx).zfill(4),"LNuJJ_norm",VBFWprToWHTemplate.replace("narrow","narrow_"+str(mx)),0,BR_VBFWprToWH)
 
 
 ## Resonant background templates (W+V/t)

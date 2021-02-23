@@ -23,6 +23,7 @@ parser.add_option("-r","--inranges",dest="inranges",type=int,default=1,help="als
 parser.add_option("-f","--final",dest="final",type=int,default=0,help="print CMS label")
 parser.add_option("-O","--coarse",dest="coarse",type=int,default=0,help="input is a coarse template")
 parser.add_option("-D","--conditional",dest="conditional",type=int,default=0,help="input is a conditional template")
+parser.add_option("-H","--colorTemplate",dest="colorTemplate",default="#999999",help="color of template")
 (options,args) = parser.parse_args()
 
 
@@ -49,7 +50,7 @@ def saveCanvas(canvas,name):
 tag = ''
 
 recoColor = ROOT.kGray+3
-tptColor = ROOT.kGray+1
+tptColor = ROOT.TColor.GetColor(options.colorTemplate)
 if options.signal:
     if 'XWW' in options.contrib: tptColor = ROOT.kOrange+2
     if 'XWZ' in options.contrib: tptColor = ROOT.kViolet-8
